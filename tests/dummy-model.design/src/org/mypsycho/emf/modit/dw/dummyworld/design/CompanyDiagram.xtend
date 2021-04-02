@@ -47,9 +47,8 @@ class CompanyDiagram extends AbstractDiagram {
 	
 	override initContent(Layer it) {
 		containerMappings += ContainerMapping.createAs("node:company_Employees") [
-			semanticCandidatesExpression = PKG.company_Employees
+			semanticCandidates = PKG.company_Employees
 			childrenPresentation = ContainerLayout.LIST
-			
 
 			style = FlatContainerStyleDescription.createStyle [
 				labelExpression = expression[ Job it | 

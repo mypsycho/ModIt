@@ -22,6 +22,7 @@ import org.eclipse.eef.ide.ui.api.widgets.IEEFLifecycleManagerProvider;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.sirius.common.interpreter.api.IInterpreter;
 import org.eclipse.sirius.common.interpreter.api.IVariableManager;
+import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.osgi.framework.Bundle;
@@ -113,47 +114,63 @@ public class EEFNativeWidgetLifecycleManager extends AbstractEEFWidgetLifecycleM
         EEFNativeActivator.logError(message, cause);
     }
 
+
+    @Override
+    public void createControl(Composite parent, IEEFFormContainer formContainer) {
+        // Implementation is needed to handle title layout.
+        //
+        // AbstractEEFWidgetController is not connected to life-cycle but with a callback.
+        controller = new Controller(createImplementation());
+        super.createControl(parent, formContainer);
+    }
+
     @Override
     protected void createMainControl(Composite parent, IEEFFormContainer formContainer) {
+        widget = controller.getImplementation().createControl(parent, formContainer);
+    }
 
-        /** Implementation of native widget */
-        EEFNativeWidget impl;
-
-        String bundleName = EEFNativeWidgetLifecycleManager.getCustomExpression(description,
-            EEFNativeWidget.BUNDLE_PARAM);
-        Bundle bundle = Platform.getBundle(bundleName);
-        if (bundle == null) {
-            logError("Bundle " + bundleName + " does not exist", null);
-            return;
-        }
-        String classname = EEFNativeWidgetLifecycleManager.getCustomExpression(description,
-            EEFNativeWidget.CLASS_PARAM);
-
-        try {
-            Class<?> widgetClass = bundle.loadClass(classname);
-            impl = EEFNativeWidget.class.cast(widgetClass.newInstance());
-
-        } catch (ClassNotFoundException e) {
-            logError(classname + " cannot be found", e);
-            return;
-        } catch (InstantiationException | IllegalAccessException e) {
-            logError(classname + " cannot be instantiated", e);
-            return;
-        } catch (ClassCastException e) {
-            logError(classname + " does not implement " + EEFNativeWidget.class.getName(), e);
-            return;
-        }
-
-        widget = impl.createControl(parent, formContainer);
-
+    private EEFNativeWidget createImplementation() {
         // create a widget using parent + container.getWidgetFactory()
         // To paint the borders, use paintBordersFor(parent) on widgetFactory
         // Finish by creating a controller containing widget reference.
 
-        // AbstractEEFWidgetController is not connected to life-cycle but with a callback.
+        String bundleName = getCustomExpression(description,
+            EEFNativeWidget.BUNDLE_PARAM);
+        Bundle bundle = Platform.getBundle(bundleName);
+        if (bundle == null) {
+            return createFailedImplementation("Bundle " + bundleName + " does not exist", null);
+        }
+        String classname = getCustomExpression(description,
+            EEFNativeWidget.CLASS_PARAM);
 
-        controller = new Controller(impl);
+        try {
+            Class<?> widgetClass = bundle.loadClass(classname);
+            return EEFNativeWidget.class.cast(widgetClass.newInstance());
+
+        } catch (ClassNotFoundException e) {
+            return createFailedImplementation(classname + " cannot be found", e);
+        } catch (InstantiationException | IllegalAccessException e) {
+            logError(classname + " cannot be instantiated", e);
+            return createFailedImplementation(classname + " cannot be instantiated", e);
+        } catch (ClassCastException e) {
+            return createFailedImplementation(
+                classname + " does not implement " + EEFNativeWidget.class.getSimpleName(), e);
+        }
     }
+
+    private EEFNativeWidget createFailedImplementation(String message, Throwable detail) {
+        logError(message, detail);
+        return new EEFNativeFailure(message);
+    }
+
+    @Override
+    protected int getLabelVerticalAlignment() {
+        // Default is not centered.
+        return controller.getImplementation().isMultiLines()
+            ? GridData.VERTICAL_ALIGN_BEGINNING
+            : GridData.VERTICAL_ALIGN_CENTER;
+    }
+
 
     @Override
     protected Controller getController() {
@@ -197,7 +214,7 @@ public class EEFNativeWidgetLifecycleManager extends AbstractEEFWidgetLifecycleM
     }
 
     private class Controller extends AbstractEEFCustomWidgetController
-            implements EEFNativeWidget.ContextProvider {
+            implements EEFNativeWidget.Access {
 
         /* reflective */
         private EEFNativeWidget implementation;

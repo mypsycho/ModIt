@@ -57,9 +57,7 @@ abstract class AbstractCrossTable extends AbstractTable<CrossTableDescription> {
 	 * @param operation to perform
 	 */
 	def void setDirectEdit(IntersectionMapping it, String operation) {
-		directEdit = createLabelEdit[
-			browseExpression = operation
-		]
+		directEdit = operation.toOperation.createLabelEdit
 	}
 
 	/**
@@ -68,7 +66,9 @@ abstract class AbstractCrossTable extends AbstractTable<CrossTableDescription> {
 	 * @param it containing mapping
 	 * @param operation (lineSemantic,columnSemantic,value) to perform
 	 */
-	def void setDirectEdit(IntersectionMapping it, Procedure3<? extends EObject, ? extends EObject, String> operation) {
+	def void setDirectEdit(IntersectionMapping it, 
+		Procedure3<? extends EObject, ? extends EObject, String> operation
+	) {
 		directEdit = context.expression(
 			params(EditArg.lineSemantic, EditArg.columnSemantic, EDIT_VALUE), 
 			operation
@@ -82,15 +82,21 @@ abstract class AbstractCrossTable extends AbstractTable<CrossTableDescription> {
 	 * @param domain class of column value
 	 * @param initializer of column
 	 */
-	protected def column(String id, Class<? extends EObject> domain, (ElementColumnMapping)=>void initializer) {
+	protected def column(String id, 
+		Class<? extends EObject> domain, (ElementColumnMapping)=>void initializer
+	) {
         Objects.requireNonNull(initializer)
         ElementColumnMapping.createAs(Ns.column.id(id)) [ 
             name = id
             domainClass = domain.asDomainClass
-            delete = DeleteColumnTool.create[
-                precondition = "aql:false"
-            ]
+            noDelete
             initializer.apply(it)
+        ]
+    }
+    
+    protected def void noDelete(ElementColumnMapping it) {
+        delete = DeleteColumnTool.create[
+            precondition = SiriusDesigns.NEVER
         ]
     }
 

@@ -53,7 +53,7 @@ class DirectoryTable extends AbstractEditionTable {
 		
 		ownedLineMappings += "subDir".line [
 			domainClass = Directory
-			semanticCandidatesExpression = PKG.directory_Directories
+			semanticCandidates = PKG.directory_Directories
 			headerLabelExpression = context.expression[ (it as Directory).name ] // could be localized
 			
 			create += "subDir".createLine("Sub-" + Directory.simpleName) [ root, element, container |
@@ -75,7 +75,7 @@ class DirectoryTable extends AbstractEditionTable {
 				
 				ownedSubLines += type.simpleName.line [
 					domainClass = type
-					semanticCandidatesExpression = PKG.directory_Contacts
+					semanticCandidates = PKG.directory_Contacts
 					headerLabelExpression = context.itemProviderLabel
 				]
 								

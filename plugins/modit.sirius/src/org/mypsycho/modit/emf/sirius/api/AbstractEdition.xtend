@@ -14,6 +14,13 @@
 
 import java.util.Objects
 import org.eclipse.emf.ecore.EClass
+import org.eclipse.emf.ecore.EObject
+import org.eclipse.emf.ecore.EStructuralFeature
+import org.eclipse.sirius.viewpoint.description.tool.ChangeContext
+import org.eclipse.sirius.viewpoint.description.tool.InitialOperation
+import org.eclipse.sirius.viewpoint.description.tool.ModelOperation
+import org.eclipse.sirius.viewpoint.description.tool.RemoveElement
+import org.eclipse.sirius.viewpoint.description.tool.SetValue
 import org.mypsycho.modit.emf.EModIt
 import org.mypsycho.modit.emf.sirius.SiriusModelProvider
 
@@ -129,4 +136,87 @@ abstract class AbstractEdition {
 	static def params(Object... params) { 
 		params.join(SiriusModelProvider.PARAM_SEP)
 	}
+	
+	/**
+	 * Create an ChangeContext for an expression.
+	 * 
+	 * @param expression
+	 * @return ChangeContext
+	 */
+    protected def toOperation(String expression) {
+        ChangeContext.create[ browseExpression = expression ]
+    }
+    
+    protected def toTool(ModelOperation operation) {
+        InitialOperation.create[
+            firstModelOperations = operation
+        ]
+    }
+    
+    
+    /**
+     * Creates a Set operation for provided feature.
+     * 
+     * @param featureExpr expression to identify a feature (constant or aql)
+     * @param expression of value
+     * @return a new SetValue
+     */
+    def setter(String featureExpr, String value) {
+        SetValue.create[
+            featureName = featureExpr
+            valueExpression = value
+        ]
+    }
+        
+    /**
+     * Creates a Set operation for provided feature.
+     * 
+     * @param feature to set
+     * @param expression of value
+     * @return a new SetValue
+     */
+    protected def SetValue setter(EStructuralFeature feature, String expression) {
+        feature.name.setter(expression)
+    }
+
+    /**
+     * Creates a Set operation for provided feature using default Properties variable.
+     * 
+     * @param feature to set
+     * @return a new SetValue
+     */
+    protected def SetValue setter(EStructuralFeature feature) {
+        feature.setter("var:newValue")
+    }
+
+    
+    /**
+     * Creates a Set operation for provided feature.
+     * 
+     * @param feature to set
+     * @param expression of value
+     * @return a new SetValue
+     */
+    protected def <T> SetValue setter(EStructuralFeature feature, 
+            Functions.Function1<? extends EObject, ?>  expr) {
+        SetValue.create[
+            featureName = feature.name
+            valueExpression = expression(expr)
+        ]
+    }
+    
+    /**
+     * Creates a remove element operation operation for provided feature.
+     * 
+     * @param feature to set
+     * @param expression of value
+     * @return a new SetValue
+     */
+    protected def removeElement(String expression) {
+        expression.toOperation.andThen[
+            subModelOperations += RemoveElement.create[]
+        ]
+    }
+    
+	
 }

@@ -27,7 +27,7 @@ public interface EEFNativeWidget {
      * This interface is implemented in EEFNativeWidgetLifecycleManager instance.
      * </p>
      */
-    interface ContextProvider {
+    interface Access {
         
         /**
          * Return element
@@ -95,7 +95,7 @@ public interface EEFNativeWidget {
      *
      * @param it Access to EEF context
      */
-    void refresh(ContextProvider it);
+    void refresh(Access it);
 
     /**
      * Create the widget
@@ -111,7 +111,7 @@ public interface EEFNativeWidget {
      *
      * @param it Access to EEF context
      */
-    void activate(ContextProvider it);
+    void activate(Access it);
 
     /**
      * Deactivates the widget: when hidden.
@@ -124,5 +124,18 @@ public interface EEFNativeWidget {
      * @param isEnabled value
      */
     void setEnabled(boolean isEnabled);
+
+    /**
+     * Returns true if the control will spawn on several lines.
+     * <p>
+     * This informations is only used for title alignment: False by default.
+     * </p>
+     *
+     * @return true if multi lines.
+     */
+    default boolean isMultiLines() {
+        return false;
+    }
+
 }
 

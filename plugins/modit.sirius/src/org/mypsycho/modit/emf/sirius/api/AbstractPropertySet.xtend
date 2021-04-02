@@ -14,16 +14,36 @@ package org.mypsycho.modit.emf.sirius.api
 
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EStructuralFeature
+import org.eclipse.sirius.properties.AbstractButtonDescription
+import org.eclipse.sirius.properties.AbstractCheckboxDescription
+import org.eclipse.sirius.properties.AbstractCustomDescription
+import org.eclipse.sirius.properties.AbstractHyperlinkDescription
+import org.eclipse.sirius.properties.AbstractLabelDescription
+import org.eclipse.sirius.properties.AbstractListDescription
+import org.eclipse.sirius.properties.AbstractRadioDescription
+import org.eclipse.sirius.properties.AbstractSelectDescription
+import org.eclipse.sirius.properties.AbstractTextAreaDescription
 import org.eclipse.sirius.properties.AbstractTextDescription
 import org.eclipse.sirius.properties.AbstractWidgetDescription
 import org.eclipse.sirius.properties.ButtonDescription
+import org.eclipse.sirius.properties.ButtonWidgetConditionalStyle
+import org.eclipse.sirius.properties.ButtonWidgetStyle
 import org.eclipse.sirius.properties.CheckboxDescription
 import org.eclipse.sirius.properties.CheckboxWidgetConditionalStyle
 import org.eclipse.sirius.properties.CheckboxWidgetStyle
+import org.eclipse.sirius.properties.CustomDescription
+import org.eclipse.sirius.properties.CustomExpression
+import org.eclipse.sirius.properties.CustomWidgetConditionalStyle
+import org.eclipse.sirius.properties.CustomWidgetStyle
 import org.eclipse.sirius.properties.DynamicMappingForDescription
 import org.eclipse.sirius.properties.DynamicMappingIfDescription
 import org.eclipse.sirius.properties.GroupDescription
 import org.eclipse.sirius.properties.HyperlinkDescription
+import org.eclipse.sirius.properties.HyperlinkWidgetConditionalStyle
+import org.eclipse.sirius.properties.HyperlinkWidgetStyle
+import org.eclipse.sirius.properties.LabelDescription
+import org.eclipse.sirius.properties.LabelWidgetConditionalStyle
+import org.eclipse.sirius.properties.LabelWidgetStyle
 import org.eclipse.sirius.properties.ListDescription
 import org.eclipse.sirius.properties.ListWidgetConditionalStyle
 import org.eclipse.sirius.properties.ListWidgetStyle
@@ -39,24 +59,23 @@ import org.eclipse.sirius.properties.TextWidgetConditionalStyle
 import org.eclipse.sirius.properties.TextWidgetStyle
 import org.eclipse.sirius.properties.ToolbarAction
 import org.eclipse.sirius.properties.WidgetAction
+import org.eclipse.sirius.properties.WidgetConditionalStyle
 import org.eclipse.sirius.properties.WidgetDescription
 import org.eclipse.sirius.properties.WidgetStyle
+import org.eclipse.sirius.properties.ext.widgets.reference.propertiesextwidgetsreference.AbstractExtReferenceDescription
 import org.eclipse.sirius.properties.ext.widgets.reference.propertiesextwidgetsreference.ExtReferenceDescription
 import org.eclipse.sirius.properties.ext.widgets.reference.propertiesextwidgetsreference.ExtReferenceWidgetConditionalStyle
 import org.eclipse.sirius.properties.ext.widgets.reference.propertiesextwidgetsreference.ExtReferenceWidgetStyle
 import org.eclipse.sirius.viewpoint.FontFormat
 import org.eclipse.sirius.viewpoint.description.IdentifiedElement
-import org.eclipse.sirius.viewpoint.description.tool.ChangeContext
 import org.eclipse.sirius.viewpoint.description.tool.InitialOperation
 import org.eclipse.sirius.viewpoint.description.tool.ModelOperation
 
 import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*
 
 /**
- * 
- * <p>
- * 
- * </p>
+ * Adaptation of Sirius model into Java and EClass reflections API
+ * for Properties set.
  *
  * @author nperansin
  *
@@ -100,42 +119,335 @@ abstract class AbstractPropertySet extends AbstractEdition {
 		isEnabledExpression = '''aql:«featureExpr».changeable'''
 		
 		// handle 
-		val requiredExpression = '''aql:«featureExpr».lowerBound == 1'''
-		val (WidgetStyle)=>void requiredStyle = [ labelFontFormat += FontFormat.BOLD_LITERAL ]
+		val requiredExpression = featureExpr.requiredFieldExpression
+		// all WidgetDescription so far
 		if (it instanceof AbstractTextDescription) {
-			conditionalStyles += TextWidgetConditionalStyle.create [
-				preconditionExpression = requiredExpression
-				style = TextWidgetStyle.create(requiredStyle)
-			]
-		} else if (it instanceof CheckboxDescription) {
-			conditionalStyles += CheckboxWidgetConditionalStyle.create [
-				preconditionExpression = requiredExpression
-				style = CheckboxWidgetStyle.create(requiredStyle)
-			]
-		} else if (it instanceof RadioDescription) {
-			conditionalStyles += RadioWidgetConditionalStyle.create [
-				preconditionExpression = requiredExpression
-				style = RadioWidgetStyle.create(requiredStyle)
-			]
-		} else if (it instanceof SelectDescription) {
-			conditionalStyles += SelectWidgetConditionalStyle.create [
-				preconditionExpression = requiredExpression
-				style = SelectWidgetStyle.create(requiredStyle)
-			]
-		} else if (it instanceof ListDescription) {
-			conditionalStyles += ListWidgetConditionalStyle.create [
-				preconditionExpression = requiredExpression
-				style = ListWidgetStyle.create(requiredStyle)
-			]
-		} else if (it instanceof ExtReferenceDescription) {
-			conditionalStyles += ExtReferenceWidgetConditionalStyle.create [
-				preconditionExpression = requiredExpression
-				style = ExtReferenceWidgetStyle.create(requiredStyle)
-			]
+			styleIf(requiredExpression) [ formatRequiredField ]
+		// } else if (it instanceof CheckboxDescription) { // not applicable for check box
+        } else if (it instanceof CustomDescription) {
+            styleIf(requiredExpression) [ formatRequiredField ]
+        } else if (it instanceof ExtReferenceDescription) {
+            styleIf(requiredExpression) [ formatRequiredField ]
+        } else if (it instanceof HyperlinkDescription) {
+            styleIf(requiredExpression) [ formatRequiredField ]
+        } else if (it instanceof LabelDescription) {
+            styleIf(requiredExpression) [ formatRequiredField ]
+        } else if (it instanceof ListDescription) {
+            styleIf(requiredExpression) [ formatRequiredField ]
+        } else if (it instanceof RadioDescription) {
+            styleIf(requiredExpression) [ formatRequiredField ]
+        } else if (it instanceof SelectDescription) {
+            styleIf(requiredExpression) [ formatRequiredField ]
 		}
 		
 		it
 	}
+	
+    def getRequiredFieldExpression(String featExpression) {
+        '''«featExpression».lowerBound > 0'''.trimAql
+    }
+    
+    def void formatRequiredField(WidgetStyle it) {
+        // Lambda
+        labelFontFormat += FontFormat.BOLD_LITERAL
+    }
+    
+    /**
+     * Creates a conditional style for widget on provided condition.
+     *  
+     * @param it WidgetDescription to style
+     * @param condition of style application
+     * @param init of created style
+     */
+    def styleIf(AbstractButtonDescription it, 
+        String condition, (ButtonWidgetStyle)=>void init
+    ) {
+        conditionalStyles += ButtonWidgetConditionalStyle.styleIf(ButtonWidgetStyle, 
+            condition, init
+        ) [ c,s | c.style = s ]
+    }
+    
+    /**
+     * Creates a conditional style for widget on provided condition.
+     *  
+     * @param it WidgetDescription to style
+     * @param condition of style application
+     * @param init of created style
+     */
+    def styleIf(AbstractCheckboxDescription it, 
+        String condition, (CheckboxWidgetStyle)=>void init
+    ) {
+        conditionalStyles += CheckboxWidgetConditionalStyle.styleIf(CheckboxWidgetStyle, 
+            condition, init
+        ) [ c,s | c.style = s ]
+    }
+    
+    /**
+     * Creates a conditional style for widget on provided condition.
+     *  
+     * @param it WidgetDescription to style
+     * @param condition of style application
+     * @param init of created style
+     */
+    def styleIf(AbstractCustomDescription it, 
+        String condition, (CustomWidgetStyle)=>void init
+    ) {
+        conditionalStyles += CustomWidgetConditionalStyle.styleIf(CustomWidgetStyle, 
+            condition, init
+        ) [ c,s | c.style = s ]
+    }
+    
+    /**
+     * Creates a conditional style for widget on provided condition.
+     *  
+     * @param it WidgetDescription to style
+     * @param condition of style application
+     * @param init of created style
+     */
+    def styleIf(AbstractExtReferenceDescription it, 
+        String condition, (ExtReferenceWidgetStyle)=>void init
+    ) {
+        conditionalStyles += ExtReferenceWidgetConditionalStyle.styleIf(ExtReferenceWidgetStyle, 
+            condition, init
+        ) [ c,s | c.style = s ]
+    }
+    
+    /**
+     * Creates a conditional style for widget on provided condition.
+     *  
+     * @param it WidgetDescription to style
+     * @param condition of style application
+     * @param init of created style
+     */
+    def styleIf(AbstractHyperlinkDescription it, 
+        String condition, (HyperlinkWidgetStyle)=>void init
+    ) {
+        conditionalStyles += HyperlinkWidgetConditionalStyle.styleIf(HyperlinkWidgetStyle, 
+            condition, init
+        ) [ c,s | c.style = s ]
+    }
+    
+    /**
+     * Creates a conditional style for widget on provided condition.
+     *  
+     * @param it WidgetDescription to style
+     * @param condition of style application
+     * @param init of created style
+     */
+    def styleIf(AbstractLabelDescription it, 
+        String condition, (LabelWidgetStyle)=>void init
+    ) {
+        conditionalStyles += LabelWidgetConditionalStyle.styleIf(LabelWidgetStyle, 
+            condition, init
+        ) [ c,s | c.style = s ]
+    }
+    
+    /**
+     * Creates a conditional style for widget on provided condition.
+     *  
+     * @param it WidgetDescription to style
+     * @param condition of style application
+     * @param init of created style
+     */
+    def styleIf(AbstractListDescription it, 
+        String condition, (ListWidgetStyle)=>void init
+    ) {
+        conditionalStyles += ListWidgetConditionalStyle.styleIf(ListWidgetStyle, 
+            condition, init
+        ) [ c,s | c.style = s ]
+    }
+    
+    /**
+     * Creates a conditional style for widget on provided condition.
+     *  
+     * @param it WidgetDescription to style
+     * @param condition of style application
+     * @param init of created style
+     */
+    def styleIf(AbstractRadioDescription it, 
+        String condition, (RadioWidgetStyle)=>void init
+    ) {
+        conditionalStyles += RadioWidgetConditionalStyle.styleIf(RadioWidgetStyle, 
+            condition, init
+        ) [ c,s | c.style = s ]
+    }
+    
+    /**
+     * Creates a conditional style for widget on provided condition.
+     *  
+     * @param it WidgetDescription to style
+     * @param condition of style application
+     * @param init of created style
+     */
+    def styleIf(AbstractSelectDescription it, 
+        String condition, (SelectWidgetStyle)=>void init
+    ) {
+        conditionalStyles += SelectWidgetConditionalStyle.styleIf(SelectWidgetStyle, 
+            condition, init
+        ) [ c,s | c.style = s ]
+    }
+    
+    /**
+     * Creates a conditional style for widget on provided condition.
+     *  
+     * @param it WidgetDescription to style
+     * @param condition of style application
+     * @param init of created style
+     */
+    def styleIf(AbstractTextAreaDescription it, 
+        String condition, (TextWidgetStyle)=>void init
+    ) {
+        conditionalStyles += TextWidgetConditionalStyle.styleIf(TextWidgetStyle, 
+            condition, init
+        ) [ c,s | c.style = s ]
+    }
+    
+    /**
+     * Creates a conditional style for widget on provided condition.
+     *  
+     * @param it WidgetDescription to style
+     * @param condition of style application
+     * @param init of created style
+     */
+    def styleIf(AbstractTextDescription it, 
+        String condition, (TextWidgetStyle)=>void init
+    ) {
+        conditionalStyles += TextWidgetConditionalStyle.styleIf(TextWidgetStyle, 
+            condition, init
+        ) [ c,s | c.style = s ]
+    }
+    
+    /**
+     * Creates a conditional style for node on provided condition.
+     * <p>
+     * Note conditional style are required only when shape is changed. Most of the time,
+     * customization is better solution.
+     * </p>
+     * @param type of style
+     * @param it to add style
+     * @param condition of style application
+     * @param init of created style (after default initialization)
+     */
+    def <C extends WidgetConditionalStyle, S extends WidgetStyle> styleIf(
+        Class<C> conditionType, Class<S> styleType, 
+        String condition, (S)=>void init, (C, S) => void assign
+    ) {
+        conditionType.create[
+            preconditionExpression = condition
+            assign.apply(it, styleType.create(init))
+        ]
+    }
+    
+    
+    /**
+     * Creates a style for widget.
+     *  
+     * @param it WidgetDescription to style
+     * @param init of created style
+     */
+    def style(AbstractButtonDescription it, (ButtonWidgetStyle)=>void init) {
+        style = ButtonWidgetStyle.create(init)
+    }
+    
+    /**
+     * Creates a style for widget.
+     *  
+     * @param it WidgetDescription to style
+     * @param init of created style
+     */
+    def style(AbstractCheckboxDescription it, (CheckboxWidgetStyle)=>void init) {
+        style = CheckboxWidgetStyle.create(init)
+    }
+
+    /**
+     * Creates a style for widget.
+     *  
+     * @param it WidgetDescription to style
+     * @param init of created style
+     */
+    def style(AbstractCustomDescription it, (CustomWidgetStyle)=>void init) {
+        style = CustomWidgetStyle.create(init)
+    }
+
+    /**
+     * Creates a style for widget.
+     *  
+     * @param it WidgetDescription to style
+     * @param init of created style
+     */
+    def style(AbstractExtReferenceDescription it, (ExtReferenceWidgetStyle)=>void init) {
+        style = ExtReferenceWidgetStyle.create(init)
+    }
+
+    /**
+     * Creates a style for widget.
+     *  
+     * @param it WidgetDescription to style
+     * @param init of created style
+     */
+    def style(AbstractHyperlinkDescription it, (HyperlinkWidgetStyle)=>void init) {
+        style = HyperlinkWidgetStyle.create(init)
+    }
+
+    /**
+     * Creates a style for widget.
+     *  
+     * @param it WidgetDescription to style
+     * @param init of created style
+     */
+    def style(AbstractLabelDescription it, (LabelWidgetStyle)=>void init) {
+        style = LabelWidgetStyle.create(init)
+    }
+
+    /**
+     * Creates a style for widget.
+     *  
+     * @param it WidgetDescription to style
+     * @param init of created style
+     */
+    def style(AbstractListDescription it, (ListWidgetStyle)=>void init) {
+        style = ListWidgetStyle.create(init)
+    }
+
+    /**
+     * Creates a style for widget.
+     *  
+     * @param it WidgetDescription to style
+     * @param init of created style
+     */
+    def style(AbstractRadioDescription it, (RadioWidgetStyle)=>void init) {
+        style = RadioWidgetStyle.create(init)
+    }
+
+    /**
+     * Creates a style for widget.
+     *  
+     * @param it WidgetDescription to style
+     * @param init of created style
+     */
+    def style(AbstractSelectDescription it, (SelectWidgetStyle)=>void init) {
+        style = SelectWidgetStyle.create(init)
+    }
+
+    /**
+     * Creates a style for widget.
+     *  
+     * @param it WidgetDescription to style
+     * @param init of created style
+     */
+    def style(AbstractTextAreaDescription it, (TextWidgetStyle)=>void init) {
+        style = TextWidgetStyle.create(init)
+    }
+
+    /**
+     * Creates a style for widget.
+     *  
+     * @param it WidgetDescription to style
+     * @param init of created style
+     */
+    def style(AbstractTextDescription it, (TextWidgetStyle)=>void init) {
+        style = TextWidgetStyle.create(init)
+    }
 	
 	def String featureAql(String valueVar, EStructuralFeature feat) {
 		'''«valueVar».eClass().getEStructuralFeature('«feat.name»')'''
@@ -144,7 +456,6 @@ abstract class AbstractPropertySet extends AbstractEdition {
 	def <T extends WidgetStyle> T createDetailStyle(Class<T> type) {
 		type.create[ labelFontSizeExpression = "8" ]
 	}
-
 	
 	def eachOn(String collect, String iter, DynamicMappingIfDescription... conditions) {
 		DynamicMappingForDescription.create [
@@ -155,6 +466,15 @@ abstract class AbstractPropertySet extends AbstractEdition {
 			ifs += conditions
 		]
 	}
+	
+	def controlsIf(CharSequence condition, WidgetDescription... widgets) {
+        '''
+            if («condition»)
+            then self 
+            else Sequence{}
+            endif
+        '''.trimAql.eachOn("", widgets.map[ ALWAYS.when(it) ])
+    }
 	
 	def eachOn(String collect, DynamicMappingIfDescription... conditions) {
 		collect.eachOn("self", conditions)
@@ -191,28 +511,39 @@ abstract class AbstractPropertySet extends AbstractEdition {
 	}
 
 	def void setOperation(WidgetDescription it, String expression) {
-		operation = ChangeContext.create [ browseExpression = expression ]
+		operation = expression.toOperation
 	}
 
-	def action(String label, ModelOperation value) {
-		WidgetAction.create [
-			labelExpression = label
-			initialOperation = InitialOperation.create [ firstModelOperations = value ]	
-		]
-	}
-
-	def toolbar(String label, String icon, ModelOperation value) {
+	def toolbar(String label, String icon, ModelOperation operation) {
 		ToolbarAction.create [
 			tooltipExpression = label
 			imageExpression = icon
-			initialOperation = InitialOperation.create [ firstModelOperations = value ]	
+			initialOperation = InitialOperation.create [ firstModelOperations = operation ]	
 		]
 	}
 	
-		// ECore API has no constraint.
+    def action(String label, String icon, ModelOperation operation) {
+        WidgetAction.create [
+            labelExpression = label
+            initialOperation = InitialOperation.create [ firstModelOperations = operation ]
+            imageExpression = icon
+        ]
+    }
+    
+    def action(String label, ModelOperation operation) {
+        label.action(null, operation)
+    }
+    
+	// ECore API has no constraint.
 	def String asDomainClass(Class<? extends EObject> type) {
 		context.asDomainClass(type)
 	}
 
-	
+    def param(CustomDescription it, String key, String value) {
+        customExpressions += CustomExpression.create [
+            name = key
+            customExpression = value
+        ]
+    }
+
 }

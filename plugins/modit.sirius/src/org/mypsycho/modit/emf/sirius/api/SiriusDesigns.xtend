@@ -16,12 +16,13 @@ import org.eclipse.emf.common.util.EList
 import org.eclipse.emf.ecore.EClassifier
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EReference
+import org.eclipse.emf.ecore.EStructuralFeature
+import org.eclipse.emf.ecore.EcorePackage
 import org.eclipse.emf.ecore.util.EcoreEList
 import org.eclipse.emf.edit.provider.IItemLabelProvider
 import org.eclipse.sirius.diagram.ui.provider.DiagramUIPlugin
 import org.eclipse.sirius.viewpoint.description.IdentifiedElement
 import org.mypsycho.modit.emf.sirius.SiriusConstantInterpreter
-import org.eclipse.emf.ecore.EcorePackage
 
 /**
  * Convenient method and constants for Sirius design creation.
@@ -42,7 +43,7 @@ class SiriusDesigns {
 	public static val ANY_TYPE = encode(EcorePackage.eINSTANCE.EObject)
 
 	/**
-	 * Create a constant of the value.
+	 * Creates a constant of the value.
 	 * <p>
 	 * This expression cannot be mistaken for dynamic expression.
 	 * </p>
@@ -54,7 +55,7 @@ class SiriusDesigns {
 	}
 	
 	/**
-	 * Return the default item provider of an element
+	 * Returns the default item provider of an element
 	 * 
 	 * @param it to adapt
 	 * @return item provider
@@ -73,9 +74,31 @@ class SiriusDesigns {
 		'''«EPackage.name».«name»'''
 	}
 	
+	   
+    /**
+     * Converts a classifier to be used in aql expression.
+     * 
+     * @param it to convert
+     * @return associated text
+     */
+    static def String asAql(EClassifier it) {
+        '''«EPackage.name»::«name»'''
+    }
+    
+           
+    /**
+     * Converts a feature to be used in aql expression.
+     * 
+     * @param it to convert
+     * @return associated text
+     */
+    static def String asAql(EStructuralFeature it) {
+        '''«EContainingClass.asAql».eClass().getEStructuralFeature('«name»')'''
+    }
+	
 		
 	/**
-	 * Convert a classifier to be used in descriptor (domainClass).
+	 * Converts a feature to be used in descriptor (full expression).
 	 * 
 	 * @param it to convert
 	 * @return associated text
@@ -85,7 +108,7 @@ class SiriusDesigns {
 	}
 	
 	/**
-	 * Remove all return carriages from an expression.
+	 * Removes all return carriages from an expression.
 	 * <p>
 	 * Odesign editor fails to handle multi-line in expression.
 	 * </p>
@@ -98,7 +121,7 @@ class SiriusDesigns {
 	}
 
 	/**
-	 * Find a value in a reference based on reference key.
+	 * Finds a value in a reference based on reference key.
 	 * 
 	 * @param values of reference
 	 * @param type expected
@@ -124,7 +147,7 @@ class SiriusDesigns {
 	
 	
 	/**
-	 * Find a value in a reference based on reference key.
+	 * Finds a value in a reference based on reference key.
 	 * 
 	 * @param values of reference
 	 * @param keys of element
@@ -137,7 +160,7 @@ class SiriusDesigns {
 	}
 	
 	/**
-	 * Find a identified element in list based on it name.
+	 * Finds a identified element in list based on it name.
 	 * 
 	 * @param values of reference
 	 * @param keys of element
@@ -148,7 +171,7 @@ class SiriusDesigns {
 	}
 	
 	/**
-	 * !!! Why is not in EcoreUtil already: every projects use it.
+	 * !!! Why is not in EcoreUtil already: every project uses it. :'(
 	 */
 	static def <T> T eContainer(EObject it, Class<T> type) {
 		val result = eContainer

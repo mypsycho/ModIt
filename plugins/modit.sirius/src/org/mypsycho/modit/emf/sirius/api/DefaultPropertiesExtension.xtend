@@ -115,7 +115,7 @@ class DefaultPropertiesExtension extends AbstractPropertySet {
 	}
 
 	def isPageApplicable(EObject it, Object pageId) {
-		pageId == tabNames.head // should be override
+		pageId == tabNames.head // should be overridden
 	}
 
 	def getApplicableFeaturesExpression(Object pageId) {
@@ -126,9 +126,8 @@ class DefaultPropertiesExtension extends AbstractPropertySet {
 	}
 
 	def isFeatureApplicable(EObject it, EStructuralFeature feature, Object pageId) {
-		pageId == tabNames.head // should be override
+		pageId == tabNames.head // should be overridden
 	}
-
 
     /**
      * Helper to check if a given feature should (by default) appear in the property sheet of an element.
@@ -141,7 +140,8 @@ class DefaultPropertiesExtension extends AbstractPropertySet {
      * @return <code>true</code> if the feature should appear in the property sheet by default.
      */
     def static boolean isEditable(EStructuralFeature it) {
-        !derived && !transient && !(it instanceof EReference && (it as EReference).isContainment())
+        !derived && !transient 
+            && !(it instanceof EReference && (it as EReference).isContainment())
     }
 
 
@@ -241,7 +241,6 @@ class DefaultPropertiesExtension extends AbstractPropertySet {
 		]
 
 	}
-
 
 
 	def WidgetDescription createDefaultWidgets(Object wcase, String iValue, String iFeat) {

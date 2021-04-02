@@ -21,6 +21,7 @@ import org.mypsycho.emf.modit.dw.dummyworld.DwPackage
 import org.mypsycho.modit.emf.sirius.api.AbstractGroup
 import org.mypsycho.modit.emf.sirius.api.DefaultPropertiesExtension
 import org.mypsycho.modit.emf.sirius.api.FeaturePaging
+import org.eclipse.emf.ecore.EReference
 
 /**
  * Demo of simple 
@@ -43,9 +44,17 @@ class DummyWorldDesign extends AbstractGroup {
 			PKG.detailed_Description -> Tab.Comments,
 			PKG.detailed_Hints -> Tab.Comments
 		} 
-		+ PKG.eAllContents.filter(EStructuralFeature)
-			.filter[name == "parent"].toInvertedMap[ null ]
+		+ PKG.eAllContents
+			.filter(EStructuralFeature)
+			.filter[ reverseContainer ]
+			.toInvertedMap[ null ]
 	)
+	
+	static def isReverseContainer(EStructuralFeature it) {
+		if (it instanceof EReference)
+			container
+		else false
+	}
 	
 	override protected initContent(Group it) {
 		ownedViewpoints += Viewpoint.create[
@@ -77,9 +86,6 @@ class DummyWorldDesign extends AbstractGroup {
 //							valueExpression = "aql:self"
 //							displayExpression = expression[ eClass.name ]
 //						]
-						
-	
-
 						
 					]
 				]

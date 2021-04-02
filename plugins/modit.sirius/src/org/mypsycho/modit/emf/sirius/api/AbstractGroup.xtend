@@ -15,6 +15,7 @@ package org.mypsycho.modit.emf.sirius.api
 import java.util.ArrayList
 import java.util.Collection
 import java.util.List
+import org.eclipse.emf.ecore.EClassifier
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EPackage
 import org.eclipse.sirius.viewpoint.description.UserFixedColor
@@ -97,19 +98,28 @@ abstract class AbstractGroup extends SiriusModelProvider {
 	 * @param type to encode
 	 * @return encoded typee
 	 */
-	def String asDomainClass(Class<? extends EObject> type) {
-		val eClass = businessPackages
+	def String asDomainClass(Class<? extends EObject> it) {
+		SiriusDesigns.encode(asEClass)
+	}
+
+	
+	/**
+	 * Provides text used for domainClass properties from java Class.
+	 * 
+	 * @param type to encode
+	 * @return encoded typee
+	 */
+	def EClassifier asEClass(Class<? extends EObject> type) {
+		val result = businessPackages
 			.flatMap[ EClassifiers ]
 			.findFirst[ instanceClass == type ]
-		if (type === null) {
+		if (result === null) {
 			throw new UnsupportedOperationException(
 			'''EClass of «type» is not defined in packages [«businessPackages
 				.join(',')[ name ]»]''')
 		}
-		
-		SiriusDesigns.encode(eClass)
+		result
 	}
-
 
 	
 }
