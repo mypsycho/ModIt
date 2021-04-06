@@ -2,7 +2,7 @@
 = Mod-it
 
 [Travis-ci, link=https://travis-ci.org/mypsycho/ModIt]
-image::https://img.shields.io/travis/mypsycho/ModIt/master.svg?branch=master[Travis-ci status]
+image::https://github.com/mypsycho/ModIt/workflows/Java%20CI/badge.svg[Github action status]
 
 Mod-it library provides an API to ease creations of EMF Models in XTend.
 
