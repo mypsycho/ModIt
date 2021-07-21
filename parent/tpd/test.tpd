@@ -4,7 +4,7 @@ with requirements
 
 environment JavaSE-1.8
 
-location eclipse_2019_09 "http://download.eclipse.org/releases/2019-09/" {
+location eclipse_core "http://download.eclipse.org/releases/2019-09/" {
 	
 	// required for xcore
 	org.eclipse.emf.ecore.feature.group 

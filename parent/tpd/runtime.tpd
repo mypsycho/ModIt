@@ -4,7 +4,7 @@ with requirements
 
 environment JavaSE-1.8
 
-location eclipse_2019_09 "http://download.eclipse.org/releases/2019-09/" {
+location eclipse_core "http://download.eclipse.org/releases/2019-09/" {
 	
 	org.eclipse.emf.feature.group
 	// +-> emf, emf.edit, emf.edit.ui
@@ -21,7 +21,7 @@ location eclipse_2019_09 "http://download.eclipse.org/releases/2019-09/" {
 }
 
 
-location emf_sirius "https://download.eclipse.org/sirius/updates/releases/6.3.0/2019-06" {
+location sirius "https://download.eclipse.org/sirius/updates/releases/6.3.0/2019-06" {
 	// Sirius 2019-06 has later versions, do not reference any plugins in eclipse release 
 	
 	org.eclipse.sirius.runtime.feature.group
