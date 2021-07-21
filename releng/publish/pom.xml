@@ -19,7 +19,9 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<mvn.build.date>${maven.build.timestamp}</mvn.build.date>
 		<maven.build.timestamp.format>yyyy-MM-dd</maven.build.timestamp.format>
-		<project.slides.directory>${project.build.directory}/generated-docs/slides</project.slides.directory>
+		<project.site.directory>${project.build.directory}/site</project.site.directory>
+		<project.docs.directory>${project.site.directory}/docs</project.docs.directory>
+		<project.slides.directory>${project.docs.directory}/slides</project.slides.directory>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
 		<!-- How to mirror this ? through settings ? -->
@@ -143,7 +145,7 @@
 						</goals>
 						<configuration>
 							<!--  sourceDirectory:src/main/asciidoc -->
-							<!-- <outputDirectory>target/site</outputDirectory> -->
+							<outputDirectory>${project.docs.directory}</outputDirectory>
 							<backend>html</backend>
 							<preserveDirectories>true</preserveDirectories>
 							<sourceHighlighter>highlight.js</sourceHighlighter>
@@ -154,23 +156,23 @@
 			<plugin>
 				<artifactId>maven-resources-plugin</artifactId>
 				<executions>
-					<execution>
-						<id>publish-info</id>
-						<phase>package</phase>
+	                <execution>
+						<id>publish-P2</id>
+						<phase>prepare-package</phase>
 						<goals>
 							<goal>copy-resources</goal>
 						</goals>
 						<configuration>
-							<outputDirectory>target/site</outputDirectory>
+							<outputDirectory>${project.site.directory}</outputDirectory>
 							<resources>
 								<resource>
-									<directory>src/docs/asciidoc</directory>
+									<directory>${basedir}/../update-site/target/repository</directory>
 									<filtering>false</filtering>
 								</resource>
 							</resources>
 						</configuration>
 					</execution>
-
+				<!-- 
 					<execution>
 						<id>publish-bintray</id>
 						<phase>package</phase>
@@ -190,6 +192,7 @@
 							</resources>
 						</configuration>
 					</execution>
+					 -->
 				</executions>
 			</plugin>
 		</plugins>
