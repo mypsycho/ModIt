@@ -1,10 +1,12 @@
 // -----1---------2---------3---------4---------5---------6---------7---------8---------9
 = Mod-it
 
-[Travis-ci, link=https://github.com/mypsycho/ModIt/actions/workflows/maven.yml]
+[gh actions, link=https://github.com/mypsycho/ModIt/actions/workflows/maven.yml]
 image::https://github.com/mypsycho/ModIt/workflows/Java%20CI/badge.svg[Github action status]
 
 Mod-it library provides an API to ease creations of EMF Models in XTend.
+
+== Rationale
 
 When embedding models into code (mostly for tests), developers usually struggles with 2 
 strategies:
@@ -55,8 +57,10 @@ It comes with various features:
  
  * i18n classes to use Xtend template instead of properties syntax.
 
-Read link:https://mypsycho.github.io/ModIt/[documentation] and pick a version of Update 
-Site on https://dl.bintray.com/mypsycho/modit-update-site/p2/[Bintray].
+== Getting started
+
+Documentation and release can be access on related 
+link:https://mypsycho.github.io/ModIt/[GH-Pages].
  
 
 == Contributing
