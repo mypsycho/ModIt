@@ -78,16 +78,15 @@ abstract class AbstractCrossTable extends AbstractTable<CrossTableDescription> {
 	/**
 	 * Creates a column with provided id.
 	 * 
-	 * @param id of column
+	 * @param name of column
 	 * @param domain class of column value
 	 * @param initializer of column
 	 */
-	protected def column(String id, 
+	protected def column(String name, 
 		Class<? extends EObject> domain, (ElementColumnMapping)=>void initializer
 	) {
         Objects.requireNonNull(initializer)
-        ElementColumnMapping.createAs(Ns.column.id(id)) [ 
-            name = id
+        ElementColumnMapping.createAs(Ns.column, name) [ 
             domainClass = domain.asDomainClass
             noDelete
             initializer.apply(it)

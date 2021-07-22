@@ -18,7 +18,10 @@ import java.util.List
 import org.eclipse.emf.ecore.EClassifier
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EPackage
+import org.eclipse.sirius.viewpoint.description.Environment
+import org.eclipse.sirius.viewpoint.description.JavaExtension
 import org.eclipse.sirius.viewpoint.description.UserFixedColor
+import org.eclipse.sirius.viewpoint.description.Viewpoint
 import org.mypsycho.modit.emf.sirius.SiriusModelProvider
 
 /**
@@ -30,6 +33,7 @@ abstract class AbstractGroup extends SiriusModelProvider {
 	
 	/** Packages used in design */
 	protected val List<EPackage> businessPackages = new ArrayList
+	protected var boolean enableRtExpression = false
 	
 	/**
 	 * Construction of model using provided packages.
@@ -56,12 +60,32 @@ abstract class AbstractGroup extends SiriusModelProvider {
 	
 	var String iplExpression
 	def getItemProviderLabel() {
-		if (iplExpression === null) {
+		if (enableRtExpression && iplExpression === null) {
 			iplExpression = expression[ EObject it | 
 				SiriusDesigns.getItemProvider(it).getText(it)
 			]
 		}
 		iplExpression
+	}
+	
+	override initExtras() {
+		super.initExtras()
+		
+		val siriusStyles = Environment.eObject("environment:/viewpoint#/")
+            .labelBorderStyles
+            
+		// ** List border style
+		// Border 0 : labelBorderStyleWithBeveledCorner = Label Border Style With Beveled Corner
+		// Border 1 : labelBorderForContainer = Label Border For Container
+		// Border 2 : nolabelBorderForList = No Label Border For List
+		
+		// println("** List border style")
+		// val count = new AtomicInteger
+        siriusStyles.labelBorderStyleDescriptions
+            .forEach[ 
+            	// println('''Border «count.andIncrement» : «id» = «name»''')
+            	extras.put("labelBorder:" + id, it)
+            ]
 	}
 	
 	
@@ -120,6 +144,52 @@ abstract class AbstractGroup extends SiriusModelProvider {
 		}
 		result
 	}
-
+	
+	/**
+	 * Registers service classes.
+	 * 
+	 * @param vp viewpoint
+	 * @param services to register
+	 */
+	def void use(Viewpoint vp, Class<?>... services) {
+		services.forEach[ vp.use(it) ]
+	}
+	
+	/**
+	 * Registers service class.
+	 * 
+	 * @param vp viewpoint
+	 * @param service to register
+	 */
+	def void use(Viewpoint it, Class<?> service) {
+	    // method name is a tribute to ADA
+	    ownedJavaExtensions += JavaExtension.create[ qualifiedClassName = service.name ]
+	}
+	
+	//
+	// Identification
+	// 
+	
+	/**
+	 * Creates an alias for provided class.
+	 * <p>
+	 * By default, based on name.
+	 * </p>
+	 * <p>
+	 * Alias should be unique, even for inner class. It is up to user to avoid namesake class.
+	 * </p>
+	 * @param context to identify
+	 * @return identification 
+	 */
+	def getContentAlias(Class<?> context) {
+		if (!context.anonymousClass) context.simpleName
+		else {
+			var fullname = context.name
+			fullname.substring(
+				fullname.lastIndexOf(".") + 1, 
+				fullname.lastIndexOf("$")
+			)
+		}
+	}
 	
 }

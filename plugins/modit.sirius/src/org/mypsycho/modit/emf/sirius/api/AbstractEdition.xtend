@@ -12,10 +12,10 @@
  *******************************************************************************/
  package org.mypsycho.modit.emf.sirius.api
 
-import java.util.Objects
 import org.eclipse.emf.ecore.EClass
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EStructuralFeature
+import org.eclipse.sirius.viewpoint.description.IdentifiedElement
 import org.eclipse.sirius.viewpoint.description.tool.ChangeContext
 import org.eclipse.sirius.viewpoint.description.tool.InitialOperation
 import org.eclipse.sirius.viewpoint.description.tool.ModelOperation
@@ -55,14 +55,7 @@ abstract class AbstractEdition {
 		this.context = parent
 		this.factory = parent.factory
 				
-		contentAlias = if (!class.anonymousClass) class.simpleName
-			else {
-				var fullname = class.name
-				fullname.substring(
-					fullname.lastIndexOf(".") + 1, 
-					fullname.lastIndexOf("$")
-				)
-			}
+		contentAlias = parent.getContentAlias(class)
 	}
 
 	/**
@@ -76,6 +69,9 @@ abstract class AbstractEdition {
 		context.extraRef(type, key)
 	}
 	
+	//
+	// Identification
+	//
 	
 	/**
 	 * Creates an identification with provided category.
@@ -105,7 +101,7 @@ abstract class AbstractEdition {
 	}
 	
 	/**
-	 * Creates an identification with provided category.
+	 * Builds an identification with provided category for local element.
 	 * <p>
 	 * This method has no side-effect, no id is reserved.
 	 * </p>
@@ -114,8 +110,107 @@ abstract class AbstractEdition {
 	 * @param path 
 	 */
 	protected def String id(String category, String path) {
-		'''«category»:«contentAlias».«Objects.requireNonNull(path).toLowerCase.replace(" ", "_")»'''
+		category.id(contentAlias, path)
 	}
+	
+	/**
+	 * Creates an {@link IdentifiedElement} and initializes it.
+	 * 
+	 * @param type of IdentifiedElement to instantiate
+	 * @param cat category of element
+	 * @param eName name of element
+	 * @param initializer of the given {@link EObject}
+	 */
+	protected def <R extends IdentifiedElement> R createAs(Class<R> type, Enum<?> cat, String eName, (R)=>void init) {
+		type.createAs(cat.id(eName)) [
+			name = eName
+			init?.apply(it)
+		]
+	}
+	
+	/**
+	 * Builds an identification with provided category for local element.
+	 * <p>
+	 * This method has no side-effect, no id is reserved.
+	 * </p>
+	 * <p>
+	 * Not deprecated by you should consider 'createAs' or 'ref' method.
+	 * </p>
+	 * 
+	 * @param cat of identification
+	 * @param context of element
+	 * @param path of element
+	 */
+	protected static def String id(Enum<?> cat, String context, String path) {
+		cat.name.id(context, path)
+	}
+	
+	/**
+	 * Builds an identification with provided category for local element.
+	 * <p>
+	 * This method has no side-effect, no id is reserved.
+	 * </p>
+	 * <p>
+	 * Not deprecated by you should consider 'createAs' or 'ref' method.
+	 * </p>
+	 * 
+	 * @param category of identification
+	 * @param context of element
+	 * @param path of element
+	 */
+	protected static def String id(String category, String context, String path) {
+		'''«category»:«context».«path.toLowerCase.replace(" ", "_")»'''
+	}
+		
+	/**
+	 * Builds a proxy to be resolved on 'loadContent' for a local element.
+	 * 
+	 * @param <R> Type of created proxy
+	 * @param type of created proxy
+	 * @param category of identification
+	 * @param name of element
+	 */
+	protected def <R extends IdentifiedElement> R localRef(
+		Class<R> type, 
+		Enum<?> cat, String name) {
+		type.ref(contentAlias, cat, name)
+	}
+	
+	/**
+	 * Builds a proxy to be resolved on 'loadContent' for an element defined in provided container.
+	 * 
+	 * @param <R> Type of created proxy
+	 * @param type of created proxy
+	 * @param category of identification
+	 * @param container of element
+	 * @param name of element
+	 */
+	protected def <R extends IdentifiedElement> R ref(
+		Class<R> type, Class<? extends AbstractEdition> container, 
+		Enum<?> cat, String name) {
+		type.ref(context.getContentAlias(container), cat, name)
+	}
+	
+	/**
+	 * Builds a proxy to be resolved on 'loadContent' for an element defined in provided container.
+	 * 
+	 * @param <R> Type of created proxy
+	 * @param type of created proxy
+	 * @param category of identification
+	 * @param containerId of element
+	 * @param name of element
+	 */
+	protected def <R extends IdentifiedElement> R ref(
+		Class<R> type, String containerId, 
+		Enum<?> cat, String id
+	) {
+		type.ref(cat.id(containerId, id))
+	}
+    
+	
+	//
+	// Expressions
+	// 
 	
 	/**
 	 * Create a string from expression from a sequence of parameter names.
@@ -136,6 +231,10 @@ abstract class AbstractEdition {
 	static def params(Object... params) { 
 		params.join(SiriusModelProvider.PARAM_SEP)
 	}
+	
+	//
+	// Operations
+	// 
 	
 	/**
 	 * Create an ChangeContext for an expression.
@@ -218,5 +317,7 @@ abstract class AbstractEdition {
         ]
     }
     
+    
+	
 	
 }

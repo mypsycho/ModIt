@@ -14,10 +14,14 @@
 
 import java.util.Objects
 import org.eclipse.emf.ecore.EAttribute
+import org.eclipse.emf.ecore.EClass
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EReference
 import org.eclipse.emf.ecore.EStructuralFeature
+import org.eclipse.sirius.diagram.EdgeArrows
+import org.eclipse.sirius.diagram.EdgeRouting
 import org.eclipse.sirius.diagram.description.AbstractNodeMapping
+import org.eclipse.sirius.diagram.description.CenteringStyle
 import org.eclipse.sirius.diagram.description.ConditionalContainerStyleDescription
 import org.eclipse.sirius.diagram.description.ConditionalNodeStyleDescription
 import org.eclipse.sirius.diagram.description.ContainerMapping
@@ -29,6 +33,8 @@ import org.eclipse.sirius.diagram.description.NodeMapping
 import org.eclipse.sirius.diagram.description.style.BorderedStyleDescription
 import org.eclipse.sirius.diagram.description.style.BundledImageDescription
 import org.eclipse.sirius.diagram.description.style.ContainerStyleDescription
+import org.eclipse.sirius.diagram.description.style.CustomStyleDescription
+import org.eclipse.sirius.diagram.description.style.EdgeStyleDescription
 import org.eclipse.sirius.diagram.description.style.FlatContainerStyleDescription
 import org.eclipse.sirius.diagram.description.style.NodeStyleDescription
 import org.eclipse.sirius.diagram.description.style.WorkspaceImageDescription
@@ -51,6 +57,7 @@ import org.eclipse.sirius.viewpoint.description.EStructuralFeatureCustomization
 import org.eclipse.sirius.viewpoint.description.SystemColor
 import org.eclipse.sirius.viewpoint.description.VSMElementCustomization
 import org.eclipse.sirius.viewpoint.description.style.BasicLabelStyleDescription
+import org.eclipse.sirius.viewpoint.description.tool.AbstractToolDescription
 import org.eclipse.sirius.viewpoint.description.tool.ContainerViewVariable
 import org.eclipse.sirius.viewpoint.description.tool.DragSource
 import org.eclipse.sirius.viewpoint.description.tool.DropContainerVariable
@@ -63,7 +70,6 @@ import org.eclipse.sirius.viewpoint.description.tool.InitialNodeCreationOperatio
 import org.eclipse.sirius.viewpoint.description.tool.ModelOperation
 
 import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*
-import org.eclipse.emf.ecore.EClass
 
 /**
  * Adaptation of Sirius model into Java and EClass reflections API
@@ -76,7 +82,8 @@ abstract class AbstractDiagram extends AbstractRepresentation<DiagramDescription
 	/** Namespaces for identification */
 	enum Ns { // namespace for identication
 		node, creation, drop, del,
-		edge, connect, disconnect, reconnect
+		edge, connect, disconnect, reconnect,
+		operation, show
 	}
 	
 	/**
@@ -111,33 +118,9 @@ abstract class AbstractDiagram extends AbstractRepresentation<DiagramDescription
 	 */
 	def void initContent(Layer it)
 	
-	override initDefaultStyle(BasicLabelStyleDescription it) {
-		super.initDefaultStyle(it)
-		
-		if (it instanceof BorderedStyleDescription) {
-			borderSizeComputationExpression = "1" // default
-			borderColor = SystemColor.extraRef("color:black")
-		}
-		
-		if (it instanceof FlatContainerStyleDescription) {
-			backgroundColor = SystemColor.extraRef("color:white")
-		}
-
-		if (it instanceof NodeStyleDescription) {
-			sizeComputationExpression = "2"
-		}
-
-		if (it instanceof WorkspaceImageDescription) { // extends BorderedStyleDescription
-			// when using a image in node, 
-			// we usually don't want icon on label
-			showIcon = false
-			borderSizeComputationExpression = "0" // hide border
-		}
-
-		if (it instanceof BundledImageDescription) {
-			color = (extras.get("color:black") as SystemColor)
-		}
-	}
+	//
+	// Reflection short-cut
+	// 
 	
 	/**
 	 * Sets the domain class of a description.
@@ -218,6 +201,42 @@ abstract class AbstractDiagram extends AbstractRepresentation<DiagramDescription
 			}
 		}
 	}
+
+	//
+	// Style
+	// 
+	
+	override initDefaultStyle(BasicLabelStyleDescription it) {
+		super.initDefaultStyle(it)
+		// Reminder: label.size=10, label.color=black, expression= /!\ dynamic
+		
+		if (it instanceof BorderedStyleDescription) {
+			borderSizeComputationExpression = "1" // default
+			borderColor = SystemColor.extraRef("color:black")
+		}
+		
+		if (it instanceof FlatContainerStyleDescription) {
+			backgroundColor = SystemColor.extraRef("color:white")
+		}
+
+		if (it instanceof NodeStyleDescription) {
+			sizeComputationExpression = "2"
+		}
+
+		if (it instanceof WorkspaceImageDescription
+			|| it instanceof CustomStyleDescription
+		) { // extends BorderedStyleDescription
+			// when using a image in node, 
+			// we usually don't want icon on label
+			showIcon = false
+			(it as BorderedStyleDescription).borderSizeComputationExpression = "0" // hide border
+		}
+
+		if (it instanceof BundledImageDescription) {
+			color = (extras.get("color:black") as SystemColor)
+		}
+	}
+
 	
 	/**
 	 * Creates a conditional style for container node on provided condition.
@@ -262,6 +281,33 @@ abstract class AbstractDiagram extends AbstractRepresentation<DiagramDescription
 			style = type.createStyle(init)
 		]
 	}
+	
+	/**
+	 * Sets the style of mapping.
+	 * <p>
+	 * APIs for Node and edge mapping style are different as node mappings have different style types.
+	 * </p>
+	 * @param it mapping to set
+	 * @param init initialization of the style
+	 */
+	def setStyle(EdgeMapping it, (EdgeStyleDescription)=>void init) {
+        style = EdgeStyleDescription.create [
+        	initDefaultEdgeStyle
+            init?.apply(it)
+        ]
+	}
+	
+	protected def initDefaultEdgeStyle(EdgeStyleDescription it) {
+        // centerLabelStyleDescription = null <=> no label
+        endsCentering = CenteringStyle.BOTH
+        routingStyle = EdgeRouting.MANHATTAN_LITERAL // (Rectilinear)
+        
+        // by default, target is input arrow
+        targetArrow = EdgeArrows.NO_DECORATION_LITERAL
+        strokeColor = SystemColor.extraRef("color:black")
+        sizeComputationExpression = "1"
+	}
+	
 	
 	/**
 	 * Customizes a Sirius reference with provided value.
@@ -337,15 +383,13 @@ abstract class AbstractDiagram extends AbstractRepresentation<DiagramDescription
 	 * Creates a creation tool for node mapping.
 	 * 
 	 * @param toolLabel used as id and name
-	 * @param operation to perform
+	 * @param task to perform
 	 * @param nodeNames of mapping
 	 * @return a NodeCreationDescription
 	 */
-    protected def createNodeCreate(String toolLabel, 
-            ModelOperation operation, String... nodeNames) {
-        NodeCreationDescription.create [
-            name = Ns.creation.id(toolLabel) // this used in API
-            label = toolLabel // this is used in 'undo'
+    protected def createNodeCreate(String toolname, 
+            ModelOperation task, String... nodeNames) {
+        NodeCreationDescription.createAs(Ns.creation, toolname) [
             
             forceRefresh = true // simpler by default
             
@@ -354,26 +398,21 @@ abstract class AbstractDiagram extends AbstractRepresentation<DiagramDescription
             variable = NodeCreationVariable.create [ name = "container" ]
             viewVariable = ContainerViewVariable.create [ name = "containerView" ]
             
-            initialOperation = InitialNodeCreationOperation.create [
-                firstModelOperations = operation
-            ]
+            operation = task
         ]
     }
     
     /**
      * Creates a creation tool for container mapping.
      * 
-     * @param toolLabel used as id and name
-     * @param operation to perform
+     * @param toolname used as id and name
+     * @param task to perform
      * @param nodeNames of mapping
      * @return a ContainerCreationDescription
      */
-   protected def createContainerCreate(String toolLabel, 
-            ModelOperation operation, String... nodeNames) {
-        ContainerCreationDescription.create [
-            name = Ns.creation.id(toolLabel) // this used in API
-            label = toolLabel // this is used in 'undo'
-            
+   protected def createContainerCreate(String toolname, 
+            ModelOperation task, String... nodeNames) {
+        ContainerCreationDescription.createAs(Ns.creation, toolname) [
             forceRefresh = true // simpler by default
             
             containerMappings += nodeNames.map[ NodeMapping.ref(it) ]
@@ -381,9 +420,7 @@ abstract class AbstractDiagram extends AbstractRepresentation<DiagramDescription
             variable = NodeCreationVariable.create [ name = "container" ]
             viewVariable = ContainerViewVariable.create [ name = "containerView" ]
             
-            initialOperation = InitialNodeCreationOperation.create [
-                firstModelOperations = operation
-            ]
+            operation = task
         ]
     }
     
@@ -401,10 +438,13 @@ abstract class AbstractDiagram extends AbstractRepresentation<DiagramDescription
      * @return a DeleteElementDescription
      */
     def createElementDelete(String toolName, ModelOperation operation) {
+    	toolName.createElementDelete(Ns.del, operation)
+    }
+    
+    protected def createElementDelete(String toolName, Enum<?> namespace, ModelOperation operation) {
         Objects.requireNonNull(operation)
         // Alias is required as mapping declare drops
-        DeleteElementDescription.createAs(Ns.del.id(toolName)) [
-            name = Ns.del.id(toolName)
+        DeleteElementDescription.createAs(namespace, toolName) [
             forceRefresh = true // simpler by default
 
             element = ElementDeleteVariable.create[ name = "element" ]
@@ -418,15 +458,14 @@ abstract class AbstractDiagram extends AbstractRepresentation<DiagramDescription
     /**
      * Creates a creation tool for edge.
      * 
-     * @param toolname suffix of name
-     * @param operation to perform
+     * @param toolname to use
+     * @param task to perform
      * @param String... nodeNames
      * @return a ContainerCreationDescription
      */
-    def createEdgeConnect(String toolLabel, ModelOperation operation, String... edgeNames) {
-        Objects.requireNonNull(operation)
-        EdgeCreationDescription.create [
-            name = Ns.connect.id(toolLabel) // this is used in 'undo'
+    def createEdgeConnect(String toolname, ModelOperation task, String... edgeNames) {
+        Objects.requireNonNull(task)
+        EdgeCreationDescription.createAs(Ns.connect, toolname) [
             forceRefresh = true // simpler by default
 
             edgeMappings += edgeNames.map[ EdgeMapping.ref(it) ]
@@ -436,9 +475,7 @@ abstract class AbstractDiagram extends AbstractRepresentation<DiagramDescription
             targetVariable = TargetEdgeCreationVariable.create [ name = "target" ]
             targetViewVariable = TargetEdgeViewCreationVariable.create [ name = "targetView" ]
 
-            initialOperation = InitEdgeCreationOperation.create[
-                firstModelOperations = operation
-            ]
+            operation = task
         ]
     }
     
@@ -456,9 +493,7 @@ abstract class AbstractDiagram extends AbstractRepresentation<DiagramDescription
      * @return a DeleteElementDescription
      */
     def createEdgeDisconnect(String toolName, ModelOperation operation) {
-        toolName.createElementDelete(operation).andThen[
-            name = Ns.disconnect.id(toolName)
-        ]
+        toolName.createElementDelete(Ns.disconnect, operation)
     }
     
     /**
@@ -474,8 +509,7 @@ abstract class AbstractDiagram extends AbstractRepresentation<DiagramDescription
     def createEdgeReconnect(String toolName, ModelOperation operation) {
         Objects.requireNonNull(operation)
         // Alias is required as mapping association is made on mapping
-        ReconnectEdgeDescription.createAs(Ns.reconnect.id(toolName)) [
-            name = Ns.reconnect.id(toolName)
+        ReconnectEdgeDescription.createAs(Ns.reconnect, toolName) [
             forceRefresh = true // simpler by default
             reconnectionKind = ReconnectionKind.RECONNECT_BOTH_LITERAL
             
@@ -531,23 +565,20 @@ abstract class AbstractDiagram extends AbstractRepresentation<DiagramDescription
      * </p>
      * 
      * @param toolname suffix of name
-     * @param 
+     * @param mode of drag and drop
      * @param operation to perform
      * @return a ReconnectEdgeDescription
      */
-    def createContainerDrop(String toolName, DragSource mode, ModelOperation operation) {
+    def createContainerDrop(String toolName, DragSource mode, ModelOperation init) {
        // Alias is required as mapping declare drops
-       ContainerDropDescription.createAs(Ns.drop.id(toolName)) [
-            name = Ns.drop.id(toolName)
+       ContainerDropDescription.createAs(Ns.drop, toolName) [
             dragSource = mode
             
             oldContainer = DropContainerVariable.create [ name = "oldSemanticContainer" ]
             newContainer = DropContainerVariable.create [ name = "newSemanticContainer" ]
             element = ElementDropVariable.create [ name = "element" ]
             newViewContainer = ContainerViewVariable.create [ name = "newContainerView" ]
-            initialOperation = InitialContainerDropOperation.create [
-                firstModelOperations = operation
-            ]
+            operation = init
         ]
     }
         
@@ -592,5 +623,21 @@ abstract class AbstractDiagram extends AbstractRepresentation<DiagramDescription
     def createViewContainerDrop(String toolName, ModelOperation operation) {
         toolName.createContainerDrop(DragSource.PROJECT_EXPLORER_LITERAL, operation)
     }
+    
+    /**
+     * {@inheritDoc}
+     * Appropriate for refactoring but dedicated 'createXxx' method should be preferred.
+     */
+	override setOperation(AbstractToolDescription it, ModelOperation value) {
+		switch(it) {
+			ContainerDropDescription: initialOperation = InitialContainerDropOperation.create [ firstModelOperations = value ]
+			ReconnectEdgeDescription: initialOperation = value.toTool
+			NodeCreationDescription: initialOperation = InitialNodeCreationOperation.create [ firstModelOperations = value ]
+			ContainerCreationDescription: initialOperation = InitialNodeCreationOperation.create [ firstModelOperations = value ]
+			EdgeCreationDescription: initialOperation = InitEdgeCreationOperation.create [ firstModelOperations = value ]
+			default: super.setOperation(it, value)
+		}
+	}
+    
 
 }

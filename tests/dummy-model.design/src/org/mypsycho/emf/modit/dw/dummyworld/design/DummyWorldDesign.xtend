@@ -35,6 +35,7 @@ class DummyWorldDesign extends AbstractGroup {
 	
 	new () {
 		businessPackages += PKG
+		enableRtExpression = true
 	}
 		
 	enum Tab { World, Comments }

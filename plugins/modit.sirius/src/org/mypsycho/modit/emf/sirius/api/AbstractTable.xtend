@@ -124,11 +124,15 @@ abstract class AbstractTable<T extends TableDescription> extends AbstractReprese
 	 * @param it description to define
 	 * @param type of the description
 	 */
-
 	def void setSemanticCandidates(LineMapping it, EReference ref) {
 		semanticCandidatesExpression = SiriusDesigns.encode(ref)
 	}
 
+	/**
+	 * Sets a mapping as not removable.
+	 * 
+	 * @param it mapping
+	 */
 	def void noDelete(LineMapping it) {
 		delete = DeleteLineTool.create[
 			name = "del:" + mapping.name // no change it will be triggered.
@@ -151,8 +155,7 @@ abstract class AbstractTable<T extends TableDescription> extends AbstractReprese
 
 	protected def line(String id, (LineMapping)=>void initializer) {
 		Objects.requireNonNull(initializer)
-		LineMapping.createAs(Ns.line.id(id)) [
-			name = id
+		LineMapping.createAs(Ns.line, id) [
 			initializer.apply(it)
 
 			defaultBackground = BackgroundStyleDescription.create [ // null is grey
@@ -180,15 +183,14 @@ abstract class AbstractTable<T extends TableDescription> extends AbstractReprese
     /**
      * Set Delete tool of a line.
      * 
-     * @param it to Delete
+     * @param parent to Delete
      * @param toolLabel
      * @param init of tool
      * @param operation to perform
      */
-    def setDelete(LineMapping it, ModelOperation operation) {
-        val toolName = name + ":delete"
-        delete = DeleteLineTool.create [
-            name = toolName
+    def setDelete(LineMapping parent, ModelOperation operation) {
+        parent.delete = DeleteLineTool.create [
+            name = parent.name + ":delete"
             label = "Delete"
             variables += LINE_DELETE_ARGS.toToolVariables
             firstModelOperation = operation
@@ -199,7 +201,7 @@ abstract class AbstractTable<T extends TableDescription> extends AbstractReprese
     /**
      * Set Delete tool of a line.
      * 
-     * @param it to Dele
+     * @param it to Delete
      * @param toolLabel
      * @param init of tool
      * @param action(root target, line target, line view)
@@ -212,13 +214,13 @@ abstract class AbstractTable<T extends TableDescription> extends AbstractReprese
      * Creates a creation tool for a line.
      * 
      * @param line id
-     * @param toolLabel
-     * @param init of tool
-     * @param action(root target, line target, line view)
+     * @param role of the tool
+     * @param toolLabel to display
+     * @param operation to perform
+     * @return new CreateLineTool instance
      */
-	def createLine(String line, String toolLabel, ModelOperation operation) {
-		CreateLineTool.create[
-			name = Ns.create.id(line)
+	def createLine(String line, String role, String toolLabel, ModelOperation operation) {
+		CreateLineTool.createAs(Ns.create, line + role) [
 			label = toolLabel
 			mapping = line.lineRef
 			variables += CreateMappingArg.values.toToolVariables
@@ -229,15 +231,43 @@ abstract class AbstractTable<T extends TableDescription> extends AbstractReprese
     /**
      * Creates a creation tool for a line.
      * 
-     * @param line id
-     * @param toolLabel
-     * @param init of tool
-     * @param action(root target, line target, line view)
+     * @param line to create
+     * @param toolLabel to display
+     * @param operation to perform
+     * @return new CreateLineTool instance
      */
-    def createLine(String line, String toolLabel, 
-		Procedure3<EObject, EObject, EObject> action
+	def createLine(String line, String toolLabel, ModelOperation operation) {
+		line.createLine("", "", operation)
+	}
+	
+    /**
+     * Creates a creation tool for a line.
+     * 
+     * @param line name
+     * @param toolLabel to display
+     * @param action(root target, line target, line view)
+     * @return new CreateLineTool instance
+     */
+    def createLine(String line, String toolLabel, Procedure3<EObject, EObject, EObject> action
 	) {
-		line.createLine(toolLabel, context.expression(CREATE_MAPPING_ARGS, action).toOperation)
+		line.createLine("", toolLabel, action)
+	}
+	
+    /**
+     * Creates a creation tool for a line.
+     * <p>
+     * A role is required if there is several way to create this kind of line. 
+     * </p>
+     * 
+     * @param line name
+     * @param role of the tool
+     * @param toolLabel to display
+     * @param action(root target, line target, line view)
+     * @return new CreateLineTool instance
+     */
+    def createLine(String line, String role, String toolLabel, Procedure3<EObject, EObject, EObject> action
+	) {
+		line.createLine(toolLabel, role, context.expression(CREATE_MAPPING_ARGS, action).toOperation)
 	}
 	
 	def toToolVariables(Enum<?>... names) {

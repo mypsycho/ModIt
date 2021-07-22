@@ -833,6 +833,11 @@ ENDFOR
 		]
 	}
 
+	dispatch def toJava(Void it) {
+		// to handle null in dispatch, uses void.
+		"null"
+	}
+
 	dispatch def toJava(Object it) {
 		toString
 	}

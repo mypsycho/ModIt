@@ -35,12 +35,26 @@ import org.eclipse.emf.ecore.util.EcoreEList;
 public interface ModitModel {
 
 	/** 
-	 * Load the content of this model into the provided resource.
+	 * Loads the content of this model into the provided resource.
+	 * 
 	 * @param resource to load
 	 * @return model content
 	 */
 	Collection<? extends EObject> loadContent(Resource resource);
 
+	/**
+	 * Search the element with provided key in a Ecore multi-reference.
+	 * <p>
+	 * Only works if 'values' implementation is EcoreEList.
+	 * </p> 
+	 * 
+	 * @param <R> type to return
+	 * @param values to search in
+	 * @param type of expected elements
+	 * @param keys of element
+	 * @return found element or null if none matches.
+	 * @throws IllegalArgumentException if feature has no key.
+	 */
 	// Only works for feature with keys
 	@SuppressWarnings("unchecked")
 	static <R extends EObject> R at(EList<?extends EObject> values, Class<R> type, Object... keys) {
@@ -52,21 +66,46 @@ public interface ModitModel {
 			);
 		}
 		return (R) values.stream().filter(it -> type.isInstance(it) 
-				&& Arrays.equals(keys, attKeys.stream().map(att -> it.eGet(att)).toArray()   ))
+				&& Arrays.equals(keys, 
+						attKeys.stream().map(att -> it.eGet(att)).toArray()))
 				.findFirst().orElse(null);
-			
-		
 	}
 	
+	/**
+	 * Searches the element with provided key in a Ecore multi-reference.
+	 * <p>
+	 * Only works if 'values' implementation is EcoreEList.
+	 * </p> 
+	 * 
+	 * @param <R> type of elements
+	 * @param values to search in
+	 * @param keys of element
+	 * @return found element or null if none matches.
+	 * @throws IllegalArgumentException if feature has no key.
+	 */
 	// Only works for feature with keys
 	@SuppressWarnings("unchecked")
 	static <R extends EObject> R at(EList<R> values, Object... keys) {
 		return (R) at(values, EObject.class, keys);
 	}
 	
+	/**
+	 * Gets a EObject from a resource set using its URI.
+	 * 
+	 * @param <T> expected type
+	 * @param rs ResourceSet
+	 * @param type of object
+	 * @param uri to object
+	 * @return the object resolved by the URI, or <code>null</code> if there isn't one.
+	 * @throws ClassCastException if value has 
+	 */
 	@SuppressWarnings("unchecked")
 	static <T extends EObject> T eObject(ResourceSet rs, Class<T> type, String uri) {
-		return (T) rs.getEObject(URI.createURI(uri), true);
+		EObject result = rs.getEObject(URI.createURI(uri), true);
+		if (result != null && type.isInstance(result)) {
+			throw new ClassCastException(result.eClass().getInstanceClassName());
+		}
+		return (T) result;
 	}
 
 

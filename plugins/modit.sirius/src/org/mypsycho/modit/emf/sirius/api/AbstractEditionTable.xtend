@@ -43,7 +43,7 @@ abstract class AbstractEditionTable extends AbstractTable<EditionTableDescriptio
 	
 	protected def column(String id, (FeatureColumnMapping)=>void initializer) {
 		Objects.requireNonNull(initializer)
-		FeatureColumnMapping.createAs(Ns.column.id(id)) [ 
+		FeatureColumnMapping.createAs(Ns.column, id) [ 
 			name = id
 			initializer.apply(it)
 		]
