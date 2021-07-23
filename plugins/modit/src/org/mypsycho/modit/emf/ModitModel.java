@@ -102,7 +102,7 @@ public interface ModitModel {
 	@SuppressWarnings("unchecked")
 	static <T extends EObject> T eObject(ResourceSet rs, Class<T> type, String uri) {
 		EObject result = rs.getEObject(URI.createURI(uri), true);
-		if (result != null && type.isInstance(result)) {
+		if (result != null && !type.isInstance(result)) {
 			throw new ClassCastException(result.eClass().getInstanceClassName());
 		}
 		return (T) result;
