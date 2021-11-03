@@ -83,7 +83,8 @@ abstract class AbstractDiagram extends AbstractRepresentation<DiagramDescription
 	enum Ns { // namespace for identication
 		node, creation, drop, del,
 		edge, connect, disconnect, reconnect,
-		operation, show
+		operation, section,
+		show // for filter + layer
 	}
 	
 	/**
