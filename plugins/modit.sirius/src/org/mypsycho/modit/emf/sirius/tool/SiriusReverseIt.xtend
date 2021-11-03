@@ -155,23 +155,25 @@ class SiriusReverseIt {
 	 */
 	def perform() { engine.perform }
 	
-	protected def dispatch toClassname(RepresentationDescription it) {
-		name.camel + aliasSuffix
+	protected def toClassname(EObject it) {
+		val basename = switch (it) {
+			RepresentationDescription: name.camel
+			RepresentationExtensionDescription: name.camel
+			ViewExtensionDescription: name.camel
+		}
+		val end = aliasSuffix
+		
+		basename 
+			+ (!basename.toLowerCase.endsWith(end.toLowerCase) // avoid duplicated end
+				? end : "")
 	}	
-	
-	protected def dispatch toClassname(RepresentationExtensionDescription it) {
-		name.camel + aliasSuffix
-	}
-	
-	protected def dispatch toClassname(ViewExtensionDescription it) {
-		name.camel + aliasSuffix
-	}
+
 	
 	protected def getAliasSuffix(EObject it) {
 		val className = eClass.name
-		if (className.endsWith("Description")) // trim Sirius Object end.
-			className.substring(0, className.length - "Description".length) 
-		else className
+		className.endsWith("Description") // trim Sirius Object end.
+			? className.substring(0, className.length - "Description".length) 
+			: className
 	}
 	
 	static def camel(String it) {

@@ -192,4 +192,22 @@ abstract class AbstractGroup extends SiriusModelProvider {
 		}
 	}
 	
+		
+	/**
+	 * Builds an identification with provided category for local element.
+	 * <p>
+	 * This method has no side-effect, no id should be reserved.
+	 * </p>
+	 * <p>
+	 * Not deprecated by you should consider 'createAs' or 'ref' method.
+	 * </p>
+	 * 
+	 * @param category of identification
+	 * @param context of element
+	 * @param path of element
+	 */
+	protected def String createId(String category, String context, String path) {
+		'''«category»:«context».«path.toFirstLower.replace(" ", "_")»'''
+	}
+	
 }

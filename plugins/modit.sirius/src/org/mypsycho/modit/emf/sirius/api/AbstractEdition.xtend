@@ -134,15 +134,15 @@ abstract class AbstractEdition {
 	 * This method has no side-effect, no id is reserved.
 	 * </p>
 	 * <p>
-	 * Not deprecated by you should consider 'createAs' or 'ref' method.
+	 * Not deprecated but you should consider 'createAs' or 'ref' method.
 	 * </p>
 	 * 
 	 * @param cat of identification
 	 * @param context of element
 	 * @param path of element
 	 */
-	protected static def String id(Enum<?> cat, String context, String path) {
-		cat.name.id(context, path)
+	protected def String id(Enum<?> cat, String root, String path) {
+		cat.name.id(root, path)
 	}
 	
 	/**
@@ -155,11 +155,11 @@ abstract class AbstractEdition {
 	 * </p>
 	 * 
 	 * @param category of identification
-	 * @param context of element
+	 * @param root of element
 	 * @param path of element
 	 */
-	protected static def String id(String category, String context, String path) {
-		'''«category»:«context».«path.toLowerCase.replace(" ", "_")»'''
+	protected def String id(String category, String root, String path) {
+		context.createId(category, root, path)
 	}
 		
 	/**
