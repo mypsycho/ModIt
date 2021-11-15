@@ -23,6 +23,7 @@ import org.eclipse.sirius.viewpoint.description.style.BasicLabelStyleDescription
 import org.eclipse.sirius.viewpoint.description.tool.AbstractToolDescription
 import org.eclipse.sirius.viewpoint.description.tool.InitialOperation
 import org.eclipse.sirius.viewpoint.description.tool.ModelOperation
+import org.eclipse.sirius.viewpoint.description.tool.OperationAction
 import org.eclipse.sirius.viewpoint.description.tool.ToolDescription
 
 import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*
@@ -136,11 +137,12 @@ abstract class AbstractRepresentation<T extends RepresentationDescription> exten
 	 * This class unifies the initialOperation declaration of sub-class tool.
 	 * </p>
 	 * @param it tool to set
-	 * @param operation to perform
+	 * @param value operation to perform
 	 */
-	protected def setOperation(AbstractToolDescription it, ModelOperation operation) {
+	protected def setOperation(AbstractToolDescription it, ModelOperation value) {
 		switch(it) {
-			ToolDescription: initialOperation = InitialOperation.create [ firstModelOperations = operation ]
+			OperationAction: initialOperation = value.toTool
+			ToolDescription: initialOperation = InitialOperation.create [ firstModelOperations = value ]
 			default: throw new UnsupportedOperationException
 		}
 	}

@@ -41,6 +41,7 @@ import org.eclipse.sirius.diagram.description.style.WorkspaceImageDescription
 import org.eclipse.sirius.diagram.description.tool.ContainerCreationDescription
 import org.eclipse.sirius.diagram.description.tool.ContainerDropDescription
 import org.eclipse.sirius.diagram.description.tool.DeleteElementDescription
+import org.eclipse.sirius.diagram.description.tool.DoubleClickDescription
 import org.eclipse.sirius.diagram.description.tool.EdgeCreationDescription
 import org.eclipse.sirius.diagram.description.tool.NodeCreationDescription
 import org.eclipse.sirius.diagram.description.tool.NodeCreationVariable
@@ -68,6 +69,7 @@ import org.eclipse.sirius.viewpoint.description.tool.InitEdgeCreationOperation
 import org.eclipse.sirius.viewpoint.description.tool.InitialContainerDropOperation
 import org.eclipse.sirius.viewpoint.description.tool.InitialNodeCreationOperation
 import org.eclipse.sirius.viewpoint.description.tool.ModelOperation
+import org.eclipse.sirius.viewpoint.description.tool.PasteDescription
 
 import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*
 
@@ -636,6 +638,9 @@ abstract class AbstractDiagram extends AbstractRepresentation<DiagramDescription
 			NodeCreationDescription: initialOperation = InitialNodeCreationOperation.create [ firstModelOperations = value ]
 			ContainerCreationDescription: initialOperation = InitialNodeCreationOperation.create [ firstModelOperations = value ]
 			EdgeCreationDescription: initialOperation = InitEdgeCreationOperation.create [ firstModelOperations = value ]
+			DeleteElementDescription: initialOperation = value.toTool
+			DoubleClickDescription: initialOperation = value.toTool
+			PasteDescription: initialOperation = value.toTool
 			default: super.setOperation(it, value)
 		}
 	}

@@ -24,6 +24,8 @@ import org.eclipse.sirius.viewpoint.description.tool.SetValue
 import org.mypsycho.modit.emf.EModIt
 import org.mypsycho.modit.emf.sirius.SiriusModelProvider
 
+import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*
+
 /**
  * Adaptation of Sirius model into Java and EClass reflections API
  * for representation.
@@ -232,6 +234,20 @@ abstract class AbstractEdition {
 		params.join(SiriusModelProvider.PARAM_SEP)
 	}
 	
+		
+	/**
+	 * Provides AQL expression for a class.
+	 * <p>
+	 * The must be contain in business Packages of the context.
+	 * </p>
+	 * 
+	 * @param type to convert
+	 * @return aql expression
+	 */
+	def asAql(Class<? extends EObject> type) {
+		context.asEClass(type).asAql
+	}
+	
 	//
 	// Operations
 	// 
@@ -287,7 +303,6 @@ abstract class AbstractEdition {
     protected def SetValue setter(EStructuralFeature feature) {
         feature.setter("var:newValue")
     }
-
     
     /**
      * Creates a Set operation for provided feature.
@@ -317,7 +332,5 @@ abstract class AbstractEdition {
         ]
     }
     
-    
-	
-	
+
 }
