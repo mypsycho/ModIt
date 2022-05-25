@@ -130,6 +130,20 @@ abstract class AbstractEdition {
 		]
 	}
 	
+//	/**
+//	 * Creates an {@link IdentifiedElement} and initializes it.
+//	 * 
+//	 * @param type of IdentifiedElement to instantiate
+//	 * @param eName name of element
+//	 * @param initializer of the given {@link EObject}
+//	 */
+//	protected def <R extends IdentifiedElement> R create(Class<R> type, String eName, (R)=>void init) {
+//		type.create [
+//			name = eName
+//			init?.apply(it)
+//		]
+//	}
+
 	/**
 	 * Builds an identification with provided category for local element.
 	 * <p>

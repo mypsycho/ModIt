@@ -30,15 +30,17 @@ import org.mypsycho.modit.emf.sirius.SiriusConstantInterpreter
  * @author nperansin
  */
 class SiriusDesigns {
-		
+	
+	public static val AQL = "aql:"
+	
 	/** Expression for return semantic container */
 	public static val IDENTITY = "var:self"
 
 	/** Expression for return semantic container */
-	public static val ALWAYS = "aql:true"
+	public static val ALWAYS = AQL + "true"
 
 	/** Expression for return semantic container */
-	public static val NEVER = "aql:false"
+	public static val NEVER = AQL + "false"
 
 	public static val ANY_TYPE = encode(EcorePackage.eINSTANCE.EObject)
 
@@ -71,7 +73,7 @@ class SiriusDesigns {
 	 * @return associated text
 	 */
 	static def String encode(EClassifier it) {
-		'''«EPackage.name».«name»'''
+		'''«EPackage.name»::«name»'''
 	}
 	
 	   
@@ -117,7 +119,7 @@ class SiriusDesigns {
 	 */
 	static def String trimAql(CharSequence text) {
 		val result = text.toString.trim.replaceAll("\\R", " ") // 
-		if (result.startsWith("aql:")) result else "aql:" + result
+		if (result.startsWith(AQL)) result else AQL + result
 	}
 
 	/**

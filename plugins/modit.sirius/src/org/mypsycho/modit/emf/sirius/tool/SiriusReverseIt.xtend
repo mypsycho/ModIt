@@ -13,28 +13,24 @@
 package org.mypsycho.modit.emf.sirius.tool;
 
 import java.nio.file.Path
-import java.util.ArrayList
 import java.util.Collections
-import java.util.HashMap
+import java.util.List
 import org.eclipse.emf.common.util.URI
 import org.eclipse.emf.ecore.EObject
+import org.eclipse.emf.ecore.EPackage
 import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.emf.ecore.resource.ResourceSet
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl
-import org.eclipse.emf.ecore.util.EcoreUtil
 import org.eclipse.sirius.properties.ViewExtensionDescription
 import org.eclipse.sirius.viewpoint.description.DescriptionPackage
-import org.eclipse.sirius.viewpoint.description.Environment
 import org.eclipse.sirius.viewpoint.description.Group
 import org.eclipse.sirius.viewpoint.description.RepresentationDescription
 import org.eclipse.sirius.viewpoint.description.RepresentationExtensionDescription
 import org.eclipse.sirius.viewpoint.description.Viewpoint
 import org.eclipse.xtend.lib.annotations.Accessors
 import org.mypsycho.modit.emf.ClassId
-import org.mypsycho.modit.emf.EModIt
-import org.mypsycho.modit.emf.EReversIt
-import org.mypsycho.modit.emf.ModitModel
-import org.mypsycho.modit.emf.sirius.SiriusModelProvider
+import org.eclipse.emf.ecore.EClass
+import java.util.regex.Pattern
 
 /**
  * 
@@ -47,12 +43,15 @@ import org.mypsycho.modit.emf.sirius.SiriusModelProvider
  */
 class SiriusReverseIt {
 
-	val ResourceSet rs
-	val Group source
-	val ClassId classId
+	
+	protected val ResourceSet rs
+	protected val Group source
+	protected val ClassId classId
+	
+	protected val List<EPackage> editedPackages
 	
 	@Accessors
-	val Engine engine
+	val SiriusGroupTemplate engine
 	
 	/**
 	 * Construct a reverse of a Odesign.
@@ -60,9 +59,12 @@ class SiriusReverseIt {
 	 * @param odesignUri plugin path
 	 * @param dir to generate source
 	 * @param classname of main class
+	 * @param editeds edited packages
 	 */
-	new(String odesignUri, Path dir, String classname) {
-		this(URI.createPlatformPluginURI(odesignUri, true), dir, classname)
+	new(String odesignUri, Path dir, String classname, EPackage... editeds) {
+		this(URI.createPlatformPluginURI(odesignUri, true), 
+			dir, classname, editeds
+		)
 	}
 	
 	/**
@@ -71,9 +73,12 @@ class SiriusReverseIt {
 	 * @param odesignUri to access content
 	 * @param dir to generate source
 	 * @param classname of main class
+	 * @param editeds edited packages
 	 */
-	new(URI odesignUri, Path dir, String classname) {
-		this(odesignUri.loadSiriusGroup(new ResourceSetImpl), dir, classname)
+	new(URI odesignUri, Path dir, String classname, EPackage... editeds) {
+		this(odesignUri.loadSiriusGroup(new ResourceSetImpl), 
+			dir, classname, editeds
+		)
 	}
 
 	/**
@@ -82,26 +87,34 @@ class SiriusReverseIt {
 	 * @param content to reverse
 	 * @param dir to generate source
 	 * @param classname of main class
+	 * @param editeds edited packages
 	 */
-	new(Group content, Path dir, String classname) {
+	new(Group content, Path dir, String classname, EPackage... editeds) {
 		
 		source = content
 		// use provided resourceset or a default one
 		rs = content.eResource?.resourceSet ?: new ResourceSetImpl
 		classId = new ClassId(classname)
 		
+		editedPackages = (editeds + usedMetamodels)
+			// Normalize
+			.map[ EPackage.Registry.INSTANCE.getEPackage(nsURI) ]
+			.flatMap[ #[ it ] + eAllContents.toIterable.filter(EPackage) ]
+			.toSet
+			.toList
+			.sortBy[ nsURI ]
+		
 		engine = source.eResource.createEngine(classname, dir) => [
 			
 			// Split RepresentationDescription DiagramExtensionDescription
 			splits.putAll(findDefaultSplits)
-			 
-			// explicitExtras.putAll(usedMetamodels)
-
+				
 			explicitExtras.putAll(source.systemColorsPalette.entries.toInvertedMap[ "color:" + name ])
 
 			shortcuts += DescriptionPackage.eINSTANCE.identifiedElement_Name
 		]
 	}
+	
 	
 	protected def findDefaultSplits() {
 		(
@@ -109,29 +122,28 @@ class SiriusReverseIt {
 				.flatMap[ ownedRepresentations + ownedRepresentationExtensions ]
 			+ source.extensions
 				.filter(ViewExtensionDescription)
-		).toInvertedMap[ 
-			new ClassId(classId.pack, toClassname)
-		]
+		).toInvertedMap[ toClassId ]
 	}
 	
-	@Deprecated
+	
+	
 	protected def getUsedMetamodels() {		
 		// we need a copy as resources list is extended by navigation
-		new ArrayList(rs.resources)
-			.map[ o | [ o.allContents ] as Iterable<EObject> ].flatten
-			.map[ metamodels ].flatten.toSet
-			.toInvertedMap[
-				// To improve: Sirius stores 2 kinds of Package instances.
-				// We must keep both in reverse so they are found in call tree.
-				val uri = EcoreUtil.getURI(it)
-				if (uri.scheme == "platform" && uri.segments.head == "plugin") 
-					"ecore:" + nsURI 
-				else "epackage:" + nsURI
-			]
+		source.eAllContents
+			.toIterable
+			.flatMap[ metamodels ]
+			.toSet
+//			.toInvertedMap[
+//				// To improve: Sirius stores 2 kinds of Package instances.
+//				// We must keep both in reverse so they are found in call tree.
+//				val uri = EcoreUtil.getURI(it)
+//				if (uri.scheme == "platform" && uri.segments.head == "plugin") 
+//					"ecore:" + nsURI 
+//				else "epackage:" + nsURI
+//			]
 	}
 	
-	@Deprecated
-	protected def getMetamodels(Object it) {
+	protected static def getMetamodels(EObject it) {
 		if (it instanceof RepresentationExtensionDescription) metamodel
 		else if (it instanceof RepresentationDescription) metamodel
 		else Collections.emptyList
@@ -147,7 +159,7 @@ class SiriusReverseIt {
 	protected def toVpAlias(Viewpoint it, String prefix) { "VP:" + prefix + "#" + name }
 	
 	protected def createEngine(Resource content, String classname, Path dir) {
-		new Engine(this, classname, dir, content)
+		new SiriusGroupTemplate(this, classname, dir, content)
 	}
 	
 	/**
@@ -155,19 +167,56 @@ class SiriusReverseIt {
 	 */
 	def perform() { engine.perform }
 	
+	protected def toClassId(EObject it) {
+		new ClassId(classId.pack, toClassname)
+	}
+	
+	
 	protected def toClassname(EObject it) {
 		val basename = switch (it) {
-			RepresentationDescription: name.camel
-			RepresentationExtensionDescription: name.camel
-			ViewExtensionDescription: name.camel
+			RepresentationDescription: name.techName
+			RepresentationExtensionDescription: name.techName
+			ViewExtensionDescription: name.techName
 		}
 		val end = aliasSuffix
-		
-		basename 
-			+ (!basename.toLowerCase.endsWith(end.toLowerCase) // avoid duplicated end
-				? end : "")
+		// avoid duplicated end
+		val applySuffix = !basename.toLowerCase.endsWith(end.toLowerCase)
+		basename + (applySuffix ? end : "")
 	}	
 
+	def getClassFromDomain(String domain) {
+		if (domain === null || domain.empty)
+			return null
+		
+		
+		var sep = '::'
+		var qIndex = domain.indexOf(sep)
+		
+		if (qIndex == -1) {
+			sep = '.'
+			qIndex = domain.indexOf('.')	
+		}
+		
+		val classname = 
+			qIndex == -1
+				? domain
+				: domain.substring(qIndex + sep.length, domain.length)
+		
+		val packages =
+			(qIndex == -1)
+				? editedPackages
+				: {
+					val qName = domain.substring(0, qIndex)
+					editedPackages
+						.filter[ name == qName ]
+				}
+		
+		packages
+			.map[ getEClassifier(classname) ]
+			.filter(EClass)
+			.map[ instanceClass ]
+			.head
+	}
 	
 	protected def getAliasSuffix(EObject it) {
 		val className = eClass.name
@@ -176,101 +225,20 @@ class SiriusReverseIt {
 			: className
 	}
 	
-	static def camel(String it) {
-		split("\\s+").join("")[ toFirstUpper ]
+	static val NO_TECH = Pattern.compile("[^a-zA-Z0-9 _]")
+	static def techName(String it) {
+		NO_TECH.matcher(it)
+			.replaceAll("_")
+			.split("\\s+")
+			.join("")[ toFirstUpper ]
 	}
 	
 	static def loadSiriusGroup(URI uri, ResourceSet rs) { 
 		rs.getResource(uri, true).contents.head as Group
 	}
 	
-	
-	// Only used in SiriusModelProvider class.
-	static val UNUSED_IMPORTS = #[ HashMap, ResourceSetImpl, Accessors, EModIt, ModitModel ]
-	
-	/** Override of default reverse for SiriusModelProvider class. */
-	protected static class Engine extends EReversIt {
-		// XTend does not support statefull inner class
-		val SiriusReverseIt container
-		
-		new(SiriusReverseIt container, String classname, Path dir, Resource res) {
-			super(classname, dir, res)
-			this.container = container
-		}
-		
-		override getMainStaticImports() {
-			super.mainStaticImports.filter[ !UNUSED_IMPORTS.contains(it) ]
-			+ #[ SiriusModelProvider, Environment ]
-		}
-		
-		// Xtend
-		override templateMain(Iterable<Class<?>> packages, ()=>String content) {
-'''package «mainClass.pack»
-
-«templateImports»
-
-class «mainClass.name» extends SiriusModelProvider {
-
-	override initContent(Group it) {
-		«content.apply»
+	def static boolean isContaining(EObject it, EObject value) {
+		value !== null && (it == value || isContaining(value.eContainer))
 	}
-
-« // initExtras must be performed AFTER model exploration
-IF !implicitExtras.empty || !explicitExtras.empty
-»	override initExtras() {
-		super.initExtras
-		
-		«templateExtras»
-	}
-
-«
-ENDIF // extras
-»
-	def context() { this }
 	
-	«templateShorcuts»
-}
-'''
-		}
-
-		// Xtend
-		override templateExplicitExtras() {
-			val colors = container.source.systemColorsPalette.entries
-			if (explicitExtras.keySet.equals(colors.toSet)) {
-				return "" // no named element
-			}
-'''extras.putAll(#{ // Named elements
-«
-FOR ext : explicitExtras.entrySet
-		// ignore SystemColors as they are already provided in template.
-		.filter[ !colors.contains(key) ]
-		.toList.sortBy[ value ]
-	SEPARATOR ",\n" // cannot include comma in template: improper for last value.
-»	«ext.value.toJava» -> «ext.key.templateAlias»«
-ENDFOR
-»
-})
-'''
-		}
-	
-		// Xtend
-		override templateExplicitAlias(EObject it) {
-'''«templateClass».eObject(«toUri.toJava »)'''	
-		}
-	
-		// Xtend
-		override templateSimpleContent(EObject it) {
-			// As assembling is performed by SiriusModelProvider,
-			// use the code from #templateInnerCreate.
-'''
-«
-FOR c : innerContent SEPARATOR statementSeparator 
-»«templateProperty(c.key, c.value)»«
-ENDFOR
-»'''
-		}
-
-
-	
-	}
 }

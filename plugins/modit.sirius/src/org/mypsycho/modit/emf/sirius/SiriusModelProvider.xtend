@@ -28,6 +28,7 @@ import org.eclipse.sirius.properties.ext.widgets.reference.propertiesextwidgetsr
 import org.eclipse.sirius.viewpoint.description.DescriptionPackage
 import org.eclipse.sirius.viewpoint.description.Environment
 import org.eclipse.sirius.viewpoint.description.Group
+import org.eclipse.sirius.viewpoint.description.IdentifiedElement
 import org.eclipse.sirius.viewpoint.description.style.StylePackage
 import org.eclipse.sirius.viewpoint.description.tool.ToolPackage
 import org.eclipse.xtend.lib.annotations.AccessorType
@@ -104,7 +105,11 @@ abstract class SiriusModelProvider implements ModitModel {
 	 * @param descriptorPackages used by Sirius
 	 */
 	new (Iterable<? extends EPackage> descriptorPackages) {
-		factory = EModIt.using(descriptorPackages)
+		factory = EModIt.using(descriptorPackages.toList) [
+			contentProvider = [ text, value |
+				(value as IdentifiedElement).name = text
+			]
+		]
 		
 		content = Group.create
 		// Init cannot happen in constructor 
