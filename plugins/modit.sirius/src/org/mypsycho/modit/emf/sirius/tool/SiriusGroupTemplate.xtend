@@ -140,7 +140,7 @@ ENDFOR
 		}
 	}
 	
-	override templateProperty(EStructuralFeature it, Object value, (Object)=>String encoding) {
+	override templatePropertyValue(EStructuralFeature it, Object value, (Object)=>String encoding) {
 		if (it == VP.viewpoint_OwnedJavaExtensions)
 			'''use(«(value as JavaExtension).qualifiedClassName»)'''
 		else

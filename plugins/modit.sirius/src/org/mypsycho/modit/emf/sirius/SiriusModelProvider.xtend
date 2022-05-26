@@ -25,6 +25,7 @@ import org.eclipse.emf.ecore.EPackage
 import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.sirius.properties.PropertiesPackage
 import org.eclipse.sirius.properties.ext.widgets.reference.propertiesextwidgetsreference.PropertiesExtWidgetsReferencePackage
+import org.eclipse.sirius.viewpoint.description.AbstractVariable
 import org.eclipse.sirius.viewpoint.description.DescriptionPackage
 import org.eclipse.sirius.viewpoint.description.Environment
 import org.eclipse.sirius.viewpoint.description.Group
@@ -106,8 +107,13 @@ abstract class SiriusModelProvider implements ModitModel {
 	 */
 	new (Iterable<? extends EPackage> descriptorPackages) {
 		factory = EModIt.using(descriptorPackages.toList) [
-			contentProvider = [ text, value |
-				(value as IdentifiedElement).name = text
+			contentProvider = [ text, it |
+				switch(it) {
+					AbstractVariable: name = text
+					IdentifiedElement: name = text
+					default: throw new UnsupportedOperationException("No content for " + it.class)
+				}
+				
 			]
 		]
 		

@@ -1,26 +1,45 @@
 package org.mypsycho.modit.emf.sirius.tool
 
 import org.eclipse.emf.ecore.EObject
+import org.eclipse.emf.ecore.EStructuralFeature
 import org.eclipse.sirius.diagram.description.AbstractNodeMapping
 import org.eclipse.sirius.diagram.description.AdditionalLayer
+import org.eclipse.sirius.diagram.description.BooleanLayoutOption
+import org.eclipse.sirius.diagram.description.ContainerMapping
+import org.eclipse.sirius.diagram.description.CustomLayoutConfiguration
 import org.eclipse.sirius.diagram.description.DiagramDescription
+import org.eclipse.sirius.diagram.description.DoubleLayoutOption
 import org.eclipse.sirius.diagram.description.EdgeMapping
+import org.eclipse.sirius.diagram.description.EnumLayoutOption
+import org.eclipse.sirius.diagram.description.EnumSetLayoutOption
+import org.eclipse.sirius.diagram.description.IntegerLayoutOption
 import org.eclipse.sirius.diagram.description.Layer
+import org.eclipse.sirius.diagram.description.NodeMapping
+import org.eclipse.sirius.diagram.description.StringLayoutOption
+import org.eclipse.sirius.diagram.description.tool.ContainerCreationDescription
 import org.eclipse.sirius.diagram.description.tool.ContainerDropDescription
 import org.eclipse.sirius.diagram.description.tool.DeleteElementDescription
+import org.eclipse.sirius.diagram.description.tool.DiagramCreationDescription
+import org.eclipse.sirius.diagram.description.tool.DirectEditLabel
+import org.eclipse.sirius.diagram.description.tool.DoubleClickDescription
 import org.eclipse.sirius.diagram.description.tool.EdgeCreationDescription
 import org.eclipse.sirius.diagram.description.tool.NodeCreationDescription
 import org.eclipse.sirius.diagram.description.tool.ReconnectEdgeDescription
 import org.eclipse.sirius.diagram.description.tool.ToolSection
-import org.eclipse.sirius.viewpoint.description.IdentifiedElement
+import org.eclipse.sirius.viewpoint.description.AbstractVariable
 import org.eclipse.sirius.viewpoint.description.DescriptionPackage
+import org.eclipse.sirius.viewpoint.description.IdentifiedElement
 import org.eclipse.sirius.viewpoint.description.tool.AbstractToolDescription
+import org.eclipse.sirius.viewpoint.description.tool.OperationAction
+import org.eclipse.sirius.viewpoint.description.tool.PasteDescription
+import org.eclipse.sirius.viewpoint.description.tool.SelectionWizardDescription
+import org.eclipse.sirius.viewpoint.description.tool.ToolDescription
 import org.mypsycho.modit.emf.ClassId
 import org.mypsycho.modit.emf.EReversIt
 import org.mypsycho.modit.emf.sirius.api.AbstractDiagram
+import org.mypsycho.modit.emf.sirius.api.SiriusDesigns
 
 import static extension org.mypsycho.modit.emf.sirius.tool.SiriusReverseIt.*
-import org.mypsycho.modit.emf.sirius.api.SiriusDesigns
 
 /** Override of default reverse for SiriusModelProvider class. */
 class DiagramTemplate extends EReversIt {
@@ -133,7 +152,7 @@ SEPARATOR statementSeparator
 
 «
 	FOR section : layer.toolSections
-	SEPARATOR statementSeparator 
+	SEPARATOR statementSeparator
 »	def «smartTemplateCreate(section)»() {
 		«section.templateIdentifiedCreate»
 	}
@@ -153,9 +172,43 @@ ENDFOR
 		templateInnerContent(content)
 	}
  
+	val CONTENT_PROVIDER_FIELDS = #{
+		SPKG.identifiedElement_Name,
+		SPKG.abstractVariable_Name
+	}
+	
 	override getInnerContent(EObject it) {
 		super.getInnerContent(it)
-			.filter[ key !== SPKG.identifiedElement_Name ]
+			// Following feature are supported by contentProvider
+			// See org.mypsycho.modit.emf.sirius.SiriusModelProvider#new(Iterable<? extends EPackage>)
+			.filter[ !CONTENT_PROVIDER_FIELDS.contains(key)  ]
+	}
+	
+	val static CONTAINMENT_ORDER = #[
+		Layer -> #[ 
+			DPKG.layer_ContainerMappings,
+			DPKG.layer_EdgeMappings,
+			DPKG.layer_ToolSections
+		],
+		ContainerMapping -> #[
+			// Default position
+			DPKG.containerMapping_Style,
+			DPKG.containerMapping_ConditionnalStyles,
+			DPKG.abstractNodeMapping_BorderedNodeMappings,
+			DPKG.containerMapping_SubNodeMappings,
+			DPKG.containerMapping_SubContainerMappings,
+			DPKG.layer_EdgeMappings,
+			DPKG.layer_ToolSections
+		],
+		NodeMapping -> #[
+			DPKG.nodeMapping_Style,
+			DPKG.nodeMapping_ConditionnalStyles,
+			DPKG.abstractNodeMapping_BorderedNodeMappings	
+		]
+	]
+	
+	override getContainmentOrders() {
+		CONTAINMENT_ORDER
 	}
  
 	override templateInnerCreate(EObject it) {
@@ -207,6 +260,20 @@ ENDFOR
 			?.value
 	}
 	
+ 	def dispatch smartTemplateCreate(AbstractVariable it) {
+ 		val content = innerContent
+ 		
+'''«templateClass».create("«name»")«
+IF !innerContent.empty
+									» [
+	«templateInnerContent(content)»
+]
+«
+ENDIF
+»'''
+ 		
+ 	}
+	
  	def dispatch smartTemplateCreate(IdentifiedElement it) {
  		// TODO 
 		//   NodeMapping, ContainerMapping, EdgeMapping
@@ -233,7 +300,6 @@ ENDIF
 		super.templateInnerCreate(it)
 	}
 
-
 	override templateRef(EObject it, Class<?> using) {
 		if (it instanceof IdentifiedElement) {
 			val ns = findNs
@@ -254,13 +320,92 @@ ENDIF
 		super.templateRef(it, using)
 	}
 
+	
+	override templateProperty(EObject element, EStructuralFeature it, (Object, Class<?>)=>String encoding) {
+		element.smartTemplateProperty(it, encoding)
+	}
+
+	def dispatch smartTemplateProperty(EObject element, EStructuralFeature it, (Object, Class<?>)=>String encoding) {
+		// Default
+		super.templateProperty(element, it, encoding)
+	}
+
+	def dispatch smartTemplateProperty(DiagramDescription element, EStructuralFeature it, (Object, Class<?>)=>String encoding) {
+		if (it == DPKG.diagramDescription_Layout
+			&& element.layout instanceof CustomLayoutConfiguration
+			&& (element.layout as CustomLayoutConfiguration).id == "org.eclipse.elk.layered"
+		) {
+			return element.templateElkLayout
+		}
+		
+		super.templateProperty(element, it, encoding)
+	}
+	
+	def templateElkLayout(DiagramDescription it) {
+'''elkLayout(
+«
+FOR option : (layout as CustomLayoutConfiguration).layoutOptions
+SEPARATOR "," + statementSeparator
+»	"«option.id.substring("org.eclipse.elk.".length)»".elk«
+	switch(option) {
+		BooleanLayoutOption: '''Bool(«option.value»'''
+		DoubleLayoutOption: '''Double(«option.value»'''
+		EnumLayoutOption: '''Enum("«option.value.name»"'''
+		IntegerLayoutOption: '''Int(«option.value»'''
+		StringLayoutOption: '''String("«option.value»"'''
+		EnumSetLayoutOption: '''Enums("«option.values.map[ name ].join(",")»"'''
+	}
+		», «option.targets.map[ "LayoutOptionTarget." + name() ].join(", ")»)«
+ENDFOR 																		»
+)'''
+	}
+
+	def dispatch smartTemplateProperty(AbstractToolDescription element, EStructuralFeature it, (Object, Class<?>)=>String encoding) {
+		if (name == "initialOperation") {
+			try {
+				return element.templateToolOperation
+			} catch (UnsupportedOperationException ex) {
+				System.err.println("Add operation in DiagramTemplate: " 
+					+ (element as AbstractToolDescription).eClass.name
+				)
+			}
+		}
+		super.templateProperty(element, it, encoding)
+	}
+	
+	def String templateToolOperation(Object it) {
+		val operation = switch(it) {
+			// All representation
+			OperationAction: initialOperation.firstModelOperations
+			ToolDescription: initialOperation.firstModelOperations
+			PasteDescription: initialOperation.firstModelOperations
+			SelectionWizardDescription: initialOperation.firstModelOperations
+			DirectEditLabel: initialOperation.firstModelOperations
+			// Diagram
+			ContainerDropDescription: initialOperation.firstModelOperations
+			ReconnectEdgeDescription: initialOperation.firstModelOperations
+			NodeCreationDescription: initialOperation.firstModelOperations
+			ContainerCreationDescription: initialOperation.firstModelOperations
+			EdgeCreationDescription: initialOperation.firstModelOperations
+			DeleteElementDescription: initialOperation.firstModelOperations
+			DoubleClickDescription: initialOperation.firstModelOperations
+			DiagramCreationDescription: initialOperation.firstModelOperations
+			default: throw new UnsupportedOperationException
+		}
+		if (operation !== null)
+			'''operation = «operation.templateCreate»'''
+		else 
+			'''// no operation '''
+	}
+	
+	
 	dispatch override toJava(String it) {
 		if (!startsWith(SiriusDesigns.AQL))
 			super._toJava(it)
 		else {// «» can be used to escape '
 			val expression = substring(SiriusDesigns.AQL.length)
-			if (expression.startsWith("'") 
-				|| expression.endsWith("'"))
+			// Issue with _'_ in templates
+			if (expression.startsWith("'") || expression.endsWith("'"))
 				'''«"'''"» «expression» «"'''"».trimAql'''
 			else
 				'''«"'''"»«expression»«"'''"».trimAql'''

@@ -15,6 +15,7 @@
 import java.util.ArrayList
 import java.util.List
 import org.eclipse.emf.ecore.EObject
+import org.eclipse.sirius.diagram.description.tool.DirectEditLabel
 import org.eclipse.sirius.viewpoint.description.JavaExtension
 import org.eclipse.sirius.viewpoint.description.RepresentationDescription
 import org.eclipse.sirius.viewpoint.description.SystemColor
@@ -24,6 +25,8 @@ import org.eclipse.sirius.viewpoint.description.tool.AbstractToolDescription
 import org.eclipse.sirius.viewpoint.description.tool.InitialOperation
 import org.eclipse.sirius.viewpoint.description.tool.ModelOperation
 import org.eclipse.sirius.viewpoint.description.tool.OperationAction
+import org.eclipse.sirius.viewpoint.description.tool.PasteDescription
+import org.eclipse.sirius.viewpoint.description.tool.SelectionWizardDescription
 import org.eclipse.sirius.viewpoint.description.tool.ToolDescription
 
 import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*
@@ -143,6 +146,10 @@ abstract class AbstractRepresentation<T extends RepresentationDescription> exten
 		switch(it) {
 			OperationAction: initialOperation = value.toTool
 			ToolDescription: initialOperation = InitialOperation.create [ firstModelOperations = value ]
+			PasteDescription: initialOperation = value.toTool
+			SelectionWizardDescription: initialOperation = value.toTool
+			DirectEditLabel: initialOperation = value.toTool
+			
 			default: throw new UnsupportedOperationException
 		}
 	}

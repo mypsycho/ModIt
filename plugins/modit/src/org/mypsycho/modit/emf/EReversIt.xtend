@@ -578,16 +578,63 @@ ENDFOR
 	
 	protected def getInnerContent(EObject it) {
 		// Find setted attributes, references, <>references
+		// Order go from simplest to most complex
 		#[
 			eClass.EAllAttributes.filter[ a | eIsSet(a) && a.defaultValue != eGet(a) ]
 				-> [ Object it, Class<?> using | toJava ],
 			eClass.EAllReferences.filter[ r | eIsSet(r) && r.pureReference ]
 				-> [ Object it, Class<?> using | (it as EObject).templateRef(using) ],
-			eClass.EAllReferences.filter[ r | eIsSet(r) && r.isContainment ]
+			orderContainment(eClass.EAllReferences.filter[ r | eIsSet(r) && r.isContainment ])
 				-> [ Object it, Class<?> using | (it as EObject).templateCreate ]
 		]
 		.flatMap[ (key as Iterable<EStructuralFeature>).map[ f | f -> value ] ]
-		
+	}
+
+	protected def 
+		List<? extends Pair<? extends Class<? extends EObject>, List<EReference>>> 
+			getContainmentOrders() {
+		#[]
+		/*
+			#[
+				Layer -> #[ 
+					DPKG.layer_ContainerMappings,
+					DPKG.layer_EdgeMappings,
+					DPKG.layer_ToolSections
+				],
+				ContainerMapping -> #[
+					// Default position
+					DPKG.containerMapping_Style,
+					DPKG.containerMapping_ConditionnalStyles,
+					DPKG.abstractNodeMapping_BorderedNodeMappings,
+					DPKG.containerMapping_SubNodeMappings,
+					DPKG.containerMapping_SubContainerMappings,
+					DPKG.layer_EdgeMappings,
+					DPKG.layer_ToolSections
+				],
+				NodeMapping -> #[
+					DPKG.nodeMapping_Style,
+					DPKG.nodeMapping_ConditionnalStyles,
+					DPKG.abstractNodeMapping_BorderedNodeMappings	
+				]
+			]
+
+		 */
+	}
+	
+	protected def orderContainment(EObject element, Iterable<EReference> refs) {
+		val order = containmentOrders
+			.findFirst[ key.isInstance(element) ] 
+			?.value
+		if (order === null) {
+			// Ecore order is fine most of the times.
+			return refs
+		}
+		val defaultPosition = order.indexOf(null) // by default at begining
+		refs.sortBy[
+			val priority = order.indexOf(it)
+			priority != -1 ? priority : defaultPosition
+		]
+	
 	}
 	
 	protected static class Expr {
@@ -780,13 +827,13 @@ ENDIF
 		if (isMany) {
 			(element.eGet(it) as Collection<?>)
 				.join(statementSeparator) // Let's hope command separator is universal ...
-				[ value | templateProperty(value, valueEncoding) ]
+				[ value | templatePropertyValue(value, valueEncoding) ]
 		} else {
-			templateProperty(element.eGet(it), valueEncoding)
+			templatePropertyValue(element.eGet(it), valueEncoding)
 		}
 	}
 	
-	protected def templateProperty(EStructuralFeature it, Object value, (Object)=>String encoding) {
+	protected def templatePropertyValue(EStructuralFeature it, Object value, (Object)=>String encoding) {
 		templatePropertyValue(encoding.apply(value))
 	}
 	

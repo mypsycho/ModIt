@@ -21,15 +21,25 @@ import org.eclipse.emf.ecore.EStructuralFeature
 import org.eclipse.sirius.diagram.EdgeArrows
 import org.eclipse.sirius.diagram.EdgeRouting
 import org.eclipse.sirius.diagram.description.AbstractNodeMapping
+import org.eclipse.sirius.diagram.description.BooleanLayoutOption
 import org.eclipse.sirius.diagram.description.CenteringStyle
 import org.eclipse.sirius.diagram.description.ConditionalContainerStyleDescription
 import org.eclipse.sirius.diagram.description.ConditionalNodeStyleDescription
 import org.eclipse.sirius.diagram.description.ContainerMapping
+import org.eclipse.sirius.diagram.description.CustomLayoutConfiguration
 import org.eclipse.sirius.diagram.description.DiagramDescription
 import org.eclipse.sirius.diagram.description.DiagramElementMapping
+import org.eclipse.sirius.diagram.description.DoubleLayoutOption
 import org.eclipse.sirius.diagram.description.EdgeMapping
+import org.eclipse.sirius.diagram.description.EnumLayoutOption
+import org.eclipse.sirius.diagram.description.EnumLayoutValue
+import org.eclipse.sirius.diagram.description.EnumSetLayoutOption
+import org.eclipse.sirius.diagram.description.IntegerLayoutOption
 import org.eclipse.sirius.diagram.description.Layer
+import org.eclipse.sirius.diagram.description.LayoutOption
+import org.eclipse.sirius.diagram.description.LayoutOptionTarget
 import org.eclipse.sirius.diagram.description.NodeMapping
+import org.eclipse.sirius.diagram.description.StringLayoutOption
 import org.eclipse.sirius.diagram.description.style.BorderedStyleDescription
 import org.eclipse.sirius.diagram.description.style.BundledImageDescription
 import org.eclipse.sirius.diagram.description.style.ContainerStyleDescription
@@ -41,6 +51,7 @@ import org.eclipse.sirius.diagram.description.style.WorkspaceImageDescription
 import org.eclipse.sirius.diagram.description.tool.ContainerCreationDescription
 import org.eclipse.sirius.diagram.description.tool.ContainerDropDescription
 import org.eclipse.sirius.diagram.description.tool.DeleteElementDescription
+import org.eclipse.sirius.diagram.description.tool.DiagramCreationDescription
 import org.eclipse.sirius.diagram.description.tool.DoubleClickDescription
 import org.eclipse.sirius.diagram.description.tool.EdgeCreationDescription
 import org.eclipse.sirius.diagram.description.tool.NodeCreationDescription
@@ -69,7 +80,6 @@ import org.eclipse.sirius.viewpoint.description.tool.InitEdgeCreationOperation
 import org.eclipse.sirius.viewpoint.description.tool.InitialContainerDropOperation
 import org.eclipse.sirius.viewpoint.description.tool.InitialNodeCreationOperation
 import org.eclipse.sirius.viewpoint.description.tool.ModelOperation
-import org.eclipse.sirius.viewpoint.description.tool.PasteDescription
 
 import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*
 
@@ -640,10 +650,72 @@ abstract class AbstractDiagram extends AbstractRepresentation<DiagramDescription
 			EdgeCreationDescription: initialOperation = InitEdgeCreationOperation.create [ firstModelOperations = value ]
 			DeleteElementDescription: initialOperation = value.toTool
 			DoubleClickDescription: initialOperation = value.toTool
-			PasteDescription: initialOperation = value.toTool
+			DiagramCreationDescription: initialOperation = value.toTool
 			default: super.setOperation(it, value)
 		}
 	}
     
+	def elkLayout(DiagramDescription it, LayoutOption... options) {
+		layout = CustomLayoutConfiguration.create [
+			id = "org.eclipse.elk.layered"
+			label = "ELK Layered"
+			description = "Layer-based algorithm provided by the Eclipse Layout Kernel."
+				+ " Arranges as many edges as possible into one direction by placing nodes into subsequent layers."
+				+ " This implementation supports different routing styles (straight, orthogonal, splines);" 
+				+ " if orthogonal routing is selected, arbitrary port constraints are respected," 
+				+ " thus enabling the layout of block diagrams such as actor-oriented models or circuit schematics."
+  				+ " Furthermore, full layout of compound graphs with cross-hierarchy edges is supported" 
+				+ " when the respective option is activated on the top level."
+			layoutOptions += options
+		]
+	}
+
+	protected def <T extends LayoutOption> elkOption(Class<T> type, String key, LayoutOptionTarget[] targets) {
+		type.create[
+			id = "org.eclipse.elk." + key
+			it.targets += targets
+		]
+	}
+
+	def elkBool(String key, boolean value, LayoutOptionTarget... targets) {
+		BooleanLayoutOption.elkOption(key, targets) => [
+			it.value = value
+		]
+	}
+
+	def elkDouble(String key, double value, LayoutOptionTarget... targets) {
+		DoubleLayoutOption.elkOption(key, targets) => [
+			it.value = value
+		]
+	}
+
+	def elkEnum(String key, String value, LayoutOptionTarget... targets) {
+		EnumLayoutOption.elkOption(key, targets) => [
+			value = EnumLayoutValue.create [ name = value ]
+		]
+	}
+
+	def elkEnums(String key, String values, LayoutOptionTarget... targets) {
+		EnumSetLayoutOption.elkOption(key, targets) => [
+			if (values !== null && !values.empty)
+				it.values += values.split(",")
+					.map[ value |
+						EnumLayoutValue.create [ name = value ]
+					]
+		]
+	}
+
+	def elkInt(String key, int value, LayoutOptionTarget... targets) {
+		IntegerLayoutOption.elkOption(key, targets) => [
+			it.value = value
+		]
+	}
+
+	def elkString(String key, String value, LayoutOptionTarget... targets) {
+		StringLayoutOption.elkOption(key, targets) => [
+			it.value = value
+		]
+	}
+
 
 }
