@@ -7,6 +7,7 @@ import org.eclipse.sirius.diagram.description.AdditionalLayer
 import org.eclipse.sirius.diagram.description.BooleanLayoutOption
 import org.eclipse.sirius.diagram.description.ContainerMapping
 import org.eclipse.sirius.diagram.description.CustomLayoutConfiguration
+import org.eclipse.sirius.diagram.description.DescriptionPackage
 import org.eclipse.sirius.diagram.description.DiagramDescription
 import org.eclipse.sirius.diagram.description.DoubleLayoutOption
 import org.eclipse.sirius.diagram.description.EdgeMapping
@@ -20,55 +21,30 @@ import org.eclipse.sirius.diagram.description.tool.ContainerCreationDescription
 import org.eclipse.sirius.diagram.description.tool.ContainerDropDescription
 import org.eclipse.sirius.diagram.description.tool.DeleteElementDescription
 import org.eclipse.sirius.diagram.description.tool.DiagramCreationDescription
-import org.eclipse.sirius.diagram.description.tool.DirectEditLabel
 import org.eclipse.sirius.diagram.description.tool.DoubleClickDescription
 import org.eclipse.sirius.diagram.description.tool.EdgeCreationDescription
 import org.eclipse.sirius.diagram.description.tool.NodeCreationDescription
 import org.eclipse.sirius.diagram.description.tool.ReconnectEdgeDescription
 import org.eclipse.sirius.diagram.description.tool.ToolSection
-import org.eclipse.sirius.viewpoint.description.AbstractVariable
-import org.eclipse.sirius.viewpoint.description.DescriptionPackage
-import org.eclipse.sirius.viewpoint.description.IdentifiedElement
 import org.eclipse.sirius.viewpoint.description.tool.AbstractToolDescription
-import org.eclipse.sirius.viewpoint.description.tool.OperationAction
-import org.eclipse.sirius.viewpoint.description.tool.PasteDescription
-import org.eclipse.sirius.viewpoint.description.tool.SelectionWizardDescription
-import org.eclipse.sirius.viewpoint.description.tool.ToolDescription
 import org.mypsycho.modit.emf.ClassId
-import org.mypsycho.modit.emf.EReversIt
 import org.mypsycho.modit.emf.sirius.api.AbstractDiagram
-import org.mypsycho.modit.emf.sirius.api.SiriusDesigns
 
 import static extension org.mypsycho.modit.emf.sirius.tool.SiriusReverseIt.*
 
 /** Override of default reverse for SiriusModelProvider class. */
-class DiagramTemplate extends EReversIt {
+class DiagramTemplate extends RepresentationTemplate<DiagramDescription> {
 	
-	static val SPKG = DescriptionPackage.eINSTANCE
-	static val DPKG = org.eclipse.sirius.diagram.description.DescriptionPackage.eINSTANCE
+	static val DPKG = DescriptionPackage.eINSTANCE
 
-	// XTend does not support statefull inner class
-	val extension SiriusReverseIt tool
-	
 	new(SiriusGroupTemplate container) {
-		super(container)
-		tool = container.tool
+		super(container, DiagramDescription)
 	}
 	
-	override isPartTemplate(EObject it) {
-		if (it instanceof DiagramDescription) 
-			defaultLayer !== null
-				&& domainClass.classFromDomain !== null
-		else 
-			false
+	override isApplicableTemplate(DiagramDescription it) {
+		defaultLayer !== null
+			&& domainClass.classFromDomain !== null
 	}
-	
-	
-	// Xtend
-	override performTemplatePart(ClassId it, EObject content) {
-		super.performTemplatePart(it, content)
-	}
-	
 	
 	static val INIT_TEMPLATED = #{
 		DiagramDescription -> #{
@@ -97,13 +73,12 @@ class DiagramTemplate extends EReversIt {
 		PART_IMPORTS
 			// + !!! requires metamodel !!!
 	}
-
-	override templatePartBody(ClassId it, EObject content) {
-		templateDiagram(content as DiagramDescription)
-	}
-
 	
-	def templateDiagram(ClassId it, DiagramDescription content) {
+	override getInitTemplateds() {
+		INIT_TEMPLATED
+	}
+	
+	override templateRepresentation(ClassId it, DiagramDescription content) {
 		// Parent class cannot use import detection 
 		//   as class does not exist (part of generation)
 		val parentName = 
@@ -165,24 +140,6 @@ ENDFOR
 }''' // end-of-class
 	}
 	
-	protected def String templateFilteredContent(EObject it, Class<? extends EObject> filter) {
-		val filtered = INIT_TEMPLATED.get(filter) ?: {}
-		val content = innerContent
-			.filter[ !filtered.contains(key) ]
-		templateInnerContent(content)
-	}
- 
-	val CONTENT_PROVIDER_FIELDS = #{
-		SPKG.identifiedElement_Name,
-		SPKG.abstractVariable_Name
-	}
-	
-	override getInnerContent(EObject it) {
-		super.getInnerContent(it)
-			// Following feature are supported by contentProvider
-			// See org.mypsycho.modit.emf.sirius.SiriusModelProvider#new(Iterable<? extends EPackage>)
-			.filter[ !CONTENT_PROVIDER_FIELDS.contains(key)  ]
-	}
 	
 	val static CONTAINMENT_ORDER = #[
 		Layer -> #[ 
@@ -211,9 +168,6 @@ ENDFOR
 		CONTAINMENT_ORDER
 	}
  
-	override templateInnerCreate(EObject it) {
-		smartTemplateCreate.toString
-	}
 
 	def dispatch smartTemplateCreate(AdditionalLayer it) {
 		'''create«name.techName»Layer'''
@@ -222,7 +176,7 @@ ENDFOR
 	def dispatch smartTemplateCreate(ToolSection it) {
 		val container = eContainer
 		if (!(container instanceof Layer)) {
-			return super.templateInnerCreate(it)
+			return _smartTemplateCreate(it as EObject)
 		}
 		val prefix = container instanceof AdditionalLayer
 				? container.name.techName
@@ -254,81 +208,10 @@ ENDFOR
 		AbstractToolDescription -> AbstractDiagram.Ns.operation
 	]
 	
-	def findNs(IdentifiedElement it) {
+	override getNsMapping() {
 		NS_MAPPING
-			.findFirst[ mapping | mapping.key.isInstance(it) ]
-			?.value
 	}
 	
- 	def dispatch smartTemplateCreate(AbstractVariable it) {
- 		val content = innerContent
- 		
-'''«templateClass».create("«name»")«
-IF !innerContent.empty
-									» [
-	«templateInnerContent(content)»
-]
-«
-ENDIF
-»'''
- 		
- 	}
-	
- 	def dispatch smartTemplateCreate(IdentifiedElement it) {
- 		// TODO 
-		//   NodeMapping, ContainerMapping, EdgeMapping
-		//  
- 		
-		templateIdentifiedCreate(it)
-	}
-	
-	def templateIdentifiedCreate(IdentifiedElement it) { // Default
-		val ns = findNs
-
-'''«templateClass».create«
-IF ns !== null
-						»As(Ns.«ns.name», «
-ELSE
-						»(«
-ENDIF
-						»"«it.name»") [
-	«templateInnerContent(innerContent)»
-]'''
-	}
-
- 	def dispatch smartTemplateCreate(EObject it) { // Default
-		super.templateInnerCreate(it)
-	}
-
-	override templateRef(EObject it, Class<?> using) {
-		if (it instanceof IdentifiedElement) {
-			val ns = findNs
-			if (ns !== null) {
-				if (currentContent.isContaining(it)) {
-					return '''«eClass.templateClass».localRef(Ns.«ns.name», "«name»")'''
-				}
-				val declaring = context.splits.keySet
-					.findFirst[ key | key.isContaining(it) ]
-				if (declaring !== null) {
-					val declaringId = context.splits.get(declaring)
-					// TODO deal with different packages ?
-					return '''«eClass.templateClass».ref(«declaringId.name», Ns.«ns.name», "«name»")'''
-				}
-			}
-		}
-		
-		super.templateRef(it, using)
-	}
-
-	
-	override templateProperty(EObject element, EStructuralFeature it, (Object, Class<?>)=>String encoding) {
-		element.smartTemplateProperty(it, encoding)
-	}
-
-	def dispatch smartTemplateProperty(EObject element, EStructuralFeature it, (Object, Class<?>)=>String encoding) {
-		// Default
-		super.templateProperty(element, it, encoding)
-	}
 
 	def dispatch smartTemplateProperty(DiagramDescription element, EStructuralFeature it, (Object, Class<?>)=>String encoding) {
 		if (it == DPKG.diagramDescription_Layout
@@ -338,7 +221,7 @@ ENDIF
 			return element.templateElkLayout
 		}
 		
-		super.templateProperty(element, it, encoding)
+		_smartTemplateProperty(element as EObject, it, encoding)
 	}
 	
 	def templateElkLayout(DiagramDescription it) {
@@ -360,28 +243,9 @@ ENDFOR 																		»
 )'''
 	}
 
-	def dispatch smartTemplateProperty(AbstractToolDescription element, EStructuralFeature it, (Object, Class<?>)=>String encoding) {
-		if (name == "initialOperation") {
-			try {
-				return element.templateToolOperation
-			} catch (UnsupportedOperationException ex) {
-				System.err.println("Add operation in DiagramTemplate: " 
-					+ (element as AbstractToolDescription).eClass.name
-				)
-			}
-		}
-		super.templateProperty(element, it, encoding)
-	}
 	
-	def String templateToolOperation(Object it) {
-		val operation = switch(it) {
-			// All representation
-			OperationAction: initialOperation.firstModelOperations
-			ToolDescription: initialOperation.firstModelOperations
-			PasteDescription: initialOperation.firstModelOperations
-			SelectionWizardDescription: initialOperation.firstModelOperations
-			DirectEditLabel: initialOperation.firstModelOperations
-			// Diagram
+	override getToolModelOperation(AbstractToolDescription it) {
+		switch(it) {
 			ContainerDropDescription: initialOperation.firstModelOperations
 			ReconnectEdgeDescription: initialOperation.firstModelOperations
 			NodeCreationDescription: initialOperation.firstModelOperations
@@ -390,25 +254,8 @@ ENDFOR 																		»
 			DeleteElementDescription: initialOperation.firstModelOperations
 			DoubleClickDescription: initialOperation.firstModelOperations
 			DiagramCreationDescription: initialOperation.firstModelOperations
-			default: throw new UnsupportedOperationException
-		}
-		if (operation !== null)
-			'''operation = «operation.templateCreate»'''
-		else 
-			'''// no operation '''
-	}
-	
-	
-	dispatch override toJava(String it) {
-		if (!startsWith(SiriusDesigns.AQL))
-			super._toJava(it)
-		else {// «» can be used to escape '
-			val expression = substring(SiriusDesigns.AQL.length)
-			// Issue with _'_ in templates
-			if (expression.startsWith("'") || expression.endsWith("'"))
-				'''«"'''"» «expression» «"'''"».trimAql'''
-			else
-				'''«"'''"»«expression»«"'''"».trimAql'''
+			default: super.getToolModelOperation(it)
 		}
 	}
+	
 }

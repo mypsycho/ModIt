@@ -43,13 +43,13 @@ abstract class AbstractTable<T extends TableDescription> extends AbstractReprese
 	}
 
 	enum EditArg {
+		/** feature of column */ element, // only used by feature table
 		/** Current DTable. */ table, 
-		/** semantic target of the current DTable. */root, 
 		/** DLine of the current DCell: table.DLine */line, 
 		/** semantic target of line */lineSemantic, 
 		/** DColumn of the current DCell: table.DColumn */column, 
 		/** semantic target of column */columnSemantic, // only used by cross table
-		/** feature of column */ element // only used by feature table
+		/** semantic target of the current DTable. */root
 	}
 	
 	static val LINE_DELETE_ARGS = #[ 
