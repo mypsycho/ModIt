@@ -45,5 +45,5 @@ jobs:
         uses: JamesIves/github-pages-deploy-action@4.1.4
         with:
           branch: gh-pages
-          folder: releng/org.eclipse.poosl.update/target/repository
+          folder: releng/publish/target/site
           target-folder: release/${{ steps.get_version.outputs.TAG_VERSION }}
