@@ -46,4 +46,4 @@ jobs:
         with:
           branch: gh-pages
           folder: releng/publish/target/site
-          target-folder: release/${{ steps.get_version.outputs.TAG_VERSION }}
+          target-folder: releases/${{ steps.get_version.outputs.TAG_VERSION }}
