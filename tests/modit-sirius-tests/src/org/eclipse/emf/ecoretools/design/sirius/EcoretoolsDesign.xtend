@@ -3,7 +3,6 @@ package org.eclipse.emf.ecoretools.design.sirius
 import java.lang.Class
 import org.eclipse.emf.common.util.EList
 import org.eclipse.emf.common.util.URI
-import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EReference
 import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.emf.ecore.resource.ResourceSet
@@ -18,9 +17,18 @@ import org.eclipse.sirius.viewpoint.description.SytemColorsPalette
 import org.eclipse.sirius.viewpoint.description.UserColorsPalette
 import org.eclipse.sirius.viewpoint.description.UserFixedColor
 import org.eclipse.sirius.viewpoint.description.Viewpoint
-import org.mypsycho.modit.emf.sirius.SiriusModelProvider
+import org.mypsycho.modit.emf.sirius.api.AbstractGroup
 
-class EcoretoolsDesign extends SiriusModelProvider {
+import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*
+
+class EcoretoolsDesign extends AbstractGroup {
+	
+	new () {
+        businessPackages += #[
+			org.eclipse.emf.ecore.EcorePackage.eINSTANCE,
+			org.eclipse.emf.codegen.ecore.genmodel.GenModelPackage.eINSTANCE
+        ]
+	}
 
 	override initContent(Group it) {
 		name = "EcoreTools"
@@ -31,33 +39,19 @@ class EcoretoolsDesign extends SiriusModelProvider {
 			modelFileExtension = "ecore xcore ecorebin"
 			ownedRepresentations += new EntitiesDiagram(this).createContent
 			ownedRepresentations += new ClassesEditionTable(this).createContent
-			ownedJavaExtensions += JavaExtension.create [
-				qualifiedClassName = "org.eclipse.emf.ecoretools.design.service.DesignServices"
-			]
-			ownedJavaExtensions += JavaExtension.create [
-				qualifiedClassName = "org.eclipse.sirius.common.tools.api.interpreter.StandardServices"
-			]
-			ownedJavaExtensions += JavaExtension.create [
-				qualifiedClassName = "org.eclipse.emf.ecoretools.design.service.PropertiesServices"
-			]
-			ownedJavaExtensions += JavaExtension.create [
-				qualifiedClassName = "org.eclipse.emf.ecoretools.design.service.ALEServices"
-			]
+			use(org.eclipse.emf.ecoretools.design.service.DesignServices)
+			use(org.eclipse.sirius.common.tools.api.interpreter.StandardServices)
+			use(org.eclipse.emf.ecoretools.design.service.PropertiesServices)
+			use(org.eclipse.emf.ecoretools.design.service.ALEServices)
 		]
 		ownedViewpoints += Viewpoint.create [
 			endUserDocumentation = "Add support for archetypes-based modeling to the Entities modeler."
 			name = "Archetype"
 			modelFileExtension = "ecore xcore ecorebin"
 			ownedRepresentationExtensions += new EntitiesWithArchetypesDiagramExtension(this).createContent
-			ownedJavaExtensions += JavaExtension.create [
-				qualifiedClassName = "org.eclipse.emf.ecoretools.design.service.ArchetypeServices"
-			]
-			ownedJavaExtensions += JavaExtension.create [
-				qualifiedClassName = "org.eclipse.emf.ecoretools.design.service.PropertiesServices"
-			]
-			ownedJavaExtensions += JavaExtension.create [
-				qualifiedClassName = "org.eclipse.emf.ecoretools.design.service.ALEServices"
-			]
+			use(org.eclipse.emf.ecoretools.design.service.ArchetypeServices)
+			use(org.eclipse.emf.ecoretools.design.service.PropertiesServices)
+			use(org.eclipse.emf.ecoretools.design.service.ALEServices)
 		]
 		ownedViewpoints += Viewpoint.create [
 			endUserDocumentation = "Provides representation to document and review Ecore models."
@@ -65,125 +59,43 @@ class EcoretoolsDesign extends SiriusModelProvider {
 			modelFileExtension = "ecore xcore ecorebin"
 			ownedRepresentations += new DocumentationCrossTable(this).createContent
 			ownedRepresentations += new DependenciesDiagram(this).createContent
-			ownedJavaExtensions += JavaExtension.create [
-				qualifiedClassName = "org.eclipse.emf.ecoretools.design.service.ReviewServices"
-			]
-			ownedJavaExtensions += JavaExtension.create [
-				qualifiedClassName = "org.eclipse.emf.ecoretools.design.service.PropertiesServices"
-			]
-			ownedJavaExtensions += JavaExtension.create [
-				qualifiedClassName = "org.eclipse.emf.ecoretools.design.service.ALEServices"
-			]
+			use(org.eclipse.emf.ecoretools.design.service.ReviewServices)
+			use(org.eclipse.emf.ecoretools.design.service.PropertiesServices)
+			use(org.eclipse.emf.ecoretools.design.service.ALEServices)
 		]
 		ownedViewpoints += Viewpoint.create [
 			endUserDocumentation = "Adds support for EMF GenModel configuration."
 			name = "Generation"
 			modelFileExtension = "genmodel"
 			ownedRepresentations += new GenPackageAttributesEditionTable(this).createContent
-			ownedJavaExtensions += JavaExtension.create [
-				qualifiedClassName = "org.eclipse.emf.ecoretools.design.service.GenerationServices"
-			]
-			ownedJavaExtensions += JavaExtension.create [
-				qualifiedClassName = "org.eclipse.emf.ecoretools.design.service.PropertiesServices"
-			]
-			ownedJavaExtensions += JavaExtension.create [
-				qualifiedClassName = "org.eclipse.emf.ecoretools.design.service.ALEServices"
-			]
+			use(org.eclipse.emf.ecoretools.design.service.GenerationServices)
+			use(org.eclipse.emf.ecoretools.design.service.PropertiesServices)
+			use(org.eclipse.emf.ecoretools.design.service.ALEServices)
 		]
 		userColorsPalettes += UserColorsPalette.create [
 			name = "Ecore Palette"
-			entries += InterpolatedColor.create [
+			entries += InterpolatedColor.createAs("color:Size Based Color") [
 				name = "Size Based Color"
 				minValueComputationExpression = "aql:0"
 				maxValueComputationExpression = "aql:10"
 			]
-			entries += UserFixedColor.create [
-				red = 250
-				green = 190
-				blue = 190
-				name = "MomentIntervalColor"
-			]
-			entries += UserFixedColor.create [
-				red = 250
-				green = 240
-				blue = 180
-				name = "RoleColor"
-			]
-			entries += UserFixedColor.create [
-				red = 180
-				green = 230
-				blue = 180
-				name = "PartyPlaceThingColor"
-			]
-			entries += UserFixedColor.create [
-				red = 180
-				green = 200
-				blue = 210
-				name = "DescriptionColor"
-			]
-			entries += UserFixedColor.create [
-				red = 255
-				green = 245
-				blue = 182
-				name = "Package Color"
-			]
-			entries += UserFixedColor.create [
-				red = 253
-				green = 208
-				blue = 142
-				name = "External Package Color"
-			]
-			entries += UserFixedColor.create [
-				red = 255
-				green = 252
-				blue = 216
-				name = "EClass"
-			]
-			entries += UserFixedColor.create [
-				red = 217
-				green = 210
-				blue = 220
-				name = "EPackage"
-			]
-			entries += UserFixedColor.create [
-				red = 255
-				green = 250
-				blue = 191
-				name = "EDataType"
-			]
-			entries += UserFixedColor.create [
-				red = 221
-				green = 236
-				blue = 202
-				name = "EEnum"
-			]
-			entries += UserFixedColor.create [
-				name = "Dark EClass"
-			]
-			entries += UserFixedColor.create [
-				name = "Dark EPackage"
-			]
-			entries += UserFixedColor.create [
-				name = "Dark EDataType"
-			]
-			entries += UserFixedColor.create [
-				name = "Dark EEnum"
-			]
-			entries += UserFixedColor.create [
-				red = 220
-				green = 234
-				blue = 183
-				name = "Doc Annotation"
-			]
-			entries += UserFixedColor.create [
-				red = 228
-				green = 228
-				blue = 228
-				name = "Abstract EClass"
-			]
-			entries += UserFixedColor.create [
-				name = "Inherited"
-			]
+			entries += "MomentIntervalColor".color(250, 190, 190)
+			entries += "RoleColor".color(250, 240, 180)
+			entries += "PartyPlaceThingColor".color(180, 230, 180)
+			entries += "DescriptionColor".color(180, 200, 210)
+			entries += "Package Color".color(255, 245, 182)
+			entries += "External Package Color".color(253, 208, 142)
+			entries += "EClass".color(255, 252, 216)
+			entries += "EPackage".color(217, 210, 220)
+			entries += "EDataType".color(255, 250, 191)
+			entries += "EEnum".color(221, 236, 202)
+			entries += "Dark EClass".color(125, 125, 125)
+			entries += "Dark EPackage".color(125, 125, 125)
+			entries += "Dark EDataType".color(125, 125, 125)
+			entries += "Dark EEnum".color(125, 125, 125)
+			entries += "Doc Annotation".color(220, 234, 183)
+			entries += "Abstract EClass".color(228, 228, 228)
+			entries += "Inherited".color(125, 125, 125)
 		]
 		extensions += new EcoretoolsViewExtension(this).createContent
 	}

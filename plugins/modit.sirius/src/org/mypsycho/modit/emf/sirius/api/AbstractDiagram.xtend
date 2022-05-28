@@ -52,6 +52,7 @@ import org.eclipse.sirius.diagram.description.tool.ContainerCreationDescription
 import org.eclipse.sirius.diagram.description.tool.ContainerDropDescription
 import org.eclipse.sirius.diagram.description.tool.DeleteElementDescription
 import org.eclipse.sirius.diagram.description.tool.DiagramCreationDescription
+import org.eclipse.sirius.diagram.description.tool.DirectEditLabel
 import org.eclipse.sirius.diagram.description.tool.DoubleClickDescription
 import org.eclipse.sirius.diagram.description.tool.EdgeCreationDescription
 import org.eclipse.sirius.diagram.description.tool.NodeCreationDescription
@@ -73,6 +74,7 @@ import org.eclipse.sirius.viewpoint.description.tool.AbstractToolDescription
 import org.eclipse.sirius.viewpoint.description.tool.ContainerViewVariable
 import org.eclipse.sirius.viewpoint.description.tool.DragSource
 import org.eclipse.sirius.viewpoint.description.tool.DropContainerVariable
+import org.eclipse.sirius.viewpoint.description.tool.EditMaskVariables
 import org.eclipse.sirius.viewpoint.description.tool.ElementDeleteVariable
 import org.eclipse.sirius.viewpoint.description.tool.ElementDropVariable
 import org.eclipse.sirius.viewpoint.description.tool.ElementSelectVariable
@@ -96,6 +98,7 @@ abstract class AbstractDiagram extends AbstractRepresentation<DiagramDescription
 		node, creation, drop, del,
 		edge, connect, disconnect, reconnect,
 		operation, section,
+		menu, mitem,
 		show // for filter + layer
 	}
 	
@@ -715,6 +718,10 @@ abstract class AbstractDiagram extends AbstractRepresentation<DiagramDescription
 		StringLayoutOption.elkOption(key, targets) => [
 			it.value = value
 		]
+	}
+	
+	def setMask(DirectEditLabel it, String value) {
+		mask = EditMaskVariables.create[ mask = value ]
 	}
 
 

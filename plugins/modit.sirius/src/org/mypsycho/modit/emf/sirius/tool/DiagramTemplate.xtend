@@ -26,7 +26,12 @@ import org.eclipse.sirius.diagram.description.tool.EdgeCreationDescription
 import org.eclipse.sirius.diagram.description.tool.NodeCreationDescription
 import org.eclipse.sirius.diagram.description.tool.ReconnectEdgeDescription
 import org.eclipse.sirius.diagram.description.tool.ToolSection
+import org.eclipse.sirius.viewpoint.description.IdentifiedElement
 import org.eclipse.sirius.viewpoint.description.tool.AbstractToolDescription
+import org.eclipse.sirius.viewpoint.description.tool.ContainerModelOperation
+import org.eclipse.sirius.viewpoint.description.tool.ExternalJavaAction
+import org.eclipse.sirius.viewpoint.description.tool.InitialOperation
+import org.eclipse.sirius.viewpoint.description.tool.PopupMenu
 import org.mypsycho.modit.emf.ClassId
 import org.mypsycho.modit.emf.sirius.api.AbstractDiagram
 
@@ -49,7 +54,7 @@ class DiagramTemplate extends RepresentationTemplate<DiagramDescription> {
 	static val INIT_TEMPLATED = #{
 		DiagramDescription -> #{
 			// Diagram
-			SPKG.identifiedElement_Name, 
+			SPKG.identifiedElement_Label, 
 			SPKG.representationDescription_Metamodel,
 			DPKG.diagramDescription_DomainClass,
 			DPKG.diagramDescription_DefaultLayer
@@ -93,10 +98,10 @@ class DiagramTemplate extends RepresentationTemplate<DiagramDescription> {
 
 import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*
 
-class «name» extends AbstractDiagram {
+class «name» extends «AbstractDiagram.templateClass» {
 
 	new(«parentName» parent) {
-		super(parent, "«content.name»", «content.domainClass.classFromDomain.templateClass»)
+		super(parent, "«content.label»", «content.domainClass.classFromDomain.templateClass»)
 	}
 
 	override initContent(DiagramDescription it) {
@@ -143,6 +148,7 @@ ENDFOR
 	
 	val static CONTAINMENT_ORDER = #[
 		Layer -> #[ 
+			DPKG.layer_NodeMappings,
 			DPKG.layer_ContainerMappings,
 			DPKG.layer_EdgeMappings,
 			DPKG.layer_ToolSections
@@ -205,6 +211,9 @@ ENDFOR
 		
 		NodeCreationDescription -> AbstractDiagram.Ns.creation,
 		ContainerDropDescription -> AbstractDiagram.Ns.drop,
+		
+		// representation level
+		PopupMenu -> AbstractDiagram.Ns.menu,
 		AbstractToolDescription -> AbstractDiagram.Ns.operation
 	]
 	
@@ -212,6 +221,17 @@ ENDFOR
 		NS_MAPPING
 	}
 	
+	override findNs(IdentifiedElement it) {
+		// Some issue with internal operation.
+		if (it instanceof ExternalJavaAction 
+			&& (eContainer instanceof InitialOperation 
+				|| eContainer instanceof ContainerModelOperation
+			)
+		)
+			null
+		else 
+			super.findNs(it)
+	}
 
 	def dispatch smartTemplateProperty(DiagramDescription element, EStructuralFeature it, (Object, Class<?>)=>String encoding) {
 		if (it == DPKG.diagramDescription_Layout

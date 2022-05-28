@@ -188,10 +188,14 @@ class EReversIt {
 	}
 	
 	def getSplits() { context.splits }
+	
+	def getAliases() { context.aliases }
 
 	def getExplicitExtras() { context.explicitExtras }
 	
 	def getShortcuts() { context.shortcuts }
+
+	def setEncoding(Charset encoding) { context.encoding = encoding }
 
 	def isPartTemplate(EObject it) { true }
 
@@ -959,9 +963,8 @@ ENDIF
 	protected def templateImports(ClassId container) {
 '''«
 FOR c : currentImports.entrySet
-	.filter[ value 
-		&& key.packageName != container.pack
-	].map[ key ]
+	.filter[ value && key.packageName != container.pack ]
+	.map[ key ]
 	.toList
 	.sortBy[ name ] 
 SEPARATOR statementSeparator
@@ -1007,8 +1010,7 @@ ENDFOR
 
 	dispatch def toJava(String it) {
 		// TODO: Very ugly, probably not complete
-		"\"" 
-			+ replace("\\", "\\\\") // order matters
+		"\"" + replace("\\",    "\\\\") // order matters
 				.replace("\"", "\\\"") //
 				.replace("\t", "\\t") //
 				.replace("\r\n", "\\n") // order matters

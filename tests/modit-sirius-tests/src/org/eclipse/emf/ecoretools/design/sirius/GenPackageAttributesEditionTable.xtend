@@ -1,72 +1,60 @@
 package org.eclipse.emf.ecoretools.design.sirius
 
-import org.eclipse.emf.ecore.EObject
+import org.eclipse.emf.codegen.ecore.genmodel.GenPackage
 import org.eclipse.emf.ecore.EPackage
 import org.eclipse.sirius.table.metamodel.table.description.BackgroundConditionalStyle
 import org.eclipse.sirius.table.metamodel.table.description.BackgroundStyleDescription
 import org.eclipse.sirius.table.metamodel.table.description.EditionTableDescription
 import org.eclipse.sirius.table.metamodel.table.description.FeatureColumnMapping
 import org.eclipse.sirius.table.metamodel.table.description.LineMapping
+import org.eclipse.sirius.table.metamodel.table.description.TableDescription
+import org.eclipse.sirius.table.metamodel.table.description.TableTool
 import org.eclipse.sirius.viewpoint.description.Environment
 import org.eclipse.sirius.viewpoint.description.SystemColor
 import org.eclipse.sirius.viewpoint.description.SytemColorsPalette
-import org.mypsycho.modit.emf.EModIt
-import static extension org.eclipse.emf.ecoretools.design.sirius.EcoretoolsDesign.*
+import org.mypsycho.modit.emf.sirius.api.AbstractEditionTable
 
-class GenPackageAttributesEditionTable {
-	val EcoretoolsDesign context
-	val extension EModIt factory
+import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*
+
+class GenPackageAttributesEditionTable extends AbstractEditionTable {
 
 	new(EcoretoolsDesign parent) {
-		this.context = parent
-		this.factory = parent.factory
+		super(parent, "Properties attributes and categories", GenPackage)
 	}
 
-	def EditionTableDescription createContent() {
-		EditionTableDescription.createAs("GenPackageAttributesEditionTable") [
-			documentation = "<html>\n<head>\n</head>\n<body>\n<p>To set generation related parameters:</p>\n<ul>\n  <li>the property category</li>\n  <li>the user facing documentation for each property</li>\n</ul>\n<br>\n</body>\n</html>\n\n\n"
-			name = "GenPackage Attributes"
-			label = "Properties attributes and categories"
-			titleExpression = "aql:self.prefix + ' generation table'"
-			domainClass = "genmodel.GenPackage"
-			metamodel += org.eclipse.emf.codegen.ecore.genmodel.GenModelPackage.eINSTANCE
-			metamodel += org.eclipse.emf.ecore.EcorePackage.eINSTANCE
-			ownedLineMappings += LineMapping.create [
-				name = "GenClass"
-				domainClass = "genmodel.GenClass"
-				headerLabelExpression = "aql:self.ecoreClass.name"
-				ownedSubLines += LineMapping.create [
-					name = "GenFeature"
-					domainClass = "genmodel.GenFeature"
-					semanticCandidatesExpression = "aql:self.eAllContents(genmodel::GenFeature)->select(a | a.ecoreFeature.oclIsTypeOf(ecore::EAttribute) or a.ecoreFeature.oclIsTypeOf(ecore::EReference) and not(a.ecoreFeature.oclAsType(ecore::EReference).containment) and not(a.ecoreFeature.oclAsType(ecore::EReference).derived))"
-					headerLabelExpression = "aql:self.ecoreFeature.name"
-					backgroundConditionalStyle += BackgroundConditionalStyle.create [
-						predicateExpression = "aql:self.propertyCategory = ''"
-						style = BackgroundStyleDescription.create [
-							backgroundColor = SystemColor.extraRef("color:light_yellow")
-						]
+	override initDefaultLineStyle(LineMapping it) {}
+
+	override initContent(EditionTableDescription it) {
+		name = "GenPackage Attributes"
+		documentation = "<html>\n<head>\n</head>\n<body>\n<p>To set generation related parameters:</p>\n<ul>\n  <li>the property category</li>\n  <li>the user facing documentation for each property</li>\n</ul>\n<br>\n</body>\n</html>\n\n\n"
+		titleExpression = ''' self.prefix + ' generation table' '''.trimAql
+		it.line("GenClass") [
+			domainClass = "genmodel.GenClass"
+			headerLabelExpression = '''self.ecoreClass.name'''.trimAql
+			it.line("GenFeature") [
+				domainClass = "genmodel.GenFeature"
+				semanticCandidatesExpression = '''self.eAllContents(genmodel::GenFeature)->select(a | a.ecoreFeature.oclIsTypeOf(ecore::EAttribute) or a.ecoreFeature.oclIsTypeOf(ecore::EReference) and not(a.ecoreFeature.oclAsType(ecore::EReference).containment) and not(a.ecoreFeature.oclAsType(ecore::EReference).derived))'''.trimAql
+				headerLabelExpression = '''self.ecoreFeature.name'''.trimAql
+				backgroundConditionalStyle += BackgroundConditionalStyle.create [
+					predicateExpression = ''' self.propertyCategory = '' '''.trimAql
+					style = BackgroundStyleDescription.create [
+						backgroundColor = SystemColor.extraRef("color:light_yellow")
 					]
 				]
 			]
-			ownedColumnMappings += FeatureColumnMapping.create [
-				name = "Category"
-				headerLabelExpression = "Category"
-				canEdit = "aql:self.oclIsTypeOf(genmodel::GenFeature)"
-				featureName = "propertyCategory"
-				labelExpression = "aql:self->filter(genmodel::GenFeature).propertyCategory->first()"
-			]
-			ownedColumnMappings += FeatureColumnMapping.create [
-				name = "Decription"
-				headerLabelExpression = "Description"
-				canEdit = "aql:self.oclIsTypeOf(genmodel::GenFeature)"
-				featureName = "propertyDescription"
-				labelExpression = "aql:self->filter(genmodel::GenFeature).propertyDescription->first()"
-			]
+		]
+		it.column("Category") [
+			headerLabelExpression = "Category"
+			canEdit = '''self.oclIsTypeOf(genmodel::GenFeature)'''.trimAql
+			featureName = "propertyCategory"
+			labelExpression = '''self->filter(genmodel::GenFeature).propertyCategory->first()'''.trimAql
+		]
+		it.column("Decription") [
+			headerLabelExpression = "Description"
+			canEdit = '''self.oclIsTypeOf(genmodel::GenFeature)'''.trimAql
+			featureName = "propertyDescription"
+			labelExpression = '''self->filter(genmodel::GenFeature).propertyDescription->first()'''.trimAql
 		]
 	}
 
-	def <T> T extraRef(Class<T> type, String key) {
-		context.extraRef(type, key)
-	}
-	
 }

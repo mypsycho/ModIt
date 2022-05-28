@@ -13,12 +13,18 @@
  package org.mypsycho.modit.emf.sirius.api
 
 import java.util.Objects
+import org.eclipse.emf.ecore.EClass
 import org.eclipse.emf.ecore.EObject
+import org.eclipse.sirius.table.metamodel.table.description.CreateCellTool
 import org.eclipse.sirius.table.metamodel.table.description.CrossTableDescription
-import org.eclipse.sirius.table.metamodel.table.description.ElementColumnMapping
-import org.eclipse.sirius.table.metamodel.table.description.IntersectionMapping
-import org.eclipse.xtext.xbase.lib.Procedures.Procedure3
 import org.eclipse.sirius.table.metamodel.table.description.DeleteColumnTool
+import org.eclipse.sirius.table.metamodel.table.description.ElementColumnMapping
+import org.eclipse.sirius.table.metamodel.table.description.FeatureColumnMapping
+import org.eclipse.sirius.table.metamodel.table.description.IntersectionMapping
+import org.eclipse.sirius.table.metamodel.table.description.LabelEditTool
+import org.eclipse.sirius.viewpoint.description.tool.EditMaskVariables
+import org.eclipse.sirius.viewpoint.description.tool.ModelOperation
+import org.eclipse.xtext.xbase.lib.Procedures.Procedure3
 
 /**
  * Adaptation of Sirius model into Java and EClass reflections API
@@ -49,6 +55,19 @@ abstract class AbstractCrossTable extends AbstractTable<CrossTableDescription> {
 	def void setDomainClass(ElementColumnMapping it, Class<? extends EObject> type) {
 		domainClass = context.asDomainClass(type)
 	}
+		   
+    /**
+     * Sets the domain class of a description.
+     * <p>
+     * EClass is resolved using businessPackages of AbstractGroup.
+     * </p>
+     * 
+     * @param it description to define
+     * @param type of the description
+     */
+    def void setDomainClass(ElementColumnMapping it, EClass type) {
+        domainClass = SiriusDesigns.encode(type)
+    }
 	
 	/**
 	 * Sets edit operation for provided mapping.
@@ -82,21 +101,92 @@ abstract class AbstractCrossTable extends AbstractTable<CrossTableDescription> {
 	 * @param domain class of column value
 	 * @param initializer of column
 	 */
-	protected def column(String name, 
-		Class<? extends EObject> domain, (ElementColumnMapping)=>void initializer
+	def column(String name, 
+		Class<? extends EObject> domain, 
+		(ElementColumnMapping)=>void initializer
+	) {
+        Objects.requireNonNull(initializer)
+        name.column[
+        	domainClass = domain.asDomainClass
+        	initializer.apply(it)
+        ]
+    }
+    
+    def column(CrossTableDescription it, 
+    	String name, Class<? extends EObject> domain, 
+    	(ElementColumnMapping)=>void initializer
+    ) {
+		ownedColumnMappings += name.column(domain, initializer)
+	}
+    
+	/**
+	 * Creates a column with provided id.
+	 * 
+	 * @param name of column
+	 * @param initializer of column
+	 */
+	def column(String name, 
+		(ElementColumnMapping)=>void initializer
 	) {
         Objects.requireNonNull(initializer)
         ElementColumnMapping.createAs(Ns.column, name) [ 
-            domainClass = domain.asDomainClass
             noDelete
             initializer.apply(it)
         ]
     }
     
-    protected def void noDelete(ElementColumnMapping it) {
+    def column(CrossTableDescription it, String name, 
+    	(ElementColumnMapping)=>void initializer
+    ) {
+		ownedColumnMappings += name.column(initializer)
+	}
+	
+	protected def columnRef(String id) {
+		ElementColumnMapping.ref(Ns.column.id(id))
+	}
+    
+    def void noDelete(ElementColumnMapping it) {
         delete = DeleteColumnTool.create[
             precondition = SiriusDesigns.NEVER
         ]
     }
+    
+    	
+	def setOperation(CreateCellTool it, ModelOperation operation) {
+		// For reversing mainly, more precise API exists.
+		// CreateLineTool is ambiguious with AbstractToolDescription
+		firstModelOperation = operation
+	}
 
+	static val CELL_CREATE_ARGS = #[ 
+	     EditArg.lineSemantic -> null,
+	     EditArg.columnSemantic -> null,
+	     EditArg.root -> null
+	]
+
+	def initVariables(CreateCellTool it) {
+		initVariables(CELL_CREATE_ARGS)
+	}
+	
+	
+	def setMask(CreateCellTool it, String value) {
+		mask = EditMaskVariables.create[ mask = value ]
+	}
+	
+	static val CELL_LABEL_ARGS = #[ 
+	     EditArg.table -> null,
+	     EditArg.line -> null,
+	     EditArg.element -> "The currently edited element.",
+	     EditArg.lineSemantic -> null,
+	     EditArg.columnSemantic -> "The semantic element corresponding to the column (only available for Intersection Mapping).",
+	     EditArg.root -> "The semantic element of the table."
+	]
+	
+	override initVariables(LabelEditTool it) {
+		if (eContainer instanceof IntersectionMapping) {
+			initVariables(CELL_LABEL_ARGS)
+		} else {
+			super.initVariables(it)
+		}
+	}
 }

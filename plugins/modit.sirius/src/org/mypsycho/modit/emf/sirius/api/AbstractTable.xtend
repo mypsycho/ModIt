@@ -18,10 +18,12 @@ import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EReference
 import org.eclipse.sirius.table.metamodel.table.description.BackgroundStyleDescription
 import org.eclipse.sirius.table.metamodel.table.description.CreateLineTool
+import org.eclipse.sirius.table.metamodel.table.description.CreateTool
 import org.eclipse.sirius.table.metamodel.table.description.DeleteLineTool
 import org.eclipse.sirius.table.metamodel.table.description.LabelEditTool
 import org.eclipse.sirius.table.metamodel.table.description.LineMapping
 import org.eclipse.sirius.table.metamodel.table.description.TableDescription
+import org.eclipse.sirius.table.metamodel.table.description.TableTool
 import org.eclipse.sirius.table.metamodel.table.description.TableVariable
 import org.eclipse.sirius.viewpoint.description.SystemColor
 import org.eclipse.sirius.viewpoint.description.tool.EditMaskVariables
@@ -49,32 +51,36 @@ abstract class AbstractTable<T extends TableDescription> extends AbstractReprese
 		/** semantic target of line */lineSemantic, 
 		/** DColumn of the current DCell: table.DColumn */column, 
 		/** semantic target of column */columnSemantic, // only used by cross table
-		/** semantic target of the current DTable. */root
+		/** semantic target of the current DTable. */root,
+		container
 	}
+	
+	static val EDIT_ARGS_DOCUMENTATIONS = #{
+		EditArg.element -> "The current DCell.",
+		EditArg.table -> "The current DTable.",
+		EditArg.line -> "The DLine of the current DCell.",
+		EditArg.lineSemantic -> "The semantic element corresponding to the line.",
+		EditArg.root -> "The semantic root element of the table.",
+		EditArg.columnSemantic -> "The semantic element corresponding to the column.",
+		EditArg.column -> "xxx",
+		EditArg.container -> "The semantic element corresponding to the view container."
+	}
+	
+	static val ALL_ARGS = EditArg.values.map[ it -> null ]
 	
 	static val LINE_DELETE_ARGS = #[ 
-	     EditArg.element, // line semantic
-	     EditArg.root // table semantic
+	     EditArg.element -> null, // line semantic
+	     EditArg.root -> null // table semantic
 	]
 
-	
+	static val CREATE_LINE_ARGS = #[ 
+		EditArg.root -> null, 
+		EditArg.element -> "The semantic currently edited element.", // "The current DCell.", 
+		EditArg.container -> null
+	]
+
 	/** Value return by field edit */
-	public static val EDIT_VALUE = "arg0"
-	
-	
-	// root='ecore.EObject | semantic target of the current DTable.' 
-// line='table.DLine | DLine of the current DCell.'
-// lineSemantic='ecore.EObject | semantic target of $line' 
-// container='ecore.EObject | semantic target of $line.' 
-// column='table.DColumn | DColumn of the current DCell.' 
-// columnSemantic='ecore.EObject | semantic target of $column'
-	
-	enum CreateMappingArg {
-		root, // "The semantic root element of the table.",
-		element, //"The semantic currently edited element.",
-		container // The semantic element corresponding to the view container."
-	}
-	static val CREATE_MAPPING_ARGS = CreateMappingArg.values.params
+	public static val EDIT_VALUE = "arg0"	
 
 	/**
 	 * Create a factory for a diagram description
@@ -144,29 +150,63 @@ abstract class AbstractTable<T extends TableDescription> extends AbstractReprese
 		val owner = eContainer
 		
 		domainClass = 
-			if (owner instanceof LineMapping) owner.domainClass
-			else if (owner instanceof TableDescription) owner.domainClass
-			else SiriusDesigns.ANY_TYPE // should not happen, log ?
+			if (owner instanceof LineMapping) 
+				owner.domainClass
+			else if (owner instanceof TableDescription) 
+				owner.domainClass
+			else  // should not happen, log ?
+				SiriusDesigns.ANY_TYPE
 		
 		semanticCandidatesExpression = SiriusDesigns.IDENTITY
 		noDelete // delete would apply on directory element.
 		headerLabelExpression = headerExpression // could be localized
 	}
 
-	protected def line(String id, (LineMapping)=>void initializer) {
+	protected def initDefaultLineStyle(LineMapping it) {
+		defaultBackground = BackgroundStyleDescription.create [ // null is grey
+			backgroundColor = SystemColor.extraRef("color:white")
+		]
+	}
+
+	def line(String id, (LineMapping)=>void initializer) {
 		Objects.requireNonNull(initializer)
 		LineMapping.createAs(Ns.line, id) [
+			initDefaultLineStyle
 			initializer.apply(it)
-
-			defaultBackground = BackgroundStyleDescription.create [ // null is grey
-				backgroundColor = SystemColor.extraRef("color:white")
-			]
-			
 		]
  	}
+ 	
+	def line(TableDescription it, String id, (LineMapping)=>void initializer) {
+		ownedLineMappings += id.line(initializer)
+	}
 
-	protected def lineRef(String id) {
+	def line(LineMapping it, String id, (LineMapping)=>void initializer) {
+		ownedSubLines += id.line(initializer)
+	}
+
+	def lineRef(String id) {
 		LineMapping.ref(Ns.line.id(id))
+	}
+	
+	def initVariables(TableTool it, Iterable<? extends Pair<EditArg, ?>> variableNames) {
+		variables += variableNames.map[ descr |
+            TableVariable.create[ 
+            	name = descr.key.name
+            	documentation = descr.value?.toString 
+            		?: EDIT_ARGS_DOCUMENTATIONS.get(descr.key)
+            ]
+        ]
+	}
+
+	def setOperation(TableTool it, ModelOperation operation) {
+		// For reversing mainly, more precise API exists.
+		firstModelOperation = operation
+	}
+		
+	def setOperation(CreateTool it, ModelOperation operation) {
+		// For reversing mainly, more precise API exists.
+		// CreateLineTool is ambiguious with AbstractToolDescription
+		firstModelOperation = operation
 	}
 	
 	def createLabelEdit(ModelOperation operation) {
@@ -174,10 +214,18 @@ abstract class AbstractTable<T extends TableDescription> extends AbstractReprese
 			// Built-in variables, 
 			// required to handle scope in interpreter
 			// (seems like a dirty hack)
-			variables += EditArg.values.toToolVariables
-			mask = EditMaskVariables.create[ mask = "{0}" ]
+			initVariables
+			mask = "{0}"
 			firstModelOperation = operation
 		]
+	}
+	
+	def setMask(LabelEditTool it, String value) {
+		mask = EditMaskVariables.create[ mask = value ]
+	}
+	
+	def initVariables(LabelEditTool it) {
+		initVariables(ALL_ARGS)
 	}
 	
     /**
@@ -192,11 +240,14 @@ abstract class AbstractTable<T extends TableDescription> extends AbstractReprese
         parent.delete = DeleteLineTool.create [
             name = parent.name + ":delete"
             label = "Delete"
-            variables += LINE_DELETE_ARGS.toToolVariables
+            initVariables
             firstModelOperation = operation
         ]
     }
 
+	def initVariables(DeleteLineTool it) {
+		initVariables(LINE_DELETE_ARGS)
+	}
     
     /**
      * Set Delete tool of a line.
@@ -223,9 +274,13 @@ abstract class AbstractTable<T extends TableDescription> extends AbstractReprese
 		CreateLineTool.createAs(Ns.create, line + role) [
 			label = toolLabel
 			mapping = line.lineRef
-			variables += CreateMappingArg.values.toToolVariables
+			initVariables
 			firstModelOperation = operation
 		]
+	}
+	
+	def initVariables(CreateLineTool it) {
+		initVariables(CREATE_LINE_ARGS)
 	}
 
     /**
@@ -237,7 +292,7 @@ abstract class AbstractTable<T extends TableDescription> extends AbstractReprese
      * @return new CreateLineTool instance
      */
 	def createLine(String line, String toolLabel, ModelOperation operation) {
-		line.createLine("", "", operation)
+		line.createLine("", toolLabel, operation)
 	}
 	
     /**
@@ -265,15 +320,12 @@ abstract class AbstractTable<T extends TableDescription> extends AbstractReprese
      * @param action(root target, line target, line view)
      * @return new CreateLineTool instance
      */
+    static val CREATE_LINE_PARAMS = CREATE_LINE_ARGS.params
     def createLine(String line, String role, String toolLabel, Procedure3<EObject, EObject, EObject> action
 	) {
-		line.createLine(toolLabel, role, context.expression(CREATE_MAPPING_ARGS, action).toOperation)
+		line.createLine(toolLabel, role, context.expression(CREATE_LINE_PARAMS, action).toOperation)
 	}
 	
-	def toToolVariables(Enum<?>... names) {
-	    names.map[ descr |
-            TableVariable.create[ name = descr.name ]
-        ]
-	}
+
 	
 }

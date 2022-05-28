@@ -3,12 +3,12 @@ Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
 Bundle-SymbolicName: org.mypsycho.emf.modit.dummy-model.edit;singleton:=true
 Automatic-Module-Name: org.mypsycho.emf.modit.dummy-model.edit
-Bundle-Version: 0.7.2.qualifier
+Bundle-Version: 0.8.0
 Bundle-ClassPath: .
 Bundle-Activator: org.mypsycho.emf.modit.dw.dummyworld.provider.DummyWorldEditPlugin$Implementation
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Export-Package: org.mypsycho.emf.modit.dw.dummyworld.provider
 Require-Bundle: org.eclipse.core.runtime,
  org.mypsycho.emf.modit.dummy-model;visibility:=reexport,

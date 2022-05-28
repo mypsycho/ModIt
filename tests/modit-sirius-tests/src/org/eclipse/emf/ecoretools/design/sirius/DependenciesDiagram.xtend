@@ -1,6 +1,5 @@
 package org.eclipse.emf.ecoretools.design.sirius
 
-import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EPackage
 import org.eclipse.sirius.diagram.BackgroundStyle
 import org.eclipse.sirius.diagram.BundledImageShape
@@ -10,6 +9,7 @@ import org.eclipse.sirius.diagram.EdgeRouting
 import org.eclipse.sirius.diagram.LabelPosition
 import org.eclipse.sirius.diagram.LineStyle
 import org.eclipse.sirius.diagram.ResizeKind
+import org.eclipse.sirius.diagram.description.AdditionalLayer
 import org.eclipse.sirius.diagram.description.CenteringStyle
 import org.eclipse.sirius.diagram.description.ContainerMapping
 import org.eclipse.sirius.diagram.description.DiagramDescription
@@ -27,10 +27,8 @@ import org.eclipse.sirius.diagram.description.tool.DirectEditLabel
 import org.eclipse.sirius.diagram.description.tool.ToolSection
 import org.eclipse.sirius.viewpoint.LabelAlignment
 import org.eclipse.sirius.viewpoint.description.Environment
-import org.eclipse.sirius.viewpoint.description.Group
 import org.eclipse.sirius.viewpoint.description.SystemColor
 import org.eclipse.sirius.viewpoint.description.SytemColorsPalette
-import org.eclipse.sirius.viewpoint.description.UserColorsPalette
 import org.eclipse.sirius.viewpoint.description.UserFixedColor
 import org.eclipse.sirius.viewpoint.description.style.LabelBorderStyleDescription
 import org.eclipse.sirius.viewpoint.description.style.LabelBorderStyles
@@ -54,207 +52,167 @@ import org.eclipse.sirius.viewpoint.description.tool.SelectContainerVariable
 import org.eclipse.sirius.viewpoint.description.tool.SelectModelElementVariable
 import org.eclipse.sirius.viewpoint.description.tool.SelectionWizardDescription
 import org.eclipse.sirius.viewpoint.description.tool.ToolDescription
-import org.mypsycho.modit.emf.EModIt
-import static extension org.eclipse.emf.ecoretools.design.sirius.EcoretoolsDesign.*
+import org.mypsycho.modit.emf.sirius.api.AbstractDiagram
 
-class DependenciesDiagram {
-	val EcoretoolsDesign context
-	val extension EModIt factory
+import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*
+
+class DependenciesDiagram extends AbstractDiagram {
 
 	new(EcoretoolsDesign parent) {
-		this.context = parent
-		this.factory = parent.factory
+		super(parent, "Package dependencies diagram", EPackage)
 	}
 
-	def DiagramDescription createContent() {
-		DiagramDescription.createAs("DependenciesDiagram") [
-			documentation = "<html>\n<head>\n</head>\n<body>\n<p>A  diagram used to highligh dependencies in between EPackages.</p>\n<br>\n<img src=\"/icons/full/wizban/packages.png\"/>\n</body>\n</html>\n\n\n"
-			name = "Dependencies"
-			label = "Package dependencies diagram"
-			titleExpression = "aql:self.name + ' package dependencies'"
+	override initContent(DiagramDescription it) {
+		super.initContent(it)
+		name = "Dependencies"
+		documentation = "<html>\n<head>\n</head>\n<body>\n<p>A  diagram used to highligh dependencies in between EPackages.</p>\n<br>\n<img src=\"/icons/full/wizban/packages.png\"/>\n</body>\n</html>\n\n\n"
+		titleExpression = ''' self.name + ' package dependencies' '''.trimAql
+		dropDescriptions += ContainerDropDescription.localRef(Ns.drop, "External EPackageTo Analyze from treeview")
+	}
+
+	override initContent(Layer it) {
+		containerMappings += ContainerMapping.createAs(Ns.node, "Analyzed Package") [
+			createElements = false
 			domainClass = "ecore.EPackage"
-			dropDescriptions += ContainerDropDescription.ref("DependenciesDiagram")[ (it as DiagramDescription).defaultLayer.toolSections.atIdentifiedElement("Existing Elements").ownedTools.at(ContainerDropDescription, "External EPackageTo Analyze from treeview") ]
-			metamodel += org.eclipse.emf.ecore.EcorePackage.eINSTANCE
-			defaultLayer = Layer.create [
-				name = "Default"
-				edgeMappings += EdgeMapping.create [
-					name = "Package Dependency"
-					semanticCandidatesExpression = "service:getPackageDependencies"
-					targetFinderExpression = "service:getPackageDependencies"
-					domainClass = "ecore.EPackage"
-					sourceMapping += ContainerMapping.ref("DependenciesDiagram")[ (it as DiagramDescription).defaultLayer.containerMappings.at("Analyzed Package") ]
-					targetMapping += ContainerMapping.ref("DependenciesDiagram")[ (it as DiagramDescription).defaultLayer.containerMappings.at("Analyzed Package") ]
-					style = EdgeStyleDescription.create [
-						lineStyle = LineStyle.DASH_LITERAL
-						sizeComputationExpression = "service:getDependenciesAmount()"
-						strokeColor = SystemColor.extraRef("color:red")
-						centerLabelStyleDescription = CenterLabelStyleDescription.create [
-							labelColor = SystemColor.extraRef("color:black")
+			childrenPresentation = ContainerLayout.LIST
+			labelDirectEdit = DirectEditLabel.ref(EntitiesDiagram, Ns.operation, "Edit Name no CamelCase")
+			style = FlatContainerStyleDescription.create [
+				arcWidth = 1
+				arcHeight = 1
+				borderSizeComputationExpression = "1"
+				labelExpression = "feature:nsURI"
+				labelAlignment = LabelAlignment.LEFT
+				backgroundStyle = BackgroundStyle.LIQUID_LITERAL
+				borderColor = UserFixedColor.ref("color:Dark EPackage")
+				labelColor = SystemColor.extraRef("color:black")
+				backgroundColor = SystemColor.extraRef("color:white")
+				foregroundColor = UserFixedColor.ref("color:EPackage")
+				labelBorderStyle = Environment.extraRef("$0").labelBorderStyles.labelBorderStyleDescriptions.get(0)
+			]
+			subNodeMappings += NodeMapping.createAs(Ns.node, "EClassfierIntroducingDependency") [
+				semanticCandidatesExpression = "service:getElementsIntroducingDependencies(diagram)"
+				domainClass = "ecore.EClassifier"
+				style = BundledImageDescription.create [
+					labelExpression = "service:getDependenciesLabel"
+					labelAlignment = LabelAlignment.LEFT
+					tooltipExpression = "service:getDependenciesTooltip(view)"
+					labelPosition = LabelPosition.NODE_LITERAL
+					resizeKind = ResizeKind.NSEW_LITERAL
+					borderColor = SystemColor.extraRef("color:black")
+					labelColor = SystemColor.extraRef("color:black")
+					color = SystemColor.extraRef("color:black")
+				]
+			]
+		]
+		edgeMappings += EdgeMapping.createAs(Ns.edge, "Package Dependency") [
+			semanticCandidatesExpression = "service:getPackageDependencies"
+			targetFinderExpression = "service:getPackageDependencies"
+			domainClass = "ecore.EPackage"
+			sourceMapping += ContainerMapping.localRef(Ns.node, "Analyzed Package")
+			targetMapping += ContainerMapping.localRef(Ns.node, "Analyzed Package")
+			style = EdgeStyleDescription.create [
+				lineStyle = LineStyle.DASH_LITERAL
+				sizeComputationExpression = "service:getDependenciesAmount()"
+				strokeColor = SystemColor.extraRef("color:red")
+				centerLabelStyleDescription = CenterLabelStyleDescription.create [
+					labelColor = SystemColor.extraRef("color:black")
+				]
+			]
+		]
+		toolSections += createHelpTools
+		toolSections += createExistingElementsTools
+	}
+
+	def createHelpTools() {
+		ToolSection.create("Help") [
+			label = "Help"
+			ownedTools += OperationAction.createAs(Ns.operation, "Open Dependencies User Guide") [
+				label = "Open User Guide"
+				view = ContainerViewVariable.create("views")
+				operation = ExternalJavaAction.create("Open Dependencies User Guide Action") [
+					id = "org.eclipse.sirius.ui.business.api.action.openHelpSection"
+					parameters += ExternalJavaActionParameter.create [
+						name = "href"
+						value = "/org.eclipse.emf.ecoretools.design/doc/user-guide.html#quality.dependencies"
+					]
+				]
+			]
+		]
+	}
+
+
+	def createExistingElementsTools() {
+		ToolSection.create("Existing Elements") [
+			ownedTools += SelectionWizardDescription.createAs(Ns.operation, "Add") [
+				precondition = "service:isEPackage"
+				forceRefresh = true
+				candidatesExpression = "service:getValidsForDiagram(containerView)"
+				multiple = true
+				tree = true
+				rootExpression = "service:rootEPackages"
+				childrenExpression = "feature:eContents"
+				iconPath = "/org.eclipse.emf.ecoretools.design/icons/full/etools16/search.gif"
+				windowTitle = "Select element to add in diagram"
+				element = ElementSelectVariable.create("element")
+				containerView = ContainerViewVariable.create("containerView")
+				container = SelectContainerVariable.create("container")
+				operation = For.create [
+					expression = "var:element"
+					subModelOperations += If.create [
+						conditionExpression = "service:isEPackage"
+						subModelOperations += CreateView.create [
+							containerViewExpression = "var:containerView"
+							mapping = ContainerMapping.localRef(Ns.node, "Analyzed Package")
 						]
 					]
 				]
-				containerMappings += ContainerMapping.create [
-					name = "Analyzed Package"
-					createElements = false
-					domainClass = "ecore.EPackage"
-					childrenPresentation = ContainerLayout.LIST
-					labelDirectEdit = DirectEditLabel.ref("EntitiesDiagram")[ (it as DiagramDescription).defaultLayer.toolSections.atIdentifiedElement("Direct Edit").ownedTools.at(DirectEditLabel, "Edit Name no CamelCase") ]
-					subNodeMappings += NodeMapping.create [
-						name = "EClassfierIntroducingDependency"
-						semanticCandidatesExpression = "service:getElementsIntroducingDependencies(diagram)"
-						domainClass = "ecore.EClassifier"
-						style = BundledImageDescription.create [
-							labelExpression = "service:getDependenciesLabel"
-							labelAlignment = LabelAlignment.LEFT
-							tooltipExpression = "service:getDependenciesTooltip(view)"
-							labelPosition = LabelPosition.NODE_LITERAL
-							resizeKind = ResizeKind.NSEW_LITERAL
-							borderColor = SystemColor.extraRef("color:black")
-							labelColor = SystemColor.extraRef("color:black")
-							color = SystemColor.extraRef("color:black")
-						]
-					]
-					style = FlatContainerStyleDescription.create [
-						arcWidth = 1
-						arcHeight = 1
-						borderSizeComputationExpression = "1"
-						labelExpression = "feature:nsURI"
-						labelAlignment = LabelAlignment.LEFT
-						backgroundStyle = BackgroundStyle.LIQUID_LITERAL
-						borderColor = UserFixedColor.ref("EcoretoolsDesign")[ (it as Group).userColorsPalettes.at("Ecore Palette").entries.at(UserFixedColor, "Dark EPackage") ]
-						labelColor = SystemColor.extraRef("color:black")
-						backgroundColor = SystemColor.extraRef("color:white")
-						foregroundColor = UserFixedColor.ref("EcoretoolsDesign")[ (it as Group).userColorsPalettes.at("Ecore Palette").entries.at(UserFixedColor, "EPackage") ]
-						labelBorderStyle = Environment.extraRef("$0").labelBorderStyles.labelBorderStyleDescriptions.get(0)
-					]
+			]
+			ownedTools += ToolDescription.createAs(Ns.operation, "RemoveExistingElements") [
+				label = "Remove"
+				precondition = '''containerView.oclIsKindOf(diagram::DDiagram)'''.trimAql
+				forceRefresh = true
+				iconPath = "/org.eclipse.emf.ecoretools.design/icons/full/etools16/search.gif"
+				element = ElementVariable.create("element")
+				elementView = ElementViewVariable.create("elementView")
+				operation = ChangeContext.create [
+					browseExpression = "var:elementView"
+					subModelOperations += DeleteView.create
 				]
-				toolSections += ToolSection.create [
-					name = "Help"
-					label = "Help"
-					ownedTools += OperationAction.create [
-						name = "Open Dependencies User Guide"
-						label = "Open User Guide"
-						view = ContainerViewVariable.create [
-							name = "views"
-						]
-						initialOperation = InitialOperation.create [
-							firstModelOperations = ExternalJavaAction.create [
-								name = "Open Dependencies User Guide Action"
-								id = "org.eclipse.sirius.ui.business.api.action.openHelpSection"
-								parameters += ExternalJavaActionParameter.create [
-									name = "href"
-									value = "/org.eclipse.emf.ecoretools.design/doc/user-guide.html#quality.dependencies"
-								]
-							]
+			]
+			ownedTools += ContainerDropDescription.createAs(Ns.drop, "External EPackageTo Analyze from treeview") [
+				forceRefresh = true
+				dragSource = DragSource.PROJECT_EXPLORER_LITERAL
+				oldContainer = DropContainerVariable.create("oldSemanticContainer")
+				newContainer = DropContainerVariable.create("newSemanticContainer")
+				element = ElementDropVariable.create("element")
+				newViewContainer = ContainerViewVariable.create("newContainerView")
+				operation = ChangeContext.create [
+					browseExpression = "var:element"
+					subModelOperations += If.create [
+						conditionExpression = "service:isEPackage"
+						subModelOperations += CreateView.create [
+							containerViewExpression = "var:newContainerView"
+							mapping = ContainerMapping.localRef(Ns.node, "Analyzed Package")
 						]
 					]
 				]
-				toolSections += ToolSection.create [
-					name = "Existing Elements"
-					ownedTools += SelectionWizardDescription.create [
-						name = "Add"
-						precondition = "service:isEPackage"
-						forceRefresh = true
-						candidatesExpression = "service:getValidsForDiagram(containerView)"
+			]
+			ownedTools += OperationAction.createAs(Ns.operation, "Add Related Elements") [
+				icon = "/org.eclipse.emf.ecoretools.design/icons/full/etools16/search.gif"
+				view = ContainerViewVariable.create("views") [
+					subVariables += SelectModelElementVariable.create("selected") [
+						candidatesExpression = "service:getRelated(views,diagram)"
 						multiple = true
-						tree = true
-						rootExpression = "service:rootEPackages"
-						childrenExpression = "feature:eContents"
-						iconPath = "/org.eclipse.emf.ecoretools.design/icons/full/etools16/search.gif"
-						windowTitle = "Select element to add in diagram"
-						element = ElementSelectVariable.create [
-							name = "element"
-						]
-						containerView = ContainerViewVariable.create [
-							name = "containerView"
-						]
-						container = SelectContainerVariable.create [
-							name = "container"
-						]
-						initialOperation = InitialOperation.create [
-							firstModelOperations = For.create [
-								expression = "var:element"
-								subModelOperations += If.create [
-									conditionExpression = "service:isEPackage"
-									subModelOperations += CreateView.create [
-										containerViewExpression = "var:containerView"
-										mapping = ContainerMapping.ref("DependenciesDiagram")[ (it as DiagramDescription).defaultLayer.containerMappings.at("Analyzed Package") ]
-									]
-								]
-							]
-						]
+						message = "Pick the Element you want to add to the diagram."
 					]
-					ownedTools += ToolDescription.create [
-						name = "RemoveExistingElements"
-						label = "Remove"
-						precondition = "aql:containerView.oclIsKindOf(diagram::DDiagram)"
-						forceRefresh = true
-						iconPath = "/org.eclipse.emf.ecoretools.design/icons/full/etools16/search.gif"
-						element = ElementVariable.create [
-							name = "element"
-						]
-						elementView = ElementViewVariable.create [
-							name = "elementView"
-						]
-						initialOperation = InitialOperation.create [
-							firstModelOperations = ChangeContext.create [
-								browseExpression = "var:elementView"
-								subModelOperations += DeleteView.create
-							]
-						]
-					]
-					ownedTools += ContainerDropDescription.create [
-						name = "External EPackageTo Analyze from treeview"
-						forceRefresh = true
-						dragSource = DragSource.PROJECT_EXPLORER_LITERAL
-						oldContainer = DropContainerVariable.create [
-							name = "oldSemanticContainer"
-						]
-						newContainer = DropContainerVariable.create [
-							name = "newSemanticContainer"
-						]
-						element = ElementDropVariable.create [
-							name = "element"
-						]
-						newViewContainer = ContainerViewVariable.create [
-							name = "newContainerView"
-						]
-						initialOperation = InitialContainerDropOperation.create [
-							firstModelOperations = ChangeContext.create [
-								browseExpression = "var:element"
-								subModelOperations += If.create [
-									conditionExpression = "service:isEPackage"
-									subModelOperations += CreateView.create [
-										containerViewExpression = "var:newContainerView"
-										mapping = ContainerMapping.ref("DependenciesDiagram")[ (it as DiagramDescription).defaultLayer.containerMappings.at("Analyzed Package") ]
-									]
-								]
-							]
-						]
-					]
-					ownedTools += OperationAction.create [
-						name = "Add Related Elements"
-						icon = "/org.eclipse.emf.ecoretools.design/icons/full/etools16/search.gif"
-						view = ContainerViewVariable.create [
-							name = "views"
-							subVariables += SelectModelElementVariable.create [
-								name = "selected"
-								candidatesExpression = "service:getRelated(views,diagram)"
-								multiple = true
-								message = "Pick the Element you want to add to the diagram."
-							]
-						]
-						initialOperation = InitialOperation.create [
-							firstModelOperations = For.create [
-								expression = "var:selected"
-								subModelOperations += If.create [
-									conditionExpression = "service:isEPackage"
-									subModelOperations += CreateView.create [
-										containerViewExpression = "var:diagram"
-										mapping = ContainerMapping.ref("EntitiesDiagram")[ (it as DiagramDescription).defaultLayer.containerMappings.at("EC EClass") ]
-									]
-								]
-							]
+				]
+				operation = For.create [
+					expression = "var:selected"
+					subModelOperations += If.create [
+						conditionExpression = "service:isEPackage"
+						subModelOperations += CreateView.create [
+							containerViewExpression = "var:diagram"
+							mapping = ContainerMapping.ref(EntitiesDiagram, Ns.node, "EC EClass")
 						]
 					]
 				]
@@ -262,8 +220,4 @@ class DependenciesDiagram {
 		]
 	}
 
-	def <T> T extraRef(Class<T> type, String key) {
-		context.extraRef(type, key)
-	}
-	
 }

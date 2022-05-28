@@ -4,10 +4,13 @@ import java.nio.file.Paths
 import org.eclipse.emf.common.util.URI
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl
 import org.eclipse.emf.ecore.xmi.XMIResource
+import org.eclipse.emf.ecoretools.design.modit.PlainDesign
 import org.eclipse.emf.ecoretools.design.sirius.EcoretoolsDesign
 import org.junit.Test
 import org.mypsycho.modit.emf.EReversIt
+import org.mypsycho.modit.emf.ModitModel
 import org.mypsycho.modit.emf.sirius.tool.SiriusReverseIt
+import org.junit.Ignore
 
 /**
  * Test model generation and reverse.
@@ -22,8 +25,8 @@ class EcoretoolsTest {
 		.resolve(EcoretoolsTest.simpleName)
 
 	protected static val TEST_BUNDLE = "org.eclipse.emf.ecoretools.design"
-	protected static val PACKAGE_PATH = TEST_BUNDLE.replace('.', '/')
-	protected static val REFMODEL_PATH = '''/«TEST_BUNDLE»/description/ecore.odesign'''
+	protected static val PACKAGE_PATH = "org.eclipse.emf.ecoretools.design".replace('.', '/')
+	protected static val REFMODEL_PATH = '''/org.mypsycho.emf.modit.sirius.tests/resource/EcoretoolsTest/ecore.odesign'''
 	
 	protected static val REFSRC_DIR = Paths.get("src").toAbsolutePath
 		
@@ -33,70 +36,61 @@ class EcoretoolsTest {
 			
 	@Test
 	def void reverseSiriusModel() {
-		new SiriusReverseIt(REFMODEL_PATH, TESTSRC_PATH, 
+		new SiriusReverseIt(
+			REFMODEL_PATH,
+			TESTSRC_PATH,
 			TEST_BUNDLE + ".sirius.EcoretoolsDesign"
 		).perform
 		
-				
-        FileComparator.assertIdentical(
-        	REFSRC_DIR.resolve(PACKAGE_PATH).resolve("sirius"), 
-        	TESTSRC_PATH.resolve(PACKAGE_PATH).resolve("sirius")
-        )
+		assertSamePackage(PACKAGE_PATH + "/sirius")
 	}
 	
 	@Test
 	def void reverseModel() {
 		val rs = new ResourceSetImpl
-		new EReversIt(TEST_BUNDLE + ".modit.EcoretoolsDesign", TESTSRC_PATH, 
+		new EReversIt(
+			TEST_BUNDLE + ".modit.PlainDesign",
+			TESTSRC_PATH,
 			rs.getResource(URI.createPlatformPluginURI(REFMODEL_PATH, true), true)
 		).perform
 		
-        FileComparator.assertIdentical(
-        	REFSRC_DIR.resolve(PACKAGE_PATH).resolve("modit"), 
-        	TESTSRC_PATH.resolve(PACKAGE_PATH).resolve("modit")
-        )
-        	
-        
+		assertSamePackage(PACKAGE_PATH + "/modit")
 	}
 
-	
-	@Test 
-    def void writeSiriusODesign() {
-    	val rs = new ResourceSetImpl()
-    	
-        val res = rs.createResource(URI.createFileURI(TEST_DIR.resolve("description/ecoretools.odesign").toString))
-        
-        new EcoretoolsDesign().loadContent(res).head
-                        
-        res.save(#{
-        	XMIResource.OPTION_ENCODING -> "ASCII"
-        });
-
+	def assertSamePackage(String packagePath) {
 		FileComparator.assertIdentical(
-        	TEST_DIR.resolve("description/ecoretools.odesign"), 
-        	MODEL_REF
+        	TESTSRC_PATH.resolve(packagePath),
+        	REFSRC_DIR.resolve(packagePath)
         )
+	}	
 
+	
+	@Test @Ignore // Issue with default initialisation.
+    def void writeSiriusODesign() {
+    	new EcoretoolsDesign().assertContentEquals("description/ecoretools.odesign")
+    }
+    
+    	
+	@Test
+    def void writeModitODesign() {
+    	new PlainDesign().assertContentEquals("description/ecoretools_plain.odesign")
     }
     
     
-    	
-	@Test 
-    def void writeModelODesign() {
+    protected def void assertContentEquals(ModitModel content, String filename) {
     	val rs = new ResourceSetImpl()
-    	
-        val res = rs.createResource(URI.createFileURI(TEST_DIR.resolve("description/ecoretools_plain.odesign").toString))
-        
-        new org.eclipse.emf.ecoretools.design.modit.EcoretoolsDesign().loadContent(res).head
+        val res = rs.createResource(URI.createFileURI(TEST_DIR.resolve(filename).toString))
+        content.loadContent(res).head
                         
         res.save(#{
         	XMIResource.OPTION_ENCODING -> "ASCII"
         });
 
         FileComparator.assertIdentical(
-        	TEST_DIR.resolve("description/ecoretools_plain.odesign"), 
+        	TEST_DIR.resolve(filename), 
         	MODEL_REF
         )
     }
+    
 
 }

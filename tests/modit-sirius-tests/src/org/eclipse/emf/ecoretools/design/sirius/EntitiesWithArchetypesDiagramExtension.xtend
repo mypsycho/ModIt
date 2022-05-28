@@ -14,8 +14,6 @@ import org.eclipse.sirius.diagram.description.tool.NodeCreationVariable
 import org.eclipse.sirius.diagram.description.tool.ToolSection
 import org.eclipse.sirius.viewpoint.description.Customization
 import org.eclipse.sirius.viewpoint.description.EReferenceCustomization
-import org.eclipse.sirius.viewpoint.description.Group
-import org.eclipse.sirius.viewpoint.description.UserColorsPalette
 import org.eclipse.sirius.viewpoint.description.UserFixedColor
 import org.eclipse.sirius.viewpoint.description.VSMElementCustomization
 import org.eclipse.sirius.viewpoint.description.tool.ChangeContext
@@ -211,7 +209,7 @@ class EntitiesWithArchetypesDiagramExtension {
 							appliedOn += FlatContainerStyleDescription.ref("EntitiesDiagram")[ ((it as DiagramDescription).defaultLayer.containerMappings.at("EC EClass").style as FlatContainerStyleDescription) ]
 							appliedOn += FlatContainerStyleDescription.ref("EntitiesDiagram")[ ((it as DiagramDescription).defaultLayer.containerMappings.at("EC EClass").conditionnalStyles.get(1).style as FlatContainerStyleDescription) ]
 							appliedOn += FlatContainerStyleDescription.ref("EntitiesDiagram")[ ((it as DiagramDescription).defaultLayer.containerMappings.at("EC EClass").conditionnalStyles.get(0).style as FlatContainerStyleDescription) ]
-							value = UserFixedColor.ref("EcoretoolsDesign")[ (it as Group).userColorsPalettes.at("Ecore Palette").entries.at(UserFixedColor, "MomentIntervalColor") ]
+							value = UserFixedColor.ref("color:MomentIntervalColor")
 						]
 					]
 					vsmElementCustomizations += VSMElementCustomization.create [
@@ -221,7 +219,7 @@ class EntitiesWithArchetypesDiagramExtension {
 							appliedOn += FlatContainerStyleDescription.ref("EntitiesDiagram")[ ((it as DiagramDescription).defaultLayer.containerMappings.at("EC EClass").style as FlatContainerStyleDescription) ]
 							appliedOn += FlatContainerStyleDescription.ref("EntitiesDiagram")[ ((it as DiagramDescription).defaultLayer.containerMappings.at("EC EClass").conditionnalStyles.get(1).style as FlatContainerStyleDescription) ]
 							appliedOn += FlatContainerStyleDescription.ref("EntitiesDiagram")[ ((it as DiagramDescription).defaultLayer.containerMappings.at("EC EClass").conditionnalStyles.get(0).style as FlatContainerStyleDescription) ]
-							value = UserFixedColor.ref("EcoretoolsDesign")[ (it as Group).userColorsPalettes.at("Ecore Palette").entries.at(UserFixedColor, "DescriptionColor") ]
+							value = UserFixedColor.ref("color:DescriptionColor")
 						]
 					]
 					vsmElementCustomizations += VSMElementCustomization.create [
@@ -231,7 +229,7 @@ class EntitiesWithArchetypesDiagramExtension {
 							appliedOn += FlatContainerStyleDescription.ref("EntitiesDiagram")[ ((it as DiagramDescription).defaultLayer.containerMappings.at("EC EClass").style as FlatContainerStyleDescription) ]
 							appliedOn += FlatContainerStyleDescription.ref("EntitiesDiagram")[ ((it as DiagramDescription).defaultLayer.containerMappings.at("EC EClass").conditionnalStyles.get(1).style as FlatContainerStyleDescription) ]
 							appliedOn += FlatContainerStyleDescription.ref("EntitiesDiagram")[ ((it as DiagramDescription).defaultLayer.containerMappings.at("EC EClass").conditionnalStyles.get(0).style as FlatContainerStyleDescription) ]
-							value = UserFixedColor.ref("EcoretoolsDesign")[ (it as Group).userColorsPalettes.at("Ecore Palette").entries.at(UserFixedColor, "PartyPlaceThingColor") ]
+							value = UserFixedColor.ref("color:PartyPlaceThingColor")
 						]
 					]
 					vsmElementCustomizations += VSMElementCustomization.create [
@@ -241,7 +239,7 @@ class EntitiesWithArchetypesDiagramExtension {
 							appliedOn += FlatContainerStyleDescription.ref("EntitiesDiagram")[ ((it as DiagramDescription).defaultLayer.containerMappings.at("EC EClass").style as FlatContainerStyleDescription) ]
 							appliedOn += FlatContainerStyleDescription.ref("EntitiesDiagram")[ ((it as DiagramDescription).defaultLayer.containerMappings.at("EC EClass").conditionnalStyles.get(1).style as FlatContainerStyleDescription) ]
 							appliedOn += FlatContainerStyleDescription.ref("EntitiesDiagram")[ ((it as DiagramDescription).defaultLayer.containerMappings.at("EC EClass").conditionnalStyles.get(0).style as FlatContainerStyleDescription) ]
-							value = UserFixedColor.ref("EcoretoolsDesign")[ (it as Group).userColorsPalettes.at("Ecore Palette").entries.at(UserFixedColor, "RoleColor") ]
+							value = UserFixedColor.ref("color:RoleColor")
 						]
 					]
 				]

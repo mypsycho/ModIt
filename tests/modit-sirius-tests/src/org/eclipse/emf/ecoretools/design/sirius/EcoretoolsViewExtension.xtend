@@ -74,8 +74,8 @@ class EcoretoolsViewExtension {
 					name = "ecore_page"
 					labelExpression = "Ecore"
 					semanticCandidateExpression = "var:self"
-					groups += GroupDescription.ref("EcoretoolsViewExtension")[ (it as ViewExtensionDescription).categories.atIdentifiedElement("Default").groups.atIdentifiedElement("default rules") ]
-					groups += GroupDescription.ref("EcoretoolsViewExtension")[ (it as ViewExtensionDescription).categories.atIdentifiedElement("Default").groups.atIdentifiedElement("egeneric supertypes-TBD") ]
+					groups += GroupDescription.ref("EcoretoolsViewExtension")[ (it as ViewExtensionDescription).categories.head.groups.atIdentifiedElement("default rules") ]
+					groups += GroupDescription.ref("EcoretoolsViewExtension")[ (it as ViewExtensionDescription).categories.head.groups.atIdentifiedElement("egeneric supertypes-TBD") ]
 					validationSet = PageValidationSetDescription.create [
 						semanticValidationRules += SemanticValidationRule.create [
 							name = "NoNameOrInvalid"
@@ -94,7 +94,7 @@ class EcoretoolsViewExtension {
 					domainClass = "ecore::EOperation"
 					semanticCandidateExpression = "var:self"
 					indented = true
-					groups += GroupDescription.ref("EcoretoolsViewExtension")[ (it as ViewExtensionDescription).categories.atIdentifiedElement("Default").groups.atIdentifiedElement("eoperation parameters dynamic mapping") ]
+					groups += GroupDescription.ref("EcoretoolsViewExtension")[ (it as ViewExtensionDescription).categories.head.groups.atIdentifiedElement("eoperation parameters dynamic mapping") ]
 					validationSet = PageValidationSetDescription.create [
 						semanticValidationRules += SemanticValidationRule.create [
 							name = "NoNameOrInvalid"
@@ -112,14 +112,14 @@ class EcoretoolsViewExtension {
 					labelExpression = "Documentation"
 					semanticCandidateExpression = "var:self"
 					indented = true
-					groups += GroupDescription.ref("EcoretoolsViewExtension")[ (it as ViewExtensionDescription).categories.atIdentifiedElement("Default").groups.atIdentifiedElement("documentation") ]
+					groups += GroupDescription.ref("EcoretoolsViewExtension")[ (it as ViewExtensionDescription).categories.head.groups.atIdentifiedElement("documentation") ]
 				]
 				pages += PageDescription.create [
 					name = "annotation_page"
 					labelExpression = "Annotation"
 					semanticCandidateExpression = "var:self"
 					indented = true
-					groups += GroupDescription.ref("EcoretoolsViewExtension")[ (it as ViewExtensionDescription).categories.atIdentifiedElement("Default").groups.atIdentifiedElement("eannotation dynamic") ]
+					groups += GroupDescription.ref("EcoretoolsViewExtension")[ (it as ViewExtensionDescription).categories.head.groups.atIdentifiedElement("eannotation dynamic") ]
 					actions += ToolbarAction.create [
 						tooltipExpression = "Add EAnnotation"
 						imageExpression = "/org.eclipse.emf.ecore.edit/icons/full/ctool16/CreateEModelElement_eAnnotations_EAnnotation.gif"
@@ -139,10 +139,10 @@ class EcoretoolsViewExtension {
 					labelExpression = "Generation"
 					semanticCandidateExpression = "aql:self"
 					preconditionExpression = "aql:self.eInverse()->select( g | g.eClass().ePackage.nsURI->includes('http://www.eclipse.org/emf/2002/GenModel'))->asSet()->size() > 0"
-					groups += GroupDescription.ref("EcoretoolsViewExtension")[ (it as ViewExtensionDescription).categories.atIdentifiedElement("Default").groups.atIdentifiedElement("genmodel_directories") ]
-					groups += GroupDescription.ref("EcoretoolsViewExtension")[ (it as ViewExtensionDescription).categories.atIdentifiedElement("Default").groups.atIdentifiedElement("genmodel opposite instance") ]
-					groups += GroupDescription.ref("EcoretoolsViewExtension")[ (it as ViewExtensionDescription).categories.atIdentifiedElement("Default").groups.atIdentifiedElement("generation_navigation") ]
-					groups += GroupDescription.ref("EcoretoolsViewExtension")[ (it as ViewExtensionDescription).categories.atIdentifiedElement("Default").groups.atIdentifiedElement("genmodel root") ]
+					groups += GroupDescription.ref("EcoretoolsViewExtension")[ (it as ViewExtensionDescription).categories.head.groups.atIdentifiedElement("genmodel_directories") ]
+					groups += GroupDescription.ref("EcoretoolsViewExtension")[ (it as ViewExtensionDescription).categories.head.groups.atIdentifiedElement("genmodel opposite instance") ]
+					groups += GroupDescription.ref("EcoretoolsViewExtension")[ (it as ViewExtensionDescription).categories.head.groups.atIdentifiedElement("generation_navigation") ]
+					groups += GroupDescription.ref("EcoretoolsViewExtension")[ (it as ViewExtensionDescription).categories.head.groups.atIdentifiedElement("genmodel root") ]
 					actions += ToolbarAction.create [
 						tooltipExpression = "Generate Model"
 						imageExpression = "/org.eclipse.emf.ecoretools.design/icons/full/etools16/generate_single.gif"
@@ -233,8 +233,8 @@ class EcoretoolsViewExtension {
 					labelExpression = "Execution"
 					semanticCandidateExpression = "var:self"
 					preconditionExpression = "aql:self.eContainerOrSelf(ecore::EPackage).isConfiguredForALE()"
-					groups += GroupDescription.ref("EcoretoolsViewExtension")[ (it as ViewExtensionDescription).categories.atIdentifiedElement("Default").groups.atIdentifiedElement("execution_body") ]
-					groups += GroupDescription.ref("EcoretoolsViewExtension")[ (it as ViewExtensionDescription).categories.atIdentifiedElement("Default").groups.atIdentifiedElement("execution_imports") ]
+					groups += GroupDescription.ref("EcoretoolsViewExtension")[ (it as ViewExtensionDescription).categories.head.groups.atIdentifiedElement("execution_body") ]
+					groups += GroupDescription.ref("EcoretoolsViewExtension")[ (it as ViewExtensionDescription).categories.head.groups.atIdentifiedElement("execution_imports") ]
 				]
 				groups += GroupDescription.create [
 					name = "default rules"
@@ -441,7 +441,7 @@ class EcoretoolsViewExtension {
 					labelExpression = "aql:self.eClass().name"
 					semanticCandidateExpression = "aql:self.eInverse()->select( g | g.eClass().ePackage.nsURI->includes('http://www.eclipse.org/emf/2002/GenModel'))->asSet()"
 					preconditionExpression = ""
-					extends = GroupDescription.ref("EcoretoolsViewExtension")[ (it as ViewExtensionDescription).categories.atIdentifiedElement("Default").groups.atIdentifiedElement("default rules") ]
+					extends = GroupDescription.ref("EcoretoolsViewExtension")[ (it as ViewExtensionDescription).categories.head.groups.atIdentifiedElement("default rules") ]
 					style = GroupStyle.create [
 						expandedByDefault = true
 					]
@@ -630,7 +630,7 @@ class EcoretoolsViewExtension {
 					labelExpression = "aql:self.eClass().name"
 					semanticCandidateExpression = "aql:self->select(e | e.oclIsKindOf(ecore::EPackage)).eInverse()->select( g | g.eClass().ePackage.nsURI->includes('http://www.eclipse.org/emf/2002/GenModel')).eContainer(genmodel::GenModel)->asSet()"
 					preconditionExpression = ""
-					extends = GroupDescription.ref("EcoretoolsViewExtension")[ (it as ViewExtensionDescription).categories.atIdentifiedElement("Default").groups.atIdentifiedElement("default rules") ]
+					extends = GroupDescription.ref("EcoretoolsViewExtension")[ (it as ViewExtensionDescription).categories.head.groups.atIdentifiedElement("default rules") ]
 					style = GroupStyle.create [
 						expandedByDefault = true
 					]

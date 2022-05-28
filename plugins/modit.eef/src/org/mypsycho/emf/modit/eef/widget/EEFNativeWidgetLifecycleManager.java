@@ -1,5 +1,6 @@
 package org.mypsycho.emf.modit.eef.widget;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -145,17 +146,23 @@ public class EEFNativeWidgetLifecycleManager extends AbstractEEFWidgetLifecycleM
 
         try {
             Class<?> widgetClass = bundle.loadClass(classname);
-            return EEFNativeWidget.class.cast(widgetClass.newInstance());
+            return EEFNativeWidget.class.cast(widgetClass.getConstructor().newInstance());
 
         } catch (ClassNotFoundException e) {
             return createFailedImplementation(classname + " cannot be found", e);
-        } catch (InstantiationException | IllegalAccessException e) {
+        } catch (InstantiationException 
+        		| IllegalAccessException 
+        		| NoSuchMethodException
+        		| IllegalArgumentException 
+        		| InvocationTargetException
+        		| SecurityException
+        		e) {
             logError(classname + " cannot be instantiated", e);
             return createFailedImplementation(classname + " cannot be instantiated", e);
         } catch (ClassCastException e) {
             return createFailedImplementation(
                 classname + " does not implement " + EEFNativeWidget.class.getSimpleName(), e);
-        }
+		}
     }
 
     private EEFNativeWidget createFailedImplementation(String message, Throwable detail) {

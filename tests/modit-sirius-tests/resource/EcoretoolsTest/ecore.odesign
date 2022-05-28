@@ -1022,12 +1022,6 @@
               </firstModelOperations>
             </initialOperation>
           </ownedTools>
-          <ownedTools xsi:type="tool_1:DirectEditLabel" name="Edit Detail">
-            <mask mask="{0}"/>
-            <initialOperation>
-              <firstModelOperations xsi:type="tool:SetValue" featureName="value" valueExpression="var:arg0"/>
-            </initialOperation>
-          </ownedTools>
           <ownedTools xsi:type="tool_1:EdgeCreationDescription" name="Constraint Assignment" forceRefresh="true" edgeMappings="//@ownedViewpoints[name='Design']/@ownedRepresentations[name='Entities']/@additionalLayers[name='Constraint']/@edgeMappings[name='EC%20Constraint%20Assignment']" iconPath="/org.eclipse.emf.ecoretools.design/icons/full/obj16/AnnotationLink.gif">
             <sourceVariable name="source"/>
             <targetVariable name="target"/>

@@ -352,7 +352,7 @@ abstract class I18n {
 	
 	static def <T extends I18n> T create(Class<T> type, Locale locale) {
 		val loader = type.classLoader ?: ClassLoader.systemClassLoader
-		val result = type.newInstance
+		val result = type.getConstructor().newInstance
 		result.locale = locale
 		
 		val basename = type.name
@@ -375,7 +375,7 @@ abstract class I18n {
 		try {
 			// it is more fast to test existence or catch an exception
 			// if (loader.getResource(fullname.replace('.', '/') + '.java') !== null)
-			loader.loadClass(fullname).newInstance
+			loader.loadClass(fullname).getConstructor().newInstance
 		} catch(ClassNotFoundException e) {
 			//TODO provided a reflection based on detected properties ??
 			null

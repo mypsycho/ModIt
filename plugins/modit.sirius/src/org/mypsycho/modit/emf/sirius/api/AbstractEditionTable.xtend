@@ -17,6 +17,7 @@ import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EStructuralFeature
 import org.eclipse.sirius.table.metamodel.table.description.EditionTableDescription
 import org.eclipse.sirius.table.metamodel.table.description.FeatureColumnMapping
+import org.eclipse.sirius.table.metamodel.table.description.LabelEditTool
 import org.eclipse.xtext.xbase.lib.Functions.Function1
 import org.eclipse.xtext.xbase.lib.Procedures.Procedure2
 
@@ -27,6 +28,14 @@ import org.eclipse.xtext.xbase.lib.Procedures.Procedure2
  * @author nicolas.peransin
  */
 abstract class AbstractEditionTable extends AbstractTable<EditionTableDescription> {
+
+	static val CELL_EDIT_ARGS = #[ 
+	     EditArg.element -> null,
+	     EditArg.table -> null,
+	     EditArg.line -> null,
+	     EditArg.lineSemantic -> null,
+	     EditArg.root -> null
+	]
 
 	/**
 	 * Create a factory for a diagram description.
@@ -41,7 +50,7 @@ abstract class AbstractEditionTable extends AbstractTable<EditionTableDescriptio
 		featureName = feat.name
 	}
 	
-	protected def column(String id, (FeatureColumnMapping)=>void initializer) {
+	def column(String id, (FeatureColumnMapping)=>void initializer) {
 		Objects.requireNonNull(initializer)
 		FeatureColumnMapping.createAs(Ns.column, id) [ 
 			name = id
@@ -49,8 +58,21 @@ abstract class AbstractEditionTable extends AbstractTable<EditionTableDescriptio
 		]
 	}
 	
+	def column(EditionTableDescription it, String id, (FeatureColumnMapping)=>void initializer) {
+		ownedColumnMappings += id.column(initializer)
+	}
+	
+	
 	protected def columnRef(String id) {
 		FeatureColumnMapping.ref(Ns.column.id(id))
+	}
+	
+	override initVariables(LabelEditTool it) {
+		if (eContainer instanceof FeatureColumnMapping) {
+			initVariables(CELL_EDIT_ARGS)
+		} else {
+			super.initVariables(it)
+		}
 	}
 	
 	protected def setCanEdit(FeatureColumnMapping it, 

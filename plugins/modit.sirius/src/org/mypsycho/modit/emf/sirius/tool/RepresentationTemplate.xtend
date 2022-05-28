@@ -13,6 +13,8 @@ import org.eclipse.sirius.viewpoint.description.DescriptionPackage
 import org.eclipse.sirius.viewpoint.description.IdentifiedElement
 import org.eclipse.sirius.viewpoint.description.RepresentationDescription
 import org.eclipse.sirius.viewpoint.description.tool.AbstractToolDescription
+import org.eclipse.sirius.viewpoint.description.tool.ChangeContext
+import org.eclipse.sirius.viewpoint.description.tool.EditMaskVariables
 import org.eclipse.sirius.viewpoint.description.tool.OperationAction
 import org.eclipse.sirius.viewpoint.description.tool.PasteDescription
 import org.eclipse.sirius.viewpoint.description.tool.SelectionWizardDescription
@@ -55,7 +57,7 @@ abstract class RepresentationTemplate<R extends RepresentationDescription> exten
 	
 	def String templateRepresentation(ClassId it, R content)
 	
-	def Map<Class<? extends EObject>, Set<? extends EStructuralFeature>> getInitTemplateds() {
+	def Map<? extends Class<? extends EObject>, ? extends Set<? extends EStructuralFeature>> getInitTemplateds() {
 		Collections.emptyMap
 	}
 	
@@ -83,37 +85,34 @@ abstract class RepresentationTemplate<R extends RepresentationDescription> exten
 	override templateInnerCreate(EObject it) {
 		smartTemplateCreate.toString
 	}
-
-
 	
+
  	def dispatch smartTemplateCreate(AbstractVariable it) {
  		val content = innerContent
 '''«templateClass».create("«name»")«
 IF !innerContent.empty             » [
 	«templateInnerContent(content)»
-]
-«
+]«
 ENDIF
 »'''
  	}
  	
+	def dispatch smartTemplateCreate(EditMaskVariables it) {
+		mask.toJava
+	}
+ 	
+ 	def dispatch smartTemplateCreate(ChangeContext it) {
+ 		if (!subModelOperations.empty)
+ 			super.templateInnerCreate(it)
+ 		else
+			'''«browseExpression.toJava».toOperation'''
+	}
  		
  	def dispatch smartTemplateCreate(IdentifiedElement it) {
 		templateIdentifiedCreate(it)
 	}
 
-//	static val NS_MAPPING = #[
-//		AbstractNodeMapping -> AbstractDiagram.Ns.node,
-//		EdgeMapping -> AbstractDiagram.Ns.edge,
-//		DeleteElementDescription -> AbstractDiagram.Ns.del,
-//		EdgeCreationDescription -> AbstractDiagram.Ns.connect,
-//		ReconnectEdgeDescription -> AbstractDiagram.Ns.reconnect,
-//		
-//		NodeCreationDescription -> AbstractDiagram.Ns.creation,
-//		ContainerDropDescription -> AbstractDiagram.Ns.drop,
-//		AbstractToolDescription -> AbstractDiagram.Ns.operation
-//	]
-	
+
 	def List<? extends Pair<? extends Class<? extends EObject>, ? extends Enum<?>>> getNsMapping()
 	
 	def findNs(IdentifiedElement it) {
@@ -124,7 +123,6 @@ ENDIF
 	
 	def templateIdentifiedCreate(IdentifiedElement it) { // Default
 		val ns = findNs
-
 '''«templateClass».create«
 IF ns !== null
 						»As(Ns.«ns.name», «
@@ -160,7 +158,6 @@ ENDIF
 		super.templateRef(it, using)
 	}
 
-	
 	override templateProperty(EObject element, EStructuralFeature it, (Object, Class<?>)=>String encoding) {
 		element.smartTemplateProperty(it, encoding)
 	}
@@ -171,7 +168,7 @@ ENDIF
 	}
 	
 	def dispatch smartTemplateProperty(AbstractToolDescription element, EStructuralFeature it, (Object, Class<?>)=>String encoding) {
-		if (name == "initialOperation") {
+		if (name == "initialOperation") { // No reflection for this.
 			try {
 				return element.templateToolOperation
 			} catch (UnsupportedOperationException ex) {

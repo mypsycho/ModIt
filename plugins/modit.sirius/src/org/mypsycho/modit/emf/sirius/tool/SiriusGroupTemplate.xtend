@@ -29,6 +29,8 @@ class SiriusGroupTemplate extends EReversIt {
 		super(classname, dir, res)
 		tool = container
 		delegates += new DiagramTemplate(this)
+		delegates += new TableTemplate(this)
+		
 	}
 	
 	// Only used in SiriusModelProvider class.
