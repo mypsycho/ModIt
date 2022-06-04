@@ -51,11 +51,16 @@ public class EditingActionProvider extends CommonActionProvider {
 	static {
 		ACTION_IMAGES.put(UndoAction.class, ISharedImages.IMG_TOOL_UNDO);
 		ACTION_IMAGES.put(RedoAction.class, ISharedImages.IMG_TOOL_REDO);
+		
 		ACTION_IMAGES.put(CutAction.class, ISharedImages.IMG_TOOL_CUT);
 		ACTION_IMAGES.put(CopyAction.class, ISharedImages.IMG_TOOL_COPY);
 		ACTION_IMAGES.put(PasteAction.class, ISharedImages.IMG_TOOL_PASTE);
+		// TODO move ?
+		// TODO rearrange
+		// TODO refactor type.
 		ACTION_IMAGES.put(DeleteAction.class, ISharedImages.IMG_TOOL_DELETE);
-		ACTION_IMAGES.put(UndoAction.class, ISharedImages.IMG_TOOL_UNDO);
+		
+		// TODO session: save, close (resource aird ??)
 	}
 
     
