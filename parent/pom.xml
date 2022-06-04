@@ -12,10 +12,10 @@
 	<properties>
 		<tp.version>1.0.0-SNAPSHOT</tp.version>
 		<tp.mode>build</tp.mode>
-		<tycho.version>1.6.0</tycho.version>
-		<xtend.version>2.21.0</xtend.version>
+		<tycho.version>2.2.0</tycho.version>
+		<xtend.version>2.25.0</xtend.version>
 		<!-- Xtend plugin does not take source version from TPD  -->
-		<maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.source>11</maven.compiler.source>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		
 		<!-- supported: warning|error|ignore -->
