@@ -2,9 +2,9 @@ target "Mod-it test"
 
 with requirements
 
-environment JavaSE-1.8
+environment JavaSE-11
 
-location eclipse_core "http://download.eclipse.org/releases/2019-09/" {
+location eclipse_core "http://download.eclipse.org/releases/2021-09/" {
 	
 	// required for xcore
 	org.eclipse.emf.ecore.feature.group 

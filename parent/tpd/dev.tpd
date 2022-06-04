@@ -6,9 +6,9 @@ target "Mod-it Debug tools"
 
 with requirements
 
-environment JavaSE-1.8
+environment JavaSE-11
 
-location eclipse_core "http://download.eclipse.org/releases/2019-09/" {
+location eclipse_core "http://download.eclipse.org/releases/2021-09/" {
 
 	// no need to declare SDK as 'source' properties if equivalent (only no examples)
 	// maybe epp.package is enough ?
@@ -27,7 +27,7 @@ location eclipse_core "http://download.eclipse.org/releases/2019-09/" {
 
 
 
-location sirius "https://download.eclipse.org/sirius/updates/releases/6.3.0/2019-06" {
+location sirius "https://download.eclipse.org/sirius/updates/releases/6.5.1/2020-09/" {
 	org.eclipse.sirius.runtime.ide.eef.feature.group
 	// This include the update sirius button
 	org.eclipse.sirius.specifier.ide.ui.feature.group
