@@ -30,6 +30,7 @@ class SiriusGroupTemplate extends EReversIt {
 		tool = container
 		delegates += new DiagramTemplate(this)
 		delegates += new TableTemplate(this)
+		delegates += new PropertiesTemplate(this)
 		
 	}
 	

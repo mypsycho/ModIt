@@ -15,7 +15,9 @@ package org.mypsycho.modit.emf.sirius.tool;
 import java.nio.file.Path
 import java.util.Collections
 import java.util.List
+import java.util.regex.Pattern
 import org.eclipse.emf.common.util.URI
+import org.eclipse.emf.ecore.EClass
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EPackage
 import org.eclipse.emf.ecore.resource.Resource
@@ -29,8 +31,7 @@ import org.eclipse.sirius.viewpoint.description.RepresentationExtensionDescripti
 import org.eclipse.sirius.viewpoint.description.Viewpoint
 import org.eclipse.xtend.lib.annotations.Accessors
 import org.mypsycho.modit.emf.ClassId
-import org.eclipse.emf.ecore.EClass
-import java.util.regex.Pattern
+import org.mypsycho.modit.emf.sirius.api.AbstractPropertySet
 
 /**
  * 
@@ -108,12 +109,36 @@ class SiriusReverseIt {
 			
 			// Split RepresentationDescription DiagramExtensionDescription
 			splits.putAll(findDefaultSplits)
-				
+			
+			val aliases = it.aliases
+			
+			source.extensions
+				.filter(ViewExtensionDescription)
+				.forEach[
+					val context = toClassId
+					categories.forEach[
+						aliases.put(it, createId(AbstractPropertySet.Ns.category, context, name))
+						pages.forEach[
+							aliases.put(it, createId(AbstractPropertySet.Ns.page, context, name))
+						]
+						groups.forEach[
+							aliases.put(it, createId(AbstractPropertySet.Ns.group, context, name))
+						]
+						
+					]
+					
+				]
+			
 			explicitExtras.putAll(source.systemColorsPalette.entries.toInvertedMap[ "color:" + name ])
 
 			shortcuts += DescriptionPackage.eINSTANCE.identifiedElement_Name
 		]
 	}
+	
+	protected def String createId(Enum<?> category, ClassId context, String path) {
+		'''«category.name»:«context.name».«path.toFirstLower.replace(" ", "_")»'''
+	}
+	
 	
 	
 	protected def findDefaultSplits() {

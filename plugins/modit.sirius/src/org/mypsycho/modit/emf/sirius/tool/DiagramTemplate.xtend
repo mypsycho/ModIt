@@ -26,6 +26,8 @@ import org.eclipse.sirius.diagram.description.tool.EdgeCreationDescription
 import org.eclipse.sirius.diagram.description.tool.NodeCreationDescription
 import org.eclipse.sirius.diagram.description.tool.ReconnectEdgeDescription
 import org.eclipse.sirius.diagram.description.tool.ToolSection
+import org.eclipse.sirius.properties.DialogButton
+import org.eclipse.sirius.properties.TextDescription
 import org.eclipse.sirius.viewpoint.description.IdentifiedElement
 import org.eclipse.sirius.viewpoint.description.tool.AbstractToolDescription
 import org.eclipse.sirius.viewpoint.description.tool.ContainerModelOperation
@@ -233,15 +235,17 @@ ENDFOR
 			super.findNs(it)
 	}
 
-	def dispatch smartTemplateProperty(DiagramDescription element, EStructuralFeature it, (Object, Class<?>)=>String encoding) {
-		if (it == DPKG.diagramDescription_Layout
-			&& element.layout instanceof CustomLayoutConfiguration
-			&& (element.layout as CustomLayoutConfiguration).id == "org.eclipse.elk.layered"
-		) {
-			return element.templateElkLayout
+	override templateProperty(EObject element, EStructuralFeature it, (Object, Class<?>)=>String encoding) {
+		if (element instanceof DiagramDescription) {
+			if (it == DPKG.diagramDescription_Layout
+				&& element.layout instanceof CustomLayoutConfiguration
+				&& (element.layout as CustomLayoutConfiguration).id == "org.eclipse.elk.layered"
+			) {
+				return element.templateElkLayout
+			}
 		}
 		
-		_smartTemplateProperty(element as EObject, it, encoding)
+		super.templateProperty(element as EObject, it, encoding)
 	}
 	
 	def templateElkLayout(DiagramDescription it) {
@@ -264,7 +268,7 @@ ENDFOR 																		»
 	}
 
 	
-	override getToolModelOperation(AbstractToolDescription it) {
+	override getToolModelOperation(EObject it) {
 		switch(it) {
 			ContainerDropDescription: initialOperation.firstModelOperations
 			ReconnectEdgeDescription: initialOperation.firstModelOperations
@@ -274,6 +278,8 @@ ENDFOR 																		»
 			DeleteElementDescription: initialOperation.firstModelOperations
 			DoubleClickDescription: initialOperation.firstModelOperations
 			DiagramCreationDescription: initialOperation.firstModelOperations
+			DialogButton: initialOperation.firstModelOperations
+			TextDescription: initialOperation.firstModelOperations
 			default: super.getToolModelOperation(it)
 		}
 	}

@@ -11,7 +11,6 @@ import org.eclipse.sirius.diagram.description.tool.DirectEditLabel
 import org.eclipse.sirius.viewpoint.description.AbstractVariable
 import org.eclipse.sirius.viewpoint.description.DescriptionPackage
 import org.eclipse.sirius.viewpoint.description.IdentifiedElement
-import org.eclipse.sirius.viewpoint.description.RepresentationDescription
 import org.eclipse.sirius.viewpoint.description.tool.AbstractToolDescription
 import org.eclipse.sirius.viewpoint.description.tool.ChangeContext
 import org.eclipse.sirius.viewpoint.description.tool.EditMaskVariables
@@ -26,7 +25,7 @@ import org.mypsycho.modit.emf.sirius.api.SiriusDesigns
 import static extension org.mypsycho.modit.emf.sirius.tool.SiriusReverseIt.*
 
 /** Override of default reverse for SiriusModelProvider class. */
-abstract class RepresentationTemplate<R extends RepresentationDescription> extends EReversIt {
+abstract class RepresentationTemplate<R extends IdentifiedElement> extends EReversIt {
 	
 	protected static val SPKG = DescriptionPackage.eINSTANCE
 
@@ -159,28 +158,18 @@ ENDIF
 	}
 
 	override templateProperty(EObject element, EStructuralFeature it, (Object, Class<?>)=>String encoding) {
-		element.smartTemplateProperty(it, encoding)
-	}
-
-	def dispatch smartTemplateProperty(EObject element, EStructuralFeature it, (Object, Class<?>)=>String encoding) {
-		// Default
-		super.templateProperty(element, it, encoding)
-	}
-	
-	def dispatch smartTemplateProperty(AbstractToolDescription element, EStructuralFeature it, (Object, Class<?>)=>String encoding) {
 		if (name == "initialOperation") { // No reflection for this.
 			try {
 				return element.templateToolOperation
 			} catch (UnsupportedOperationException ex) {
-				System.err.println("Add operation in DiagramTemplate: " 
-					+ (element as AbstractToolDescription).eClass.name
-				)
+				System.err.println('''Add operation in «this.class.simpleName»: «element.eClass.name»''')
 			}
 		}
 		super.templateProperty(element, it, encoding)
 	}
 	
-	def getToolModelOperation(AbstractToolDescription it) {
+	
+	def getToolModelOperation(EObject it) {
 		switch(it) {
 			// All representation
 			OperationAction: initialOperation.firstModelOperations
@@ -192,7 +181,7 @@ ENDIF
 		}
 	}
 	
-	def String templateToolOperation(AbstractToolDescription it) {
+	def String templateToolOperation(EObject it) {
 		val operation = toolModelOperation
 		if (operation !== null)
 			'''operation = «operation.templateCreate»'''
