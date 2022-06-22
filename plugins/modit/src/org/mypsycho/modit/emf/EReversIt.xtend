@@ -370,7 +370,7 @@ class EReversIt {
 		// call modit.assemble
 '''#[
 	«
-FOR value : values SEPARATOR ',\n'
+FOR value : values SEPARATOR ',' + statementSeparator
 »new «value.qName»(this).createContent«
 ENDFOR
 »
