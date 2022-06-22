@@ -28,6 +28,7 @@ import org.eclipse.sirius.properties.AbstractWidgetDescription
 import org.eclipse.sirius.properties.ButtonDescription
 import org.eclipse.sirius.properties.ButtonWidgetConditionalStyle
 import org.eclipse.sirius.properties.ButtonWidgetStyle
+import org.eclipse.sirius.properties.Category
 import org.eclipse.sirius.properties.CheckboxDescription
 import org.eclipse.sirius.properties.CheckboxWidgetConditionalStyle
 import org.eclipse.sirius.properties.CheckboxWidgetStyle
@@ -38,6 +39,7 @@ import org.eclipse.sirius.properties.CustomWidgetStyle
 import org.eclipse.sirius.properties.DynamicMappingForDescription
 import org.eclipse.sirius.properties.DynamicMappingIfDescription
 import org.eclipse.sirius.properties.GroupDescription
+import org.eclipse.sirius.properties.GroupStyle
 import org.eclipse.sirius.properties.HyperlinkDescription
 import org.eclipse.sirius.properties.HyperlinkWidgetConditionalStyle
 import org.eclipse.sirius.properties.HyperlinkWidgetStyle
@@ -58,6 +60,7 @@ import org.eclipse.sirius.properties.TextDescription
 import org.eclipse.sirius.properties.TextWidgetConditionalStyle
 import org.eclipse.sirius.properties.TextWidgetStyle
 import org.eclipse.sirius.properties.ToolbarAction
+import org.eclipse.sirius.properties.ViewExtensionDescription
 import org.eclipse.sirius.properties.WidgetAction
 import org.eclipse.sirius.properties.WidgetConditionalStyle
 import org.eclipse.sirius.properties.WidgetDescription
@@ -87,8 +90,11 @@ abstract class AbstractPropertySet extends AbstractEdition {
 	// 'input' provides in 
 	// org.eclipse.sirius.properties.core.api.SiriusInputDescriptor
 	// @see org.eclipse.sirius.properties.core.internal.SiriusToolServices	
-	
-	protected static val EMFEDIT = "input.emfEditServices(self)"
+		
+	static def eefEdit(String variable) {
+		'''input.emfEditServices(«variable»)'''
+	}
+	protected static val EMFEDIT = "self".eefEdit
 
 	new(AbstractGroup parent) {
 		super(parent)
@@ -97,6 +103,19 @@ abstract class AbstractPropertySet extends AbstractEdition {
 	def void setDomainClass(GroupDescription it, Class<? extends EObject> value) {
 		domainClass = value.asDomainClass
 	}
+	
+	def ViewExtensionDescription createContent() {
+		ViewExtensionDescription.createAs(Ns.view.id("Default")) [
+			name = "Default"
+			metamodels += context.businessPackages
+			categories += Category.createAs(Ns.category.id("Default")) [
+				name =  Ns.category.id("Default")
+				initCategory
+			]
+		]
+	}
+	
+	abstract protected def void initCategory(Category it)
 
 	def <T extends AbstractWidgetDescription> T initWidget(T it, EStructuralFeature feature) {
 		// TODO replace by a call to the default adapter factory
@@ -449,6 +468,13 @@ abstract class AbstractPropertySet extends AbstractEdition {
         style = TextWidgetStyle.create(init)
     }
 	
+    def style(GroupDescription it, (GroupStyle)=>void init) {
+        style = GroupStyle.create(init)
+    }
+	
+	
+	
+	
 	def String featureAql(String valueVar, EStructuralFeature feat) {
 		'''«valueVar».eClass().getEStructuralFeature('«feat.name»')'''
 	}
@@ -514,6 +540,14 @@ abstract class AbstractPropertySet extends AbstractEdition {
 		operation = expression.toOperation
 	}
 
+	def void setOperation(WidgetAction it, ModelOperation value) {
+		initialOperation = InitialOperation.create [ firstModelOperations = value ]
+	}
+
+	def void setOperation(WidgetAction it, String expression) {
+		operation = expression.toOperation
+	}
+
 	def toolbar(String label, String icon, ModelOperation operation) {
 		ToolbarAction.create [
 			tooltipExpression = label
@@ -521,11 +555,16 @@ abstract class AbstractPropertySet extends AbstractEdition {
 			initialOperation = InitialOperation.create [ firstModelOperations = operation ]	
 		]
 	}
+
+	def void setOperation(ToolbarAction it, ModelOperation value) {
+		initialOperation = InitialOperation.create [ firstModelOperations = value ]
+	}
+
 	
     def action(String label, String icon, ModelOperation operation) {
         WidgetAction.create [
             labelExpression = label
-            initialOperation = InitialOperation.create [ firstModelOperations = operation ]
+            it.operation = operation
             imageExpression = icon
         ]
     }

@@ -33,7 +33,6 @@ import org.eclipse.sirius.properties.TextAreaDescription
 import org.eclipse.sirius.properties.TextDescription
 import org.eclipse.sirius.properties.TitleBarStyle
 import org.eclipse.sirius.properties.ToggleStyle
-import org.eclipse.sirius.properties.ViewExtensionDescription
 import org.eclipse.sirius.properties.WidgetDescription
 import org.eclipse.sirius.properties.ext.widgets.reference.propertiesextwidgetsreference.ExtReferenceDescription
 
@@ -45,6 +44,13 @@ import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*
  * @author nperansin
  */
 class DefaultPropertiesExtension extends AbstractPropertySet {
+	
+	// 'input' provides in 
+	// org.eclipse.sirius.properties.core.api.SiriusInputDescriptor
+	// @see org.eclipse.sirius.properties.core.internal.SiriusToolServices	
+	
+	// emfEditServices return a org.eclipse.sirius.properties.core.internal.EditSupportSpec.
+
 
 	/** @see EFactoryImpl#EDATE_FORMATS  */ 
 	public static val DEFAULT_DATE_FORMAT = "yyyy-MM-dd"
@@ -64,25 +70,13 @@ class DefaultPropertiesExtension extends AbstractPropertySet {
 		
 		tabNames += tabs
 	}
-		
 	
-	def ViewExtensionDescription createContent() {
-		ViewExtensionDescription.createAs(Ns.view.id("Default")) [
-			name = "Default"
-			metamodels += context.businessPackages
-			categories += Category.create [
-				name =  Ns.category.id("Default")
-				initCategory
-			]
-		]
-	}
-	
-	protected def void initCategory(Category it) {
+	override initCategory(Category it) {
 		val specificGroups = createSpecificGroups()
 		groups += specificGroups.map[ value ]
 		
 		tabNames.forEach[ page |
-			pages += page.createPage.andThen[
+			pages += page.createDefaultPage.andThen[
 				groups += specificGroups.filter[ key == page ].map[ value ]
 			]
 			groups += page.createDefaultGroup
@@ -94,7 +88,7 @@ class DefaultPropertiesExtension extends AbstractPropertySet {
 		#[]
 	}
 	
-	def createPage(Object pageId) {
+	def createDefaultPage(Object pageId) {
 		PageDescription.createAs(Ns.page.id(pageId.toString)) [
 			name = pageId.toString
 			indented = pageId != tabNames.head
@@ -110,14 +104,20 @@ class DefaultPropertiesExtension extends AbstractPropertySet {
 		]
 	}
 
+	/**
+	 * Requires overriding for static page.
+	 */
 	def isPageApplicableExpression(Object pageId) {
-		context.expression[ isPageApplicable(pageId) ]	
+		context.expression[ isPageApplicable(pageId) ]
 	}
 
 	def isPageApplicable(EObject it, Object pageId) {
 		pageId == tabNames.head // should be overridden
 	}
 
+	/**
+	 * Requires overriding for static page.
+	 */
 	def getApplicableFeaturesExpression(Object pageId) {
 		context.expression[ value |
 			value.eClass.EAllStructuralFeatures
@@ -165,7 +165,9 @@ class DefaultPropertiesExtension extends AbstractPropertySet {
 		]
 	}
 	
-	
+	/**
+	 * Requires overriding for static page.
+	 */
 	def getDateExpression(String iValue, String iFeat) {
 		context.expression(params(iValue, iFeat)) [
 			EObject it, EStructuralFeature feat |
@@ -184,7 +186,7 @@ class DefaultPropertiesExtension extends AbstractPropertySet {
 	}
 	
 	def createDefaultWidgetCases(String iValue, String iFeat) {
-		val valEmfEdit = '''input.emfEditServices(«iValue»)'''
+		val valEmfEdit = iValue.eefEdit
 
 		val dateFeature = '''«iFeat».eType = ecore::EDate'''
 		val mapAttribute = '''«iFeat».eType = ecore::EStringToStringMapEntry'''
@@ -192,49 +194,49 @@ class DefaultPropertiesExtension extends AbstractPropertySet {
 		
 		#[
 			WidgetCase.line -> '''
-			«valEmfEdit».needsTextWidget(«iFeat»)
-			and not «valEmfEdit».isMultiline(«iFeat»)
-			and not («dateFeature»)''', // dont know why '()' are needed now
+				«valEmfEdit».needsTextWidget(«iFeat»)
+				and not «valEmfEdit».isMultiline(«iFeat»)
+				and not («dateFeature»)''', // dont know why '()' are needed now
 				
 			WidgetCase.text -> '''
-			«valEmfEdit».needsTextWidget(«iFeat») 
-			and «valEmfEdit».isMultiline(«iFeat»)
-			and not («dateFeature»)''',
+				«valEmfEdit».needsTextWidget(«iFeat») 
+				and «valEmfEdit».isMultiline(«iFeat»)
+				and not («dateFeature»)''',
 				
 			WidgetCase.date -> '''
-			«valEmfEdit».needsTextWidget(«iFeat») 
-			and («dateFeature»)''',
+				«valEmfEdit».needsTextWidget(«iFeat») 
+				and («dateFeature»)''',
 			
 			WidgetCase.bool -> 
-			'''«valEmfEdit».needsCheckboxWidget(«iFeat»)''',
+				'''«valEmfEdit».needsCheckboxWidget(«iFeat»)''',
 			
 			WidgetCase.alternative -> '''
-			«iFeat».eType.oclIsKindOf(ecore::EEnum) 
-			and not(«iFeat».many) 
-			and «iFeat».eType.oclAsType(ecore::EEnum).eLiterals->size() <= 4''',
+				«iFeat».eType.oclIsKindOf(ecore::EEnum) 
+				and not(«iFeat».many) 
+				and «iFeat».eType.oclAsType(ecore::EEnum).eLiterals->size() <= 4''',
 			
 			WidgetCase.choice -> '''
-			«iFeat».eType.oclIsKindOf(ecore::EEnum) 
-			and not(«iFeat».many) 
-			and «iFeat».eType.oclAsType(ecore::EEnum).eLiterals->size() > 4''',
+				«iFeat».eType.oclIsKindOf(ecore::EEnum) 
+				and not(«iFeat».many) 
+				and «iFeat».eType.oclAsType(ecore::EEnum).eLiterals->size() > 4''',
 			
 			WidgetCase.list -> '''
-			«iFeat».oclIsKindOf(ecore::EAttribute) 
-			and «iFeat».many''',
+				«iFeat».oclIsKindOf(ecore::EAttribute) 
+				and «iFeat».many''',
 			
 			WidgetCase.map -> '''
-			«iFeat».oclIsKindOf(ecore::EReference) 
-			and «mapAttribute»''',
+				«iFeat».oclIsKindOf(ecore::EReference) 
+				and «mapAttribute»''',
 			
 			WidgetCase.reference1 -> '''
-			«iFeat».oclIsKindOf(ecore::EReference)
-			and not(«iFeat».many) 
-			and «iFeat».eType != ecore::EStringToStringMapEntry''',
+				«iFeat».oclIsKindOf(ecore::EReference)
+				and not(«iFeat».many) 
+				and «iFeat».eType != ecore::EStringToStringMapEntry''',
 			
 			WidgetCase.referenceN -> '''
-			«iFeat».oclIsKindOf(ecore::EReference)
-			and («iFeat».many) 
-			and «iFeat».eType != ecore::EStringToStringMapEntry'''
+				«iFeat».oclIsKindOf(ecore::EReference)
+				and («iFeat».many) 
+				and «iFeat».eType != ecore::EStringToStringMapEntry'''
 			
 		].toMap([ key ]) [
 			value.trimAql.when(createDefaultWidgets(key, iValue, iFeat))
@@ -244,7 +246,7 @@ class DefaultPropertiesExtension extends AbstractPropertySet {
 
 
 	def WidgetDescription createDefaultWidgets(Object wcase, String iValue, String iFeat) {
-		val valEmfEdit = '''input.emfEditServices(«iValue»)'''
+		val valEmfEdit = iValue.eefEdit
 		
 		val valueGetter = '''aql:«iValue».eGet(«iFeat».name)'''
 		val valueSetter = '''aql:«valEmfEdit».setValue(«iFeat», newValue)'''
@@ -335,6 +337,7 @@ class DefaultPropertiesExtension extends AbstractPropertySet {
 					// no move up or down 
 				]
 				
+			// TODO replace with hyperlink + list
 			case reference1, case referenceN:
 				ExtReferenceDescription.create [
 					initWidget(iFeat)

@@ -187,9 +187,23 @@ abstract class AbstractEdition {
 	 * @param name of element
 	 */
 	protected def <R extends IdentifiedElement> R localRef(
-		Class<R> type, 
-		Enum<?> cat, String name) {
+			Class<R> type, 
+			Enum<?> cat, 
+			String name) {
 		type.ref(contentAlias, cat, name)
+	}
+	
+			
+	/**
+	 * Builds an id for proxy for a local element.
+	 * 
+	 * @param <R> Type of created proxy
+	 * @param type of created proxy
+	 * @param category of identification
+	 * @param name of element
+	 */
+	protected def localId(Enum<?> cat, String name) {
+		cat.id(contentAlias, name)
 	}
 	
 	/**
@@ -197,14 +211,28 @@ abstract class AbstractEdition {
 	 * 
 	 * @param <R> Type of created proxy
 	 * @param type of created proxy
-	 * @param category of identification
 	 * @param container of element
+	 * @param category of identification
 	 * @param name of element
 	 */
 	protected def <R extends IdentifiedElement> R ref(
-		Class<R> type, Class<? extends AbstractEdition> container, 
-		Enum<?> cat, String name) {
+			Class<R> type, 
+			Class<? extends AbstractEdition> container, 
+			Enum<?> cat, 
+			String name) {
 		type.ref(context.getContentAlias(container), cat, name)
+	}
+	
+		
+	/**
+	 * Builds a proxy to be resolved on 'loadContent' for an element defined in provided container.
+	 * 
+	 * @param container of element
+	 * @param category of identification
+	 * @param name of element
+	 */
+	protected def refId(Class<? extends AbstractEdition> container, Enum<?> cat, String name) {
+		cat.id(context.getContentAlias(container), name)
 	}
 	
 	/**

@@ -18,6 +18,7 @@ import org.eclipse.emf.ecore.EStructuralFeature
 import org.eclipse.sirius.table.metamodel.table.description.EditionTableDescription
 import org.eclipse.sirius.table.metamodel.table.description.FeatureColumnMapping
 import org.eclipse.sirius.table.metamodel.table.description.LabelEditTool
+import org.eclipse.sirius.viewpoint.description.tool.ModelOperation
 import org.eclipse.xtext.xbase.lib.Functions.Function1
 import org.eclipse.xtext.xbase.lib.Procedures.Procedure2
 
@@ -91,7 +92,20 @@ abstract class AbstractEditionTable extends AbstractTable<EditionTableDescriptio
 	 * @param operation on (line element, value)
 	 */
 	protected def void setDirectEdit(FeatureColumnMapping it, String operation) {
-		directEdit = operation.toOperation.createLabelEdit
+		directEdit = operation.toOperation
+	}
+	
+	/**
+	 * Defines the operation to edit a cell.
+	 * <p>
+	 * As Edition Table does not provide columns information, only line is provided.
+	 * </p>
+	 * 
+	 * @param it column to edit
+	 * @param operation on (line element, value)
+	 */
+	protected def void setDirectEdit(FeatureColumnMapping it, ModelOperation operation) {
+		directEdit = operation.createLabelEdit
 	}
 	
 	/**

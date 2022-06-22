@@ -30,7 +30,7 @@ import org.mypsycho.modit.emf.sirius.SiriusConstantInterpreter
  * @author nperansin
  */
 class SiriusDesigns {
-	
+
 	public static val AQL = "aql:"
 	
 	/** Expression for return semantic container */
@@ -106,7 +106,17 @@ class SiriusDesigns {
 	 * @return associated text
 	 */
 	static def String encode(EReference it) {
-		'''feature:«name»'''
+		name.asFeature
+	}
+	
+	/**
+	 * Provides an expression for a feature.
+	 * 
+	 * @param featname to convert
+	 * @return associated text
+	 */
+	static def String asFeature(String featname) {
+		'''feature:«featname»'''
 	}
 	
 	/**

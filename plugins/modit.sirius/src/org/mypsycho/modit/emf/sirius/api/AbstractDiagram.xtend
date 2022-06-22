@@ -102,16 +102,19 @@ abstract class AbstractDiagram extends AbstractRepresentation<DiagramDescription
 		show // for filter + layer
 	}
 	
+	protected val Class<? extends EObject> domain
+	
 	/**
 	 * Creates a factory for a diagram description
 	 * 
 	 * @param parent of diagram
 	 */
-	new(AbstractGroup parent, String dLabel, Class<? extends EObject> dClass) {
+	new(AbstractGroup parent, String dLabel, Class<? extends EObject> domain) {
 		super(DiagramDescription, parent, dLabel)
 		
+		this.domain = domain
 		creationTasks.add[
-			domainClass = context.asDomainClass(dClass)
+			domainClass = context.asDomainClass(domain)
 		]
 	}
 		
@@ -431,7 +434,7 @@ abstract class AbstractDiagram extends AbstractRepresentation<DiagramDescription
         ContainerCreationDescription.createAs(Ns.creation, toolname) [
             forceRefresh = true // simpler by default
             
-            containerMappings += nodeNames.map[ NodeMapping.ref(it) ]
+            containerMappings += nodeNames.map[ ContainerMapping.ref(it) ]
             
             variable = NodeCreationVariable.create [ name = "container" ]
             viewVariable = ContainerViewVariable.create [ name = "containerView" ]
@@ -724,5 +727,20 @@ abstract class AbstractDiagram extends AbstractRepresentation<DiagramDescription
 		mask = EditMaskVariables.create[ mask = value ]
 	}
 
+	def labelEdit(String id, String feature) {
+		DirectEditLabel.createAs(Ns.operation, id) [
+			inputLabelExpression = feature.asFeature
+			mask = "{0}"
+			operation = feature.setter('''arg0'''.trimAql)
+		]
+	}
+
+	def labelEdit(String id, EAttribute feature) {
+		id.labelEdit(feature.name)
+	}
+
+	def setLabelEdit(DiagramElementMapping it, String localId) {
+		labelDirectEdit = DirectEditLabel.localRef(Ns.operation, localId)
+	}
 
 }
