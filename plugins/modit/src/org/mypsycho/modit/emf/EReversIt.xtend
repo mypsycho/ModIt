@@ -533,6 +533,10 @@ ENDFOR
 	}
 
 	protected def templateCreate(EObject it) {
+		if (it === null) {
+			// May happen for incomplete specific template
+			return "null"
+		}
 		val split = context.splits.get(it)
 		if (split !== null) templateOutterCreate(split)
 		else templateInnerCreate

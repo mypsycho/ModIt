@@ -65,7 +65,7 @@ class EcoretoolsTest {
 	}	
 
 	
-	@Test @Ignore // Issue with default initialisation.
+	@Test //@Ignore // Issue with default initialisation.
     def void writeSiriusODesign() {
     	new EcoretoolsDesign().assertContentEquals("description/ecoretools.odesign")
     }

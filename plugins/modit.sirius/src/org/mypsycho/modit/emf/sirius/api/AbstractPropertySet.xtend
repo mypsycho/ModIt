@@ -529,6 +529,7 @@ abstract class AbstractPropertySet extends AbstractEdition {
 		if (it instanceof ButtonDescription) initialOperation = init
 		else if (it instanceof CheckboxDescription) initialOperation = init
 		else if (it instanceof HyperlinkDescription) initialOperation = init
+		else if (it instanceof ListDescription) onClickOperation = init
 		else if (it instanceof RadioDescription) initialOperation = init
 		else if (it instanceof SelectDescription) initialOperation = init
 		else if (it instanceof TextAreaDescription) initialOperation = init

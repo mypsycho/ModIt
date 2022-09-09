@@ -136,7 +136,7 @@ IF it instanceof IdentifiedElement
 ENDIF                                   » [
 	initVariables
 	«templateFilteredContent(TableTool)»
-	operation = «firstModelOperation.templateCreate»
+	operation = «firstModelOperation?.templateCreate»
 ]'''
 	}
 

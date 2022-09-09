@@ -1,10 +1,14 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-SymbolicName: org.mypsycho.emf.modit.edit;singleton:=true
+Automatic-Module-Name: org.mypsycho.emf.modit.edit
 Bundle-Version: 0.8.0
 Bundle-Name: %pluginName
 Bundle-Vendor: %providerName
 Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-Localization: plugin
+Bundle-Activator: org.mypsycho.emf.modit.edit.ModitEditPlugin
+Bundle-ActivationPolicy: lazy
 Require-Bundle: org.eclipse.xtend.lib,
  org.eclipse.xtend.lib.macro,
  org.eclipse.core.runtime,
@@ -14,7 +18,4 @@ Require-Bundle: org.eclipse.xtend.lib,
  org.eclipse.emf.edit.ui;bundle-version="2.13.0",
  org.mypsycho.emf.modit
 Export-Package: org.mypsycho.emf.modit.edit
-Automatic-Module-Name: org.mypsycho.emf.modit.edit
-Bundle-Activator: org.mypsycho.emf.modit.edit.ModitEditPlugin
-Bundle-ActivationPolicy: lazy
 

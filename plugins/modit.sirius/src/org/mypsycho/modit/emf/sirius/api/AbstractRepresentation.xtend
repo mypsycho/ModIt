@@ -14,6 +14,7 @@
 
 import java.util.ArrayList
 import java.util.List
+import javax.sound.sampled.Port
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.sirius.diagram.description.tool.DirectEditLabel
 import org.eclipse.sirius.viewpoint.description.JavaExtension
@@ -22,12 +23,16 @@ import org.eclipse.sirius.viewpoint.description.SystemColor
 import org.eclipse.sirius.viewpoint.description.Viewpoint
 import org.eclipse.sirius.viewpoint.description.style.BasicLabelStyleDescription
 import org.eclipse.sirius.viewpoint.description.tool.AbstractToolDescription
+import org.eclipse.sirius.viewpoint.description.tool.Case
+import org.eclipse.sirius.viewpoint.description.tool.Default
 import org.eclipse.sirius.viewpoint.description.tool.InitialOperation
 import org.eclipse.sirius.viewpoint.description.tool.ModelOperation
 import org.eclipse.sirius.viewpoint.description.tool.OperationAction
 import org.eclipse.sirius.viewpoint.description.tool.PasteDescription
 import org.eclipse.sirius.viewpoint.description.tool.SelectionWizardDescription
+import org.eclipse.sirius.viewpoint.description.tool.Switch
 import org.eclipse.sirius.viewpoint.description.tool.ToolDescription
+import org.eclipse.sirius.viewpoint.description.tool.Unset
 
 import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*
 
@@ -152,6 +157,29 @@ abstract class AbstractRepresentation<T extends RepresentationDescription> exten
 			
 			default: throw new UnsupportedOperationException
 		}
+	}
+
+	
+	protected def createCases(Pair<String, ? extends ModelOperation>... subCases) {
+		Switch.create[
+			cases += subCases.map[
+				val condition = key
+				val operation = value
+				Case.create [
+					conditionExpression = condition.trimAql
+					subModelOperations += operation
+				]
+			]
+			
+			^default = Default.create[]
+		]
+	}
+	
+	protected def setDefault(Switch it, ModelOperation operation) {
+		^default = Default.create[
+			subModelOperations += operation
+		]
+		it		
 	}
 
 

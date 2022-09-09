@@ -50,11 +50,9 @@ import org.eclipse.sirius.diagram.description.tool.TargetEdgeCreationVariable
 import org.eclipse.sirius.diagram.description.tool.TargetEdgeViewCreationVariable
 import org.eclipse.sirius.diagram.description.tool.ToolGroup
 import org.eclipse.sirius.diagram.description.tool.ToolSection
-import org.eclipse.sirius.properties.Category
 import org.eclipse.sirius.properties.DialogButton
 import org.eclipse.sirius.properties.DialogModelOperation
 import org.eclipse.sirius.properties.PageDescription
-import org.eclipse.sirius.properties.ViewExtensionDescription
 import org.eclipse.sirius.viewpoint.FontFormat
 import org.eclipse.sirius.viewpoint.LabelAlignment
 import org.eclipse.sirius.viewpoint.description.Customization
@@ -1589,7 +1587,7 @@ class EntitiesDiagram extends AbstractDiagram {
 						page = PageDescription.create("Default Page") [
 							labelExpression = '''input.emfEditServices(self).getText()'''.trimAql
 							semanticCandidateExpression = "var:self"
-							extends = PageDescription.ref("EcoretoolsViewExtension")[ (it as ViewExtensionDescription).categories.head.pages.atIdentifiedElement("ecore_page") ]
+							extends = PageDescription.ref("page:EcoretoolsViewExtension.ecore_page")
 						]
 					]
 				]

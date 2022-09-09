@@ -1,0 +1,1373 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+   <extension
+         point="org.eclipse.ui.views">
+      <category
+            id="com.huawei.sirius.autosar.ui"
+            name="AUTOSAR">
+      </category>
+      <view
+            category="com.huawei.sirius.autosar.ui"
+            class="com.huawei.sirius.autosar.ui.views.DesignExplorerView"
+            icon="icons/AUTOSAR.gif"
+            id="com.huawei.sirius.autosar.ui.views.DesignExplorerView"
+            inject="true"
+            name="AUTOSAR Design">
+            
+      </view>
+      <view
+            category="com.huawei.sirius.autosar.ui"
+            class="com.huawei.sirius.autosar.ui.views.ProjectExplorerView"
+            icon="icons/AUTOSAR.gif"
+            id="com.huawei.sirius.autosar.ui.views.ProjectExplorerView"
+            inject="true"
+            name="AUTOSAR Project">
+      </view>
+      <view
+            category="com.huawei.sirius.autosar.ui"
+            class="com.huawei.sirius.autosar.ui.views.AutosarSearchView"
+            icon="icons/AUTOSAR.gif"
+            id="com.huawei.sirius.autosar.ui.views.AutosarSearchView"
+            name="AUTOSAR Search View"
+            restorable="true">
+      </view>
+   </extension>
+   
+   <extension
+         point="org.eclipse.ui.handlers">
+      
+      <handler
+            class="com.huawei.sirius.autosar.ui.handlers.OpenDiagramHandler"
+            commandId="com.huawei.sirius.autosar.ui.commands.openRepresentation">
+      </handler>
+
+      <handler
+            class="com.huawei.sirius.autosar.ui.handlers.AddSystemMappingsHandler"
+            commandId="com.huawei.sirius.autosar.ui.commands.addSystemMappings">
+      </handler>
+
+      <handler
+            class="com.huawei.sirius.autosar.ui.handlers.RenameRepresentationHandler"
+            commandId="org.eclipse.ui.edit.rename">
+         <activeWhen>
+            <and>
+               <count value="1" />
+               <iterate>
+                  <test property="com.huawei.sirius.autosar.core.handlers.isRepresentation" />
+               </iterate>
+            </and>
+         </activeWhen>
+      </handler>
+      
+      
+      <!-- 
+      Commands are constrained to single selection to limit action to 1 session.
+      -->
+      <!-- Contributing handler for Delete is enough because Delete is connected to CommandHandler -->      
+      <!-- 
+      Contributing handler for undo/redo is not enough 
+      because they are connected to Toolbar action (and something else for menu).
+      Must provide -actionProvider- like in org.eclipse.sirius.ui
+      -->
+
+      <handler commandId="org.eclipse.ui.edit.undo"
+            class="com.huawei.sirius.autosar.ui.handlers.UndoHandler" >
+         <activeWhen>
+             <and>
+                 <count value="1" />
+                 <iterate>
+                    <test property="com.huawei.sirius.autosar.core.handlers.isAny" />
+                 </iterate>
+              </and>
+         </activeWhen>
+      </handler>
+      
+      <handler commandId="org.eclipse.ui.edit.redo"
+            class="com.huawei.sirius.autosar.ui.handlers.RedoHandler" >
+         <activeWhen>
+             <and>
+                 <count value="1" />
+                 <iterate>
+                    <test property="com.huawei.sirius.autosar.core.handlers.isAny" />
+                 </iterate>
+              </and>
+         </activeWhen>
+      </handler>
+      
+      <handler commandId="org.eclipse.ui.edit.copy"
+            class="com.huawei.sirius.autosar.ui.handlers.CloneHandler" >
+         <activeWhen>
+             <iterate>
+                <and>
+                   <test property="com.huawei.sirius.autosar.core.handlers.isAny" />
+                   <not>
+                      <test property="com.huawei.sirius.autosar.core.handlers.isReadOnly" />
+                   </not>
+                   <not>
+                      <test property="com.huawei.sirius.autosar.core.handlers.isAutosar" />
+                   </not>
+                </and>
+             </iterate>
+         </activeWhen>
+      </handler>
+      
+      <handler commandId="org.eclipse.ui.edit.delete"
+            class="com.huawei.sirius.autosar.ui.handlers.DeleteSelectionHandler" >
+         <activeWhen>
+         <!-- define when this handler is applicable -->
+            <iterate>
+               <or>
+                  <or>
+                     <test property="com.huawei.sirius.autosar.core.handlers.isClosedProject" />
+                     <test property="com.huawei.sirius.autosar.core.handlers.isProject" />
+                     <test property="com.huawei.sirius.autosar.core.handlers.isFolder" />
+                     <test property="com.huawei.sirius.autosar.core.handlers.isArXml" />
+                     <test property="com.huawei.sirius.autosar.core.handlers.isAuthorizedFileFormat" />
+                  </or>
+                  <and>
+                     <or>
+                        <test property="com.huawei.sirius.autosar.core.handlers.isSemantic" />
+                        <test property="com.huawei.sirius.autosar.core.handlers.isRepresentation" />
+                     </or>
+                     <not>
+                        <test property="com.huawei.sirius.autosar.core.handlers.isReadOnly" />
+                     </not>
+                     <not>
+                        <test property="com.huawei.sirius.autosar.core.handlers.isAutosar" />
+                     </not>
+                  </and>
+               </or>
+            </iterate>
+         </activeWhen>
+         <!-- enabling is managed by the handler -->
+      </handler>
+      
+      
+      <handler
+            class="com.huawei.sirius.autosar.ui.handlers.MoveElementHandler"
+            commandId="com.huawei.sirius.autosar.ui.commands.moveElement">
+         <activeWhen>
+            <and>
+               <count value="1" />
+               <iterate>
+                  <and>
+                     <or>
+                        <test property="com.huawei.sirius.autosar.core.handlers.isPackageableElement" />
+                        <test property="com.huawei.sirius.autosar.core.handlers.isPackage" />
+                     </or>
+                     <not>
+                        <test property="com.huawei.sirius.autosar.core.handlers.isReadOnly" /></not>
+                  </and>
+               </iterate>
+            </and>
+         </activeWhen>
+      </handler>
+      <handler
+            class="com.huawei.sirius.autosar.ui.handlers.project.OpenProjectHandler"
+            commandId="com.huawei.sirius.autosar.ui.openProject">
+      </handler>
+      <handler
+            class="com.huawei.sirius.autosar.ui.handlers.project.CloseProjectHandler"
+            commandId="com.huawei.sirius.autosar.ui.closeProject">
+      </handler>
+      <handler
+            class="com.huawei.sirius.autosar.ui.handlers.project.RenameResourceHandler"
+            commandId="org.eclipse.ui.edit.rename">
+         <activeWhen>
+            <and>
+               <count value="1" />
+               <iterate>
+                  <or>
+                     <test property="com.huawei.sirius.autosar.core.handlers.isProject" />
+                     <test property="com.huawei.sirius.autosar.core.handlers.isFolder" />
+                     <test property="com.huawei.sirius.autosar.core.handlers.isArXml" />
+                     <test property="com.huawei.sirius.autosar.core.handlers.isAuthorizedFileFormat" />
+                  </or>
+               </iterate>
+            </and>
+         </activeWhen>
+         <enabledWhen>
+           <iterate>
+              <and>
+                <instanceof
+                      value="com.huawei.sirius.autosar.core.tree.node.TreeNode">
+                </instanceof>
+                 <or>
+                    <test property="com.huawei.sirius.autosar.core.handlers.isOpenProject" />
+                    <and>
+                       <or>
+                          <test property="com.huawei.sirius.autosar.core.handlers.isArXml" />
+                          <test property="com.huawei.sirius.autosar.core.handlers.isAuthorizedFileFormat" />
+                       </or>
+                       <not>
+                          <test property="com.huawei.sirius.autosar.core.handlers.isReadOnly" />
+                       </not>
+                    </and>
+                 </or>
+              </and>
+           </iterate>
+          </enabledWhen>
+      </handler>
+      <handler
+            class="com.huawei.sirius.autosar.ui.handlers.wizard.NewProjectHandler"
+            commandId="com.huawei.sirius.autosar.ui.newProject">
+      </handler>
+      <handler
+            class="com.huawei.sirius.autosar.ui.handlers.wizard.ImportProjectHandler"
+            commandId="com.huawei.sirius.autosar.ui.importProject">
+      </handler>
+      <handler
+            class="com.huawei.sirius.autosar.ui.handlers.wizard.NewFileHandler"
+            commandId="com.huawei.sirius.autosar.ui.newFile">
+            <enabledWhen>
+            	<iterate>
+              <and>
+                 <instanceof
+                       value="com.huawei.sirius.autosar.core.tree.node.TreeNode">
+                 </instanceof>
+                 <or>
+                    <test property="com.huawei.sirius.autosar.core.handlers.isOpenProject" />
+                    <test property="com.huawei.sirius.autosar.core.handlers.isFolder" />
+                 </or>
+              </and>
+	           </iterate>
+            </enabledWhen>
+      </handler>
+      <handler
+            class="com.huawei.sirius.autosar.ui.handlers.wizard.ImportFileHandler"
+            commandId="com.huawei.sirius.autosar.ui.importFile">
+         <enabledWhen>
+            <iterate>
+               <and>
+                  <instanceof
+                        value="com.huawei.sirius.autosar.core.tree.node.TreeNode">
+                  </instanceof>
+                  <test property="com.huawei.sirius.autosar.core.handlers.isOpenProject" />
+               </and>
+            </iterate>
+         </enabledWhen>
+      </handler>
+      <handler
+            class="com.huawei.sirius.autosar.ui.handlers.wizard.ExportFileHandler"
+            commandId="com.huawei.sirius.autosar.ui.exportFile">
+         <enabledWhen>
+            <iterate>
+               <and>
+                  <instanceof
+                        value="com.huawei.sirius.autosar.core.tree.node.TreeNode">
+                  </instanceof>
+                  <test property="com.huawei.sirius.autosar.core.handlers.isOpenProject" />
+               </and>
+            </iterate>
+         </enabledWhen>
+      </handler>
+      <handler
+            class="com.huawei.sirius.autosar.ui.handlers.wizard.NewFolderHandler"
+            commandId="com.huawei.sirius.autosar.ui.newFolder">
+            <enabledWhen>
+            	<iterate>
+              <and>
+                 <instanceof
+                       value="com.huawei.sirius.autosar.core.tree.node.TreeNode">
+                 </instanceof>
+                 <or>
+                    <test property="com.huawei.sirius.autosar.core.handlers.isOpenProject" />
+                    <test property="com.huawei.sirius.autosar.core.handlers.isFolder" />
+                 </or>
+              </and>
+	           </iterate>
+            </enabledWhen>
+      </handler>
+      <handler
+            class="com.huawei.sirius.autosar.ui.handlers.LaunchValidationHandler"
+            commandId="com.huawei.sirius.autosar.ui.launchValidation">
+      </handler>
+      <handler
+            class="com.huawei.sirius.autosar.ui.handlers.mapping.CreateMappingTableHandler"
+            commandId="com.huawei.sirius.autosar.ui.newMappingTable">
+      </handler>
+      <handler
+            class="com.huawei.sirius.autosar.ui.handlers.project.OpenFileHandler"
+            commandId="com.huawei.sirius.autosar.ui.openFile">
+      </handler>
+      <handler
+            class="com.huawei.sirius.autosar.ui.handlers.project.MoveResourceHandler"
+            commandId="com.huawei.sirius.autosar.ui.commands.moveFile">
+         <activeWhen>
+            <and>
+               <count value="1" />
+               <iterate>
+                 <test property="com.huawei.sirius.autosar.core.handlers.isArXml" />
+               </iterate>
+            </and>
+         </activeWhen>
+         <enabledWhen>
+           <iterate>
+              <and>
+                <instanceof
+                      value="com.huawei.sirius.autosar.core.tree.node.TreeNode">
+                </instanceof>
+                <not>
+	                <test property="com.huawei.sirius.autosar.core.handlers.isLoading" />
+                </not>
+              </and>
+           </iterate>
+         </enabledWhen>
+      </handler>
+      <handler
+            class="com.huawei.sirius.autosar.ui.handlers.MarkAsReadOnlyHandler"
+            commandId="com.huawei.sirius.autosar.ui.readonly">
+         <enabledWhen>
+            <iterate>
+               <and>
+                  <instanceof
+                        value="com.huawei.sirius.autosar.core.tree.node.TreeNode">
+                  </instanceof>
+                  <not>
+                     <test property="com.huawei.sirius.autosar.core.handlers.isWorkingFile" />
+                  </not>
+               </and>
+            </iterate>
+         </enabledWhen>
+      </handler>
+      <handler
+            class="com.huawei.sirius.autosar.ui.handlers.MarkAsReadOnlyHandler"
+            commandId="com.huawei.sirius.autosar.ui.writable">
+      </handler>
+      <handler
+            class="com.huawei.sirius.autosar.ui.handlers.MarkAsWorkingFileHandler"
+            commandId="com.huawei.sirius.autosar.ui.workingFile">
+         <enabledWhen>
+            <iterate>
+               <and>
+                  <instanceof
+                        value="com.huawei.sirius.autosar.core.tree.node.TreeNode">
+                  </instanceof>
+                  <not>
+                     <test property="com.huawei.sirius.autosar.core.handlers.isWorkingFile" />
+                  </not>
+               </and>
+            </iterate>
+         </enabledWhen>
+      </handler>
+      <handler
+            class="com.huawei.sirius.autosar.ui.handlers.project.ArShowInSystemExplorerHandler"
+            commandId="com.huawei.sirius.autosar.ui.ShowInProjectExplorer">
+         <activeWhen>
+            <and>
+               <count value="1" />
+               <iterate>
+                  <test property="com.huawei.sirius.autosar.core.handlers.isPhysical" />
+               </iterate>
+            </and>
+         </activeWhen>
+      </handler>
+      <handler
+            class="com.huawei.sirius.autosar.ui.handlers.project.ReloadSessionHandler"
+            commandId="com.huawei.sirius.autosar.ui.reloadSession">
+      </handler>
+      <handler
+            class="com.huawei.sirius.autosar.ui.handlers.project.ShowInDesignViewHandler"
+            commandId="com.huawei.sirius.autosar.ui.ShowInDesignView">
+      </handler>
+      <handler
+            class="com.huawei.sirius.autosar.ui.handlers.project.NewPackageHandler"
+            commandId="com.huawei.sirius.autosar.ui.newPackage">
+      </handler>
+      
+   </extension>
+   		
+   
+   <extension
+         point="org.eclipse.ui.menus">
+         
+      <menuContribution
+            locationURI="popup:com.huawei.sirius.autosar.ui.views.DesignExplorerView?after=diagrams">                        
+                        
+         <command
+               commandId="org.eclipse.ui.edit.rename"
+               id="com.huawei.sirius.autosar.ui.menus.renameRepresentation"
+               label="Rename">
+            <visibleWhen
+                  checkEnabled="false">
+               <with
+                     variable="selection">
+                  <and>
+                     <count value="1" />
+                     <iterate>
+                        <test property="com.huawei.sirius.autosar.core.handlers.isRepresentation" />
+                     </iterate>
+                  </and>
+               </with>
+            </visibleWhen>
+         </command>
+    
+         <command
+               commandId="com.huawei.sirius.autosar.ui.commands.openRepresentation"
+               id="com.huawei.sirius.autosar.ui.menus.openRepresentation"
+               label="Open">
+            <visibleWhen
+                  checkEnabled="false">
+               <with
+                     variable="selection">
+                  <and>
+                     <count value="1" />
+                     <iterate>
+                        <test property="com.huawei.sirius.autosar.core.handlers.isRepresentation" />
+                     </iterate>
+                  </and>
+               </with>
+            </visibleWhen>
+         </command>
+      </menuContribution>
+                        
+
+      <menuContribution
+            locationURI="popup:com.huawei.sirius.autosar.ui.views.DesignExplorerView?after=deletes">
+         <command
+               commandId="org.eclipse.ui.edit.delete"
+               id="com.huawei.sirius.autosar.ui.menus.delete"
+               label="Delete">
+         </command>
+      </menuContribution>
+      
+      <menuContribution
+            locationURI="popup:com.huawei.sirius.autosar.ui.views.DesignExplorerView?after=group.editor">
+         <command
+               commandId="org.eclipse.ui.edit.undo"
+               id="com.huawei.sirius.autosar.ui.menus.undo"
+               label="Undo">
+            <visibleWhen
+                  checkEnabled="false">
+               <with
+                     variable="selection">
+                  <and>
+                     <count value="1" />
+                     <iterate>
+                        <test property="com.huawei.sirius.autosar.core.handlers.isProject" />
+                     </iterate>
+                  </and>
+               </with>
+            </visibleWhen>
+         </command>
+         <command
+               commandId="org.eclipse.ui.edit.redo"
+               id="com.huawei.sirius.autosar.ui.menus.redo"
+               label="Redo">
+            <visibleWhen
+                  checkEnabled="false">
+               <with
+                     variable="selection">
+                  <and>
+                     <count value="1" />
+                     <iterate>
+                        <test property="com.huawei.sirius.autosar.core.handlers.isProject" />
+                     </iterate>
+                  </and>
+               </with>
+            </visibleWhen>
+         </command>
+         <command
+               commandId="org.eclipse.ui.edit.copy"
+               id="com.huawei.sirius.autosar.ui.menus.clone"
+               label="Clone">
+            <visibleWhen
+                  checkEnabled="false">
+               <with variable="selection">
+                     <iterate>
+                        <or>
+                        <test property="com.huawei.sirius.autosar.core.handlers.isSemantic" />
+                        <test property="com.huawei.sirius.autosar.core.handlers.isRepresentation" />
+                        </or>
+                     </iterate>
+               </with>
+            </visibleWhen>
+         </command>
+
+         <command
+               commandId="com.huawei.sirius.autosar.ui.commands.addSystemMappings"
+               id="com.huawei.sirius.autosar.ui.menus.addSystemMappings" >
+            <visibleWhen checkEnabled="false">
+               <with variable="selection">
+                  <and>
+                     <count value="1" />
+                     <iterate>
+                        <test property="com.huawei.sirius.autosar.core.handlers.isSemantic"
+                            args="SystemMapping"
+                        />
+                     </iterate>
+                  </and>
+               </with>
+            </visibleWhen>
+         </command>
+      </menuContribution>
+      
+      <menuContribution
+            locationURI="popup:com.huawei.sirius.autosar.ui.views.ProjectExplorerView?before=additions">
+         <menu
+               label="New">
+               <!-- cannot use plugin for fragment path -->
+            <command
+                  commandId="com.huawei.sirius.autosar.ui.newPackage"
+                  icon="platform:/plugin/org.artop.aal.autosar448.edit/icons/full/obj16/ARPackage.gif"
+                  label="AUTOSAR Package"
+                  style="push">
+               <visibleWhen
+                     checkEnabled="false">
+                  <and>
+                     <count value="1" />
+                     <iterate>
+                        <or>
+                           <test property="com.huawei.sirius.autosar.core.handlers.isPackage" />
+                           <test property="com.huawei.sirius.autosar.core.handlers.isAutosar" />
+                        </or>
+                     </iterate>
+                  </and>
+               </visibleWhen>
+            </command>
+            <separator
+                  name="com.huawei.sirius.autosar.ui.separatorNewArObject"
+                  visible="true">
+            </separator>
+            <command
+                  commandId="com.huawei.sirius.autosar.ui.newProject"
+                  icon="platform:/plugin/com.huawei.sirius.autosar.core/icons/autosar_prj.png"
+                  id="com.huawei.sirius.autosar.ui.menus.newProject"
+                  label="AUTOSAR Classic Project...">
+            </command>
+            <command
+                  commandId="com.huawei.sirius.autosar.ui.newProject"
+                  icon="platform:/plugin/com.huawei.sirius.autosar.core/icons/autosar_prj_adaptive.png"
+                  id="com.huawei.sirius.autosar.ui.menus.newAdaptiveProject"
+                  label="AUTOSAR Adaptive Project...">
+               <parameter
+                     name="com.huawei.sirius.autosar.ui.project.profile"
+                     value="adaptive">
+               </parameter>
+            </command>
+            <separator
+                  name="com.huawei.sirius.autosar.ui.separatorNewMenu"
+                  visible="true">
+            </separator>
+            <command
+                  commandId="com.huawei.sirius.autosar.ui.newFile"
+                  icon="icons/autosar_file.png"
+                  id="com.huawei.sirius.autosar.ui.menus.newFile"
+                  label="AUTOSAR File...">
+               <visibleWhen
+                     checkEnabled="false">
+                  <with
+                        variable="selection">
+                     <and>
+                        <count value="1" />
+                        <iterate>
+                           <or>
+                              <test property="com.huawei.sirius.autosar.core.handlers.isProject" />
+                              <test property="com.huawei.sirius.autosar.core.handlers.isFolder" />
+                              <test property="com.huawei.sirius.autosar.core.handlers.isClosedProject" />
+                           </or>
+                        </iterate>
+                     </and>
+                  </with>
+               </visibleWhen>
+            </command>
+            <command
+                  commandId="com.huawei.sirius.autosar.ui.newFolder"
+                  icon="icons/folder.png"
+                  id="com.huawei.sirius.autosar.ui.menus.newFolder"
+                  label="Folder...">
+               <visibleWhen
+                     checkEnabled="false">
+                  <with
+                        variable="selection">
+                     <and>
+                        <count value="1" />
+                        <iterate>
+                           <or>
+                              <test property="com.huawei.sirius.autosar.core.handlers.isProject" />
+                              <test property="com.huawei.sirius.autosar.core.handlers.isFolder" />
+                              <test property="com.huawei.sirius.autosar.core.handlers.isClosedProject" />
+                           </or>
+                        </iterate>
+                     </and>
+                  </with>
+               </visibleWhen>
+            </command>
+         </menu>
+         <separator
+               name="com.huawei.sirius.autosar.ui.separatorNew"
+               visible="true">
+         </separator>
+         <command
+               commandId="org.eclipse.ui.edit.copy"
+               id="com.huawei.sirius.autosar.ui.menus.clone"
+               label="Clone">
+            <visibleWhen
+                  checkEnabled="false">
+               <with
+                     variable="selection">
+                  <iterate>
+                     <or>
+                        <test property="com.huawei.sirius.autosar.core.handlers.isRepresentation" />
+                        <and>
+                           <test property="com.huawei.sirius.autosar.core.handlers.isSemantic" />
+                           <not>
+                              <test property="com.huawei.sirius.autosar.core.handlers.isAutosar" /></not>
+                        </and>
+                     </or>
+                  </iterate>
+               </with>
+            </visibleWhen>
+         </command>
+         <separator
+               name="com.huawei.sirius.autosar.ui.separatorClone"
+               visible="true">
+         </separator>
+         <command
+               commandId="org.eclipse.ui.edit.delete"
+               icon="icons/delete.png"
+               id="com.huawei.sirius.autosar.ui.menus.deleteResource"
+               label="Delete">
+            <visibleWhen
+                  checkEnabled="false">
+	             <iterate>
+                 <not>
+                    <test property="com.huawei.sirius.autosar.core.handlers.isAutosar" />
+                 </not>
+	             </iterate>
+            </visibleWhen>
+         </command>
+         <command
+               commandId="com.huawei.sirius.autosar.ui.commands.moveElement"
+               id="com.huawei.sirius.autosar.ui.menus.moveElement"
+               label="Move...">
+            <visibleWhen
+                  checkEnabled="false">
+               <with
+                     variable="selection">
+                  <and>
+                     <count value="1" />
+                     <iterate>
+                        <test property="com.huawei.sirius.autosar.core.handlers.isSemantic" />
+                     </iterate>
+                  </and>
+               </with>
+            </visibleWhen>
+         </command>
+         <command
+               commandId="com.huawei.sirius.autosar.ui.commands.moveFile"
+               id="com.huawei.sirius.autosar.ui.menus.moveFile"
+               label="Move...">
+            <visibleWhen
+                  checkEnabled="false">
+               <with
+                     variable="selection">
+                  <and>
+                     <count value="1" />
+                     <iterate>
+                        <or>
+                           <test property="com.huawei.sirius.autosar.core.handlers.isArXml" />
+                        </or>
+                     </iterate>
+                  </and>
+               </with>
+            </visibleWhen>
+         </command>
+         <command
+               commandId="org.eclipse.ui.edit.rename"
+               id="com.huawei.sirius.autosar.ui.menus.renameProject"
+               label="Rename...">
+            <visibleWhen
+                  checkEnabled="false">
+                  <and>
+                     <count value="1" />
+                     <iterate>
+                        <or>
+                           <test property="com.huawei.sirius.autosar.core.handlers.isProject" />
+                           <test property="com.huawei.sirius.autosar.core.handlers.isClosedProject" />
+                           <test property="com.huawei.sirius.autosar.core.handlers.isFolder" />
+                           <test property="com.huawei.sirius.autosar.core.handlers.isArXml" />
+                           <test property="com.huawei.sirius.autosar.core.handlers.isAuthorizedFileFormat" />
+                        </or>
+                     </iterate>
+                  </and>
+            </visibleWhen>
+         </command>
+         <command
+               commandId="org.eclipse.ui.edit.rename"
+               id="com.huawei.sirius.autosar.ui.menus.renameRepresentation"
+               label="Rename...">
+            <visibleWhen
+                  checkEnabled="false">
+               <with
+                     variable="selection">
+                  <and>
+                     <count value="1" />
+                     <iterate>
+                        <test property="com.huawei.sirius.autosar.core.handlers.isRepresentation" />
+                     </iterate>
+                  </and>
+               </with>
+            </visibleWhen>
+         </command>
+         <separator
+               name="com.huawei.sirius.autosar.ui.separatorEdition"
+               visible="true">
+         </separator>
+         <command
+               commandId="com.huawei.sirius.autosar.ui.importProject"
+               icon="platform:/plugin/com.huawei.sirius.autosar.core/icons/autosar_prj.png"
+               id="com.huawei.sirius.autosar.ui.menus.importProject"
+               label="Import Project...">
+         </command>
+         <command
+               commandId="com.huawei.sirius.autosar.ui.importFile"
+               icon="icons/autosar_file.png"
+               id="com.huawei.sirius.autosar.ui.menus.importFile"
+               label="Import AUTOSAR Files...">
+            <visibleWhen
+                  checkEnabled="false">
+                  <and>
+                     <count value="1" />
+                     <iterate>
+                        <or>
+                           <test property="com.huawei.sirius.autosar.core.handlers.isProject" />
+                           <test property="com.huawei.sirius.autosar.core.handlers.isClosedProject" />
+                           <test property="com.huawei.sirius.autosar.core.handlers.isFolder" />
+                        </or>
+                     </iterate>
+                  </and>
+            </visibleWhen>
+         </command>
+         <command
+               commandId="com.huawei.sirius.autosar.ui.exportFile"
+               icon="icons/autosar_file.png"
+               id="com.huawei.sirius.autosar.ui.menus.exportFile"
+               label="Export Project...">
+            <visibleWhen
+                  checkEnabled="false">
+               <and>
+                  <count value="1" />
+                  <iterate>
+                     <or>
+                        <test property="com.huawei.sirius.autosar.core.handlers.isProject" />
+                        <test property="com.huawei.sirius.autosar.core.handlers.isClosedProject" />
+                     </or>
+                  </iterate>
+               </and>
+            </visibleWhen>
+         </command>
+         <separator
+               name="com.huawei.sirius.autosar.ui.separatorImport"
+               visible="true">
+         </separator>
+         <command
+               commandId="com.huawei.sirius.autosar.ui.reloadSession"
+               icon="icons/refresh.gif"
+               label="Reload Session"
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <and>
+                  <count value="1" />
+                  <iterate>
+                     <or>
+                        <test property="com.huawei.sirius.autosar.core.handlers.isOpenProject" />
+                     </or>
+                  </iterate>
+               </and>
+            </visibleWhen>
+         </command>
+         <command
+               commandId="com.huawei.sirius.autosar.ui.commands.openRepresentation"
+               id="com.huawei.sirius.autosar.ui.menus.openRepresentation"
+               label="Open">
+            <visibleWhen
+                  checkEnabled="false">
+               <with
+                     variable="selection">
+                  <and>
+                     <count value="1" />
+                     <iterate>
+                        <test property="com.huawei.sirius.autosar.core.handlers.isRepresentation" />
+                     </iterate>
+                  </and>
+               </with>
+            </visibleWhen>
+         </command>
+         <command
+               commandId="com.huawei.sirius.autosar.ui.openProject"
+               id="com.huawei.sirius.autosar.ui.menus.openProject"
+               label="Open project">
+            <visibleWhen
+                  checkEnabled="false">
+               <with
+                     variable="selection">
+                  <and>
+                     <count value="1" />
+                     <iterate>
+                        <or>
+                           <and>
+                              <test property="com.huawei.sirius.autosar.core.handlers.isProject" />
+                              <not>
+                                 <test property="com.huawei.sirius.autosar.core.handlers.isOpenProject" />
+                              </not>
+                           </and>
+                           <test property="com.huawei.sirius.autosar.core.handlers.isClosedProject" />
+                        </or>
+                     </iterate>
+                  </and>
+               </with>
+            </visibleWhen>
+         </command>
+         <command
+               commandId="com.huawei.sirius.autosar.ui.openFile"
+               id="com.huawei.sirius.autosar.ui.menus.openFile"
+               label="Open File">
+            <visibleWhen
+                  checkEnabled="false">
+               <with
+                     variable="selection">
+                  <and>
+                     <count
+                           value="1">
+                     </count>
+                     <iterate>
+                        <or>
+                           <test
+                                 property="com.huawei.sirius.autosar.core.handlers.isAuthorizedFileFormat">
+                           </test>
+                        </or>
+                     </iterate>
+                  </and>
+               </with>
+            </visibleWhen>
+         </command>
+         <command
+               commandId="com.huawei.sirius.autosar.ui.closeProject"
+               id="com.huawei.sirius.autosar.ui.menus.closeProject"
+               label="Close project">
+            <visibleWhen
+                  checkEnabled="false">
+               <with
+                     variable="selection">
+                  <and>
+                     <count value="1" />
+                     <iterate>
+                        <test property="com.huawei.sirius.autosar.core.handlers.isOpenProject" />
+                     </iterate>
+                  </and>
+               </with>
+            </visibleWhen>
+         </command>
+         <separator
+               name="com.huawei.sirius.autosar.ui.separatorOpen"
+               visible="true">
+         </separator>
+         <command
+               commandId="com.huawei.sirius.autosar.ui.workingFile"
+               icon="platform:/plugin/com.huawei.sirius.autosar.core/icons/working_file.png"
+               id="com.huawei.sirius.autosar.ui.menus.workingFile"
+               label="Set as working file"
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+              <and>
+                 <count value="1" />
+                 <iterate>
+                    <and>
+                       <test property="com.huawei.sirius.autosar.core.handlers.isArXml" />
+                    </and>
+                 </iterate>
+              </and>
+            </visibleWhen>
+         </command>
+         <command
+               commandId="com.huawei.sirius.autosar.ui.readonly"
+               id="com.huawei.sirius.autosar.ui.menus.readonly"
+               label="Set as read-only"
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <with
+                     variable="selection">
+                  <and>
+                     <count value="1" />
+                     <iterate>
+                        <and>
+                           <test property="com.huawei.sirius.autosar.core.handlers.isArXml" />
+                           <not>
+                              <test property="com.huawei.sirius.autosar.core.handlers.isReadOnly" />
+                           </not>
+                        </and>
+                     </iterate>
+                  </and>
+               </with>
+            </visibleWhen>
+         </command>
+         <command
+               commandId="com.huawei.sirius.autosar.ui.writable"
+               id="com.huawei.sirius.autosar.ui.menus.writable"
+               label="Set as writable"
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <with
+                     variable="selection">
+                  <and>
+                     <count value="1" />
+                     <iterate>
+                        <and>
+                           <test property="com.huawei.sirius.autosar.core.handlers.isArXml" />
+                           <test property="com.huawei.sirius.autosar.core.handlers.isReadOnly" />
+                        </and>
+                     </iterate>
+                  </and>
+               </with>
+            </visibleWhen>
+         </command>
+         <separator
+               name="com.huawei.sirius.autosar.ui.separatorReadOnly"
+               visible="true">
+         </separator>
+         <command
+               commandId="com.huawei.sirius.autosar.ui.ShowInProjectExplorer"
+               icon="platform:/plugin/org.eclipse.ui.ide/icons/full/obj16/goto_input.png"
+               label="Show In System Explorer">
+            <visibleWhen
+                  checkEnabled="false">
+                  <and>
+                     <count value="1" />
+                     <iterate>
+                        <test property="com.huawei.sirius.autosar.core.handlers.isPhysical" />
+                     </iterate>
+                  </and>
+            </visibleWhen>
+         </command>
+         <command
+               commandId="com.huawei.sirius.autosar.ui.ShowInDesignView"
+               icon="icons/AUTOSAR.gif"
+               label="Show In Design View">
+            <visibleWhen
+                  checkEnabled="false">
+               <with
+                     variable="selection">
+                  <and>
+                     <count value="1" />
+                     <iterate>
+                        <test property="com.huawei.sirius.autosar.core.handlers.isPackageableElement" />
+                     </iterate>
+                  </and>
+               </with>
+            </visibleWhen>
+         </command>
+      </menuContribution>
+      <menuContribution
+            locationURI="toolbar:org.eclipse.ui.main.toolbar?after=additions">
+         <toolbar
+               id="com.huawei.sirius.autosar.ui.toolbars.additionsToolbar">
+            <command
+                  commandId="com.huawei.sirius.autosar.ui.launchValidation"
+                  icon="icons/validate.gif"
+                  id="com.huawei.sirius.autosar.ui.menus.launchValidation"
+                  label="Validate model">
+            </command>
+            <command
+                  commandId="com.huawei.sirius.autosar.ui.newMappingTable"
+                  icon="icons/new_mapping_table.gif"
+                  id="com.huawei.sirius.autosar.ui.menus.newMappingTable"
+                  label="New mapping table">
+            </command>
+         </toolbar>
+      </menuContribution>
+      
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <category
+            id="com.huawei.sirius.autosar.ui.commands.category"
+            name="AUTOSAR UI Commands">
+      </category>
+      <command
+            categoryId="com.huawei.sirius.autosar.ui.commands.category"
+            id="com.huawei.sirius.autosar.ui.commands.openRepresentation"
+            name="Open">
+      </command>
+      <command
+            categoryId="com.huawei.sirius.autosar.ui.commands.category"
+            id="com.huawei.sirius.autosar.ui.commands.addSystemMappings"
+            name="Add Mapping from sub-system">
+      </command>
+      
+      
+      <command
+            categoryId="com.huawei.sirius.autosar.ui.commands.category"
+            id="com.huawei.sirius.autosar.ui.commands.moveElement"
+            name="Move">
+      </command>
+      <command
+            categoryId="com.huawei.sirius.autosar.ui.commands.category"
+            id="com.huawei.sirius.autosar.ui.openProject"
+            name="Open project">
+      </command>
+      <command
+            categoryId="com.huawei.sirius.autosar.ui.commands.category"
+            id="com.huawei.sirius.autosar.ui.closeProject"
+            name="Close project">
+      </command>
+      <command
+            categoryId="com.huawei.sirius.autosar.ui.commands.category"
+            id="com.huawei.sirius.autosar.ui.deleteResource"
+            name="Delete">
+      </command>
+      <command
+            categoryId="com.huawei.sirius.autosar.ui.commands.category"
+            id="com.huawei.sirius.autosar.ui.newProject"
+            name="New AUTOSAR Project...">
+         <commandParameter
+               id="com.huawei.sirius.autosar.ui.project.profile"
+               name="profile"
+               optional="true">
+         </commandParameter>
+      </command>
+      <command
+            categoryId="com.huawei.sirius.autosar.ui.commands.category"
+            id="com.huawei.sirius.autosar.ui.importProject"
+            name="Import project...">
+      </command>
+      <command
+            categoryId="com.huawei.sirius.autosar.ui.commands.category"
+            id="com.huawei.sirius.autosar.ui.newFile"
+            name="New AUTOSAR File...">
+      </command>
+      <command
+            categoryId="com.huawei.sirius.autosar.ui.commands.category"
+            id="com.huawei.sirius.autosar.ui.importFile"
+            name="Import AUTOSAR Files...">
+      </command>
+      <command
+            categoryId="com.huawei.sirius.autosar.ui.commands.category"
+            id="com.huawei.sirius.autosar.ui.exportFile"
+            name="Export Project...">
+      </command>
+      <command
+            categoryId="com.huawei.sirius.autosar.ui.commands.category"
+            id="com.huawei.sirius.autosar.ui.newFolder"
+            name="New Folder...">
+      </command>
+      <command
+            categoryId="com.huawei.sirius.autosar.ui.commands.category"
+            id="com.huawei.sirius.autosar.ui.launchValidation"
+            name="Validate model">
+      </command>
+      <command
+            categoryId="com.huawei.sirius.autosar.ui.commands.category"
+            id="com.huawei.sirius.autosar.ui.newMappingTable"
+            name="New mapping table">
+      </command>
+      <command
+            categoryId="com.huawei.sirius.autosar.ui.commands.category"
+            id="com.huawei.sirius.autosar.ui.openFile"
+            name="Open File">
+      </command>
+      <command
+            categoryId="com.huawei.sirius.autosar.ui.commands.category"
+            id="com.huawei.sirius.autosar.ui.commands.moveFile"
+            name="Move">
+      </command>
+      <command
+            categoryId="com.huawei.sirius.autosar.ui.commands.category"
+            id="com.huawei.sirius.autosar.ui.readonly"
+            name="Set as read-only">
+      </command>
+      <command
+            categoryId="com.huawei.sirius.autosar.ui.commands.category"
+            id="com.huawei.sirius.autosar.ui.writable"
+            name="Set as writable">
+      </command>
+      <command
+            categoryId="com.huawei.sirius.autosar.ui.commands.category"
+            id="com.huawei.sirius.autosar.ui.workingFile"
+            name="Set as working file">
+      </command>
+      <command
+            categoryId="com.huawei.sirius.autosar.ui.commands.category"
+            id="com.huawei.sirius.autosar.ui.ShowInProjectExplorer"
+            name="Show in system explorer">
+      </command>
+      <command
+            categoryId="com.huawei.sirius.autosar.ui.commands.category"
+            id="com.huawei.sirius.autosar.ui.reloadSession"
+            name="reloadSession">
+      </command>
+      <command
+            categoryId="com.huawei.sirius.autosar.ui.commands.category"
+            id="com.huawei.sirius.autosar.ui.ShowInDesignView"
+            name="Show In Design View">
+      </command>
+      <command
+            categoryId="com.huawei.sirius.autosar.ui.commands.category"
+            id="com.huawei.sirius.autosar.ui.newPackage"
+            name="New Package">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.newWizards">
+      <category
+            id="com.huawei.sirius.autosar.ui.category"
+            name="AUTOSAR">
+      </category>
+      <wizard
+            category="com.huawei.sirius.autosar.ui.category"
+            class="com.huawei.sirius.autosar.ui.wizards.creation.NewAutosarClassicProjectWizard"
+            descriptionImage="icons/newarprj_wiz.png"
+            icon="platform:/plugin/com.huawei.sirius.autosar.core/icons/autosar_prj.png"
+            id="com.huawei.sirius.autosar.ui.wizard.newAutosarProject"
+            name="New AUTOSAR Classic Project..."
+            project="true">
+      </wizard>
+      <wizard
+            category="com.huawei.sirius.autosar.ui.category"
+            class="com.huawei.sirius.autosar.ui.wizards.creation.NewAutosarAdaptiveProjectWizard"
+            descriptionImage="icons/newarprj_wiz.png"
+            icon="platform:/plugin/com.huawei.sirius.autosar.core/icons/autosar_prj_adaptive.png"
+            id="com.huawei.sirius.autosar.ui.wizard.newAutosarAdaptiveProject"
+            name="New AUTOSAR Adaptive Project..."
+            project="true">
+      </wizard>
+      <wizard
+            category="com.huawei.sirius.autosar.ui.category"
+            class="com.huawei.sirius.autosar.core.general.wizard.NewAutosarFileWizard"
+            descriptionImage="icons/newarfile_wiz.png"
+            icon="icons/autosar_file.png"
+            id="com.huawei.sirius.autosar.ui.wizard.newAutosarFile"
+            name="New AUTOSAR File...">
+      </wizard>
+      <wizard
+            category="com.huawei.sirius.autosar.ui.category"
+            class="com.huawei.sirius.autosar.ui.wizards.importfiles.ImportAutosarFilesWizard"
+            descriptionImage="icons/newarfile_wiz.png"
+            icon="icons/autosar_file.png"
+            id="com.huawei.sirius.autosar.ui.wizard.importAutosarFile"
+            name="Import AUTOSAR Files...">
+      </wizard>
+   </extension>
+   <extension
+         point="org.eclipse.ui.importWizards">
+      <category
+            id="com.huawei.sirius.autosar.ui.category"
+            name="AUTOSAR">
+      </category>
+      <wizard
+            category="com.huawei.sirius.autosar.ui.category"
+            class="com.huawei.sirius.autosar.ui.wizards.importfiles.ImportAutosarFilesWizard"
+            icon="icons/newarfile_wiz.png"
+            id="com.huawei.sirius.autosar.ui.wizard.importAutosarFile"
+            name="Import AUTOSAR Files...">
+      </wizard>
+   </extension>
+   <extension
+         point="org.eclipse.ui.exportWizards">
+      <category
+            id="com.huawei.sirius.autosar.ui.category"
+            name="AUTOSAR">
+      </category>
+      <wizard
+            category="com.huawei.sirius.autosar.ui.category"
+            class="com.huawei.sirius.autosar.ui.wizards.export.ExportAutosarFileWizard"
+            icon="icons/newarfile_wiz.png"
+            id="com.huawei.sirius.autosar.ui.wizard.exportAutosarFile"
+            name="Export Project">
+      </wizard>
+   </extension>
+
+   <extension
+         point="org.eclipse.ui.editors">
+         <!-- 
+         This editor is the link between 'Problems' view and 'Design' view. 
+         Also used in history, its name must be the same as the view site.
+         -->
+      <editor
+            id="com.huawei.sirius.autosar.ui.views.DesignExplorerView"
+            name="Autosar Design"
+            icon="icons/autosar_file.png"
+            extensions="arxml"
+            default="true"
+            launcher="com.huawei.sirius.autosar.ui.views.DesignExplorerLauncher"
+      >
+         <contentTypeBinding
+               contentTypeId="org.artop.aal.autosar40.autosar40XMLFile">
+         </contentTypeBinding>
+      </editor>
+   </extension>
+   
+   <extension
+         id="CustomUISessionFactory"
+         point="org.eclipse.sirius.ui.uiSessionFactory">
+      <uiSessionFactory
+            class="com.huawei.sirius.autosar.ui.session.CustomEditingSession$Factory">
+      </uiSessionFactory>
+   </extension>
+   
+   <extension point="org.eclipse.ui.ide.markerSupport">
+      <markerField id="com.huawei.sirius.autosar.ui.marker.emfType"
+            class="com.huawei.sirius.autosar.ui.marker.EmfTypeField"
+            name="Model Type" />
+      <markerContentGenerator
+            id="com.huawei.sirius.autosar.ui.marker.generator"
+            defaultMarkerGrouping="org.eclipse.ui.ide.allMarkers.severity"
+            name="Validation Contents">
+         <markerFieldReference id="org.eclipse.ui.ide.severityAndDescriptionField" visible="true" />
+         <markerFieldReference id="com.huawei.sirius.autosar.ui.marker.emfType" visible="true" />
+         <markerFieldReference id="org.eclipse.ui.ide.resourceField" visible="false" />
+         <markerFieldReference id="org.eclipse.ui.ide.pathField" visible="true" />
+         <markerFieldReference id="org.eclipse.ui.ide.locationField" visible="true" />
+
+         <!-- 
+         This is because com.huawei.sirius.autosar.validation.legacy.FixValidationMarkerManager
+         creates sphinx.emf.validation.problem.marker.
+         -->
+         <markerTypeReference id="sphinx.emf.validation.problem.marker" />
+         
+         <markerFieldConfiguration
+               id="com.huawei.sirius.autosar.ui.marker.group"
+               name="All Errors"
+               scope="ON_ANY">
+         </markerFieldConfiguration>
+         
+
+         <markerGrouping id="org.eclipse.ui.ide.type" label="Type" />
+
+         <!--  -->
+          <markerGrouping id="org.eclipse.ui.ide.allMarkers.severity" label="Severity">
+            <markerGroupingEntry
+                  id="org.eclipse.ui.ide.allmarkers.errorSeverity"
+                  label="Errors"
+                  priority="30">
+            </markerGroupingEntry>
+            <markerGroupingEntry
+                  id="org.eclipse.ui.ide.allmarkers.warningSeverity"
+                  label="Warnings"
+                  priority="20">
+            </markerGroupingEntry>
+            <markerGroupingEntry
+                  id="org.eclipse.ui.ide.allmarkers.other"
+                  label="Infos"
+                  priority="10">
+            </markerGroupingEntry>
+            <markerAttributeGrouping
+                  attribute="severity"
+                  markerType="org.eclipse.core.resources.marker">
+               <markerAttributeMapping
+                     markerGroupingEntry="org.eclipse.ui.ide.allmarkers.errorSeverity"
+                     value="2">
+               </markerAttributeMapping>
+               <markerAttributeMapping
+                     markerGroupingEntry="org.eclipse.ui.ide.allmarkers.warningSeverity"
+                     value="1">
+               </markerAttributeMapping>
+               <markerAttributeMapping
+                     markerGroupingEntry="org.eclipse.ui.ide.allmarkers.other"
+                     value="0">
+               </markerAttributeMapping>
+               <markerAttributeMapping
+                     markerGroupingEntry="org.eclipse.ui.ide.allmarkers.other"
+                     value="-1">
+               </markerAttributeMapping>
+            </markerAttributeGrouping>
+         </markerGrouping>
+         
+         
+      </markerContentGenerator>
+    
+   </extension>
+
+   <extension point="org.eclipse.ui.views">
+      <view id="com.huawei.sirius.autosar.ui.marker.view"
+            class="com.huawei.sirius.autosar.ui.marker.ModelValidationView"
+            icon="platform:/plugin/org.eclipse.ui.ide/icons/full/eview16/problems_view.png"
+            name="Model Validation">
+      </view>
+   </extension>
+   
+   <extension point="org.eclipse.ui.menus">
+      <!-- 
+      About discouraged access:
+      Marker plugin provides a lot of tool to create a custom view
+      but most of them are internal.
+      -->
+      <menuContribution locationURI="menu:com.huawei.sirius.autosar.ui.marker.view">
+         <menu id="com.huawei.sirius.autosar.ui.marker.filtersMenu" label="Show">
+            <!-- id of dynamic is not used -->
+            <dynamic class="org.eclipse.ui.internal.views.markers.FiltersContribution"
+                  id="com.huawei.sirius.autosar.ui.marker.filtersMenu.dynamic" />
+            <visibleWhen checkEnabled="false">
+               <with variable="activePart">
+                  <test property="org.eclipse.ui.ide.hasFilters" />
+               </with>
+            </visibleWhen>
+         </menu>
+         <menu id="com.huawei.sirius.autosar.ui.marker.groupByMenu"
+               label="Group By"
+               mnemonic="G">
+            <dynamic class="org.eclipse.ui.internal.views.markers.GroupsContribution"
+                  id="com.huawei.sirius.autosar.ui.marker.groupByMenu.dynamic" />
+         </menu>
+         <menu id="com.huawei.sirius.autosar.ui.marker.markerSortMenu"
+               label="Sort By"
+               mnemonic="S">
+            <dynamic class="org.eclipse.ui.internal.views.markers.SortFieldContribution"
+                  id="com.huawei.sirius.autosar.ui.marker.markerSortMenu.dynamic" />
+         </menu>
+         <command commandId="org.eclipse.ui.ide.configureFilters" style="push" 
+            icon="platform:/plugin/org.eclipse.ui.ide/icons/full/elcl16/filter_ps.png"
+         />
+        <command
+               commandId="org.eclipse.ui.ide.configureColumns"
+               mnemonic="l"
+               style="push" />
+      </menuContribution>
+    </extension>
+
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            category="org.artop.aal.workspace.ui.preferencePages.autosar"
+            class="com.huawei.sirius.autosar.ui.pref.DiagramPreferencePage"
+            id="com.huawei.sirius.autosar.ui.prefPages.diagram"
+            name="Diagrams">
+      </page>
+   </extension>
+   
+
+   
+   
+   
+   <!-- REMINDER
+   Do not use org.eclipse.ui.navigator.viewer on com.huawei.sirius.autosar.ui.views.DesignExplorerView
+   It is not a org.eclipse.ui.navigator.CommonNavigator ! 
+   -->
+   
+   
+   <!-- Activate Artop navigation content -->
+   <!--
+   <extension point="org.eclipse.ui.navigator.viewer">
+   	<!- - view from org.eclipse.sirius.ui - ->
+      <viewerActionBinding viewerId="com.huawei.sirius.autosar.ui.views.DesignExplorerView">
+         <includes> <!- - from org.artop.aal.validation.ui - ->
+            <actionExtension pattern="org.artop.aal.validation.ui.actions.*" />
+         </includes>
+      </viewerActionBinding>
+      
+      <viewerContentBinding viewerId="org.eclipse.sirius.ui.tools.views.model.explorer">
+         <includes> <!- - from org.artop.aal.workspace.ui - ->
+            <contentExtension pattern="org.artop.aal.workspace.ui.filters.*" />
+         </includes>
+      </viewerContentBinding>
+      
+   </extension>
+   -->
+   
+</plugin>

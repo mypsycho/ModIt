@@ -16,12 +16,14 @@ import java.util.Objects
 import org.eclipse.emf.ecore.EClass
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.sirius.table.metamodel.table.description.CreateCellTool
+import org.eclipse.sirius.table.metamodel.table.description.CreateCrossColumnTool
 import org.eclipse.sirius.table.metamodel.table.description.CrossTableDescription
 import org.eclipse.sirius.table.metamodel.table.description.DeleteColumnTool
 import org.eclipse.sirius.table.metamodel.table.description.ElementColumnMapping
-import org.eclipse.sirius.table.metamodel.table.description.FeatureColumnMapping
 import org.eclipse.sirius.table.metamodel.table.description.IntersectionMapping
 import org.eclipse.sirius.table.metamodel.table.description.LabelEditTool
+import org.eclipse.sirius.viewpoint.description.tool.ChangeContext
+import org.eclipse.sirius.viewpoint.description.tool.CreateInstance
 import org.eclipse.sirius.viewpoint.description.tool.EditMaskVariables
 import org.eclipse.sirius.viewpoint.description.tool.ModelOperation
 import org.eclipse.xtext.xbase.lib.Procedures.Procedure3
@@ -70,13 +72,49 @@ abstract class AbstractCrossTable extends AbstractTable<CrossTableDescription> {
     }
 	
 	/**
+	 * Sets the domain class of a description.
+	 * <p>
+	 * EClass is resolved using businessPackages of AbstractGroup.
+	 * </p>
+	 * 
+	 * @param it description to define
+	 * @param type of the description
+	 */
+	def void setDomainClass(IntersectionMapping it, Class<? extends EObject> type) {
+		domainClass = context.asDomainClass(type)
+	}
+		   
+    /**
+     * Sets the domain class of a description.
+     * <p>
+     * EClass is resolved using businessPackages of AbstractGroup.
+     * </p>
+     * 
+     * @param it description to define
+     * @param type of the description
+     */
+    def void setDomainClass(IntersectionMapping it, EClass type) {
+        domainClass = SiriusDesigns.encode(type)
+    }
+	
+	/**
+	 * Sets edit operation for provided mapping.
+	 * 
+	 * @param it containing mapping
+	 * @param operation to perform
+	 */
+	def void setDirectEdit(IntersectionMapping it, ModelOperation operation) {
+		directEdit = operation.createLabelEdit
+	}
+
+	/**
 	 * Sets edit operation for provided mapping.
 	 * 
 	 * @param it containing mapping
 	 * @param operation to perform
 	 */
 	def void setDirectEdit(IntersectionMapping it, String operation) {
-		directEdit = operation.toOperation.createLabelEdit
+		directEdit = operation.toOperation
 	}
 
 	/**
@@ -164,8 +202,18 @@ abstract class AbstractCrossTable extends AbstractTable<CrossTableDescription> {
 	     EditArg.root -> null
 	]
 
+	static val COLUMN_CREATE_ARGS = #[ 
+	     EditArg.root -> null,
+	     EditArg.element -> null,
+	     EditArg.container -> null
+	]
+
 	def initVariables(CreateCellTool it) {
 		initVariables(CELL_CREATE_ARGS)
+	}
+	
+	def initVariables(CreateCrossColumnTool it) {
+		initVariables(COLUMN_CREATE_ARGS)
 	}
 	
 	
@@ -189,4 +237,30 @@ abstract class AbstractCrossTable extends AbstractTable<CrossTableDescription> {
 			super.initVariables(it)
 		}
 	}
+	
+	def createAddColumn(CrossTableDescription it, String toolLabel, ElementColumnMapping column, ModelOperation task) {
+		var result = CreateCrossColumnTool.create [
+			initVariables
+			label = toolLabel
+			mapping = column
+			operation = task
+		]
+		createColumn += result
+		result
+	}
+	
+	/**
+	 * Add a CreateCell tool using 'arg0' variable.
+	 */
+	def createCell(IntersectionMapping it, ModelOperation task) {
+		create = CreateCellTool.create("Edit cell") [
+			initVariables
+			mask = "{0}"
+			operation = task
+		]
+
+		create
+	}
+	
+	
 }

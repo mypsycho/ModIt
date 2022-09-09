@@ -33,6 +33,8 @@ class DummyWorldDesign extends AbstractGroup {
 	
 	static val PKG = DwPackage.eINSTANCE
 	
+	public static val VP_NAME = "DummyWorld"
+	
 	new () {
 		businessPackages += PKG
 		enableRtExpression = true
@@ -59,7 +61,7 @@ class DummyWorldDesign extends AbstractGroup {
 	
 	override protected initContent(Group it) {
 		ownedViewpoints += Viewpoint.create[
-			name = "DummyWorld"
+			name = VP_NAME
 			modelFileExtension = "*.dw"
 			ownedRepresentations += new CompanyDiagram(this).createContent
 			ownedRepresentations += new DirectoryTable(this).createContent

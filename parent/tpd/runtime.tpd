@@ -21,7 +21,7 @@ location eclipse_core "http://download.eclipse.org/releases/2021-09/" {
 }
 
 
-location sirius "https://download.eclipse.org/sirius/updates/releases/6.5.1/2020-09/" {
+location sirius "https://download.eclipse.org/sirius/updates/releases/6.6.0/2020-09/" {
 	// Eclipse release may not contains all sources.
 	
 	org.eclipse.sirius.runtime.feature.group

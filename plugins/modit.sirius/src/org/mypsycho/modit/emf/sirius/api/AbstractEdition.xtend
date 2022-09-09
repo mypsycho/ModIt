@@ -304,6 +304,18 @@ abstract class AbstractEdition {
         ChangeContext.create[ browseExpression = expression ]
     }
     
+	/**
+	 * Create an ChangeContext for an expression.
+	 * 
+	 * @param expression
+	 * @return ChangeContext
+	 */
+    protected def toOperation(String expression, ModelOperation... subOperations) {
+    	expression.toOperation.andThen [
+        	subModelOperations += subOperations
+        ]
+    }
+    
     protected def toTool(ModelOperation operation) {
         InitialOperation.create[
             firstModelOperations = operation

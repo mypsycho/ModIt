@@ -1,10 +1,16 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-SymbolicName: org.mypsycho.emf.modit.sirius;singleton:=true
+Automatic-Module-Name: org.mypsycho.emf.modit.sirius
 Bundle-Version: 0.8.0
+Bundle-Activator: org.mypsycho.modit.emf.sirius.ModitSiriusPlugin
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-Name: %pluginName
 Bundle-Vendor: %providerName
+Bundle-Localization: plugin
 Require-Bundle: 
+ org.eclipse.core.resources,
  com.google.guava,
  org.eclipse.xtext.xbase.lib,
  org.eclipse.xtend.lib,
@@ -27,9 +33,4 @@ Export-Package:
  org.mypsycho.modit.emf.sirius,
  org.mypsycho.modit.emf.sirius.tool, 
  org.mypsycho.modit.emf.sirius.api
-Bundle-Activator: org.mypsycho.modit.emf.sirius.ModitSiriusPlugin
-Bundle-ActivationPolicy: lazy
-Import-Package: org.eclipse.core.resources
-Bundle-RequiredExecutionEnvironment: JavaSE-11
-Automatic-Module-Name: org.mypsycho.emf.modit.sirius
 

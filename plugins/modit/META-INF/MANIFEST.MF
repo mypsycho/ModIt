@@ -7,12 +7,15 @@ Bundle-ActivationPolicy: lazy
 Bundle-Name: %pluginName
 Bundle-Vendor: %providerName
 Bundle-RequiredExecutionEnvironment: JavaSE-11
-Require-Bundle: org.eclipse.xtext.xbase.lib;visibility:=reexport,
+Bundle-Localization: plugin
+Require-Bundle: 
+ org.eclipse.xtext.xbase.lib;visibility:=reexport,
  org.eclipse.xtend.lib;visibility:=reexport,
  org.eclipse.xtend.lib.macro;visibility:=reexport,
  org.eclipse.emf.ecore;visibility:=reexport,
  org.eclipse.emf.ecore.xmi;visibility:=reexport
-Export-Package: org.mypsycho.modit,
+Export-Package: 
+ org.mypsycho.modit,
  org.mypsycho.modit.emf,
  org.mypsycho.modit.i18n,
  org.mypsycho.modit.emf.i18n,

@@ -79,7 +79,10 @@ class DefaultPropertiesExtension extends AbstractPropertySet {
 			pages += page.createDefaultPage.andThen[
 				groups += specificGroups.filter[ key == page ].map[ value ]
 			]
-			groups += page.createDefaultGroup
+			val defaultGroup = page.createDefaultGroup
+			if (defaultGroup !== null) {
+				groups += page.createDefaultGroup
+			}
 		]
 		
 	}
@@ -158,7 +161,7 @@ class DefaultPropertiesExtension extends AbstractPropertySet {
 				toggleStyle = ToggleStyle.NONE
 			]
 						
-			controls += pageId.getApplicableFeaturesExpression
+			controls += pageId.applicableFeaturesExpression
 				.eachOn("eStructuralFeature", 
 					createDefaultWidgetCases("self", "eStructuralFeature").values
 				)
@@ -246,19 +249,18 @@ class DefaultPropertiesExtension extends AbstractPropertySet {
 
 
 	def WidgetDescription createDefaultWidgets(Object wcase, String iValue, String iFeat) {
-		val valEmfEdit = iValue.eefEdit
-		
-		val valueGetter = '''aql:«iValue».eGet(«iFeat».name)'''
-		val valueSetter = '''aql:«valEmfEdit».setValue(«iFeat», newValue)'''
+
+		val valueGetter = '''«iValue».eGet(«iFeat».name)'''.trimAql
+		val valueSetter = '''«iValue.eefEdit».setValue(«iFeat», newValue)'''.trimAql
 		
 		// AQL can only operate at Ecore level, 
 		// everything must be bring to meta definition
 		val enumValue = '''
 			«iFeat».eType.oclAsType(ecore::EEnum)
-			.getEEnumLiteralByLiteral(«iValue».eGet(«iFeat».name).toString())'''.trimAql
-		val enumSetter = '''aql:«valEmfEdit».setValue(«iFeat», newValue.instance)'''
-		val enumCandidates = '''aql:«iFeat».eType.oclAsType(ecore::EEnum).eLiterals'''
-		val enumDisplay = "aql:candidate.name"
+				.getEEnumLiteralByLiteral(«iValue».eGet(«iFeat».name).toString())'''.trimAql
+		val enumSetter = '''«iValue.eefEdit».setValue(«iFeat», newValue.instance)'''.trimAql
+		val enumCandidates = '''«iFeat».eType.oclAsType(ecore::EEnum).eLiterals'''.trimAql
+		val enumDisplay = '''candidate.name'''.trimAql
 	
 		
 		switch(wcase as WidgetCase) {
@@ -280,11 +282,11 @@ class DefaultPropertiesExtension extends AbstractPropertySet {
 					// assume we are still on aql
 					helpExpression =  '''«helpExpression» + ' («DEFAULT_DATE_FORMAT»)' '''
 					
-					valueExpression = getDateExpression(iValue, iFeat)
+					valueExpression = iValue.getDateExpression(iFeat)
 					
 					// Emf and sirius cannot handle empty date on their own
 					operation = '''
-						«valEmfEdit».setValue(«iFeat», 
+						«iValue.eefEdit».setValue(«iFeat», 
 							if (newValue.size() = 0) 
 							then null 
 							else newValue endif)'''.trimAql
@@ -330,7 +332,7 @@ class DefaultPropertiesExtension extends AbstractPropertySet {
 			case map: ListDescription.create [
 					initWidget(iFeat)
 					valueExpression = valueGetter
-					displayExpression = '''aql:value.key + ' = ' + value.value'''
+					displayExpression = '''value.key + ' = ' + value.value'''.trimAql
 					// TODO create a dialog using EStringToString
 					// Create: check the key is not defined.
 					// Modify: the key is not editable.
@@ -341,7 +343,7 @@ class DefaultPropertiesExtension extends AbstractPropertySet {
 			case reference1, case referenceN:
 				ExtReferenceDescription.create [
 					initWidget(iFeat)
-					referenceNameExpression = '''aql:«iFeat».name''' // in Sirius 
+					referenceNameExpression = '''«iFeat».name'''.trimAql // in Sirius 
 					// default dialog is disappointing
 					// Create wrapper of org.eclipse.sirius.common.ui.tools.api.selection.EObjectSelectionWizard
 					// but the user must choose 

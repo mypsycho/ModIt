@@ -660,8 +660,9 @@ abstract class AbstractDiagram extends AbstractRepresentation<DiagramDescription
 			default: super.setOperation(it, value)
 		}
 	}
+
     
-	def elkLayout(DiagramDescription it, LayoutOption... options) {
+	def elkLayered(DiagramDescription it, LayoutOption... options) {
 		layout = CustomLayoutConfiguration.create [
 			id = "org.eclipse.elk.layered"
 			label = "ELK Layered"

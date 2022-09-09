@@ -13,6 +13,7 @@
 package org.mypsycho.modit.emf.sirius.api
 
 import org.eclipse.emf.common.util.EList
+import org.eclipse.emf.ecore.EClass
 import org.eclipse.emf.ecore.EClassifier
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EReference
@@ -95,7 +96,7 @@ class SiriusDesigns {
      * @return associated text
      */
     static def String asAql(EStructuralFeature it) {
-        '''«EContainingClass.asAql».eClass().getEStructuralFeature('«name»')'''
+        '''«EContainingClass.asAql».getEStructuralFeature('«name»')'''
     }
 	
 		
@@ -192,7 +193,10 @@ class SiriusDesigns {
 	}
 	
 	
-	
+	static def final allTargetViews(EClassifier eclass) {
+		// Usefull for OperationAction
+		'''views.target->select(it | not it.oclIsKindOf(«eclass.asAql»))->isEmpty()'''.trimAql
+	} 
 	
 	
 }
