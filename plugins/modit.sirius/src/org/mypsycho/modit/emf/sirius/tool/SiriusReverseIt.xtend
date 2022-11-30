@@ -15,7 +15,7 @@ package org.mypsycho.modit.emf.sirius.tool;
 import java.nio.file.Path
 import java.util.Collections
 import java.util.List
-import java.util.regex.Pattern
+import java.util.Map
 import org.eclipse.emf.common.util.URI
 import org.eclipse.emf.ecore.EClass
 import org.eclipse.emf.ecore.EObject
@@ -32,6 +32,7 @@ import org.eclipse.sirius.viewpoint.description.Viewpoint
 import org.eclipse.xtend.lib.annotations.Accessors
 import org.mypsycho.modit.emf.ClassId
 import org.mypsycho.modit.emf.sirius.api.AbstractPropertySet
+import org.mypsycho.modit.emf.sirius.api.SiriusDesigns
 
 /**
  * 
@@ -130,6 +131,7 @@ class SiriusReverseIt {
 				]
 			
 			explicitExtras.putAll(source.systemColorsPalette.entries.toInvertedMap[ "color:" + name ])
+			addExplicitExtras(rs, explicitExtras)
 
 			shortcuts += DescriptionPackage.eINSTANCE.identifiedElement_Name
 		]
@@ -139,17 +141,19 @@ class SiriusReverseIt {
 		'''«category.name»:«context.name».«path.toFirstLower.replace(" ", "_")»'''
 	}
 	
-	
-	
-	protected def findDefaultSplits() {
-		(
-			source.ownedViewpoints
-				.flatMap[ ownedRepresentations + ownedRepresentationExtensions ]
-			+ source.extensions
-				.filter(ViewExtensionDescription)
-		).toInvertedMap[ toClassId ]
+	protected def void addExplicitExtras(ResourceSet rs, Map<EObject, String> extras) {
+		
 	}
 	
+	protected def findDefaultSplits() {
+		source.findGroupParts
+			.toInvertedMap[ toClassId ]
+	}
+	
+	protected def findGroupParts(Group it) {
+		ownedViewpoints.flatMap[ ownedRepresentations + ownedRepresentationExtensions ]
+			+ extensions.filter(ViewExtensionDescription)
+	}
 	
 	
 	protected def getUsedMetamodels() {		
@@ -199,14 +203,11 @@ class SiriusReverseIt {
 	
 	protected def toClassname(EObject it) {
 		val basename = switch (it) {
-			RepresentationDescription: name.techName
-			RepresentationExtensionDescription: name.techName
-			ViewExtensionDescription: name.techName
+			RepresentationDescription: SiriusDesigns.techName(name)
+			RepresentationExtensionDescription: SiriusDesigns.techName(name)
+			ViewExtensionDescription: SiriusDesigns.techName(name)
 		}
-		val end = aliasSuffix
-		// avoid duplicated end
-		val applySuffix = !basename.toLowerCase.endsWith(end.toLowerCase)
-		basename + (applySuffix ? end : "")
+		SiriusDesigns.hungarianSuffix(basename, it)
 	}	
 
 	def getClassFromDomain(String domain) {
@@ -242,28 +243,21 @@ class SiriusReverseIt {
 			.map[ instanceClass ]
 			.head
 	}
-	
-	protected def getAliasSuffix(EObject it) {
-		val className = eClass.name
-		className.endsWith("Description") // trim Sirius Object end.
-			? className.substring(0, className.length - "Description".length) 
-			: className
-	}
-	
-	static val NO_TECH = Pattern.compile("[^a-zA-Z0-9 _]")
-	static def techName(String it) {
-		NO_TECH.matcher(it)
-			.replaceAll("_")
-			.split("\\s+")
-			.join("")[ toFirstUpper ]
-	}
+
 	
 	static def loadSiriusGroup(URI uri, ResourceSet rs) { 
 		rs.getResource(uri, true).contents.head as Group
 	}
 	
-	def static boolean isContaining(EObject it, EObject value) {
+	static def boolean isContaining(EObject it, EObject value) {
 		value !== null && (it == value || isContaining(value.eContainer))
+	}
+	
+	static def loadSiriusGroup(String pluginUri) {
+		loadSiriusGroup(
+			URI.createPlatformPluginURI(pluginUri, true),
+			new ResourceSetImpl
+		)
 	}
 	
 }

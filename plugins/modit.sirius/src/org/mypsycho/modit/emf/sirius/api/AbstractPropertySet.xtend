@@ -98,6 +98,9 @@ abstract class AbstractPropertySet extends AbstractEdition {
 
 	new(AbstractGroup parent) {
 		super(parent)
+		
+		// Compatibility:
+		// contentAlias was : Ns.view.id("Default")
 	}
 	
 	def void setDomainClass(GroupDescription it, Class<? extends EObject> value) {
@@ -140,25 +143,18 @@ abstract class AbstractPropertySet extends AbstractEdition {
 		// handle 
 		val requiredExpression = featureExpr.requiredFieldExpression
 		// all WidgetDescription so far
-		if (it instanceof AbstractTextDescription) {
-			styleIf(requiredExpression) [ formatRequiredField ]
-		// } else if (it instanceof CheckboxDescription) { // not applicable for check box
-        } else if (it instanceof CustomDescription) {
-            styleIf(requiredExpression) [ formatRequiredField ]
-        } else if (it instanceof ExtReferenceDescription) {
-            styleIf(requiredExpression) [ formatRequiredField ]
-        } else if (it instanceof HyperlinkDescription) {
-            styleIf(requiredExpression) [ formatRequiredField ]
-        } else if (it instanceof LabelDescription) {
-            styleIf(requiredExpression) [ formatRequiredField ]
-        } else if (it instanceof ListDescription) {
-            styleIf(requiredExpression) [ formatRequiredField ]
-        } else if (it instanceof RadioDescription) {
-            styleIf(requiredExpression) [ formatRequiredField ]
-        } else if (it instanceof SelectDescription) {
-            styleIf(requiredExpression) [ formatRequiredField ]
+		switch(it) {
+			AbstractTextDescription: styleIf(requiredExpression) [ formatRequiredField ]
+			CustomDescription: styleIf(requiredExpression) [ formatRequiredField ]
+			ExtReferenceDescription: styleIf(requiredExpression) [ formatRequiredField ]
+			HyperlinkDescription: styleIf(requiredExpression) [ formatRequiredField ]
+			LabelDescription: styleIf(requiredExpression) [ formatRequiredField ]
+			ListDescription: styleIf(requiredExpression) [ formatRequiredField ]
+			RadioDescription: styleIf(requiredExpression) [ formatRequiredField ]
+			SelectDescription: styleIf(requiredExpression) [ formatRequiredField ]
+			default: toString // no-op
 		}
-		
+
 		it
 	}
 	

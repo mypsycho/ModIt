@@ -22,8 +22,6 @@ import org.eclipse.sirius.table.metamodel.table.description.DeleteColumnTool
 import org.eclipse.sirius.table.metamodel.table.description.ElementColumnMapping
 import org.eclipse.sirius.table.metamodel.table.description.IntersectionMapping
 import org.eclipse.sirius.table.metamodel.table.description.LabelEditTool
-import org.eclipse.sirius.viewpoint.description.tool.ChangeContext
-import org.eclipse.sirius.viewpoint.description.tool.CreateInstance
 import org.eclipse.sirius.viewpoint.description.tool.EditMaskVariables
 import org.eclipse.sirius.viewpoint.description.tool.ModelOperation
 import org.eclipse.xtext.xbase.lib.Procedures.Procedure3

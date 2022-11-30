@@ -14,6 +14,7 @@ package org.mypsycho.modit.emf.stretch
 
 import java.util.HashMap
 import java.util.Map
+import java.util.function.Function
 import org.eclipse.emf.ecore.ENamedElement
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EPackage
@@ -60,7 +61,7 @@ abstract class EmfAspect<E extends ENamedElement> {
 		else throw new IllegalArgumentException(name + " do not belong to " + value.name)
 	}
 
-	static val MAP_PROVIDER = [ new HashMap ]
+	static val Function<ENamedElement, Map<Object, Object>> MAP_PROVIDER = [ new HashMap ]
 	static class Default<E extends ENamedElement> extends EmfAspect<E> {
 
 		val properties = new HashMap<ENamedElement, Map<Object, Object>>

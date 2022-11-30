@@ -123,7 +123,9 @@ class EReversIt {
 			orderedRoots = values.map[ key.toEObject ]
 			roots = 
 				if (values.size == 1) 
-					#{ values.head.key.toEObject -> definition }
+					#{ 
+						values.head.key.toEObject -> definition
+					}
 				else 
 					values.toMap( [ key.toEObject ], [ value ] )
 		}
@@ -602,7 +604,7 @@ ENDFOR
 		List<? extends Pair<? extends Class<? extends EObject>, List<EReference>>> 
 			getContainmentOrders() {
 		#[]
-		/*
+		/* Example
 			#[
 				Layer -> #[ 
 					DPKG.layer_ContainerMappings,
@@ -707,7 +709,11 @@ ENDFOR
 	protected def String templateRef(EObject it, Class<?> using) {
 		val path = callPath(true)
 		val alias = context.namings.get(path.src)
-		val expectedType = if (alias !== null) eClass.getInstanceClass() else using
+		val expectedType = 
+			if (alias !== null) 
+				eClass.getInstanceClass() 
+			else 
+				using
 
 		val cast = if (!expectedType.isAssignableFrom(path.chain.head)) eClass // else null
 

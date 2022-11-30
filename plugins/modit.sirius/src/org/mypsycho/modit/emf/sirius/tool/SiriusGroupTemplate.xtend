@@ -16,7 +16,9 @@ import org.mypsycho.modit.emf.EReversIt
 import org.mypsycho.modit.emf.ModitModel
 import org.mypsycho.modit.emf.sirius.api.AbstractGroup
 
-/** Override of default reverse for SiriusModelProvider class. */
+/** 
+ * Specific reverse for AbstractGroup class.
+ */
 class SiriusGroupTemplate extends EReversIt {
 	
 	static val VP = DescriptionPackage.eINSTANCE
@@ -31,6 +33,7 @@ class SiriusGroupTemplate extends EReversIt {
 		delegates += new DiagramTemplate(this)
 		delegates += new TableTemplate(this)
 		delegates += new PropertiesTemplate(this)
+		delegates += new DiagramExtensionTemplate(this)
 		
 	}
 	
@@ -64,7 +67,7 @@ class SiriusGroupTemplate extends EReversIt {
 
 import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*
 
-class «context.mainClass.name» extends AbstractGroup {
+class «context.mainClass.name» extends «AbstractGroup.templateClass» {
 	
 	new () {
         businessPackages += #[

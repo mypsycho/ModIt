@@ -14,13 +14,29 @@
 
 import org.eclipse.emf.ecore.EClass
 import org.eclipse.emf.ecore.EObject
+import org.eclipse.emf.ecore.EReference
 import org.eclipse.emf.ecore.EStructuralFeature
+import org.eclipse.sirius.diagram.description.tool.DirectEditLabel
 import org.eclipse.sirius.viewpoint.description.IdentifiedElement
+import org.eclipse.sirius.viewpoint.description.JavaExtension
+import org.eclipse.sirius.viewpoint.description.SystemColor
+import org.eclipse.sirius.viewpoint.description.Viewpoint
+import org.eclipse.sirius.viewpoint.description.style.BasicLabelStyleDescription
+import org.eclipse.sirius.viewpoint.description.tool.AbstractToolDescription
+import org.eclipse.sirius.viewpoint.description.tool.Case
 import org.eclipse.sirius.viewpoint.description.tool.ChangeContext
+import org.eclipse.sirius.viewpoint.description.tool.CreateInstance
+import org.eclipse.sirius.viewpoint.description.tool.Default
+import org.eclipse.sirius.viewpoint.description.tool.If
 import org.eclipse.sirius.viewpoint.description.tool.InitialOperation
 import org.eclipse.sirius.viewpoint.description.tool.ModelOperation
+import org.eclipse.sirius.viewpoint.description.tool.OperationAction
+import org.eclipse.sirius.viewpoint.description.tool.PasteDescription
 import org.eclipse.sirius.viewpoint.description.tool.RemoveElement
+import org.eclipse.sirius.viewpoint.description.tool.SelectionWizardDescription
 import org.eclipse.sirius.viewpoint.description.tool.SetValue
+import org.eclipse.sirius.viewpoint.description.tool.Switch
+import org.eclipse.sirius.viewpoint.description.tool.ToolDescription
 import org.mypsycho.modit.emf.EModIt
 import org.mypsycho.modit.emf.sirius.SiriusModelProvider
 
@@ -39,6 +55,7 @@ abstract class AbstractEdition {
 	
 	/** Factory of Sirius elements */
 	protected val extension EModIt factory
+	
 
 	/**
 	 * Alias root for the identified elements.
@@ -373,18 +390,138 @@ abstract class AbstractEdition {
         ]
     }
     
+    protected def creator(EReference ref, Class<? extends EObject> instanceType) {
+    	CreateInstance.create [
+			typeName = instanceType.asDomainClass
+			referenceName = ref.name
+		]
+    }
+    
+    
     /**
-     * Creates a remove element operation operation for provided feature.
+     * Creates a remove element operation for provided feature.
+     * <p>
+     * Prefer 'remover'
+     * </p>
      * 
      * @param feature to set
      * @param expression of value
      * @return a new SetValue
      */
+    @Deprecated
     protected def removeElement(String expression) {
+    	expression.remover
+    }
+    
+     /**
+     * Creates a remove element operation for provided feature.
+     * 
+     * @param feature to set
+     * @param expression of value
+     * @return a new SetValue
+     */
+    protected def remover(String expression) {
         expression.toOperation.andThen[
             subModelOperations += RemoveElement.create[]
         ]
     }
     
+    
+    /**
+	 * Creates a Style with common default values.
+	 * 
+	 * @param <T> type of style
+	 * @param it type of Style
+	 * @param init custom initialization of style
+	 * @return created Style
+	 */
+	protected def <T extends BasicLabelStyleDescription> T createStyle(Class<T> it, (T)=>void init) {
+		create[
+			initDefaultStyle
+			init?.apply(it)
+		]
+	}
+	
+	/**
+	 * Creates a Style with common default values.
+	 * 
+	 * @param <T> type of style
+	 * @param type of Style
+	 * @return created Style
+	 */
+	protected def <T extends BasicLabelStyleDescription> T createStyle(Class<T> it) {
+		// explicit it is required to avoid infinite loop
+		it.createStyle(null)
+	}
+	
+	/**
+	 * Initializes a Style with common default values.
+	 * 
+	 * @param <T> type of style
+	 * @param type of Style
+	 * @param init custom initialization of style
+	 * @return created Style
+	 */
+	protected def void initDefaultStyle(BasicLabelStyleDescription it) {
+		labelSize = 10 // ODesign is provide 12, but eclipse default is Segoe:9
+		labelColor = SystemColor.extraRef("color:black")
+		
+		labelExpression = context.itemProviderLabel
+	}
+	
+	/**
+	 * Sets the operation for provided tool.
+	 * <p>
+	 * This class unifies the initialOperation declaration of sub-class tool.
+	 * </p>
+	 * @param it tool to set
+	 * @param value operation to perform
+	 */
+	protected def setOperation(AbstractToolDescription it, ModelOperation value) {
+		switch(it) {
+			OperationAction: initialOperation = value.toTool
+			ToolDescription: initialOperation = InitialOperation.create [ firstModelOperations = value ]
+			PasteDescription: initialOperation = value.toTool
+			SelectionWizardDescription: initialOperation = value.toTool
+			DirectEditLabel: initialOperation = value.toTool
+			
+			default: throw new UnsupportedOperationException
+		}
+	}
+
+	
+	protected def createCases(Pair<String, ? extends ModelOperation>... subCases) {
+		Switch.create[
+			cases += subCases.map[
+				val condition = key
+				val operation = value
+				Case.create [
+					conditionExpression = condition.trimAql
+					subModelOperations += operation
+				]
+			]
+			
+			^default = Default.create[]
+		]
+	}
+	
+	protected def ifThenDo(String expression, ModelOperation... operations) {
+		If.create [
+			conditionExpression = expression
+			subModelOperations += operations
+		]
+	}
+	
+	protected def setDefault(Switch it, ModelOperation operation) {
+		^default = Default.create[
+			subModelOperations += operation
+		]
+		it		
+	}
+	
+    protected def void addService(EObject it, Class<?> service) {
+        eContainer(Viewpoint).ownedJavaExtensions += 
+            JavaExtension.create[ qualifiedClassName = service.name ]
+    }
 
 }

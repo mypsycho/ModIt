@@ -11,7 +11,6 @@ import org.eclipse.sirius.diagram.description.tool.DirectEditLabel
 import org.eclipse.sirius.viewpoint.description.AbstractVariable
 import org.eclipse.sirius.viewpoint.description.DescriptionPackage
 import org.eclipse.sirius.viewpoint.description.IdentifiedElement
-import org.eclipse.sirius.viewpoint.description.tool.AbstractToolDescription
 import org.eclipse.sirius.viewpoint.description.tool.ChangeContext
 import org.eclipse.sirius.viewpoint.description.tool.EditMaskVariables
 import org.eclipse.sirius.viewpoint.description.tool.OperationAction
@@ -23,9 +22,14 @@ import org.mypsycho.modit.emf.EReversIt
 import org.mypsycho.modit.emf.sirius.api.SiriusDesigns
 
 import static extension org.mypsycho.modit.emf.sirius.tool.SiriusReverseIt.*
+import org.eclipse.sirius.table.metamodel.table.description.DeleteLineTool
+import org.eclipse.sirius.table.metamodel.table.description.TableTool
 
-/** Override of default reverse for SiriusModelProvider class. */
-abstract class RepresentationTemplate<R extends IdentifiedElement> extends EReversIt {
+/** 
+ * Common methods for specific reverse for Representation Edition class.
+ */
+// Target EObject as DiagramExtensionDescription does not extends Representation.
+abstract class RepresentationTemplate<R extends EObject> extends EReversIt {
 	
 	protected static val SPKG = DescriptionPackage.eINSTANCE
 
@@ -42,8 +46,7 @@ abstract class RepresentationTemplate<R extends IdentifiedElement> extends EReve
 	
 	override isPartTemplate(EObject it) {
 		targetClass.isInstance(it) 
-			&& 
-			isApplicableTemplate(it as R)
+			&& isApplicableTemplate(it as R)
 	}
 	
 	def isApplicableTemplate(R it) {
@@ -55,6 +58,16 @@ abstract class RepresentationTemplate<R extends IdentifiedElement> extends EReve
 	}
 	
 	def String templateRepresentation(ClassId it, R content)
+	
+	def getParentClassName(ClassId it) {
+		// Parent class cannot use import detection 
+		//   as class does not exist (part of generation)
+		if (pack != context.mainClass.pack) 
+			context.mainClass.qName 
+		else 
+			context.mainClass.name
+	}
+	
 	
 	def Map<? extends Class<? extends EObject>, ? extends Set<? extends EStructuralFeature>> getInitTemplateds() {
 		Collections.emptyMap
@@ -105,6 +118,7 @@ ENDIF
  			super.templateInnerCreate(it)
  		else
 			'''«browseExpression.toJava».toOperation'''
+		// TODO Better, use toOperation() syntax
 	}
  		
  	def dispatch smartTemplateCreate(IdentifiedElement it) {
@@ -172,11 +186,12 @@ ENDIF
 	def getToolModelOperation(EObject it) {
 		switch(it) {
 			// All representation
-			OperationAction: initialOperation.firstModelOperations
-			ToolDescription: initialOperation.firstModelOperations
-			PasteDescription: initialOperation.firstModelOperations
-			SelectionWizardDescription: initialOperation.firstModelOperations
-			DirectEditLabel: initialOperation.firstModelOperations
+			OperationAction: initialOperation?.firstModelOperations
+			ToolDescription: initialOperation?.firstModelOperations
+			PasteDescription: initialOperation?.firstModelOperations
+			SelectionWizardDescription: initialOperation?.firstModelOperations
+			DirectEditLabel: initialOperation?.firstModelOperations
+			TableTool: firstModelOperation
 			default: throw new UnsupportedOperationException
 		}
 	}
@@ -184,7 +199,7 @@ ENDIF
 	def String templateToolOperation(EObject it) {
 		val operation = toolModelOperation
 		if (operation !== null)
-			'''operation = «operation.templateCreate»'''
+			'''operation = «operation.templateInnerCreate»'''
 		else 
 			'''// no operation '''
 	}

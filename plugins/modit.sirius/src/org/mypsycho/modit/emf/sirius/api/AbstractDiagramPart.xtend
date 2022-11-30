@@ -91,7 +91,7 @@ import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*
  * 
  * @author nicolas.peransin
  */
-abstract class AbstractDiagram extends AbstractRepresentation<DiagramDescription> {
+abstract class AbstractDiagramPart<T extends EObject> extends AbstractTypedEdition<T> {
 
 	/** Namespaces for identification */
 	enum Ns { // namespace for identication
@@ -102,53 +102,17 @@ abstract class AbstractDiagram extends AbstractRepresentation<DiagramDescription
 		show // for filter + layer
 	}
 	
-	protected val Class<? extends EObject> domain
 	
 	/**
 	 * Creates a factory for a diagram description
 	 * 
 	 * @param parent of diagram
 	 */
-	new(AbstractGroup parent, String dLabel, Class<? extends EObject> domain) {
-		super(DiagramDescription, parent, dLabel)
-		
-		this.domain = domain
-		creationTasks.add[
-			domainClass = context.asDomainClass(domain)
-		]
+	new(Class<T> type, AbstractGroup parent) {
+		super(type, parent)
 	}
 		
-	/**
-	 * Creates a factory for a diagram description
-	 * 
-	 * @param parent of diagram
-	 */
-	new(AbstractGroup parent, String dName, String dLabel, Class<? extends EObject> domain) {
-		this(parent, dLabel, domain)
-		Objects.nonNull(dName)
-		creationTasks.add[
-			name = dName
-		]
-	}
-		
-	/**
-	 * Initializes the content of the created diagram.
-	 * 
-	 * @param it to initialize
-	 */
-	override initContent(DiagramDescription it) {
-		defaultLayer = Layer.create[
-			name = "Default"
-			initContent
-		]
-	}
-	
-	/**
-	 * Initializes the content of the created diagram.
-	 * 
-	 * @param it to initialize
-	 */
-	def void initContent(Layer it)
+
 	
 	//
 	// Reflection short-cut
@@ -351,7 +315,7 @@ abstract class AbstractDiagram extends AbstractRepresentation<DiagramDescription
 	 * @param condition of customization
 	 * @param siriusReference customized reference
 	 * @param customValue to apply
-	 * @throws IllegalArgumentException when 'reference' is not a valide feature name
+	 * @throws IllegalArgumentException when 'reference' is not a valid feature name
 	 */
 	def <T extends EObject> customizeRef(T it, 
 		String condition, String siriusReference, EObject customValue
@@ -373,7 +337,7 @@ abstract class AbstractDiagram extends AbstractRepresentation<DiagramDescription
 	 * @param condition of customization
 	 * @param siriusAttribute customized attribute
 	 * @param customValue to apply
-	 * @throws IllegalArgumentException when 'siriusAttribute' is not a valide feature name
+	 * @throws IllegalArgumentException when 'siriusAttribute' is not a valid feature name
 	 */
 	def <T extends EObject> customize(T it, 
 		String condition, String siriusAttribute, String customExpression
@@ -383,6 +347,43 @@ abstract class AbstractDiagram extends AbstractRepresentation<DiagramDescription
 				attributeName = siriusAttribute
 				value = customExpression
 			])
+	}
+	
+	
+	/**
+	 * Customizes a Sirius reference with provided value.
+	 * <p>
+	 * Keep in mind that Sirius can customize more than 1 element but there is no simple API.
+	 * </p>
+	 * 
+	 * @param it to customize
+	 * @param condition of customization
+	 * @param siriusReference customized reference
+	 * @param customValue to apply
+	 * @throws IllegalArgumentException when 'reference' is not a valid feature name
+	 */
+	def <T extends EObject> customize(T it, 
+		String condition, EReference siriusReference, EObject customValue
+	) {
+		customizeRef(condition, siriusReference.name, customValue)
+	}
+
+	/**
+	 * Customizes a Sirius attribute with provided expression.
+	 * <p>
+	 * Keep in mind that Sirius can customize more than 1 element but there is no simple API.
+	 * </p>
+	 * 
+	 * @param it to customize
+	 * @param condition of customization
+	 * @param siriusAttribute customized attribute
+	 * @param customValue to apply
+	 * @throws IllegalArgumentException when 'siriusAttribute' is not a valid feature name
+	 */
+	def <T extends EObject> customize(T it, 
+		String condition, EAttribute siriusAttribute, String customExpression
+	) {
+		customize(condition, siriusAttribute.name, customExpression)
 	}
 
 	private def <T extends EObject> T doCustomize(T target, String condition, String feature, 
@@ -406,6 +407,22 @@ abstract class AbstractDiagram extends AbstractRepresentation<DiagramDescription
 			layer.customization.vsmElementCustomizations += it
 		]
 		target
+	}
+	
+	def customization(EAttribute feature, String valueExpression, Iterable<EObject> customizeds) {
+		EAttributeCustomization.create [
+			attributeName = feature.name
+			value = valueExpression
+			appliedOn += customizeds			
+		]
+	}
+
+	def customization(EReference feature, EObject newValue, Iterable<EObject> customizeds) {
+		EReferenceCustomization.create [
+			referenceName = feature.name
+			value = newValue
+			appliedOn += customizeds			
+		]
 	}
 
 	//

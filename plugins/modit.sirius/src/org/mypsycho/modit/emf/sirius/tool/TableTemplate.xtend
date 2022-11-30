@@ -133,10 +133,10 @@ class «name» extends «content.tableEditor.templateClass» {
 '''«templateClass».create«
 IF it instanceof IdentifiedElement
 						»("«name»")«
-ENDIF                                   » [
+ENDIF                             » [
 	initVariables
 	«templateFilteredContent(TableTool)»
-	operation = «firstModelOperation?.templateCreate»
+	«templateToolOperation»
 ]'''
 	}
 

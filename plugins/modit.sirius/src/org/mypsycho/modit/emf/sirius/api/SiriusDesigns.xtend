@@ -12,8 +12,8 @@
  *******************************************************************************/
 package org.mypsycho.modit.emf.sirius.api
 
+import java.util.regex.Pattern
 import org.eclipse.emf.common.util.EList
-import org.eclipse.emf.ecore.EClass
 import org.eclipse.emf.ecore.EClassifier
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EReference
@@ -198,5 +198,26 @@ class SiriusDesigns {
 		'''views.target->select(it | not it.oclIsKindOf(«eclass.asAql»))->isEmpty()'''.trimAql
 	} 
 	
+	static val NO_TECH = Pattern.compile("[^a-zA-Z0-9 _]")
+	static def techName(String it) {
+		NO_TECH.matcher(it)
+			.replaceAll("_")
+			.split("\\s+")
+			.join("")[ toFirstUpper ]
+	}
+	
+	static def getDescriptionSuffix(EObject it) {
+		val className = eClass.name
+		className.endsWith("Description") // trim Sirius Object end.
+			? className.substring(0, className.length - "Description".length) 
+			: className
+	}
+	
+	static def hungarianSuffix(String basename, EObject it) {
+		val end = SiriusDesigns.getDescriptionSuffix(it)
+		// avoid duplicated end
+		val applySuffix = !basename.toLowerCase.endsWith(end.toLowerCase)
+		basename + (applySuffix ? end : "")
+	}
 	
 }
