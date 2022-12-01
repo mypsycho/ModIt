@@ -26,21 +26,26 @@
 			<instanceof value="org.eclipse.emf.ecore.EObject" />
          </enablement>
       </actionProvider>
+      <!--
       <navigatorContent
             id="org.mypsycho.emf.modit.sirius.ui.saveableContent"
             name="name"
+            priority="lower"
             providesSaveables="true">
+         <triggerPoints></triggerPoints>
       </navigatorContent>
+      -->
    </extension>
    
    <!-- Dynamic menu is applicable to 'Model Explorer'  -->
    <extension point="org.eclipse.ui.navigator.viewer">
+   <!--
        <viewerContentBinding viewerId="org.eclipse.sirius.ui.tools.views.model.explorer">
         <includes>
            <contentExtension pattern="org.mypsycho.emf.modit.sirius.ui.saveableContent" />
         </includes>
      </viewerContentBinding>
-     
+     -->
       <viewerActionBinding viewerId="org.eclipse.sirius.ui.tools.views.model.explorer">
          <includes>
             <actionExtension pattern="org.mypsycho.emf.modit.sirius.ui.editingActionProvider" />

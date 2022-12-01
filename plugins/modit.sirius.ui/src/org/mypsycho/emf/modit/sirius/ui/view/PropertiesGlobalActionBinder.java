@@ -32,12 +32,10 @@ import org.eclipse.sirius.business.api.session.Session;
 import org.eclipse.sirius.ui.business.api.dialect.DialectEditor;
 import org.eclipse.sirius.ui.tools.api.views.modelexplorerview.IModelExplorerView;
 import org.eclipse.ui.IActionBars;
-import org.eclipse.ui.IPageListener;
 import org.eclipse.ui.IPartListener;
 import org.eclipse.ui.IPartService;
 import org.eclipse.ui.IWindowListener;
 import org.eclipse.ui.IWorkbench;
-import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
@@ -93,10 +91,12 @@ public class PropertiesGlobalActionBinder implements IWindowListener, IDisposabl
 	public void dispose() {
     	IWorkbench wb = PlatformUI.getWorkbench();
     	
-    	wb.getDisplay().asyncExec(() ->{
-    		wb.removeWindowListener(this);
-    		Stream.of(wb.getWorkbenchWindows()).forEach(it -> windowClosed(it));
-    	});		
+    	if (!wb.isClosing()) {
+    	   	wb.getDisplay().asyncExec(() ->{
+        		wb.removeWindowListener(this);
+        		Stream.of(wb.getWorkbenchWindows()).forEach(it -> windowClosed(it));
+        	});
+    	}
 	}
 	
 	
