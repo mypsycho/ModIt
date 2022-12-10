@@ -25,6 +25,7 @@ import org.eclipse.sirius.viewpoint.description.style.BasicLabelStyleDescription
 import org.eclipse.sirius.viewpoint.description.tool.AbstractToolDescription
 import org.eclipse.sirius.viewpoint.description.tool.Case
 import org.eclipse.sirius.viewpoint.description.tool.ChangeContext
+import org.eclipse.sirius.viewpoint.description.tool.ContainerModelOperation
 import org.eclipse.sirius.viewpoint.description.tool.CreateInstance
 import org.eclipse.sirius.viewpoint.description.tool.Default
 import org.eclipse.sirius.viewpoint.description.tool.If
@@ -391,9 +392,13 @@ abstract class AbstractEdition {
     }
     
     protected def creator(EReference ref, Class<? extends EObject> instanceType) {
+    	ref.name.creator(instanceType)
+    }
+    
+    protected def creator(String refName, Class<? extends EObject> instanceType) {
     	CreateInstance.create [
+			referenceName = refName
 			typeName = instanceType.asDomainClass
-			referenceName = ref.name
 		]
     }
     
@@ -524,4 +529,9 @@ abstract class AbstractEdition {
             JavaExtension.create[ qualifiedClassName = service.name ]
     }
 
+	protected def chain(ContainerModelOperation it, ModelOperation... operations) {
+		andThen[
+			subModelOperations += operations
+		]
+	}
 }

@@ -409,7 +409,7 @@ abstract class AbstractDiagramPart<T extends EObject> extends AbstractTypedEditi
 		target
 	}
 	
-	def customization(EAttribute feature, String valueExpression, Iterable<EObject> customizeds) {
+	def customization(EAttribute feature, String valueExpression, Iterable<? extends EObject> customizeds) {
 		EAttributeCustomization.create [
 			attributeName = feature.name
 			value = valueExpression
@@ -417,11 +417,11 @@ abstract class AbstractDiagramPart<T extends EObject> extends AbstractTypedEditi
 		]
 	}
 
-	def customization(EReference feature, EObject newValue, Iterable<EObject> customizeds) {
+	def customization(EReference feature, EObject newValue, Iterable<? extends EObject> customizeds) {
 		EReferenceCustomization.create [
 			referenceName = feature.name
 			value = newValue
-			appliedOn += customizeds			
+			appliedOn += customizeds
 		]
 	}
 
