@@ -12,6 +12,7 @@
  *******************************************************************************/
 package org.mypsycho.emf.modit.sirius.ui.view;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -158,7 +159,7 @@ public class PropertiesGlobalActionBinder implements IWindowListener, IDisposabl
             if (selection != null) {
             	IActionBars actionBars = sheet.getViewSite().getActionBars();
             	updateActionsContext(selection, actionBars);
-            }
+            } // else what if selection is not 
 		}
 	
 		@Override
@@ -240,6 +241,8 @@ public class PropertiesGlobalActionBinder implements IWindowListener, IDisposabl
 	};
 	
 	
+	
+	
 	static boolean isModelExplorer(IWorkbenchPart part) {
 		return IModelExplorerView.ID.equals(part.getSite().getId()) 
 				&& part instanceof CommonNavigator;
@@ -259,9 +262,10 @@ public class PropertiesGlobalActionBinder implements IWindowListener, IDisposabl
     };
 
 
-    public static EObject[] getEObjectsFromSelection(
-            IStructuredSelection selection) {
-        return ((List<?>) selection.toList()).stream()
+    public static EObject[] getEObjectsFromSelection(IStructuredSelection selection) {
+    	
+    	
+        return toList(selection).stream()
                 .map(it -> {
                     if (it instanceof EObject) {
                         return it;
@@ -277,6 +281,11 @@ public class PropertiesGlobalActionBinder implements IWindowListener, IDisposabl
 	           .toArray(EObject[]::new);
     }
 
-
+    private static List<?> toList(IStructuredSelection selection) {
+    	List<?> result = (List<?>) selection.toList();
+    	return result != null // Emf implementation may provides empty lists.
+    			? result
+				: Collections.emptyList();
+    }
 	
 }
