@@ -7,7 +7,7 @@ Bundle-Version: 0.8.0
 Bundle-ClassPath: .
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Export-Package: fr.ibp.odv.boem.mm.test.BoemTest,
  fr.ibp.odv.boem.mm.test.BoemTest.impl,
  fr.ibp.odv.boem.mm.test.BoemTest.util,
