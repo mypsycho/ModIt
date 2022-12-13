@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="ASCII"?>
 <description:Group xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:description="http://www.eclipse.org/sirius/description/1.1.0" xmlns:description_1="http://www.eclipse.org/sirius/diagram/description/1.1.0" xmlns:description_2="http://www.eclipse.org/sirius/table/description/1.1.0" xmlns:filter="http://www.eclipse.org/sirius/diagram/description/filter/1.1.0" xmlns:properties="http://www.eclipse.org/sirius/properties/1.0.0" xmlns:properties-ext-widgets-reference="http://www.eclipse.org/sirius/properties/1.0.0/ext/widgets/reference" xmlns:style="http://www.eclipse.org/sirius/diagram/description/style/1.1.0" xmlns:tool="http://www.eclipse.org/sirius/description/tool/1.1.0" xmlns:tool_1="http://www.eclipse.org/sirius/diagram/description/tool/1.1.0" xmlns:validation="http://www.eclipse.org/sirius/description/validation/1.1.0" name="EcoreTools" version="12.0.0.2017041100">
   <ownedViewpoints endUserDocumentation="&lt;html>&#xA;&lt;head>&#xA;&lt;/head>&#xA;&lt;body>&#xA;&lt;p>Provides graphical and tabular representation to design an Ecore model.&lt;/p>&#xA;&lt;br>&#xA;&lt;img src=&quot;/icons/full/wizban/entities.png&quot;/>&#xA;&lt;img src=&quot;/icons/full/wizban/classes.png&quot;/>&#xA;&lt;/body>&#xA;&lt;/html>&#xA;&#xA;&#xA;" name="Design" modelFileExtension="ecore xcore ecorebin">
-    <ownedRepresentations xsi:type="description_1:DiagramDescription" dropDescriptions="//@ownedViewpoints[name='Design']/@ownedRepresentations[name='Entities']/@defaultLayer/@toolSections.0/@ownedTools[name='External%20EClass%20from%20treeview'] //@ownedViewpoints[name='Design']/@ownedRepresentations[name='Entities']/@additionalLayers[name='Package']/@toolSections.0/@ownedTools[name='Drop%20EClassifier%20into%20EPackage']" documentation="&lt;html>&#xA;&lt;head>&#xA;&lt;/head>&#xA;&lt;body>&#xA;&lt;p>Provides a class diagram to represent EClasses, EDatatypes, EAttributes and their relationships.&lt;/p>&#xA;&lt;br>&#xA;&lt;img src=&quot;/icons/full/wizban/entities.png&quot;/>&#xA;&lt;/body>&#xA;&lt;/html>&#xA;&#xA;&#xA;" endUserDocumentation="A class diagram to represent EClasses, EDatatypes, EAttributes and their relationships." name="Entities" label="Entities in a Class Diagram" titleExpression="aql:self.name + ' class diagram'" pasteDescriptions="//@ownedViewpoints[name='Design']/@ownedRepresentations[name='Entities']/@defaultLayer/@toolSections.0/@ownedTools[name='Paste%20Anything']" domainClass="ecore.EPackage" enablePopupBars="true">
+    <ownedRepresentations xsi:type="description_1:DiagramDescription" dropDescriptions="//@ownedViewpoints[name='Design']/@ownedRepresentations[name='Entities']/@defaultLayer/@toolSections.0/@ownedTools[name='External%20EClass%20from%20treeview'] //@ownedViewpoints[name='Design']/@ownedRepresentations[name='Entities']/@additionalLayers[name='Package']/@toolSections.0/@ownedTools[name='Drop%20EClassifier%20into%20EPackage']" documentation="&lt;html>&#xA;&lt;head>&#xA;&lt;/head>&#xA;&lt;body>&#xA;&lt;p>Provides a class diagram to represent EClasses, EDatatypes, EAttributes and their relationships.&lt;/p>&#xA;&lt;br>&#xA;&lt;img src=&quot;/icons/full/wizban/entities.png&quot;/>&#xA;&lt;/body>&#xA;&lt;/html>&#xA;&#xA;&#xA;" endUserDocumentation="A class diagram to represent EClasses, EDatatypes, EAttributes and their relationships." name="Entities" label="Entities in a Class Diagram" titleExpression="aql:self.name + ' class diagram'" pasteDescriptions="//@ownedViewpoints[name='Design']/@ownedRepresentations[name='Entities']/@defaultLayer/@toolSections.0/@ownedTools[name='Paste%20Anything']" domainClass="ecore::EPackage" enablePopupBars="true">
       <metamodel href="http://www.eclipse.org/emf/2002/Ecore#/"/>
       <metamodel href="http://www.eclipse.org/emf/2002/GenModel#/"/>
       <filters xsi:type="filter:CompositeFilterDescription" name="Hide class content">
@@ -1066,9 +1066,9 @@
         </customization>
       </additionalLayers>
     </ownedRepresentations>
-    <ownedRepresentations xsi:type="description_2:EditionTableDescription" documentation="&lt;html>&#xA;&lt;head>&#xA;&lt;/head>&#xA;&lt;body>&#xA;&lt;p>A tabular editor (spreadsheet-like) of the entities in an Ecore model.&lt;/p>&#xA;&lt;br>&#xA;&lt;img src=&quot;/icons/full/wizban/classes.png&quot;/>&#xA;&lt;/body>&#xA;&lt;/html>&#xA;&#xA;&#xA;" endUserDocumentation="A tabular editor (spreadsheet-like) of the entities in an Ecore model." name="Classes" label="Classes in a spreadsheet" titleExpression="aql:self.name + ' class table'" domainClass="ecore.EPackage">
-      <metamodel href="http://www.eclipse.org/emf/2002/GenModel#/"/>
+    <ownedRepresentations xsi:type="description_2:EditionTableDescription" documentation="&lt;html>&#xA;&lt;head>&#xA;&lt;/head>&#xA;&lt;body>&#xA;&lt;p>A tabular editor (spreadsheet-like) of the entities in an Ecore model.&lt;/p>&#xA;&lt;br>&#xA;&lt;img src=&quot;/icons/full/wizban/classes.png&quot;/>&#xA;&lt;/body>&#xA;&lt;/html>&#xA;&#xA;&#xA;" endUserDocumentation="A tabular editor (spreadsheet-like) of the entities in an Ecore model." name="Classes" label="Classes in a spreadsheet" titleExpression="aql:self.name + ' class table'" domainClass="ecore::EPackage">
       <metamodel href="http://www.eclipse.org/emf/2002/Ecore#/"/>
+      <metamodel href="http://www.eclipse.org/emf/2002/GenModel#/"/>
       <ownedLineMappings name="Classes lines" reusedInMappings="//@ownedViewpoints[name='Design']/@ownedRepresentations[name='Classes']/@ownedLineMappings[name='Package']" domainClass="ecore.EClass" semanticCandidatesExpression="feature:eContents">
         <foregroundConditionalStyle predicateExpression="feature:abstract">
           <style labelSize="10">
@@ -1084,7 +1084,7 @@
         </defaultBackground>
       </ownedLineMappings>
       <ownedCreateLine name="Create Class" forceRefresh="true" elementsToSelect="service:stdEmptyCollection" mapping="//@ownedViewpoints[name='Design']/@ownedRepresentations[name='Classes']/@ownedLineMappings[name='Classes%20lines']">
-        <variables name="root" documentation="The semantic element of the table."/>
+        <variables name="root" documentation="The semantic root element of the table."/>
         <variables name="element" documentation="The semantic currently edited element."/>
         <variables name="container" documentation="The semantic element corresponding to the view container."/>
         <firstModelOperation xsi:type="tool:ChangeContext" browseExpression="var:container">
@@ -1101,7 +1101,7 @@
     <ownedJavaExtensions qualifiedClassName="org.eclipse.emf.ecoretools.design.service.ALEServices"/>
   </ownedViewpoints>
   <ownedViewpoints endUserDocumentation="Add support for archetypes-based modeling to the Entities modeler." name="Archetype" modelFileExtension="ecore xcore ecorebin">
-    <ownedRepresentationExtensions xsi:type="description_1:DiagramExtensionDescription" name="Entities With Archetypes" viewpointURI="viewpoint:/org.mypsycho.emf.modit.sirius.tests/Design" representationName="Entities">
+    <ownedRepresentationExtensions xsi:type="description_1:DiagramExtensionDescription" name="Entities With Archetypes" viewpointURI="viewpoint:/org.eclipse.emf.ecoretools.design/Design" representationName="Entities">
       <metamodel href="http://www.eclipse.org/emf/2002/Ecore#/"/>
       <layers name="Archetypes" activeByDefault="true">
         <toolSections name="Archetype">
@@ -1199,8 +1199,9 @@
     <ownedJavaExtensions qualifiedClassName="org.eclipse.emf.ecoretools.design.service.ALEServices"/>
   </ownedViewpoints>
   <ownedViewpoints endUserDocumentation="Provides representation to document and review Ecore models." name="Review" modelFileExtension="ecore xcore ecorebin">
-    <ownedRepresentations xsi:type="description_2:CrossTableDescription" documentation="&lt;html>&#xA;&lt;head>&#xA;&lt;/head>&#xA;&lt;body>&#xA;&lt;p>Document the concepts in a package.&lt;/p>&#xA;&lt;br>&#xA;&lt;img src=&quot;/icons/full/wizban/documentation_table.png&quot;/>&#xA;&lt;/body>&#xA;&lt;/html>&#xA;&#xA;&#xA;" name="Documentation" label="Documentation annotations in a spreadsheet" titleExpression="aql:self.name + ' documentation table'" domainClass="ecore.EPackage">
+    <ownedRepresentations xsi:type="description_2:CrossTableDescription" documentation="&lt;html>&#xA;&lt;head>&#xA;&lt;/head>&#xA;&lt;body>&#xA;&lt;p>Document the concepts in a package.&lt;/p>&#xA;&lt;br>&#xA;&lt;img src=&quot;/icons/full/wizban/documentation_table.png&quot;/>&#xA;&lt;/body>&#xA;&lt;/html>&#xA;&#xA;&#xA;" name="Documentation" label="Documentation annotations in a spreadsheet" titleExpression="aql:self.name + ' documentation table'" domainClass="ecore::EPackage">
       <metamodel href="http://www.eclipse.org/emf/2002/Ecore#/"/>
+      <metamodel href="http://www.eclipse.org/emf/2002/GenModel#/"/>
       <ownedLineMappings name="Doc EClassifiers" semanticElements="var:self" domainClass="ecore.EClassifier" semanticCandidatesExpression="feature:eClassifiers" headerLabelExpression="aql:self.eClass().name + ' : ' + self.name">
         <defaultBackground>
           <backgroundColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='white']"/>
@@ -1211,7 +1212,9 @@
           </defaultBackground>
         </ownedSubLines>
       </ownedLineMappings>
-      <ownedColumnMappings name="Doc Root" headerLabelExpression="Domain Documentation" domainClass="ecore.EPackage" semanticCandidatesExpression="service:getRootContainer"/>
+      <ownedColumnMappings name="Doc Root" headerLabelExpression="Domain Documentation" domainClass="ecore.EPackage" semanticCandidatesExpression="service:getRootContainer">
+        <delete precondition="aql:false"/>
+      </ownedColumnMappings>
       <intersection name="EModelElements to Doc Annotation" semanticElements="var:self" lineMapping="//@ownedViewpoints[name='Review']/@ownedRepresentations[name='Documentation']/@ownedLineMappings[name='Doc%20EClassifiers'] //@ownedViewpoints[name='Review']/@ownedRepresentations[name='Documentation']/@ownedLineMappings[name='Doc%20EClassifiers']/@ownedSubLines[name='Doc%20EStructural%20Features']" columnMapping="//@ownedViewpoints[name='Review']/@ownedRepresentations[name='Documentation']/@ownedColumnMappings.0" labelExpression="aql:self.value" useDomainClass="true" columnFinderExpression="service:getRootContainer" lineFinderExpression="aql:self.eContainer(ecore::EAnnotation).eContainer()" semanticCandidatesExpression="aql:self.eAllContents(ecore::EAnnotation)->select(a | a.source = 'http://www.eclipse.org/emf/2002/GenModel').details->select(a | a.key = 'documentation')" domainClass="ecore.EStringToStringMapEntry">
         <directEdit>
           <variables name="table" documentation="The current DTable."/>
@@ -1249,8 +1252,9 @@
         </create>
       </intersection>
     </ownedRepresentations>
-    <ownedRepresentations xsi:type="description_1:DiagramDescription" dropDescriptions="//@ownedViewpoints[name='Review']/@ownedRepresentations[name='Dependencies']/@defaultLayer/@toolSections.1/@ownedTools[name='External%20EPackageTo%20Analyze%20from%20treeview']" documentation="&lt;html>&#xA;&lt;head>&#xA;&lt;/head>&#xA;&lt;body>&#xA;&lt;p>A  diagram used to highligh dependencies in between EPackages.&lt;/p>&#xA;&lt;br>&#xA;&lt;img src=&quot;/icons/full/wizban/packages.png&quot;/>&#xA;&lt;/body>&#xA;&lt;/html>&#xA;&#xA;&#xA;" name="Dependencies" label="Package dependencies diagram" titleExpression="aql:self.name + ' package dependencies'" domainClass="ecore.EPackage">
+    <ownedRepresentations xsi:type="description_1:DiagramDescription" dropDescriptions="//@ownedViewpoints[name='Review']/@ownedRepresentations[name='Dependencies']/@defaultLayer/@toolSections.1/@ownedTools[name='External%20EPackageTo%20Analyze%20from%20treeview']" documentation="&lt;html>&#xA;&lt;head>&#xA;&lt;/head>&#xA;&lt;body>&#xA;&lt;p>A  diagram used to highligh dependencies in between EPackages.&lt;/p>&#xA;&lt;br>&#xA;&lt;img src=&quot;/icons/full/wizban/packages.png&quot;/>&#xA;&lt;/body>&#xA;&lt;/html>&#xA;&#xA;&#xA;" name="Dependencies" label="Package dependencies diagram" titleExpression="aql:self.name + ' package dependencies'" domainClass="ecore::EPackage">
       <metamodel href="http://www.eclipse.org/emf/2002/Ecore#/"/>
+      <metamodel href="http://www.eclipse.org/emf/2002/GenModel#/"/>
       <defaultLayer name="Default">
         <edgeMappings name="Package Dependency" semanticCandidatesExpression="service:getPackageDependencies" sourceMapping="//@ownedViewpoints[name='Review']/@ownedRepresentations[name='Dependencies']/@defaultLayer/@containerMappings[name='Analyzed%20Package']" targetMapping="//@ownedViewpoints[name='Review']/@ownedRepresentations[name='Dependencies']/@defaultLayer/@containerMappings[name='Analyzed%20Package']" targetFinderExpression="service:getPackageDependencies" domainClass="ecore.EPackage">
           <style lineStyle="dash" sizeComputationExpression="service:getDependenciesAmount()">
@@ -1339,9 +1343,9 @@
     <ownedJavaExtensions qualifiedClassName="org.eclipse.emf.ecoretools.design.service.ALEServices"/>
   </ownedViewpoints>
   <ownedViewpoints endUserDocumentation="Adds support for EMF GenModel configuration." name="Generation" modelFileExtension="genmodel">
-    <ownedRepresentations xsi:type="description_2:EditionTableDescription" documentation="&lt;html>&#xA;&lt;head>&#xA;&lt;/head>&#xA;&lt;body>&#xA;&lt;p>To set generation related parameters:&lt;/p>&#xA;&lt;ul>&#xA;  &lt;li>the property category&lt;/li>&#xA;  &lt;li>the user facing documentation for each property&lt;/li>&#xA;&lt;/ul>&#xA;&lt;br>&#xA;&lt;/body>&#xA;&lt;/html>&#xA;&#xA;&#xA;" name="GenPackage Attributes" label="Properties attributes and categories" titleExpression="aql:self.prefix + ' generation table'" domainClass="genmodel.GenPackage">
-      <metamodel href="http://www.eclipse.org/emf/2002/GenModel#/"/>
+    <ownedRepresentations xsi:type="description_2:EditionTableDescription" documentation="&lt;html>&#xA;&lt;head>&#xA;&lt;/head>&#xA;&lt;body>&#xA;&lt;p>To set generation related parameters:&lt;/p>&#xA;&lt;ul>&#xA;  &lt;li>the property category&lt;/li>&#xA;  &lt;li>the user facing documentation for each property&lt;/li>&#xA;&lt;/ul>&#xA;&lt;br>&#xA;&lt;/body>&#xA;&lt;/html>&#xA;&#xA;&#xA;" name="GenPackage Attributes" label="Properties attributes and categories" titleExpression="aql:self.prefix + ' generation table'" domainClass="genmodel::GenPackage">
       <metamodel href="http://www.eclipse.org/emf/2002/Ecore#/"/>
+      <metamodel href="http://www.eclipse.org/emf/2002/GenModel#/"/>
       <ownedLineMappings name="GenClass" domainClass="genmodel.GenClass" headerLabelExpression="aql:self.ecoreClass.name">
         <ownedSubLines name="GenFeature" domainClass="genmodel.GenFeature" semanticCandidatesExpression="aql:self.eAllContents(genmodel::GenFeature)->select(a | a.ecoreFeature.oclIsTypeOf(ecore::EAttribute) or a.ecoreFeature.oclIsTypeOf(ecore::EReference) and not(a.ecoreFeature.oclAsType(ecore::EReference).containment) and not(a.ecoreFeature.oclAsType(ecore::EReference).derived))" headerLabelExpression="aql:self.ecoreFeature.name">
           <backgroundConditionalStyle predicateExpression="aql:self.propertyCategory = ''">
@@ -1378,14 +1382,14 @@
     <entries xsi:type="description:UserFixedColor" red="228" green="228" blue="228" name="Abstract EClass"/>
     <entries xsi:type="description:UserFixedColor" name="Inherited"/>
   </userColorsPalettes>
-  <extensions xsi:type="properties:ViewExtensionDescription" name="ecoretools">
+  <extensions xsi:type="properties:ViewExtensionDescription" name="Default">
     <metamodels href="http://www.eclipse.org/emf/2002/Ecore#/"/>
     <metamodels href="http://www.eclipse.org/emf/2002/GenModel#/"/>
-    <categories name="Default">
+    <categories name="category:EcoretoolsViewExtension.default">
       <pages name="ecore_page" labelExpression="Ecore" semanticCandidateExpression="var:self" groups="//@extensions.0/@categories.0/@groups.0 //@extensions.0/@categories.0/@groups.5">
         <validationSet>
           <semanticValidationRules name="NoNameOrInvalid" level="ERROR" message="aql:' The '  + self.eClass().name +  ' should have a name which is a valid Java identifier.'" targetClass="ecore::ENamedElement">
-            <audits auditExpression="aql: (not self.oclIsKindOf(ecore::ENamedElement) ) or (self.name &lt;> null and self.name.size() > 0)"/>
+            <audits auditExpression="aql:(not self.oclIsKindOf(ecore::ENamedElement) ) or (self.name &lt;> null and self.name.size() > 0)"/>
           </semanticValidationRules>
         </validationSet>
       </pages>
@@ -1520,7 +1524,7 @@
                 <initialOperation>
                   <firstModelOperations xsi:type="tool:ExternalJavaAction" name="open select etype dialog" id="org.eclipse.emf.ecoretools.design.action.openSelectModelElementID">
                     <parameters name="message" value="aql:'Select an ' + eStructuralFeature.eType.name +  ' for the ' + eStructuralFeature.name +  ' reference.'"/>
-                    <parameters name="title" value="aql:'Select ' + eStructuralFeature.eType.name "/>
+                    <parameters name="title" value="aql:'Select ' + eStructuralFeature.eType.name"/>
                     <parameters name="candidates" value="aql:input.emfEditServices(self).getChoiceOfValues(eStructuralFeature)"/>
                     <parameters name="feature" value="var:eStructuralFeature"/>
                     <parameters name="host" value="var:self"/>
@@ -1585,14 +1589,14 @@
         </controls>
         <style barStyle="SHORT_TITLE_BAR" expandedByDefault="true"/>
       </groups>
-      <groups name="egeneric supertypes-TBD" labelExpression="aql:'EGenericType : ' + input.emfEditServices(self).getText()" domainClass="ecore::EGenericType" semanticCandidateExpression="aql: input.getSemanticElement()->filter(ecore::EClass).eGenericSuperTypes" preconditionExpression="aql:false and self.oclIsKindOf(ecore::EClass)">
+      <groups name="egeneric supertypes-TBD" labelExpression="aql:'EGenericType : ' + input.emfEditServices(self).getText()" domainClass="ecore::EGenericType" semanticCandidateExpression="aql:input.getSemanticElement()->filter(ecore::EClass).eGenericSuperTypes" preconditionExpression="aql:false and self.oclIsKindOf(ecore::EClass)">
         <controls xsi:type="properties:LabelDescription" name="etypeparameter label" labelExpression="EType Parameter:" valueExpression="aql:self.eTypeArguments->first().eTypeParameter" displayExpression="aql:self.eTypeArguments->first().eTypeParameter.name">
           <actions labelExpression="...">
             <initialOperation>
               <firstModelOperations xsi:type="tool:Let" variableName="eStructuralFeature" valueExpression="aql:self.eClass().getEStructuralFeature('eTypeParameter')">
                 <subModelOperations xsi:type="tool:ExternalJavaAction" name="open select etype dialog" id="org.eclipse.emf.ecoretools.design.action.openSelectModelElementID">
                   <parameters name="message" value="aql:'Select an ' + eStructuralFeature.eType.name +  ' for the ' + eStructuralFeature.name +  ' reference.'"/>
-                  <parameters name="title" value="aql:'Select ' + eStructuralFeature.eType.name "/>
+                  <parameters name="title" value="aql:'Select ' + eStructuralFeature.eType.name"/>
                   <parameters name="candidates" value="aql:input.emfEditServices(self).getChoiceOfValues(eStructuralFeature)"/>
                   <parameters name="feature" value="var:eStructuralFeature"/>
                   <parameters name="host" value="var:self"/>
@@ -1607,7 +1611,7 @@
               <firstModelOperations xsi:type="tool:Let" variableName="eStructuralFeature" valueExpression="aql:self.eClass().getEStructuralFeature('eClassifier')">
                 <subModelOperations xsi:type="tool:ExternalJavaAction" name="open select etype dialog" id="org.eclipse.emf.ecoretools.design.action.openSelectModelElementID">
                   <parameters name="message" value="aql:'Select an ' + eStructuralFeature.eType.name +  ' for the ' + eStructuralFeature.name +  ' reference.'"/>
-                  <parameters name="title" value="aql:'Select ' + eStructuralFeature.eType.name "/>
+                  <parameters name="title" value="aql:'Select ' + eStructuralFeature.eType.name"/>
                   <parameters name="candidates" value="aql:input.emfEditServices(self).getChoiceOfValues(eStructuralFeature)"/>
                   <parameters name="feature" value="var:eStructuralFeature"/>
                   <parameters name="host" value="var:self"/>

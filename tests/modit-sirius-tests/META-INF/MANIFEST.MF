@@ -1,12 +1,17 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Modit Sirius Tests
-Bundle-SymbolicName: org.mypsycho.emf.modit.sirius.tests
+Bundle-SymbolicName: org.mypsycho.emf.modit.sirius.tests;singleton:=true
 Bundle-Version: 0.8.0
-Fragment-Host: org.mypsycho.emf.modit.sirius
 Automatic-Module-Name: org.mypsycho.emf.modit.sirius.tests
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: org.junit,
- org.eclipse.emf.ecoretools.design,
  org.eclipse.emf.codegen.ecore,
- org.eclipse.emf.ecoretools.design.ui
+ org.mypsycho.emf.modit.sirius,
+ org.eclipse.xtext.xbase.lib,
+ org.eclipse.xtend.lib,
+ org.eclipse.xtend.lib.macro,
+ org.eclipse.core.runtime,
+ org.eclipse.sirius.common
+Bundle-Activator: org.mypsycho.emf.modit.sirius.tests.Activator
+Bundle-ActivationPolicy: lazy

@@ -67,7 +67,7 @@ class EcoretoolsTest {
 	
 	@Test //@Ignore // Issue with default initialisation.
     def void writeSiriusODesign() {
-    	new EcoretoolsDesign().assertContentEquals("description/ecoretools.odesign")
+    	new EcoretoolsDesign().assertContentEquals("description/ecoretools_result.odesign")
     }
     
     	
@@ -78,6 +78,7 @@ class EcoretoolsTest {
     
     
     protected def void assertContentEquals(ModitModel content, String filename) {
+    	val TEST_FILE = TEST_DIR.resolve(filename)
     	val rs = new ResourceSetImpl()
         val res = rs.createResource(URI.createFileURI(TEST_DIR.resolve(filename).toString))
         content.loadContent(res).head
