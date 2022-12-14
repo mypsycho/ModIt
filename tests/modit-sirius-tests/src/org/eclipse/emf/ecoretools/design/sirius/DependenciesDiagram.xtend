@@ -59,12 +59,11 @@ import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*
 class DependenciesDiagram extends AbstractDiagram {
 
 	new(EcoretoolsDesign parent) {
-		super(parent, "Package dependencies diagram", EPackage)
+		super(parent, "Dependencies", "Package dependencies diagram", EPackage)
 	}
 
 	override initContent(DiagramDescription it) {
 		super.initContent(it)
-		name = "Dependencies"
 		documentation = "<html>\n<head>\n</head>\n<body>\n<p>A  diagram used to highligh dependencies in between EPackages.</p>\n<br>\n<img src=\"/icons/full/wizban/packages.png\"/>\n</body>\n</html>\n\n\n"
 		titleExpression = ''' self.name + ' package dependencies' '''.trimAql
 		dropDescriptions += ContainerDropDescription.localRef(Ns.drop, "External EPackageTo Analyze from treeview")

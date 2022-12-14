@@ -206,6 +206,11 @@ abstract class AbstractCrossTable extends AbstractTable<CrossTableDescription> {
 	     EditArg.container -> null
 	]
 
+	static val COLUMN_DEL_ARGS = #[ 
+	     EditArg.root -> null,
+	     EditArg.element -> null
+	]
+
 	def initVariables(CreateCellTool it) {
 		initVariables(CELL_CREATE_ARGS)
 	}
@@ -214,6 +219,9 @@ abstract class AbstractCrossTable extends AbstractTable<CrossTableDescription> {
 		initVariables(COLUMN_CREATE_ARGS)
 	}
 	
+	def initVariables(DeleteColumnTool it) {
+		initVariables(COLUMN_DEL_ARGS)
+	}
 	
 	def setMask(CreateCellTool it, String value) {
 		mask = EditMaskVariables.create[ mask = value ]

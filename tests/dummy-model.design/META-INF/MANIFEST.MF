@@ -24,6 +24,7 @@ Require-Bundle: org.eclipse.ui,
  org.mypsycho.emf.modit.sirius.ui,
  org.eclipse.ui.workbench,
  org.eclipse.osgi,
+ org.eclipse.osgi.services, 
  org.eclipse.emf.edit
 Bundle-ActivationPolicy: lazy
 Bundle-Activator: org.mypsycho.emf.modit.dw.dummyworld.design.DwDesignActivator

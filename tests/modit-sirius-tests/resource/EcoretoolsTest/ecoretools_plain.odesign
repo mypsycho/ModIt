@@ -1213,10 +1213,7 @@
         </ownedSubLines>
       </ownedLineMappings>
       <ownedColumnMappings name="Doc Root" headerLabelExpression="Domain Documentation" domainClass="ecore.EPackage" semanticCandidatesExpression="service:getRootContainer">
-        <delete precondition="aql:false">
-          <variables name="element" documentation="The semantic currently edited element."/>
-          <variables name="root" documentation="The semantic root element of the table."/>
-        </delete>
+        <delete precondition="aql:false"/>
       </ownedColumnMappings>
       <intersection name="EModelElements to Doc Annotation" semanticElements="var:self" lineMapping="//@ownedViewpoints[name='Review']/@ownedRepresentations[name='Documentation']/@ownedLineMappings[name='Doc%20EClassifiers'] //@ownedViewpoints[name='Review']/@ownedRepresentations[name='Documentation']/@ownedLineMappings[name='Doc%20EClassifiers']/@ownedSubLines[name='Doc%20EStructural%20Features']" columnMapping="//@ownedViewpoints[name='Review']/@ownedRepresentations[name='Documentation']/@ownedColumnMappings.0" labelExpression="aql:self.value" useDomainClass="true" columnFinderExpression="service:getRootContainer" lineFinderExpression="aql:self.eContainer(ecore::EAnnotation).eContainer()" semanticCandidatesExpression="aql:self.eAllContents(ecore::EAnnotation)->select(a | a.source = 'http://www.eclipse.org/emf/2002/GenModel').details->select(a | a.key = 'documentation')" domainClass="ecore.EStringToStringMapEntry">
         <directEdit>

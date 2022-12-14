@@ -51,6 +51,9 @@ class SiriusReverseIt {
 	protected val ClassId classId
 	
 	protected val List<EPackage> editedPackages
+
+	@Accessors
+	protected var String pluginId
 	
 	@Accessors
 	val SiriusGroupTemplate engine
@@ -81,6 +84,9 @@ class SiriusReverseIt {
 		this(odesignUri.loadSiriusGroup(new ResourceSetImpl), 
 			dir, classname, editeds
 		)
+		if (odesignUri.isPlatformPlugin) {
+			pluginId = odesignUri.segment(1)
+		}
 	}
 
 	/**

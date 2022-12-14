@@ -16,6 +16,7 @@ import org.eclipse.sirius.viewpoint.description.Group
 import org.eclipse.sirius.viewpoint.description.RepresentationDescription
 import org.mypsycho.modit.emf.ClassId
 import org.mypsycho.modit.emf.sirius.api.AbstractDiagramExtension
+import org.mypsycho.modit.emf.sirius.api.SiriusDesigns
 
 /** 
  * Override of default reverse for SiriusModelProvider class.
@@ -60,7 +61,7 @@ class DiagramExtensionTemplate extends DiagramPartTemplate<DiagramExtensionDescr
 	static def isMatching(RepresentationDescription descr, DiagramExtensionDescription content) {
 		try {
 			content.representationName == descr.name
-				&& content.viewpointURI == AbstractDiagramExtension.getVpUri(descr)
+				&& content.viewpointURI == AbstractDiagramExtension.getExtraVpUri(descr)
 		} catch (IllegalArgumentException iae) {
 			false
 		}
@@ -84,13 +85,33 @@ class DiagramExtensionTemplate extends DiagramPartTemplate<DiagramExtensionDescr
 		descrs.findFirst[ isMatching(content) ]
 	}
 	
+	def isExtendedLocal(DiagramExtensionDescription content) {
+		tool.pluginId !== null
+			&& content.viewpointURI.startsWith("viewpoint:/" + tool.pluginId)
+	}
+	
+	@Deprecated
+	def findDiagramFromLocal(DiagramExtensionDescription content) {
+		SiriusDesigns.eContainer(content, Group)
+			.ownedViewpoints
+			.filter[ content.viewpointURI.endsWith("/" + name) ]
+			.flatMap[ ownedRepresentations ]
+			.filter(DiagramDescription)
+			.findFirst[ content.representationName == name  ]
+	}
+	
 	def identifyExtended(DiagramExtensionDescription content) {
-		val result = content.findDiagramFromExtras ?: content.findDiagramFromIndirectExtras
-		if (result === null)
+		if (content.extendedLocal) {
+			// 
+			return null
+		}
+		val result =  content.findDiagramFromExtras 
+			?: content.findDiagramFromIndirectExtras
+		if (result === null) {
 			throw new IllegalStateException(
 				'''No representation in extras: «content.viewpointURI»#/«content.representationName» ''')
-		else
-			result
+		}
+		result
 	}
 
 	override templateRepresentation(ClassId it, DiagramExtensionDescription content) {
@@ -112,13 +133,21 @@ import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*
 
 class «name» extends «AbstractDiagramExtension.templateClass» {
 
-««« extension ensures template work the same
+««« extension ensures template expression work the same
 	new(extension «parentClassName» parent) {
-		super(parent, «content.name.toJava», «extended.templateRef(DiagramDescription)»)
+		super(parent, «content.name.toJava»«
+IF extended !== null						», «extended.templateRef(DiagramDescription)»«
+ENDIF										»)
 	}
 
-	override initContent(«AbstractDiagramExtension.templateClass» it) {
-		«content.templateFilteredContent(DiagramExtensionDescription)»
+	override initContent(«DiagramExtensionDescription.templateClass» it) {
+«
+IF extended === null						
+»		viewpointURI = «content.viewpointURI.toJava»
+		representationName = «content.representationName.toJava»
+«
+ENDIF										
+»		«content.templateFilteredContent(DiagramExtensionDescription)»
 	}
 
 «
@@ -136,9 +165,9 @@ SEPARATOR statementSeparator
 	}
 
 «
-	ENDFOR ««« section
+	ENDFOR // section
 »«
-ENDFOR ««« layer
+ENDFOR // layer
 »
 }''' // end-of-class
 	}

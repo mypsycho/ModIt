@@ -187,15 +187,21 @@ class SiriusDesigns {
 	 * !!! Why is not in EcoreUtil already: every project uses it. :'(
 	 */
 	static def <T> T eContainer(EObject it, Class<T> type) {
-		val result = eContainer
-		if (result === null || type.isInstance(result)) result as T
-		else result.eContainer(type)
+		var result = eContainer
+		while(result !== null && !type.isInstance(result)) {
+			result = result.eContainer
+		}
+		result as T
 	}
 	
 	
 	static def final allTargetViews(EClassifier eclass) {
 		// Usefull for OperationAction
-		'''views.target->select(it | not it.oclIsKindOf(«eclass.asAql»))->isEmpty()'''.trimAql
+		'''
+		views.target
+			->select(it | not it.oclIsKindOf(«eclass.asAql»))
+			->isEmpty()
+		'''.trimAql
 	} 
 	
 	static val NO_TECH = Pattern.compile("[^a-zA-Z0-9 _]")
@@ -218,6 +224,10 @@ class SiriusDesigns {
 		// avoid duplicated end
 		val applySuffix = !basename.toLowerCase.endsWith(end.toLowerCase)
 		basename + (applySuffix ? end : "")
+	}
+	
+	static def String encodeVpUri(String pluginId, String vpName) {
+		'''viewpoint:/«pluginId»/«vpName»'''
 	}
 	
 }

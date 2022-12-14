@@ -2812,7 +2812,7 @@ class PlainDesign implements ModitModel {
 				modelFileExtension = "ecore xcore ecorebin"
 				ownedRepresentationExtensions += DiagramExtensionDescription.create [
 					name = "Entities With Archetypes"
-					viewpointURI = "viewpoint:/org.eclipse.emf.ecoretools.design/Design"
+					viewpointURI = "viewpoint:/org.mypsycho.emf.modit.sirius.tests/Design"
 					representationName = "Entities"
 					metamodel += org.eclipse.emf.ecore.EcorePackage.eINSTANCE
 					layers += AdditionalLayer.create [

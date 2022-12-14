@@ -114,12 +114,11 @@ import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*
 class EntitiesDiagram extends AbstractDiagram {
 
 	new(EcoretoolsDesign parent) {
-		super(parent, "Entities in a Class Diagram", EPackage)
+		super(parent, "Entities", "Entities in a Class Diagram", EPackage)
 	}
 
 	override initContent(DiagramDescription it) {
 		super.initContent(it)
-		name = "Entities"
 		documentation = "<html>\n<head>\n</head>\n<body>\n<p>Provides a class diagram to represent EClasses, EDatatypes, EAttributes and their relationships.</p>\n<br>\n<img src=\"/icons/full/wizban/entities.png\"/>\n</body>\n</html>\n\n\n"
 		endUserDocumentation = "A class diagram to represent EClasses, EDatatypes, EAttributes and their relationships."
 		titleExpression = ''' self.name + ' class diagram' '''.trimAql
@@ -1572,22 +1571,18 @@ class EntitiesDiagram extends AbstractDiagram {
 							labelExpression = "Cancel"
 							closeDialogOnClick = true
 							rollbackChangesOnClose = true
-							initialOperation = InitialOperation.create [
-								firstModelOperations = "var:self".toOperation
-							]
+							operation = "var:self".toOperation
 						]
 						buttons += DialogButton.create [
 							labelExpression = "OK"
 							^default = true
 							closeDialogOnClick = true
-							initialOperation = InitialOperation.create [
-								firstModelOperations = "var:self".toOperation
-							]
+							operation = "var:self".toOperation
 						]
 						page = PageDescription.create("Default Page") [
 							labelExpression = '''input.emfEditServices(self).getText()'''.trimAql
 							semanticCandidateExpression = "var:self"
-							extends = PageDescription.ref("page:EcoretoolsViewExtension.ecore_page")
+							extends = PageDescription.ref("page:DefaultViewExtension.ecore_page")
 						]
 					]
 				]

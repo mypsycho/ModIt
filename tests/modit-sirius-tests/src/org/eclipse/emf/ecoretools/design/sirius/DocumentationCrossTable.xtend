@@ -4,6 +4,7 @@ import org.eclipse.emf.ecore.EPackage
 import org.eclipse.sirius.table.metamodel.table.description.BackgroundStyleDescription
 import org.eclipse.sirius.table.metamodel.table.description.CreateCellTool
 import org.eclipse.sirius.table.metamodel.table.description.CrossTableDescription
+import org.eclipse.sirius.table.metamodel.table.description.DeleteColumnTool
 import org.eclipse.sirius.table.metamodel.table.description.ElementColumnMapping
 import org.eclipse.sirius.table.metamodel.table.description.IntersectionMapping
 import org.eclipse.sirius.table.metamodel.table.description.LabelEditTool
@@ -57,6 +58,11 @@ class DocumentationCrossTable extends AbstractCrossTable {
 			headerLabelExpression = "Domain Documentation"
 			domainClass = "ecore.EPackage"
 			semanticCandidatesExpression = "service:getRootContainer"
+			delete = DeleteColumnTool.create("") [
+				initVariables
+				precondition = '''false'''.trimAql
+				// no operation 
+			]
 		]
 		intersection += IntersectionMapping.create("EModelElements to Doc Annotation") [
 			semanticElements = "var:self"

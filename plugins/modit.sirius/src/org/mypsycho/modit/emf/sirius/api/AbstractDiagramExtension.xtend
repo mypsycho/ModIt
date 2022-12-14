@@ -12,12 +12,13 @@
  *******************************************************************************/
  package org.mypsycho.modit.emf.sirius.api
 
+import java.util.Objects
 import org.eclipse.emf.ecore.util.EcoreUtil
 import org.eclipse.sirius.diagram.description.DiagramDescription
 import org.eclipse.sirius.diagram.description.DiagramExtensionDescription
+import org.eclipse.sirius.viewpoint.description.Group
 import org.eclipse.sirius.viewpoint.description.RepresentationDescription
 import org.eclipse.sirius.viewpoint.description.Viewpoint
-import java.util.Objects
 
 /**
  * Adaptation of Sirius model into Java and EClass reflections API
@@ -27,37 +28,59 @@ import java.util.Objects
  */
 abstract class AbstractDiagramExtension extends AbstractDiagramPart<DiagramExtensionDescription> {
 	
-	val protected DiagramDescription extended
+	protected var DiagramDescription extended
+
+		
+	/**
+	 * Creates a factory for a diagram description
+	 * 
+	 * @param parent of diagram
+	 * @param dName of diagram
+	 */
+	new(AbstractGroup parent, String dName) {
+		super(DiagramExtensionDescription, parent)
+		Objects.requireNonNull(dName)
+		
+		creationTasks.add[
+			name = dName
+			if (extended != null) {
+				representationName = extended.name
+				viewpointURI = extended.vpUri				
+			}
+		]
+	}
 	
 	/**
 	 * Creates a factory for a diagram description
 	 * 
 	 * @param parent of diagram
+	 * @param dName of diagram
+	 * @param extended diagram
 	 */
 	new(AbstractGroup parent, String dName, DiagramDescription extended) {
-		super(DiagramExtensionDescription, parent)
-		Objects.requireNonNull(dName)
+		this(parent, dName)
 		
 		this.extended = extended
-		val extendedUri = extended.vpUri
-		
-		creationTasks.add[
-			name = dName
-			representationName = extended.name
-			viewpointURI = extendedUri
-		]
+	}
+	
+
+	def getVpUri(RepresentationDescription it) {
+		(SiriusDesigns.eContainer(it, Group) == context.getContent()) // local representation
+		? SiriusDesigns.encodeVpUri(context.pluginId, SiriusDesigns.eContainer(it, Viewpoint).name)
+		: extraVpUri
 	}
 
-	def static getVpUri(RepresentationDescription it) {
-		(eContainer as Viewpoint).vpUri
+	def static getExtraVpUri(RepresentationDescription it) {
+		(eContainer as Viewpoint).extraVpUri
 	}
 
-	def static String getVpUri(Viewpoint it) {
+	def static getExtraVpUri(Viewpoint it) {
 		val extendedUri = EcoreUtil.getURI(it)
 		if (!extendedUri.isPlatformPlugin) {
 			throw new IllegalArgumentException('''Unsupported reference: «extendedUri»''')
 		}
-		'''viewpoint:/«extendedUri.segment(1)»/«name»'''
+		SiriusDesigns.encodeVpUri(extendedUri.segment(1), name)
 	}
+	
 
 }

@@ -42,6 +42,7 @@ import org.mypsycho.modit.emf.EModIt
 import org.mypsycho.modit.emf.sirius.SiriusModelProvider
 
 import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*
+import org.eclipse.sirius.properties.DialogButton
 
 /**
  * Adaptation of Sirius model into Java and EClass reflections API
@@ -494,6 +495,18 @@ abstract class AbstractEdition {
 		}
 	}
 
+	/**
+	 * Sets the operation for provided tool.
+	 * <p>
+	 * This class unifies the initialOperation declaration of sub-class tool.
+	 * </p>
+	 * @param it tool to set
+	 * @param value operation to perform
+	 */
+	protected def setOperation(DialogButton it, ModelOperation value) {
+		initialOperation = value.toTool
+	}
+	
 	
 	protected def createCases(Pair<String, ? extends ModelOperation>... subCases) {
 		Switch.create[

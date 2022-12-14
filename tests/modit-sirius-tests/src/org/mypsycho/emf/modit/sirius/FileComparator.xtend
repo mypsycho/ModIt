@@ -176,8 +176,10 @@ class FileComparator extends SimpleFileVisitor<Path> {
 		result.put(!relative.toString.empty ? relative : ROOT, type -> detail)
 	}
 
-	static def void assertIdentical(Path src, Path tgt) {
-		assertEquals(Collections.emptyMap, new FileComparator(src, tgt).exec)
+	static def void assertIdentical(Path expected, Path value) {
+		assertEquals('''Files are different {«expected.toAbsolutePath», «value.toAbsolutePath»}''', 
+			Collections.emptyMap, new FileComparator(expected, value).exec
+		)
 	}
 	
 }

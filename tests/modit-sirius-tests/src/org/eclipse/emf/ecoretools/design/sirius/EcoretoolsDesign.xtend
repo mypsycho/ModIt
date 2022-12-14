@@ -97,7 +97,7 @@ class EcoretoolsDesign extends AbstractGroup {
 			entries += "Abstract EClass".color(228, 228, 228)
 			entries += "Inherited".color(125, 125, 125)
 		]
-		extensions += new EcoretoolsViewExtension(this).createContent
+		extensions += new DefaultViewExtension(this).createContent
 	}
 
 	override initExtras() {

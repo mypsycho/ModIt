@@ -15,7 +15,7 @@ public class Activator extends Plugin {
     // The plug-in ID
     public static final String PLUGIN_ID = "org.mypsycho.emf.modit.sirius.tests";
 
-	public static final String DESIGN_PATH = PLUGIN_ID + "/resource/EcoretoolsTest/ecore.odesign";
+	public static final String DESIGN_PATH = PLUGIN_ID + "/resource/EcoretoolsTest/ecoretools_result.odesign";
 
     // The shared instance
     private static Activator plugin;

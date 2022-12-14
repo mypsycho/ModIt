@@ -38,6 +38,7 @@ import org.mypsycho.modit.emf.EModIt
 import org.mypsycho.modit.emf.ModitModel
 
 import static extension org.eclipse.xtend.lib.annotations.AccessorType.*
+import sun.security.jca.GetInstance.Instance
 
 /**
  * Class to provide model for Eclipse Sirius to interpret.
@@ -94,11 +95,15 @@ abstract class SiriusModelProvider implements ModitModel {
 	
 	@Accessors(#[ AccessorType.PUBLIC_GETTER ])
 	package var Integer id
+	
+	@Accessors(#[ AccessorType.PUBLIC_GETTER ])
 	val Group content
 	
 	@Accessors
 	val IntFunction<Object> callback = [ expressions.get(it) ]
 
+	@Accessors(#[ AccessorType.PUBLIC_SETTER ])
+	var String pluginId = null
 	
 	/**
 	 * Construction of model using provided package.
@@ -167,6 +172,12 @@ abstract class SiriusModelProvider implements ModitModel {
 		content
 	}
 
+	def getPluginId() {
+		if (pluginId === null) {
+			throw new IllegalStateException("Plugin ID is not defined for this generation")
+		}
+		pluginId
+	}
 	
 	/**
 	 * Initialize map of external references with resource set

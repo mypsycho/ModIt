@@ -54,7 +54,7 @@ import org.mypsycho.modit.emf.sirius.api.AbstractPropertySet
 
 import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*
 
-class EcoretoolsViewExtension extends AbstractPropertySet {
+class DefaultViewExtension extends AbstractPropertySet {
 
 	new(EcoretoolsDesign parent) {
 		super(parent)
@@ -72,7 +72,7 @@ class EcoretoolsViewExtension extends AbstractPropertySet {
 					message = ''' ' The '  + self.eClass().name +  ' should have a name which is a valid Java identifier.' '''.trimAql
 					targetClass = "ecore::ENamedElement"
 					audits += RuleAudit.create [
-						auditExpression = ''' (not self.oclIsKindOf(ecore::ENamedElement) ) or (self.name <> null and self.name.size() > 0)'''.trimAql
+						auditExpression = '''(not self.oclIsKindOf(ecore::ENamedElement) ) or (self.name <> null and self.name.size() > 0)'''.trimAql
 					]
 				]
 			]
@@ -313,7 +313,7 @@ class EcoretoolsViewExtension extends AbstractPropertySet {
 								]
 								parameters += ExternalJavaActionParameter.create [
 									name = "title"
-									value = ''' 'Select ' + eStructuralFeature.eType.name  '''.trimAql
+									value = ''' 'Select ' + eStructuralFeature.eType.name '''.trimAql
 								]
 								parameters += ExternalJavaActionParameter.create [
 									name = "candidates"
@@ -435,7 +435,7 @@ class EcoretoolsViewExtension extends AbstractPropertySet {
 		groups += GroupDescription.createAs(Ns.group, "egeneric supertypes-TBD") [
 			labelExpression = ''' 'EGenericType : ' + input.emfEditServices(self).getText() '''.trimAql
 			domainClass = "ecore::EGenericType"
-			semanticCandidateExpression = ''' input.getSemanticElement()->filter(ecore::EClass).eGenericSuperTypes'''.trimAql
+			semanticCandidateExpression = '''input.getSemanticElement()->filter(ecore::EClass).eGenericSuperTypes'''.trimAql
 			preconditionExpression = '''false and self.oclIsKindOf(ecore::EClass)'''.trimAql
 			controls += LabelDescription.create("etypeparameter label") [
 				labelExpression = "EType Parameter:"
@@ -454,7 +454,7 @@ class EcoretoolsViewExtension extends AbstractPropertySet {
 							]
 							parameters += ExternalJavaActionParameter.create [
 								name = "title"
-								value = ''' 'Select ' + eStructuralFeature.eType.name  '''.trimAql
+								value = ''' 'Select ' + eStructuralFeature.eType.name '''.trimAql
 							]
 							parameters += ExternalJavaActionParameter.create [
 								name = "candidates"
@@ -489,7 +489,7 @@ class EcoretoolsViewExtension extends AbstractPropertySet {
 							]
 							parameters += ExternalJavaActionParameter.create [
 								name = "title"
-								value = ''' 'Select ' + eStructuralFeature.eType.name  '''.trimAql
+								value = ''' 'Select ' + eStructuralFeature.eType.name '''.trimAql
 							]
 							parameters += ExternalJavaActionParameter.create [
 								name = "candidates"

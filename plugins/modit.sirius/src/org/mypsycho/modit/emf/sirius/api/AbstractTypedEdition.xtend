@@ -24,7 +24,7 @@ import org.eclipse.emf.ecore.EObject
  */
 abstract class AbstractTypedEdition<T extends EObject> extends AbstractEdition {
 
-	val Class<T> contentType
+	protected val Class<T> contentType
 	
 	protected val List<(T)=>void> creationTasks = new ArrayList(5)
 
