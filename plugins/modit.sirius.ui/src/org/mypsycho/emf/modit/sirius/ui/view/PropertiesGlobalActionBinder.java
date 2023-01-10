@@ -263,25 +263,26 @@ public class PropertiesGlobalActionBinder implements IWindowListener, IDisposabl
 
 
     public static EObject[] getEObjectsFromSelection(IStructuredSelection selection) {
-    	
-    	
         return toList(selection).stream()
-                .map(it -> {
-                    if (it instanceof EObject) {
-                        return it;
-                    } else if (it instanceof IAdaptable) {
-                        return ((IAdaptable) it).getAdapter(EObject.class);
-                    } else {
-                    	return null;
-                    }
-                })
-               .filter(EObject.class::isInstance) // <=> non-null
-               .map(EObject.class::cast)
+               .map(it -> toEObject(it))
 	           .filter(Objects::nonNull)
 	           .toArray(EObject[]::new);
     }
+    
+    private static EObject toEObject(Object it) {
+        if (it instanceof EObject) {
+            return (EObject) it;
+        } else if (it instanceof IAdaptable) {
+            return ((IAdaptable) it).getAdapter(EObject.class);
+        } else {
+        	return null;
+        }
+    }
 
     private static List<?> toList(IStructuredSelection selection) {
+    	if (selection == null) {
+    		return Collections.emptyList();
+    	}
     	List<?> result = (List<?>) selection.toList();
     	return result != null // Emf implementation may provides empty lists.
     			? result
