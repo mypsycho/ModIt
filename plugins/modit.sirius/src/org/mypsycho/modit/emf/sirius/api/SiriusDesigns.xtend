@@ -22,11 +22,14 @@ import org.eclipse.emf.ecore.EcorePackage
 import org.eclipse.emf.ecore.util.EcoreEList
 import org.eclipse.emf.edit.provider.IItemLabelProvider
 import org.eclipse.sirius.diagram.ui.provider.DiagramUIPlugin
+import org.eclipse.sirius.properties.ViewExtensionDescription
 import org.eclipse.sirius.viewpoint.description.IdentifiedElement
+import org.eclipse.sirius.viewpoint.description.RepresentationDescription
+import org.eclipse.sirius.viewpoint.description.RepresentationExtensionDescription
 import org.mypsycho.modit.emf.sirius.SiriusConstantInterpreter
 
 /**
- * Convenient method and constants for Sirius design creation.
+ * Convenient methods and constants for Sirius design creation.
  *
  * @author nperansin
  */
@@ -64,7 +67,8 @@ class SiriusDesigns {
 	 * @return item provider
 	 */
 	static def getItemProvider(EObject it) {
-		DiagramUIPlugin.plugin.itemProvidersAdapterFactory.adapt(it, IItemLabelProvider) as IItemLabelProvider
+		DiagramUIPlugin.plugin.itemProvidersAdapterFactory
+			.adapt(it, IItemLabelProvider) as IItemLabelProvider
 	}
 	
 	/**
@@ -184,7 +188,7 @@ class SiriusDesigns {
 	}
 	
 	/**
-	 * !!! Why is not in EcoreUtil already: every project uses it. :'(
+	 * !!! Why is not in EcoreUtil already? Every project uses it. :'(
 	 */
 	static def <T> T eContainer(EObject it, Class<T> type) {
 		var result = eContainer
@@ -230,4 +234,12 @@ class SiriusDesigns {
 		'''viewpoint:/«pluginId»/«vpName»'''
 	}
 	
+	static def toClassname(EObject it) {
+		val basename = switch (it) {
+			RepresentationDescription: name.techName
+			RepresentationExtensionDescription: name.techName
+			ViewExtensionDescription: name.techName
+		}
+		basename.hungarianSuffix(it)
+	}
 }

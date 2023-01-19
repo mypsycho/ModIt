@@ -34,7 +34,7 @@ import org.eclipse.sirius.viewpoint.description.tool.ContainerModelOperation
 import org.eclipse.sirius.viewpoint.description.tool.ExternalJavaAction
 import org.eclipse.sirius.viewpoint.description.tool.InitialOperation
 import org.eclipse.sirius.viewpoint.description.tool.PopupMenu
-import org.mypsycho.modit.emf.sirius.api.AbstractDiagram
+import org.mypsycho.modit.emf.sirius.api.AbstractDiagramPart
 
 import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*
 
@@ -79,7 +79,10 @@ abstract class DiagramPartTemplate<R extends EObject> extends RepresentationTemp
  
 
 	def dispatch smartTemplateCreate(AdditionalLayer it) {
-		'''create«name.techName»Layer'''
+		val label = name.techName
+		label.endsWith("Layer")
+			? '''create«name.techName»'''
+			: '''create«name.techName»Layer'''
 	}
 
 	def dispatch smartTemplateCreate(ToolSection it) {
@@ -106,18 +109,18 @@ abstract class DiagramPartTemplate<R extends EObject> extends RepresentationTemp
 	}
 
 	static val NS_MAPPING = #[
-		AbstractNodeMapping -> AbstractDiagram.Ns.node,
-		EdgeMapping -> AbstractDiagram.Ns.edge,
-		DeleteElementDescription -> AbstractDiagram.Ns.del,
-		EdgeCreationDescription -> AbstractDiagram.Ns.connect,
-		ReconnectEdgeDescription -> AbstractDiagram.Ns.reconnect,
+		AbstractNodeMapping -> AbstractDiagramPart.Ns.node,
+		EdgeMapping -> AbstractDiagramPart.Ns.edge,
+		DeleteElementDescription -> AbstractDiagramPart.Ns.del,
+		EdgeCreationDescription -> AbstractDiagramPart.Ns.connect,
+		ReconnectEdgeDescription -> AbstractDiagramPart.Ns.reconnect,
 		
-		NodeCreationDescription -> AbstractDiagram.Ns.creation,
-		ContainerDropDescription -> AbstractDiagram.Ns.drop,
+		NodeCreationDescription -> AbstractDiagramPart.Ns.creation,
+		ContainerDropDescription -> AbstractDiagramPart.Ns.drop,
 		
 		// representation level
-		PopupMenu -> AbstractDiagram.Ns.menu,
-		AbstractToolDescription -> AbstractDiagram.Ns.operation
+		PopupMenu -> AbstractDiagramPart.Ns.menu,
+		AbstractToolDescription -> AbstractDiagramPart.Ns.operation
 	]
 	
 	override getNsMapping() {
@@ -130,10 +133,10 @@ abstract class DiagramPartTemplate<R extends EObject> extends RepresentationTemp
 			&& (eContainer instanceof InitialOperation 
 				|| eContainer instanceof ContainerModelOperation
 			)
-		)
-			null
-		else 
-			super.findNs(it)
+		) {
+			return null
+		}
+		super.findNs(it)
 	}
 
 	override templateProperty(EObject element, EStructuralFeature it, (Object, Class<?>)=>String encoding) {

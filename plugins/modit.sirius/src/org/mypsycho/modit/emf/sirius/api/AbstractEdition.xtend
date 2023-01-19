@@ -17,6 +17,7 @@ import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EReference
 import org.eclipse.emf.ecore.EStructuralFeature
 import org.eclipse.sirius.diagram.description.tool.DirectEditLabel
+import org.eclipse.sirius.properties.DialogButton
 import org.eclipse.sirius.viewpoint.description.IdentifiedElement
 import org.eclipse.sirius.viewpoint.description.JavaExtension
 import org.eclipse.sirius.viewpoint.description.SystemColor
@@ -28,6 +29,9 @@ import org.eclipse.sirius.viewpoint.description.tool.ChangeContext
 import org.eclipse.sirius.viewpoint.description.tool.ContainerModelOperation
 import org.eclipse.sirius.viewpoint.description.tool.CreateInstance
 import org.eclipse.sirius.viewpoint.description.tool.Default
+import org.eclipse.sirius.viewpoint.description.tool.ExternalJavaAction
+import org.eclipse.sirius.viewpoint.description.tool.ExternalJavaActionParameter
+import org.eclipse.sirius.viewpoint.description.tool.For
 import org.eclipse.sirius.viewpoint.description.tool.If
 import org.eclipse.sirius.viewpoint.description.tool.InitialOperation
 import org.eclipse.sirius.viewpoint.description.tool.ModelOperation
@@ -42,7 +46,6 @@ import org.mypsycho.modit.emf.EModIt
 import org.mypsycho.modit.emf.sirius.SiriusModelProvider
 
 import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*
-import org.eclipse.sirius.properties.DialogButton
 
 /**
  * Adaptation of Sirius model into Java and EClass reflections API
@@ -309,6 +312,9 @@ abstract class AbstractEdition {
 		context.asEClass(type).asAql
 	}
 	
+	def String isInstanceAql(Class<? extends EObject> type) {
+		'''.oclIsKindOf(«type.asAql»)'''
+	}
 	//
 	// Operations
 	// 
@@ -402,6 +408,7 @@ abstract class AbstractEdition {
 			typeName = instanceType.asDomainClass
 		]
     }
+
     
     
     /**
@@ -530,6 +537,18 @@ abstract class AbstractEdition {
 		]
 	}
 	
+	protected def forDo(String valuesExpression, String iter, ModelOperation... operations) {
+		For.create [
+			expression = valuesExpression
+			iteratorName = iter
+			subModelOperations += operations
+		]
+	}
+	
+	protected def forDo(String valuesExpression, ModelOperation... operations) {
+		valuesExpression.forDo("i", operations)
+	}
+	
 	protected def setDefault(Switch it, ModelOperation operation) {
 		^default = Default.create[
 			subModelOperations += operation
@@ -545,6 +564,24 @@ abstract class AbstractEdition {
 	protected def chain(ContainerModelOperation it, ModelOperation... operations) {
 		andThen[
 			subModelOperations += operations
+		]
+	}
+	
+	def jparam(String pName, String pValue) {
+		ExternalJavaActionParameter.create [
+			name = pName
+			value = pValue
+		]
+	}
+	
+	def javaDo(Class<?> actionId, String name, ExternalJavaActionParameter... params) {
+		actionId.name.javaDo(name, params)
+	}
+	
+	def javaDo(String actionId, String name, ExternalJavaActionParameter... params) {
+		ExternalJavaAction.create(name) [
+			id = actionId
+			parameters += params
 		]
 	}
 }

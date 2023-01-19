@@ -15,6 +15,8 @@
 import java.util.ArrayList
 import java.util.List
 import org.eclipse.emf.ecore.EObject
+import org.eclipse.sirius.viewpoint.description.RepresentationDescription
+import org.eclipse.sirius.viewpoint.description.RepresentationExtensionDescription
 
 /**
  * Adaptation of Sirius model into Java and EClass reflections API
@@ -31,13 +33,40 @@ abstract class AbstractTypedEdition<T extends EObject> extends AbstractEdition {
 	/**
 	 * Creates a factory for a representation description.
 	 * 
+	 * @param type of edition
 	 * @param parent context of representation
+	 * @param descrLabel displayed on representation groups
 	 */
 	new(Class<T> type, AbstractGroup parent) {
 		super(parent)
-	
 		contentType = type
+		creationTasks.add[  // xtend fails to infere '+=' .
+			if (it instanceof RepresentationExtensionDescription) {
+				name = contentAlias
+			} else if (it instanceof RepresentationDescription) {
+				name = contentAlias
+				metamodel += context.businessPackages
+			}
+		]
 	}
+	
+	/**
+	 * Creates a factory for a representation description.
+	 * 
+	 * @param type of edition
+	 * @param parent context of representation
+	 * @param descrLabel displayed on representation groups
+	 */
+	 new(Class<T> type, AbstractGroup parent, String descrLabel) {
+		this(type, parent)
+	
+		creationTasks.add[  // xtend fails to infere '+=' .
+			if (it instanceof RepresentationDescription) {
+				label = descrLabel
+			}
+		]
+	}
+	
 	
 	/**
 	 * Gets a reference from current representation.

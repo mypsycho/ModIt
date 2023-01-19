@@ -448,7 +448,12 @@ class «context.mainClass.name» implements ModitModel {
 
 	@Accessors
 	protected val extension EModIt factory = EModIt.using(
-		«FOR p : packages SEPARATOR ',\n' »«p.name».eINSTANCE«ENDFOR»
+		«
+FOR p : packages 
+SEPARATOR LValueSeparator
+»«p.name».eINSTANCE«
+ENDFOR
+»
 	)
 
 	override loadContent(Resource it) {
@@ -478,9 +483,10 @@ class «context.mainClass.name» implements ModitModel {
 	def <T> T extraRef(Class<T> type, String key) {
 		extras.get(key) as T
 	}
-	
-	«templateShorcuts»
+
+	«templateShortcuts»
 }
+
 '''
 	}
 
@@ -497,7 +503,7 @@ class «context.mainClass.name» implements ModitModel {
 '''extras.putAll(#{ // anonymous resources
 «
 FOR ext : context.implicitExtras.entrySet.map[ value -> key ].toList.sortBy[ key ]
-SEPARATOR ",\n" // cannot include comma in template: improper for last value
+SEPARATOR LValueSeparator // cannot include comma in template: improper for last value
 »	"«ext.key»" -> eObject(«ext.value.templateClass», «ext.value.toUri.toString.toJava»)«
 ENDFOR
 »
@@ -510,7 +516,7 @@ ENDFOR
 '''extras.putAll(#{ // Named elements
 «
 FOR ext : context.explicitExtras.entrySet.toList.sortBy[ value ]
-SEPARATOR ",\n" // cannot include comma in template: improper for last value
+SEPARATOR LValueSeparator // cannot include comma in template: improper for last value
 »	«ext.value.toJava» -> «ext.key.templateAlias»«
 ENDFOR
 »
@@ -519,7 +525,7 @@ ENDFOR
 	}
 
 	// xtend
-	protected def String templateShorcuts() {
+	protected def String templateShortcuts() {
 '''«
 FOR shortcut : context.shortcuts 
 »
@@ -599,6 +605,8 @@ ENDFOR
 		]
 		.flatMap[ (key as Iterable<EStructuralFeature>).map[ f | f -> value ] ]
 	}
+	
+	
 
 	protected def 
 		List<? extends Pair<? extends Class<? extends EObject>, List<EReference>>> 
@@ -1046,6 +1054,9 @@ ENDFOR
 	
 	// Xtend (generic)
 	def getStatementSeparator() { "\n" }
+
+	// Xtend (generic)
+	def getLValueSeparator() { "," + statementSeparator }
 
 	static def EObject toRoot(EObject it) { eContainer?.toRoot ?: it }
 

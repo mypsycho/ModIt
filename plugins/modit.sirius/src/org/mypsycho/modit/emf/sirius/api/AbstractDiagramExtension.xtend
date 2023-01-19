@@ -12,13 +12,14 @@
  *******************************************************************************/
  package org.mypsycho.modit.emf.sirius.api
 
-import java.util.Objects
 import org.eclipse.emf.ecore.util.EcoreUtil
 import org.eclipse.sirius.diagram.description.DiagramDescription
 import org.eclipse.sirius.diagram.description.DiagramExtensionDescription
 import org.eclipse.sirius.viewpoint.description.Group
 import org.eclipse.sirius.viewpoint.description.RepresentationDescription
 import org.eclipse.sirius.viewpoint.description.Viewpoint
+
+import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*
 
 /**
  * Adaptation of Sirius model into Java and EClass reflections API
@@ -32,42 +33,35 @@ abstract class AbstractDiagramExtension extends AbstractDiagramPart<DiagramExten
 
 		
 	/**
+	 * Creates a factory for a diagram extension.
+	 * 
+	 * @param parent context of extension
+	 */
+	new(AbstractGroup parent) {
+		this(parent, null)
+	}
+	
+	/**
 	 * Creates a factory for a diagram description
 	 * 
-	 * @param parent of diagram
-	 * @param dName of diagram
+	 * @param parent context of extension
+	 * @param extended diagram
 	 */
-	new(AbstractGroup parent, String dName) {
+	new(AbstractGroup parent, DiagramDescription extended) {
 		super(DiagramExtensionDescription, parent)
-		Objects.requireNonNull(dName)
-		
+		this.extended = extended
 		creationTasks.add[
-			name = dName
-			if (extended != null) {
+			if (extended !== null) {
 				representationName = extended.name
 				viewpointURI = extended.vpUri				
 			}
 		]
 	}
 	
-	/**
-	 * Creates a factory for a diagram description
-	 * 
-	 * @param parent of diagram
-	 * @param dName of diagram
-	 * @param extended diagram
-	 */
-	new(AbstractGroup parent, String dName, DiagramDescription extended) {
-		this(parent, dName)
-		
-		this.extended = extended
-	}
-	
-
 	def getVpUri(RepresentationDescription it) {
-		(SiriusDesigns.eContainer(it, Group) == context.getContent()) // local representation
-		? SiriusDesigns.encodeVpUri(context.pluginId, SiriusDesigns.eContainer(it, Viewpoint).name)
-		: extraVpUri
+		eContainer(Group) == context.getContent() // local representation
+			? context.pluginId.encodeVpUri(eContainer(Viewpoint).name)
+			: extraVpUri
 	}
 
 	def static getExtraVpUri(RepresentationDescription it) {
@@ -79,7 +73,7 @@ abstract class AbstractDiagramExtension extends AbstractDiagramPart<DiagramExten
 		if (!extendedUri.isPlatformPlugin) {
 			throw new IllegalArgumentException('''Unsupported reference: «extendedUri»''')
 		}
-		SiriusDesigns.encodeVpUri(extendedUri.segment(1), name)
+		extendedUri.segment(1).encodeVpUri(name)
 	}
 	
 

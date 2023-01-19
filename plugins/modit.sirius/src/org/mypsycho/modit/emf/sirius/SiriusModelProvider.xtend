@@ -38,7 +38,6 @@ import org.mypsycho.modit.emf.EModIt
 import org.mypsycho.modit.emf.ModitModel
 
 import static extension org.eclipse.xtend.lib.annotations.AccessorType.*
-import sun.security.jca.GetInstance.Instance
 
 /**
  * Class to provide model for Eclipse Sirius to interpret.

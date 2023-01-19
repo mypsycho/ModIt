@@ -102,10 +102,11 @@ class DiagramExtensionTemplate extends DiagramPartTemplate<DiagramExtensionDescr
 	
 	def identifyExtended(DiagramExtensionDescription content) {
 		if (content.extendedLocal) {
-			// 
+			// if extended diagram is part of context,
+			// it cannot be used as a reference.
 			return null
 		}
-		val result =  content.findDiagramFromExtras 
+		val result = content.findDiagramFromExtras 
 			?: content.findDiagramFromIndirectExtras
 		if (result === null) {
 			throw new IllegalStateException(
@@ -133,14 +134,19 @@ import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*
 
 class «name» extends «AbstractDiagramExtension.templateClass» {
 
-««« extension ensures template expression work the same
-	new(extension «parentClassName» parent) {
-		super(parent, «content.name.toJava»«
-IF extended !== null						», «extended.templateRef(DiagramDescription)»«
-ENDIF										»)
+«
+IF extended !== null // 'extension' ensures reference expression works in constructor.
+»	new(extension «parentClassName» parent) {
+		super(parent, «super.templateRef(extended, DiagramDescription)»)«
+ELSE
+»	new(«parentClassName» parent) {
+		super(parent)«
+ENDIF
+»
 	}
 
 	override initContent(«DiagramExtensionDescription.templateClass» it) {
+		name = «content.name.toJava»
 «
 IF extended === null						
 »		viewpointURI = «content.viewpointURI.toJava»
@@ -172,9 +178,9 @@ ENDFOR // layer
 }''' // end-of-class
 	}
 
-	override templateExtra(EObject it, String key) {
-		if (it === extended) "extended"
-		else super.templateExtra(it, key)
+	override templateRef(EObject it, Class<?> using) {
+		if (it !== null && it === extended) "extended"
+		else super.templateRef(it, using)
 	}
 
 	// TODO ContainerMappingImport 
@@ -217,6 +223,7 @@ ENDFOR // layer
 	}
 	
 	static val IMPORTED_FEATURE = DPKG.containerMappingImport_ImportedMapping
+	
 	def String templateMappingImport(ContainerMappingImport it, 
 			Iterable<? extends Pair<EStructuralFeature, 
 				? extends (Object, Class<?>)=>String>> content) {

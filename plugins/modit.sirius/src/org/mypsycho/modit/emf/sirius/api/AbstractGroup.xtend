@@ -19,6 +19,7 @@ import org.eclipse.emf.ecore.EClassifier
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EPackage
 import org.eclipse.sirius.viewpoint.description.Environment
+import org.eclipse.sirius.viewpoint.description.IdentifiedElement
 import org.eclipse.sirius.viewpoint.description.JavaExtension
 import org.eclipse.sirius.viewpoint.description.UserFixedColor
 import org.eclipse.sirius.viewpoint.description.Viewpoint
@@ -182,14 +183,15 @@ abstract class AbstractGroup extends SiriusModelProvider {
 	 * @return identification 
 	 */
 	def getContentAlias(Class<?> context) {
-		if (!context.anonymousClass) context.simpleName
-		else {
-			var fullname = context.name
-			fullname.substring(
-				fullname.lastIndexOf(".") + 1, 
-				fullname.lastIndexOf("$")
-			)
+		if (!context.anonymousClass) {
+			return context.simpleName
 		}
+
+		var fullname = context.name
+		fullname.substring(
+			fullname.lastIndexOf(".") + 1, 
+			fullname.lastIndexOf("$")
+		)
 	}
 	
 		
@@ -210,4 +212,15 @@ abstract class AbstractGroup extends SiriusModelProvider {
 		'''«category»:«context».«path.toFirstLower.replace(" ", "_")»'''
 	}
 	
+	
+	/**
+	 * Returns the element with provided name.
+	 * 
+	 * @param values to get from
+	 * @param key name of the element
+	 * @return found element
+	 */
+	static def <T extends IdentifiedElement> atIdentifiedElement(Iterable<T> values, Object key) {
+		SiriusDesigns.atIdentifiedElement(values, key)
+	}
 }

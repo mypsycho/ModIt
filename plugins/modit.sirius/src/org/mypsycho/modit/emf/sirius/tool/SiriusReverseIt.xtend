@@ -115,7 +115,7 @@ class SiriusReverseIt {
 		engine = source.eResource.createEngine(classname, dir) => [
 			
 			// Split RepresentationDescription DiagramExtensionDescription
-			splits.putAll(findDefaultSplits)
+			splits += findDefaultSplits
 			
 			val aliases = it.aliases
 			
@@ -131,9 +131,7 @@ class SiriusReverseIt {
 						groups.forEach[
 							aliases.put(it, createId(AbstractPropertySet.Ns.group, context, name))
 						]
-						
 					]
-					
 				]
 			
 			explicitExtras.putAll(source.systemColorsPalette.entries.toInvertedMap[ "color:" + name ])
@@ -157,8 +155,9 @@ class SiriusReverseIt {
 	}
 	
 	protected def findGroupParts(Group it) {
-		ownedViewpoints.flatMap[ ownedRepresentations + ownedRepresentationExtensions ]
-			+ extensions.filter(ViewExtensionDescription)
+		ownedViewpoints
+			.flatMap[ ownedRepresentations + ownedRepresentationExtensions ]
+		+ extensions.filter(ViewExtensionDescription)
 	}
 	
 	
@@ -206,15 +205,9 @@ class SiriusReverseIt {
 		new ClassId(classId.pack, toClassname)
 	}
 	
-	
 	protected def toClassname(EObject it) {
-		val basename = switch (it) {
-			RepresentationDescription: SiriusDesigns.techName(name)
-			RepresentationExtensionDescription: SiriusDesigns.techName(name)
-			ViewExtensionDescription: SiriusDesigns.techName(name)
-		}
-		SiriusDesigns.hungarianSuffix(basename, it)
-	}	
+		SiriusDesigns.toClassname(it)
+	}
 
 	def getClassFromDomain(String domain) {
 		if (domain === null || domain.empty)

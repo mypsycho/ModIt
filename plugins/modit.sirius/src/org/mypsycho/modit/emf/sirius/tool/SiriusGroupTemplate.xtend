@@ -73,7 +73,7 @@ class «context.mainClass.name» extends «AbstractGroup.templateClass» {
         businessPackages += #[
 «
 FOR pkg : tool.editedPackages
-SEPARATOR ",\n" // cannot include comma in template: improper for last value.
+SEPARATOR LValueSeparator // cannot include comma in template: improper for last value.
 »			«pkg.class.interfaces.head.name».eINSTANCE«
 ENDFOR
 »
@@ -96,8 +96,8 @@ IF !context.implicitExtras.empty || !context.explicitExtras.empty
 ENDIF // extras
 »
 	def context() { this }
-	
-	«templateShorcuts»
+
+««« no templateShorcuts: provided by abstraction
 }
 '''
 	}
@@ -114,7 +114,7 @@ FOR ext : context.explicitExtras.entrySet
 		// ignore SystemColors as they are already provided in template.
 	.filter[ !colors.contains(key) ]
 	.toList.sortBy[ value ]
-SEPARATOR ",\n" // cannot include comma in template: improper for last value.
+SEPARATOR LValueSeparator // cannot include comma in template: improper for last value.
 »	«ext.value.toJava» -> «ext.key.templateAlias»«
 ENDFOR
 »
