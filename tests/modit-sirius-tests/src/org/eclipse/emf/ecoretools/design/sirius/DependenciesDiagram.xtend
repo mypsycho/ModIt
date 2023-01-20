@@ -128,13 +128,9 @@ class DependenciesDiagram extends AbstractDiagram {
 			ownedTools += OperationAction.createAs(Ns.operation, "Open Dependencies User Guide") [
 				label = "Open User Guide"
 				view = ContainerViewVariable.create("views")
-				operation = ExternalJavaAction.create("Open Dependencies User Guide Action") [
-					id = "org.eclipse.sirius.ui.business.api.action.openHelpSection"
-					parameters += ExternalJavaActionParameter.create [
-						name = "href"
-						value = "/org.eclipse.emf.ecoretools.design/doc/user-guide.html#quality.dependencies"
-					]
-				]
+				operation = "org.eclipse.sirius.ui.business.api.action.openHelpSection".javaDo("Open Dependencies User Guide Action", 
+					"href".jparam("/org.eclipse.emf.ecoretools.design/doc/user-guide.html#quality.dependencies")
+				)
 			]
 		]
 	}
@@ -155,16 +151,14 @@ class DependenciesDiagram extends AbstractDiagram {
 				element = ElementSelectVariable.create("element")
 				containerView = ContainerViewVariable.create("containerView")
 				container = SelectContainerVariable.create("container")
-				operation = For.create [
-					expression = "var:element"
-					subModelOperations += If.create [
-						conditionExpression = "service:isEPackage"
-						subModelOperations += CreateView.create [
+				operation = "var:element".forDo("i", 
+					"service:isEPackage".ifThenDo(
+						CreateView.create [
 							containerViewExpression = "var:containerView"
 							mapping = ContainerMapping.localRef(Ns.node, "Analyzed Package")
 						]
-					]
-				]
+					)
+				)
 			]
 			ownedTools += ToolDescription.createAs(Ns.operation, "RemoveExistingElements") [
 				label = "Remove"
@@ -173,10 +167,9 @@ class DependenciesDiagram extends AbstractDiagram {
 				iconPath = "/org.eclipse.emf.ecoretools.design/icons/full/etools16/search.gif"
 				element = ElementVariable.create("element")
 				elementView = ElementViewVariable.create("elementView")
-				operation = ChangeContext.create [
-					browseExpression = "var:elementView"
-					subModelOperations += DeleteView.create
-				]
+				operation = "var:elementView".toOperation(
+					DeleteView.create
+				)
 			]
 			ownedTools += ContainerDropDescription.createAs(Ns.drop, "External EPackageTo Analyze from treeview") [
 				forceRefresh = true
@@ -185,16 +178,14 @@ class DependenciesDiagram extends AbstractDiagram {
 				newContainer = DropContainerVariable.create("newSemanticContainer")
 				element = ElementDropVariable.create("element")
 				newViewContainer = ContainerViewVariable.create("newContainerView")
-				operation = ChangeContext.create [
-					browseExpression = "var:element"
-					subModelOperations += If.create [
-						conditionExpression = "service:isEPackage"
-						subModelOperations += CreateView.create [
+				operation = "var:element".toOperation(
+					"service:isEPackage".ifThenDo(
+						CreateView.create [
 							containerViewExpression = "var:newContainerView"
 							mapping = ContainerMapping.localRef(Ns.node, "Analyzed Package")
 						]
-					]
-				]
+					)
+				)
 			]
 			ownedTools += OperationAction.createAs(Ns.operation, "Add Related Elements") [
 				icon = "/org.eclipse.emf.ecoretools.design/icons/full/etools16/search.gif"
@@ -205,16 +196,14 @@ class DependenciesDiagram extends AbstractDiagram {
 						message = "Pick the Element you want to add to the diagram."
 					]
 				]
-				operation = For.create [
-					expression = "var:selected"
-					subModelOperations += If.create [
-						conditionExpression = "service:isEPackage"
-						subModelOperations += CreateView.create [
+				operation = "var:selected".forDo("i", 
+					"service:isEPackage".ifThenDo(
+						CreateView.create [
 							containerViewExpression = "var:diagram"
 							mapping = ContainerMapping.ref(EntitiesDiagram, Ns.node, "EC EClass")
 						]
-					]
-				]
+					)
+				)
 			]
 		]
 	}

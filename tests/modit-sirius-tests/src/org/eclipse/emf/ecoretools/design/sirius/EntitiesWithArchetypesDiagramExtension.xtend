@@ -27,15 +27,16 @@ import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*
 
 class EntitiesWithArchetypesDiagramExtension extends AbstractDiagramExtension {
 
-	new(extension EcoretoolsDesign parent) {
-		super(parent, "Entities With Archetypes")
+	new(EcoretoolsDesign parent) {
+		super(parent)
 	}
 
 	override initContent(DiagramExtensionDescription it) {
+		name = "Entities With Archetypes"
 		viewpointURI = "viewpoint:/org.mypsycho.emf.modit.sirius.tests/Design"
 		representationName = "Entities"
 		metamodel += org.eclipse.emf.ecore.EcorePackage.eINSTANCE
-layers += createArchetypesLayer
+		layers += createArchetypesLayer
 	}
 
 	def createArchetypesLayer() {
@@ -97,25 +98,18 @@ layers += createArchetypesLayer
 				extraMappings += ContainerMapping.ref(EntitiesDiagram, Ns.node, "EC EClass")
 				variable = NodeCreationVariable.create("container")
 				viewVariable = ContainerViewVariable.create("containerView")
-				operation = ChangeContext.create [
-					browseExpression = "var:container"
-					subModelOperations += If.create [
-						conditionExpression = "service:isEPackage"
-						subModelOperations += CreateInstance.create [
+				operation = "var:container".toOperation(
+					"service:isEPackage".ifThenDo(
+						CreateInstance.create [
 							typeName = "ecore.EClass"
 							referenceName = "eClassifiers"
-							subModelOperations += SetValue.create [
-								featureName = "name"
-								valueExpression = ''' 'newMomentInterval' + self.eContainer()->filter(ecore::EPackage).eClassifiers->filter(ecore::EClass)->size() '''.trimAql
-								subModelOperations += '''self.addArchetypeAnnotation('MomentInterval')'''.trimAql.toOperation
-							]
+							subModelOperations += "name".setter(''' 'newMomentInterval' + self.eContainer()->filter(ecore::EPackage).eClassifiers->filter(ecore::EClass)->size() '''.trimAql)
 						]
-					]
-					subModelOperations += If.create [
-						conditionExpression = "service:isEClass"
-						subModelOperations += '''self.addArchetypeAnnotation('MomentInterval')'''.trimAql.toOperation
-					]
-				]
+					),
+					"service:isEClass".ifThenDo(
+						'''self.addArchetypeAnnotation('MomentInterval')'''.trimAql.toOperation
+					)
+				)
 			]
 			ownedTools += ContainerCreationDescription.createAs(Ns.operation, "Description") [
 				documentation = "Does the class represent a catalog-entry like description? "
@@ -125,25 +119,18 @@ layers += createArchetypesLayer
 				extraMappings += ContainerMapping.ref(EntitiesDiagram, Ns.node, "EC EClass")
 				variable = NodeCreationVariable.create("container")
 				viewVariable = ContainerViewVariable.create("containerView")
-				operation = ChangeContext.create [
-					browseExpression = "var:container"
-					subModelOperations += If.create [
-						conditionExpression = '''container.oclIsTypeOf(ecore::EPackage)'''.trimAql
-						subModelOperations += CreateInstance.create [
+				operation = "var:container".toOperation(
+					'''container.oclIsTypeOf(ecore::EPackage)'''.trimAql.ifThenDo(
+						CreateInstance.create [
 							typeName = "ecore.EClass"
 							referenceName = "eClassifiers"
-							subModelOperations += SetValue.create [
-								featureName = "name"
-								valueExpression = ''' 'newDescription' + self.eContainer()->filter(ecore::EPackage).eClassifiers->filter(ecore::EClass)->size() '''.trimAql
-								subModelOperations += '''self.addArchetypeAnnotation('Description')'''.trimAql.toOperation
-							]
+							subModelOperations += "name".setter(''' 'newDescription' + self.eContainer()->filter(ecore::EPackage).eClassifiers->filter(ecore::EClass)->size() '''.trimAql)
 						]
-					]
-					subModelOperations += If.create [
-						conditionExpression = '''container.oclIsTypeOf(ecore::EClass)'''.trimAql
-						subModelOperations += '''self.addArchetypeAnnotation('Description')'''.trimAql.toOperation
-					]
-				]
+					),
+					'''container.oclIsTypeOf(ecore::EClass)'''.trimAql.ifThenDo(
+						'''self.addArchetypeAnnotation('Description')'''.trimAql.toOperation
+					)
+				)
 			]
 			ownedTools += ContainerCreationDescription.createAs(Ns.operation, "Role") [
 				documentation = "Does the class represent a role being played by a party (person or organization), place or thing? "
@@ -153,25 +140,18 @@ layers += createArchetypesLayer
 				extraMappings += ContainerMapping.ref(EntitiesDiagram, Ns.node, "EC EClass")
 				variable = NodeCreationVariable.create("container")
 				viewVariable = ContainerViewVariable.create("containerView")
-				operation = ChangeContext.create [
-					browseExpression = "var:container"
-					subModelOperations += If.create [
-						conditionExpression = '''container.oclIsTypeOf(ecore::EPackage)'''.trimAql
-						subModelOperations += CreateInstance.create [
+				operation = "var:container".toOperation(
+					'''container.oclIsTypeOf(ecore::EPackage)'''.trimAql.ifThenDo(
+						CreateInstance.create [
 							typeName = "ecore.EClass"
 							referenceName = "eClassifiers"
-							subModelOperations += SetValue.create [
-								featureName = "name"
-								valueExpression = ''' 'newRole' + self.eContainer()->filter(ecore::EPackage).eClassifiers->filter(ecore::EClass)->size() '''.trimAql
-								subModelOperations += '''self.addArchetypeAnnotation('Role')'''.trimAql.toOperation
-							]
+							subModelOperations += "name".setter(''' 'newRole' + self.eContainer()->filter(ecore::EPackage).eClassifiers->filter(ecore::EClass)->size() '''.trimAql)
 						]
-					]
-					subModelOperations += If.create [
-						conditionExpression = '''container.oclIsTypeOf(ecore::EClass)'''.trimAql
-						subModelOperations += '''self.addArchetypeAnnotation('Role')'''.trimAql.toOperation
-					]
-				]
+					),
+					'''container.oclIsTypeOf(ecore::EClass)'''.trimAql.ifThenDo(
+						'''self.addArchetypeAnnotation('Role')'''.trimAql.toOperation
+					)
+				)
 			]
 			ownedTools += ContainerCreationDescription.createAs(Ns.operation, "Place/Thing") [
 				forceRefresh = true
@@ -180,25 +160,18 @@ layers += createArchetypesLayer
 				extraMappings += ContainerMapping.ref(EntitiesDiagram, Ns.node, "EC EClass")
 				variable = NodeCreationVariable.create("container")
 				viewVariable = ContainerViewVariable.create("containerView")
-				operation = ChangeContext.create [
-					browseExpression = "var:container"
-					subModelOperations += If.create [
-						conditionExpression = '''container.oclIsTypeOf(ecore::EPackage)'''.trimAql
-						subModelOperations += CreateInstance.create [
+				operation = "var:container".toOperation(
+					'''container.oclIsTypeOf(ecore::EPackage)'''.trimAql.ifThenDo(
+						CreateInstance.create [
 							typeName = "ecore.EClass"
 							referenceName = "eClassifiers"
-							subModelOperations += SetValue.create [
-								featureName = "name"
-								valueExpression = ''' 'newThing' + self.eContainer()->filter(ecore::EPackage).eClassifiers->filter(ecore::EClass)->size() '''.trimAql
-								subModelOperations += '''self.addArchetypeAnnotation('Thing')'''.trimAql.toOperation
-							]
+							subModelOperations += "name".setter(''' 'newThing' + self.eContainer()->filter(ecore::EPackage).eClassifiers->filter(ecore::EClass)->size() '''.trimAql)
 						]
-					]
-					subModelOperations += If.create [
-						conditionExpression = '''container.oclIsTypeOf(ecore::EClass)'''.trimAql
-						subModelOperations += '''self.addArchetypeAnnotation('Thing')'''.trimAql.toOperation
-					]
-				]
+					),
+					'''container.oclIsTypeOf(ecore::EClass)'''.trimAql.ifThenDo(
+						'''self.addArchetypeAnnotation('Thing')'''.trimAql.toOperation
+					)
+				)
 			]
 		]
 	}

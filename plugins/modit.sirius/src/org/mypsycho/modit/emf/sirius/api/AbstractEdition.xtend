@@ -315,6 +315,11 @@ abstract class AbstractEdition {
 	def String isInstanceAql(Class<? extends EObject> type) {
 		'''.oclIsKindOf(«type.asAql»)'''
 	}
+	
+	def String castAql(Class<? extends EObject> type) {
+		'''.oclAsType(«type.asAql»)'''
+	}
+	
 	//
 	// Operations
 	// 

@@ -109,8 +109,5 @@ class EcoretoolsDesign extends AbstractGroup {
 	}
 
 	def context() { this }
-	
-	static def <T extends IdentifiedElement> atIdentifiedElement(Iterable<T> values, Object key) {
-		values.findFirst[ name == key ]
-	}
+
 }

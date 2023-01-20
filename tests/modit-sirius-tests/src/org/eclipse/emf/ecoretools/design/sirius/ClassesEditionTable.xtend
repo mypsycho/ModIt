@@ -63,17 +63,13 @@ class ClassesEditionTable extends AbstractEditionTable {
 			forceRefresh = true
 			elementsToSelect = "service:stdEmptyCollection"
 			mapping = "Classes lines".lineRef
-			operation = ChangeContext.create [
-				browseExpression = "var:container"
-				subModelOperations += CreateInstance.create [
+			operation = "var:container".toOperation(
+				CreateInstance.create [
 					typeName = "ecore.EClass"
 					referenceName = "eClassifiers"
-					subModelOperations += SetValue.create [
-						featureName = "name"
-						valueExpression = ''' 'NewEClass'  + self.eContainer().eContents(ecore::EClass)->size() '''.trimAql
-					]
+					subModelOperations += "name".setter(''' 'NewEClass'  + self.eContainer().eContents(ecore::EClass)->size() '''.trimAql)
 				]
-			]
+			)
 		]
 		it.column("Name") [
 			headerLabelExpression = "Name"

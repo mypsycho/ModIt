@@ -146,14 +146,14 @@ ENDIF
 	}
 
 	override initContent(«DiagramExtensionDescription.templateClass» it) {
-		name = «content.name.toJava»
-«
+		name = «content.name.toJava»«
 IF extended === null						
-»		viewpointURI = «content.viewpointURI.toJava»
-		representationName = «content.representationName.toJava»
-«
+»
+		viewpointURI = «content.viewpointURI.toJava»
+		representationName = «content.representationName.toJava»«
 ENDIF										
-»		«content.templateFilteredContent(DiagramExtensionDescription)»
+»
+		«content.templateFilteredContent(DiagramExtensionDescription)»
 	}
 
 «

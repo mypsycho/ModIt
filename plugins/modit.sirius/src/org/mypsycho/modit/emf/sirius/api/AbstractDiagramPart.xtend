@@ -23,6 +23,7 @@ import org.eclipse.sirius.diagram.EdgeRouting
 import org.eclipse.sirius.diagram.description.AbstractNodeMapping
 import org.eclipse.sirius.diagram.description.CenteringStyle
 import org.eclipse.sirius.diagram.description.ConditionalContainerStyleDescription
+import org.eclipse.sirius.diagram.description.ConditionalEdgeStyleDescription
 import org.eclipse.sirius.diagram.description.ConditionalNodeStyleDescription
 import org.eclipse.sirius.diagram.description.ContainerMapping
 import org.eclipse.sirius.diagram.description.DiagramElementMapping
@@ -236,7 +237,7 @@ abstract class AbstractDiagramPart<T extends EObject> extends AbstractTypedEditi
 
 	
 	/**
-	 * Creates a conditional style for container node on provided condition.
+	 * Creates a conditional style for a container on provided condition.
 	 * <p>
 	 * Note conditional style are required only when shape is changed. Most of the time,
 	 * customization is better solution.
@@ -251,14 +252,16 @@ abstract class AbstractDiagramPart<T extends EObject> extends AbstractTypedEditi
 	) {
         // Init is required as default styling make not sense
         Objects.requireNonNull(init, "Conditional Style cannot have default properties")
+        val result = type.createStyle(init)
 		conditionnalStyles += ConditionalContainerStyleDescription.create[
 			predicateExpression = condition
-			style = type.createStyle(init)
+			style = result
 		]
+		result
 	}
 	
 	/**
-	 * Creates a conditional style for node on provided condition.
+	 * Creates a conditional style for a node on provided condition.
 	 * <p>
 	 * Note conditional style are required only when shape is changed. Most of the time,
 	 * customization is better solution.
@@ -273,10 +276,37 @@ abstract class AbstractDiagramPart<T extends EObject> extends AbstractTypedEditi
 	) {
 	    // Init is required as default styling make not sense
         Objects.requireNonNull(init, "Conditional Style cannot have default properties")
+        val result = type.createStyle(init)
 		conditionnalStyles += ConditionalNodeStyleDescription.create[
 			predicateExpression = condition
-			style = type.createStyle(init)
+			style = result
 		]
+		result
+	}
+	
+		
+	/**
+	 * Creates a conditional style for an edge on provided condition.
+	 * <p>
+	 * Note conditional style are required only when several pe. Most of the time,
+	 * customization is better solution.
+	 * </p>
+	 * @param it to add style
+	 * @param condition of style application
+	 * @param init of created style (after default initialization)
+	 */
+	def styleIf(EdgeMapping it,  String condition, (EdgeStyleDescription)=>void init) {
+	    // Init is required as default styling make not sense
+        Objects.requireNonNull(init, "Conditional Style cannot have default properties")
+        val result = EdgeStyleDescription.create [
+        	initDefaultEdgeStyle
+            init?.apply(it)
+        ]
+		conditionnalStyles += ConditionalEdgeStyleDescription.create[
+			predicateExpression = condition
+			style = result
+		]
+		result
 	}
 	
 	/**

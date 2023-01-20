@@ -1,4 +1,16 @@
-package org.mypsycho.emf.modit.sirius
+/*******************************************************************************
+ * Copyright (c) 2023 Nicolas PERANSIN.
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
+ * which accompanies this distribution, and is available at
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ * Contributors:
+ *    Nicolas PERANSIN - initial API and implementation
+ *******************************************************************************/
+package org.mypsycho.emf.modit.sirius.tests
 
 import java.nio.file.Paths
 import org.eclipse.emf.common.util.URI
@@ -18,11 +30,9 @@ import org.mypsycho.emf.modit.sirius.tests.Activator
  * @author nperansin
  */
 // Plugin-test: Sirius needs a lot of dependencies to load odesign.
-class EcoretoolsTest {
+class EcoretoolsTestBase {
 
 	// Specific
-	protected static val TEST_DIR = Paths.get("target/test-run").toAbsolutePath
-		.resolve(EcoretoolsTest.simpleName)
 
 	protected static val RES_SEGMENT = "resource/EcoretoolsTest"
 
@@ -34,53 +44,13 @@ class EcoretoolsTest {
 	
 	protected static val REFSRC_DIR = Paths.get("src").toAbsolutePath
 		
-	protected static val TESTSRC_PATH = TEST_DIR.resolve("src")
+	protected val testDir = Paths.get("target/test-run").toAbsolutePath
+		.resolve(getClass().simpleName)
+	protected val testSrcPath = testDir.resolve("src")
 			
-	@Test
-	def void reverseSiriusModel() {
-		val it = new SiriusReverseIt(
-			REFMODEL_PATH + "ecoretools_result.odesign",
-			TESTSRC_PATH,
-			TEST_BUNDLE + ".sirius.EcoretoolsDesign"
-		)
-		pluginId = PLUGIN_ID
-		perform
-		
-		assertSamePackage(PACKAGE_PATH + "/sirius")
-	}
-	
-	@Test
-	def void reverseModel() {
-		val rs = new ResourceSetImpl
-		val uri = URI.createPlatformPluginURI(REFMODEL_PATH + "ecoretools_plain.odesign", true)
-		new EReversIt(
-			TEST_BUNDLE + ".modit.PlainDesign",
-			TESTSRC_PATH,
-			rs.getResource(uri, true)
-		).perform
-		
-		// TODO fixme
-		// assertSamePackage(PACKAGE_PATH + "/modit")
-	}
 
-	
-	@Test //@Ignore // Issue with default initialisation.
-    def void writeSiriusODesign() {
-    	val it = new EcoretoolsDesign()
-    	pluginId = PLUGIN_ID
-    	// assertOdesignEquals("ecoretools_result.odesign")
-    }
-    
-    	
-	@Test
-    def void writeModitODesign() {
-    	new PlainDesign()
-    		.assertOdesignEquals("ecoretools_plain.odesign")
-    }
-    
-    
     protected def void assertOdesignEquals(ModitModel content, String filename) {
-    	val testFile = TEST_DIR.resolve(RES_SEGMENT).resolve(filename)
+    	val testFile = testDir.resolve(RES_SEGMENT).resolve(filename)
     	val rs = new ResourceSetImpl()
         val res = rs.createResource(URI.createFileURI(testFile.toString))
         content.loadContent(res).head
@@ -99,7 +69,7 @@ class EcoretoolsTest {
     
 	def assertSamePackage(String packagePath) {
 		FileComparator.assertIdentical(
-        	TESTSRC_PATH.resolve(packagePath),
+        	testSrcPath.resolve(packagePath),
         	REFSRC_DIR.resolve(packagePath)
         )
 	}	

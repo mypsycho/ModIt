@@ -78,10 +78,7 @@ class DocumentationCrossTable extends AbstractCrossTable {
 			directEdit = LabelEditTool.create [
 				initVariables
 				mask = "{0}"
-				operation = SetValue.create [
-					featureName = "value"
-					valueExpression = "var:arg0"
-				]
+				operation = "value".setter("var:arg0")
 			]
 			defaultBackground = BackgroundStyleDescription.create [
 				backgroundColor = UserFixedColor.ref("color:Doc Annotation")
@@ -90,43 +87,29 @@ class DocumentationCrossTable extends AbstractCrossTable {
 				initVariables
 				forceRefresh = true
 				mask = "{0}"
-				operation = ChangeContext.create [
-					browseExpression = "var:lineSemantic"
-					subModelOperations += If.create [
-						conditionExpression = '''lineSemantic.eAnnotations->select(a | a.source = 'http://www.eclipse.org/emf/2002/GenModel')->size() = 0'''.trimAql
-						subModelOperations += CreateInstance.create [
+				operation = "var:lineSemantic".toOperation(
+					'''lineSemantic.eAnnotations->select(a | a.source = 'http://www.eclipse.org/emf/2002/GenModel')->size() = 0'''.trimAql.ifThenDo(
+						CreateInstance.create [
 							typeName = "ecore.EAnnotation"
 							referenceName = "eAnnotations"
 							variableName = "newAnnotation"
-							subModelOperations += SetValue.create [
-								featureName = "source"
-								valueExpression = ''' 'http://www.eclipse.org/emf/2002/GenModel' '''.trimAql
-							]
+							subModelOperations += "source".setter(''' 'http://www.eclipse.org/emf/2002/GenModel' '''.trimAql)
 						]
-					]
-					subModelOperations += ChangeContext.create [
-						browseExpression = '''lineSemantic.eAnnotations->select(a | a.source = 'http://www.eclipse.org/emf/2002/GenModel')->first()'''.trimAql
-						subModelOperations += If.create [
-							conditionExpression = '''self.details->select(a| a.key = 'documentation')->size() = 0'''.trimAql
-							subModelOperations += CreateInstance.create [
+					),
+					'''lineSemantic.eAnnotations->select(a | a.source = 'http://www.eclipse.org/emf/2002/GenModel')->first()'''.trimAql.toOperation(
+						'''self.details->select(a| a.key = 'documentation')->size() = 0'''.trimAql.ifThenDo(
+							CreateInstance.create [
 								typeName = "ecore.EStringToStringMapEntry"
 								referenceName = "details"
 								variableName = "newDetail"
-								subModelOperations += SetValue.create [
-									featureName = "key"
-									valueExpression = ''' 'documentation' '''.trimAql
-								]
+								subModelOperations += "key".setter(''' 'documentation' '''.trimAql)
 							]
-						]
-					]
-					subModelOperations += ChangeContext.create [
-						browseExpression = '''lineSemantic.eAnnotations->select(a | a.source = 'http://www.eclipse.org/emf/2002/GenModel').details->select(a | a.key = 'documentation')->first()'''.trimAql
-						subModelOperations += SetValue.create [
-							featureName = "value"
-							valueExpression = "var:arg0"
-						]
-					]
-				]
+						)
+					),
+					'''lineSemantic.eAnnotations->select(a | a.source = 'http://www.eclipse.org/emf/2002/GenModel').details->select(a | a.key = 'documentation')->first()'''.trimAql.toOperation(
+						"value".setter("var:arg0")
+					)
+				)
 			]
 		]
 	}

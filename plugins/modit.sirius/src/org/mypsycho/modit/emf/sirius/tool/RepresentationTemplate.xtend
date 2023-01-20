@@ -154,7 +154,7 @@ ENDIF
 		}
 	
 // Unsafe if class does not exists	
-'''«id».javaDo(«name.toJava», 
+'''«id.toJava».javaDo(«name.toJava», 
 	«parameters
 		.map[ templateCreate ]
 		.join(LValueSeparator)»

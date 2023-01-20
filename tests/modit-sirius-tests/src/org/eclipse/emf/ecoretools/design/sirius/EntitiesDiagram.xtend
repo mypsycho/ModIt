@@ -185,10 +185,9 @@ class EntitiesDiagram extends AbstractDiagram {
 				fixes += ValidationFix.create [
 					name = "Remove Element"
 					initialOperation = InitialOperation.create [
-						firstModelOperations = ChangeContext.create [
-							browseExpression = "feature:target"
-							subModelOperations += RemoveElement.create
-						]
+						firstModelOperations = "feature:target".toOperation(
+							RemoveElement.create
+						)
 					]
 				]
 			]
@@ -659,81 +658,46 @@ class EntitiesDiagram extends AbstractDiagram {
 					precondition = '''OrderedSet{views.target}.eInverse().eContainerOrSelf(genmodel::GenModel)->asSet()->size() > 0'''.trimAql
 					icon = "/org.eclipse.emf.ecoretools.design/icons/full/obj16/GenModel.gif"
 					view = ContainerViewVariable.create("views")
-					operation = ExternalJavaAction.create("Generate All") [
-						id = "org.eclipse.emf.ecoretools.design.action.generateAllID"
-						parameters += ExternalJavaActionParameter.create [
-							name = "genmodels"
-							value = '''OrderedSet{views.target}.eInverse().eContainerOrSelf(genmodel::GenModel)->asSet()'''.trimAql
-						]
-						parameters += ExternalJavaActionParameter.create [
-							name = "scope"
-							value = "model, edit, editor, tests"
-						]
-					]
+					operation = "org.eclipse.emf.ecoretools.design.action.generateAllID".javaDo("Generate All", 
+						"genmodels".jparam('''OrderedSet{views.target}.eInverse().eContainerOrSelf(genmodel::GenModel)->asSet()'''.trimAql),
+						"scope".jparam("model, edit, editor, tests")
+					)
 				]
 				menuItemDescription += OperationAction.createAs(Ns.operation, "Model Code") [
 					precondition = '''OrderedSet{views.target}.eInverse().eContainerOrSelf(genmodel::GenModel)->asSet()->select(m | m.modelDirectory.size() > 0)->size() > 0'''.trimAql
 					icon = "/org.eclipse.emf.ecoretools.design/icons/full/obj16/GenModel.gif"
 					view = ContainerViewVariable.create("views")
-					operation = ExternalJavaAction.create("Generate All") [
-						id = "org.eclipse.emf.ecoretools.design.action.generateAllID"
-						parameters += ExternalJavaActionParameter.create [
-							name = "genmodels"
-							value = '''OrderedSet{views.target}.eInverse().eContainerOrSelf(genmodel::GenModel)->asSet()'''.trimAql
-						]
-						parameters += ExternalJavaActionParameter.create [
-							name = "scope"
-							value = "model"
-						]
-					]
+					operation = "org.eclipse.emf.ecoretools.design.action.generateAllID".javaDo("Generate All", 
+						"genmodels".jparam('''OrderedSet{views.target}.eInverse().eContainerOrSelf(genmodel::GenModel)->asSet()'''.trimAql),
+						"scope".jparam("model")
+					)
 				]
 				menuItemDescription += OperationAction.createAs(Ns.operation, "Edit Code") [
 					precondition = '''OrderedSet{views.target}.eInverse().eContainerOrSelf(genmodel::GenModel)->asSet()->select(m | m.editDirectory.size() > 0)->size() > 0'''.trimAql
 					icon = "/org.eclipse.emf.ecoretools.design/icons/full/obj16/GenModel.gif"
 					view = ContainerViewVariable.create("views")
-					operation = ExternalJavaAction.create("Generate All") [
-						id = "org.eclipse.emf.ecoretools.design.action.generateAllID"
-						parameters += ExternalJavaActionParameter.create [
-							name = "genmodels"
-							value = '''OrderedSet{views.target}.eInverse().eContainerOrSelf(genmodel::GenModel)->asSet()'''.trimAql
-						]
-						parameters += ExternalJavaActionParameter.create [
-							name = "scope"
-							value = "edit"
-						]
-					]
+					operation = "org.eclipse.emf.ecoretools.design.action.generateAllID".javaDo("Generate All", 
+						"genmodels".jparam('''OrderedSet{views.target}.eInverse().eContainerOrSelf(genmodel::GenModel)->asSet()'''.trimAql),
+						"scope".jparam("edit")
+					)
 				]
 				menuItemDescription += OperationAction.createAs(Ns.operation, "Editor Code") [
 					precondition = '''OrderedSet{views.target}.eInverse().eContainerOrSelf(genmodel::GenModel)->asSet()->select(m | m.editorDirectory.size() > 0)->size() > 0'''.trimAql
 					icon = "/org.eclipse.emf.ecoretools.design/icons/full/obj16/GenModel.gif"
 					view = ContainerViewVariable.create("views")
-					operation = ExternalJavaAction.create("Generate All") [
-						id = "org.eclipse.emf.ecoretools.design.action.generateAllID"
-						parameters += ExternalJavaActionParameter.create [
-							name = "genmodels"
-							value = '''OrderedSet{views.target}.eInverse().eContainerOrSelf(genmodel::GenModel)->asSet()'''.trimAql
-						]
-						parameters += ExternalJavaActionParameter.create [
-							name = "scope"
-							value = "editor"
-						]
-					]
+					operation = "org.eclipse.emf.ecoretools.design.action.generateAllID".javaDo("Generate All", 
+						"genmodels".jparam('''OrderedSet{views.target}.eInverse().eContainerOrSelf(genmodel::GenModel)->asSet()'''.trimAql),
+						"scope".jparam("editor")
+					)
 				]
 				menuItemDescription += OperationAction.createAs(Ns.operation, "Tests Code") [
 					precondition = '''OrderedSet{views.target}.eInverse().eContainerOrSelf(genmodel::GenModel)->asSet()->select(m | m.testsDirectory.size() > 0)->size() > 0'''.trimAql
 					icon = "/org.eclipse.emf.ecoretools.design/icons/full/obj16/GenModel.gif"
 					view = ContainerViewVariable.create("views")
-					operation = ExternalJavaAction.create("Generate All") [
-						id = "org.eclipse.emf.ecoretools.design.action.generateAllID"
-						parameters += ExternalJavaActionParameter.create [
-							name = "genmodels"
-							value = '''OrderedSet{views.target}.eInverse().eContainerOrSelf(genmodel::GenModel)->asSet()'''.trimAql
-						]
-						parameters += ExternalJavaActionParameter.create [
-							name = "scope"
-							value = "tests"
-						]
-					]
+					operation = "org.eclipse.emf.ecoretools.design.action.generateAllID".javaDo("Generate All", 
+						"genmodels".jparam('''OrderedSet{views.target}.eInverse().eContainerOrSelf(genmodel::GenModel)->asSet()'''.trimAql),
+						"scope".jparam("tests")
+					)
 				]
 			]
 			ownedTools += PopupMenu.createAs(Ns.menu, "CDO Native") [
@@ -741,33 +705,21 @@ class EntitiesDiagram extends AbstractDiagram {
 				menuItemDescription += OperationAction.createAs(Ns.operation, "Enable support") [
 					precondition = '''OrderedSet{views.target}.eInverse().eContainerOrSelf(genmodel::GenModel)->asSet()->size() > 0'''.trimAql
 					view = ContainerViewVariable.create("views")
-					operation = ExternalJavaAction.create("OpenConfirmationDialog") [
+					operation = ExternalJavaAction.create [
 						id = "org.eclipse.emf.ecoretools.design.action.openConfirmationDialogID"
 						subModelOperations += '''self.enableCDOGen(OrderedSet{views->filter(viewpoint::DSemanticDecorator).target}.eInverse().eContainerOrSelf(genmodel::GenModel)->asSet())'''.trimAql.toOperation
-						parameters += ExternalJavaActionParameter.create [
-							name = "message"
-							value = "The selected generator model will be updated:\n\nSet Feature Delegation = Reflective\nSet Root Extends Class = org.eclipse.emf.internal.cdo.CDOObjectImpl\nSet Root Extends Interface = org.eclipse.emf.cdo.CDOObject\nAdded Model Plugin Variables = CDO=org.eclipse.emf.cdo \nCreated CDO.MF marker file\n\nYou need to regenerate the code to make these changes effective. \n"
-						]
-						parameters += ExternalJavaActionParameter.create [
-							name = "title"
-							value = "The selected generator model will be updated:\n\nSet Feature Delegation = Reflective\nSet Root Extends Class = org.eclipse.emf.internal.cdo.CDOObjectImpl\nSet Root Extends Interface = org.eclipse.emf.cdo.CDOObject\nAdd Model Plugin Variables = CDO=org.eclipse.emf.cdo \nCreate CDO.MF marker file\n\nYou need to regenerate the code to make these changes effective. "
-						]
+						parameters += "message".jparam("The selected generator model will be updated:\n\nSet Feature Delegation = Reflective\nSet Root Extends Class = org.eclipse.emf.internal.cdo.CDOObjectImpl\nSet Root Extends Interface = org.eclipse.emf.cdo.CDOObject\nAdded Model Plugin Variables = CDO=org.eclipse.emf.cdo \nCreated CDO.MF marker file\n\nYou need to regenerate the code to make these changes effective. \n")
+						parameters += "title".jparam("The selected generator model will be updated:\n\nSet Feature Delegation = Reflective\nSet Root Extends Class = org.eclipse.emf.internal.cdo.CDOObjectImpl\nSet Root Extends Interface = org.eclipse.emf.cdo.CDOObject\nAdd Model Plugin Variables = CDO=org.eclipse.emf.cdo \nCreate CDO.MF marker file\n\nYou need to regenerate the code to make these changes effective. ")
 					]
 				]
 				menuItemDescription += OperationAction.createAs(Ns.operation, "Disable support") [
 					precondition = '''OrderedSet{views.target}.eInverse().eContainerOrSelf(genmodel::GenModel)->asSet()->size() > 0'''.trimAql
 					view = ContainerViewVariable.create("views")
-					operation = ExternalJavaAction.create("OpenConfirmationDialog") [
+					operation = ExternalJavaAction.create [
 						id = "org.eclipse.emf.ecoretools.design.action.openConfirmationDialogID"
 						subModelOperations += '''self.disableCDOGen(OrderedSet{views->filter(viewpoint::DSemanticDecorator).target}.eInverse().eContainerOrSelf(genmodel::GenModel)->asSet())'''.trimAql.toOperation
-						parameters += ExternalJavaActionParameter.create [
-							name = "message"
-							value = "The selected generator model will be updated:..."
-						]
-						parameters += ExternalJavaActionParameter.create [
-							name = "title"
-							value = "Disable CDO Native support in .genmodel ?"
-						]
+						parameters += "message".jparam("The selected generator model will be updated:...")
+						parameters += "title".jparam("Disable CDO Native support in .genmodel ?")
 					]
 				]
 			]
@@ -784,33 +736,28 @@ class EntitiesDiagram extends AbstractDiagram {
 				element = ElementSelectVariable.create("element")
 				containerView = ContainerViewVariable.create("containerView")
 				container = SelectContainerVariable.create("container")
-				operation = For.create [
-					expression = "var:element"
-					subModelOperations += ChangeContext.create [
-						browseExpression = "service:markForAutosize"
-						subModelOperations += If.create [
-							conditionExpression = "service:isEClass"
-							subModelOperations += CreateView.create [
+				operation = "var:element".forDo("i", 
+					"service:markForAutosize".toOperation(
+						"service:isEClass".ifThenDo(
+							CreateView.create [
 								containerViewExpression = "var:containerView"
 								mapping = ContainerMapping.localRef(Ns.node, "EC EClass")
 							]
-						]
-						subModelOperations += If.create [
-							conditionExpression = "service:isEDataType"
-							subModelOperations += CreateView.create [
+						),
+						"service:isEDataType".ifThenDo(
+							CreateView.create [
 								containerViewExpression = "var:containerView"
 								mapping = ContainerMapping.localRef(Ns.node, "EC EDataType")
 							]
-						]
-						subModelOperations += If.create [
-							conditionExpression = "service:isEEnum"
-							subModelOperations += CreateView.create [
+						),
+						"service:isEEnum".ifThenDo(
+							CreateView.create [
 								containerViewExpression = "var:containerView"
 								mapping = ContainerMapping.localRef(Ns.node, "EC EEnum")
 							]
-						]
-					]
-				]
+						)
+					)
+				)
 			]
 			ownedTools += ToolDescription.createAs(Ns.operation, "RemoveExistingElements") [
 				label = "Remove"
@@ -818,10 +765,9 @@ class EntitiesDiagram extends AbstractDiagram {
 				iconPath = "/org.eclipse.emf.ecoretools.design/icons/full/etools16/search.gif"
 				element = ElementVariable.create("element")
 				elementView = ElementViewVariable.create("elementView")
-				operation = ChangeContext.create [
-					browseExpression = "var:elementView"
-					subModelOperations += DeleteView.create
-				]
+				operation = "var:elementView".toOperation(
+					DeleteView.create
+				)
 			]
 			ownedTools += ContainerDropDescription.createAs(Ns.drop, "External EClass from treeview") [
 				forceRefresh = true
@@ -830,40 +776,34 @@ class EntitiesDiagram extends AbstractDiagram {
 				newContainer = DropContainerVariable.create("newSemanticContainer")
 				element = ElementDropVariable.create("element")
 				newViewContainer = ContainerViewVariable.create("newContainerView")
-				operation = ChangeContext.create [
-					browseExpression = "var:element"
-					subModelOperations += ChangeContext.create [
-						browseExpression = "service:markForAutosize"
-						subModelOperations += If.create [
-							conditionExpression = "service:isEClass"
-							subModelOperations += CreateView.create [
+				operation = "var:element".toOperation(
+					"service:markForAutosize".toOperation(
+						"service:isEClass".ifThenDo(
+							CreateView.create [
 								containerViewExpression = "var:newContainerView"
 								mapping = ContainerMapping.localRef(Ns.node, "EC EClass")
 							]
-						]
-						subModelOperations += If.create [
-							conditionExpression = "service:isEDataType"
-							subModelOperations += CreateView.create [
+						),
+						"service:isEDataType".ifThenDo(
+							CreateView.create [
 								containerViewExpression = "var:newContainerView"
 								mapping = ContainerMapping.localRef(Ns.node, "EC EDataType")
 							]
-						]
-						subModelOperations += If.create [
-							conditionExpression = "service:isEEnum"
-							subModelOperations += CreateView.create [
+						),
+						"service:isEEnum".ifThenDo(
+							CreateView.create [
 								containerViewExpression = "var:newContainerView"
 								mapping = ContainerMapping.localRef(Ns.node, "EC EEnum")
 							]
-						]
-						subModelOperations += If.create [
-							conditionExpression = "service:isEPackage"
-							subModelOperations += CreateView.create [
+						),
+						"service:isEPackage".ifThenDo(
+							CreateView.create [
 								containerViewExpression = "var:newContainerView"
 								mapping = ContainerMapping.localRef(Ns.node, "Dropped Package")
 							]
-						]
-					]
-				]
+						)
+					)
+				)
 			]
 			ownedTools += OperationAction.createAs(Ns.operation, "Add Related Elements") [
 				forceRefresh = true
@@ -875,33 +815,28 @@ class EntitiesDiagram extends AbstractDiagram {
 						message = "Pick the Element you want to add to the diagram."
 					]
 				]
-				operation = For.create [
-					expression = "var:selected"
-					subModelOperations += ChangeContext.create [
-						browseExpression = "service:markForAutosize"
-						subModelOperations += If.create [
-							conditionExpression = "service:isEClass"
-							subModelOperations += CreateView.create [
+				operation = "var:selected".forDo("i", 
+					"service:markForAutosize".toOperation(
+						"service:isEClass".ifThenDo(
+							CreateView.create [
 								containerViewExpression = "var:diagram"
 								mapping = ContainerMapping.localRef(Ns.node, "EC EClass")
 							]
-						]
-						subModelOperations += If.create [
-							conditionExpression = "service:isEDataType"
-							subModelOperations += CreateView.create [
+						),
+						"service:isEDataType".ifThenDo(
+							CreateView.create [
 								containerViewExpression = "var:diagram"
 								mapping = ContainerMapping.localRef(Ns.node, "EC EDataType")
 							]
-						]
-						subModelOperations += If.create [
-							conditionExpression = "service:isEEnum"
-							subModelOperations += CreateView.create [
+						),
+						"service:isEEnum".ifThenDo(
+							CreateView.create [
 								containerViewExpression = "var:diagram"
 								mapping = ContainerMapping.localRef(Ns.node, "EC EEnum")
 							]
-						]
-					]
-				]
+						)
+					)
+				)
 			]
 			ownedTools += ContainerDropDescription.createAs(Ns.drop, "Drop EStructuralFeature into EClass") [
 				mappings += ContainerMapping.localRef(Ns.node, "Dropped Package")
@@ -909,23 +844,14 @@ class EntitiesDiagram extends AbstractDiagram {
 				newContainer = DropContainerVariable.create("newSemanticContainer")
 				element = ElementDropVariable.create("element")
 				newViewContainer = ContainerViewVariable.create("newContainerView")
-				operation = ChangeContext.create [
-					browseExpression = "var:newSemanticContainer"
-					subModelOperations += If.create [
-						conditionExpression = "service:isEOperation"
-						subModelOperations += SetValue.create [
-							featureName = "eOperations"
-							valueExpression = "var:element"
-						]
-					]
-					subModelOperations += If.create [
-						conditionExpression = "service:isEStructuralFeature"
-						subModelOperations += SetValue.create [
-							featureName = "eStructuralFeatures"
-							valueExpression = "var:element"
-						]
-					]
-				]
+				operation = "var:newSemanticContainer".toOperation(
+					"service:isEOperation".ifThenDo(
+						"eOperations".setter("var:element")
+					),
+					"service:isEStructuralFeature".ifThenDo(
+						"eStructuralFeatures".setter("var:element")
+					)
+				)
 			]
 			ownedTools += PasteDescription.createAs(Ns.operation, "Paste Anything") [
 				forceRefresh = true
@@ -944,36 +870,30 @@ class EntitiesDiagram extends AbstractDiagram {
 						computationExpression = "feature:eContainer"
 					]
 				]
-				operation = ChangeContext.create [
-					browseExpression = "var:element"
-					subModelOperations += For.create [
-						expression = "service:getRelated(elementView,diagram)"
-						subModelOperations += ChangeContext.create [
-							browseExpression = "service:markForAutosize"
-							subModelOperations += If.create [
-								conditionExpression = "service:isEClass"
-								subModelOperations += CreateView.create [
+				operation = "var:element".toOperation(
+					"service:getRelated(elementView,diagram)".forDo("i", 
+						"service:markForAutosize".toOperation(
+							"service:isEClass".ifThenDo(
+								CreateView.create [
 									containerViewExpression = "var:diagram"
 									mapping = ContainerMapping.localRef(Ns.node, "EC EClass")
 								]
-							]
-							subModelOperations += If.create [
-								conditionExpression = "service:isEDataType"
-								subModelOperations += CreateView.create [
+							),
+							"service:isEDataType".ifThenDo(
+								CreateView.create [
 									containerViewExpression = "var:diagram"
 									mapping = ContainerMapping.localRef(Ns.node, "EC EDataType")
 								]
-							]
-							subModelOperations += If.create [
-								conditionExpression = "service:isEEnum"
-								subModelOperations += CreateView.create [
+							),
+							"service:isEEnum".ifThenDo(
+								CreateView.create [
 									containerViewExpression = "var:diagram"
 									mapping = ContainerMapping.localRef(Ns.node, "EC EEnum")
 								]
-							]
-						]
-					]
-				]
+							)
+						)
+					)
+				)
 			]
 		]
 	}
@@ -989,31 +909,19 @@ class EntitiesDiagram extends AbstractDiagram {
 					extraMappings += ContainerMapping.localRef(Ns.node, "EC EClass")
 					variable = NodeCreationVariable.create("container")
 					viewVariable = ContainerViewVariable.create("containerView")
-					operation = ChangeContext.create [
-						browseExpression = "var:container"
-						subModelOperations += If.create [
-							conditionExpression = "service:isEPackage"
-							subModelOperations += CreateInstance.create [
+					operation = "var:container".toOperation(
+						"service:isEPackage".ifThenDo(
+							CreateInstance.create [
 								typeName = "ecore.EClass"
 								referenceName = "eClassifiers"
-								subModelOperations += SetValue.create [
-									featureName = "name"
-									valueExpression = ''' 'NewEClass'  + self.eContainer().eContents(ecore::EClass)->size() '''.trimAql
-								]
+								subModelOperations += "name".setter(''' 'NewEClass'  + self.eContainer().eContents(ecore::EClass)->size() '''.trimAql)
 							]
-						]
-						subModelOperations += If.create [
-							conditionExpression = "service:isEClass"
-							subModelOperations += SetValue.create [
-								featureName = "abstract"
-								valueExpression = "false"
-							]
-							subModelOperations += SetValue.create [
-								featureName = "interface"
-								valueExpression = "false"
-							]
-						]
-					]
+						),
+						"service:isEClass".ifThenDo(
+							"abstract".setter("false"),
+							"interface".setter("false")
+						)
+					)
 				]
 				tools += ContainerCreationDescription.createAs(Ns.operation, "Abstract Class") [
 					precondition = '''(not container.oclIsKindOf(ecore::EClass)) or (not container.abstract)'''.trimAql
@@ -1022,35 +930,20 @@ class EntitiesDiagram extends AbstractDiagram {
 					extraMappings += ContainerMapping.localRef(Ns.node, "EC EClass")
 					variable = NodeCreationVariable.create("container")
 					viewVariable = ContainerViewVariable.create("containerView")
-					operation = ChangeContext.create [
-						browseExpression = "var:container"
-						subModelOperations += If.create [
-							conditionExpression = "service:isEPackage"
-							subModelOperations += CreateInstance.create [
+					operation = "var:container".toOperation(
+						"service:isEPackage".ifThenDo(
+							CreateInstance.create [
 								typeName = "ecore.EClass"
 								referenceName = "eClassifiers"
-								subModelOperations += SetValue.create [
-									featureName = "name"
-									valueExpression = ''' 'NewAbstractClass' + self.eContainer().eContents(ecore::EClass)->size() '''.trimAql
-								]
-								subModelOperations += SetValue.create [
-									featureName = "abstract"
-									valueExpression = "true"
-								]
+								subModelOperations += "name".setter(''' 'NewAbstractClass' + self.eContainer().eContents(ecore::EClass)->size() '''.trimAql)
+								subModelOperations += "abstract".setter("true")
 							]
-						]
-						subModelOperations += If.create [
-							conditionExpression = "service:isEClass"
-							subModelOperations += SetValue.create [
-								featureName = "abstract"
-								valueExpression = "true"
-							]
-							subModelOperations += SetValue.create [
-								featureName = "interface"
-								valueExpression = "false"
-							]
-						]
-					]
+						),
+						"service:isEClass".ifThenDo(
+							"abstract".setter("true"),
+							"interface".setter("false")
+						)
+					)
 				]
 				tools += ContainerCreationDescription.createAs(Ns.operation, "Interface") [
 					precondition = '''(not container.oclIsKindOf(ecore::EClass)) or (not container.interface)'''.trimAql
@@ -1059,39 +952,21 @@ class EntitiesDiagram extends AbstractDiagram {
 					extraMappings += ContainerMapping.localRef(Ns.node, "EC EClass")
 					variable = NodeCreationVariable.create("container")
 					viewVariable = ContainerViewVariable.create("containerView")
-					operation = ChangeContext.create [
-						browseExpression = "var:container"
-						subModelOperations += If.create [
-							conditionExpression = "service:isEPackage"
-							subModelOperations += CreateInstance.create [
+					operation = "var:container".toOperation(
+						"service:isEPackage".ifThenDo(
+							CreateInstance.create [
 								typeName = "ecore.EClass"
 								referenceName = "eClassifiers"
-								subModelOperations += SetValue.create [
-									featureName = "name"
-									valueExpression = ''' 'NewInterface' + self.eContainer().eContents(ecore::EClass)->size() '''.trimAql
-								]
-								subModelOperations += SetValue.create [
-									featureName = "interface"
-									valueExpression = "true"
-								]
-								subModelOperations += SetValue.create [
-									featureName = "abstract"
-									valueExpression = "true"
-								]
+								subModelOperations += "name".setter(''' 'NewInterface' + self.eContainer().eContents(ecore::EClass)->size() '''.trimAql)
+								subModelOperations += "interface".setter("true")
+								subModelOperations += "abstract".setter("true")
 							]
-						]
-						subModelOperations += If.create [
-							conditionExpression = "service:isEClass"
-							subModelOperations += SetValue.create [
-								featureName = "abstract"
-								valueExpression = "true"
-							]
-							subModelOperations += SetValue.create [
-								featureName = "interface"
-								valueExpression = "true"
-							]
-						]
-					]
+						),
+						"service:isEClass".ifThenDo(
+							"abstract".setter("true"),
+							"interface".setter("true")
+						)
+					)
 				]
 			]
 			ownedTools += ContainerCreationDescription.createAs(Ns.operation, "Datatype") [
@@ -1101,14 +976,8 @@ class EntitiesDiagram extends AbstractDiagram {
 				operation = CreateInstance.create [
 					typeName = "ecore.EDataType"
 					referenceName = "eClassifiers"
-					subModelOperations += SetValue.create [
-						featureName = "name"
-						valueExpression = ''' 'NewDataType' + self.eContainer().eContents(ecore::EDataType)->size() '''.trimAql
-					]
-					subModelOperations += SetValue.create [
-						featureName = "instanceTypeName"
-						valueExpression = ''' 'newDataType' + self.eContainer().eContents(ecore::EDataType)->size() '''.trimAql
-					]
+					subModelOperations += "name".setter(''' 'NewDataType' + self.eContainer().eContents(ecore::EDataType)->size() '''.trimAql)
+					subModelOperations += "instanceTypeName".setter(''' 'newDataType' + self.eContainer().eContents(ecore::EDataType)->size() '''.trimAql)
 				]
 			]
 			ownedTools += ContainerCreationDescription.createAs(Ns.operation, "Enumeration") [
@@ -1118,40 +987,31 @@ class EntitiesDiagram extends AbstractDiagram {
 				operation = CreateInstance.create [
 					typeName = "ecore.EEnum"
 					referenceName = "eClassifiers"
-					subModelOperations += SetValue.create [
-						featureName = "name"
-						valueExpression = ''' 'NewEnum' + self.eContainer().eContents(ecore::EEnum)->size() '''.trimAql
-					]
+					subModelOperations += "name".setter(''' 'NewEnum' + self.eContainer().eContents(ecore::EEnum)->size() '''.trimAql)
 				]
 			]
 			ownedTools += DeleteElementDescription.createAs(Ns.del, "Delete EClass") [
 				element = ElementDeleteVariable.create("element")
 				elementView = ElementDeleteVariable.create("elementView")
 				containerView = ContainerViewVariable.create("containerView")
-				operation = ChangeContext.create [
-					browseExpression = "var:self"
-					subModelOperations += For.create [
-						expression = "service:getInverseEReferences"
-						subModelOperations += RemoveElement.create
-					]
-					subModelOperations += RemoveElement.create
-				]
+				operation = "var:self".toOperation(
+					"service:getInverseEReferences".forDo("i", 
+						RemoveElement.create
+					),
+					RemoveElement.create
+				)
 			]
 			ownedTools += NodeCreationDescription.createAs(Ns.creation, "ETypeParameter") [
 				nodeMappings += NodeMapping.localRef(Ns.node, "EC ETypeParameter")
 				variable = NodeCreationVariable.create("container")
 				viewVariable = ContainerViewVariable.create("containerView")
-				operation = ChangeContext.create [
-					browseExpression = "var:container"
-					subModelOperations += CreateInstance.create [
+				operation = "var:container".toOperation(
+					CreateInstance.create [
 						typeName = "ecore.ETypeParameter"
 						referenceName = "eTypeParameters"
-						subModelOperations += SetValue.create [
-							featureName = "name"
-							valueExpression = "T"
-						]
+						subModelOperations += "name".setter("T")
 					]
-				]
+				)
 			]
 			ownedTools += DeleteElementDescription.createAs(Ns.del, "NoOp") [
 				precondition = '''false'''.trimAql
@@ -1173,14 +1033,8 @@ class EntitiesDiagram extends AbstractDiagram {
 				operation = CreateInstance.create [
 					typeName = "ecore.EEnumLiteral"
 					referenceName = "eLiterals"
-					subModelOperations += SetValue.create [
-						featureName = "name"
-						valueExpression = '''('literal' +( self.eContainer().eContents(ecore::EEnumLiteral)->size() -1)).toUpper()'''.trimAql
-					]
-					subModelOperations += SetValue.create [
-						featureName = "value"
-						valueExpression = '''self.eContainer().eContents(ecore::EEnumLiteral)->size()-1'''.trimAql
-					]
+					subModelOperations += "name".setter('''('literal' +( self.eContainer().eContents(ecore::EEnumLiteral)->size() -1)).toUpper()'''.trimAql)
+					subModelOperations += "value".setter('''self.eContainer().eContents(ecore::EEnumLiteral)->size()-1'''.trimAql)
 				]
 			]
 			ownedTools += NodeCreationDescription.createAs(Ns.creation, "Operation") [
@@ -1190,10 +1044,7 @@ class EntitiesDiagram extends AbstractDiagram {
 				operation = CreateInstance.create [
 					typeName = "ecore.EOperation"
 					referenceName = "eOperations"
-					subModelOperations += SetValue.create [
-						featureName = "name"
-						valueExpression = ''' 'newOperation' + self.eContainer().eContents(ecore::EOperation)->size() '''.trimAql
-					]
+					subModelOperations += "name".setter(''' 'newOperation' + self.eContainer().eContents(ecore::EOperation)->size() '''.trimAql)
 				]
 			]
 			ownedTools += NodeCreationDescription.createAs(Ns.creation, "Attribute") [
@@ -1203,10 +1054,7 @@ class EntitiesDiagram extends AbstractDiagram {
 				operation = CreateInstance.create [
 					typeName = "ecore.EAttribute"
 					referenceName = "eStructuralFeatures"
-					subModelOperations += SetValue.create [
-						featureName = "name"
-						valueExpression = "newAttribute"
-					]
+					subModelOperations += "name".setter("newAttribute")
 				]
 			]
 			ownedTools += ContainerDropDescription.createAs(Ns.drop, "Drop attribute") [
@@ -1216,13 +1064,9 @@ class EntitiesDiagram extends AbstractDiagram {
 				newContainer = DropContainerVariable.create("newSemanticContainer")
 				element = ElementDropVariable.create("element")
 				newViewContainer = ContainerViewVariable.create("newContainerView")
-				operation = ChangeContext.create [
-					browseExpression = "var:newSemanticContainer"
-					subModelOperations += SetValue.create [
-						featureName = "eStructuralFeatures"
-						valueExpression = "var:element"
-					]
-				]
+				operation = "var:newSemanticContainer".toOperation(
+					"eStructuralFeatures".setter("var:element")
+				)
 			]
 			ownedTools += ContainerDropDescription.createAs(Ns.drop, "Drop operation") [
 				mappings += NodeMapping.localRef(Ns.node, "Operation")
@@ -1230,13 +1074,9 @@ class EntitiesDiagram extends AbstractDiagram {
 				newContainer = DropContainerVariable.create("newSemanticContainer")
 				element = ElementDropVariable.create("element")
 				newViewContainer = ContainerViewVariable.create("newContainerView")
-				operation = ChangeContext.create [
-					browseExpression = "var:newSemanticContainer"
-					subModelOperations += SetValue.create [
-						featureName = "eOperations"
-						valueExpression = "var:element"
-					]
-				]
+				operation = "var:newSemanticContainer".toOperation(
+					"eOperations".setter("var:element")
+				)
 			]
 		]
 	}
@@ -1258,14 +1098,9 @@ class EntitiesDiagram extends AbstractDiagram {
 				targetVariable = TargetEdgeCreationVariable.create("target")
 				sourceViewVariable = SourceEdgeViewCreationVariable.create("sourceView")
 				targetViewVariable = TargetEdgeViewCreationVariable.create("targetView")
-				operation = ChangeContext.create [
-					browseExpression = "var:source"
-					subModelOperations += SetValue.create [
-						featureName = "eSuperTypes"
-						valueExpression = "var:target"
-						subModelOperations += "service:createTypeArgumentsIfNeeded(target)".toOperation
-					]
-				]
+				operation = "var:source".toOperation(
+					"eSuperTypes".setter("var:target")
+				)
 			]
 			ownedTools += EdgeCreationDescription.createAs(Ns.connect, "Reference") [
 				edgeMappings += EdgeMapping.localRef(Ns.edge, "EC_EReference")
@@ -1273,18 +1108,14 @@ class EntitiesDiagram extends AbstractDiagram {
 				targetVariable = TargetEdgeCreationVariable.create("target")
 				sourceViewVariable = SourceEdgeViewCreationVariable.create("sourceView")
 				targetViewVariable = TargetEdgeViewCreationVariable.create("targetView")
-				operation = ChangeContext.create [
-					browseExpression = "var:source"
-					subModelOperations += CreateInstance.create [
+				operation = "var:source".toOperation(
+					CreateInstance.create [
 						typeName = "ecore.EReference"
 						referenceName = "eStructuralFeatures"
-						subModelOperations += SetValue.create [
-							featureName = "name"
-							valueExpression = '''target.name.toLower()'''.trimAql
-						]
+						subModelOperations += "name".setter('''target.name.toLower()'''.trimAql)
 						subModelOperations += "service:setEType(target)".toOperation
 					]
-				]
+				)
 			]
 			ownedTools += EdgeCreationDescription.createAs(Ns.connect, "Bi-directional Reference") [
 				edgeMappings += EdgeMapping.localRef(Ns.edge, "Bi-directional EC_EReference ")
@@ -1292,56 +1123,31 @@ class EntitiesDiagram extends AbstractDiagram {
 				targetVariable = TargetEdgeCreationVariable.create("target")
 				sourceViewVariable = SourceEdgeViewCreationVariable.create("sourceView")
 				targetViewVariable = TargetEdgeViewCreationVariable.create("targetView")
-				operation = ChangeContext.create [
-					browseExpression = "var:target"
-					subModelOperations += CreateInstance.create [
+				operation = "var:target".toOperation(
+					CreateInstance.create [
 						typeName = "ecore.EReference"
 						referenceName = "eStructuralFeatures"
 						variableName = "instanceTarget"
-						subModelOperations += SetValue.create [
-							featureName = "eType"
-							valueExpression = '''source'''.trimAql
-						]
-						subModelOperations += SetValue.create [
-							featureName = "name"
-							valueExpression = '''source.name.toLower()'''.trimAql
-						]
-					]
-					subModelOperations += ChangeContext.create [
-						browseExpression = "var:source"
-						subModelOperations += CreateInstance.create [
+						subModelOperations += "eType".setter('''source'''.trimAql)
+						subModelOperations += "name".setter('''source.name.toLower()'''.trimAql)
+					],
+					"var:source".toOperation(
+						CreateInstance.create [
 							typeName = "ecore.EReference"
 							referenceName = "eStructuralFeatures"
 							variableName = "instanceSource"
-							subModelOperations += SetValue.create [
-								featureName = "eType"
-								valueExpression = "var:target"
-							]
-							subModelOperations += SetValue.create [
-								featureName = "name"
-								valueExpression = '''target.name.toLower()'''.trimAql
-							]
-							subModelOperations += SetValue.create [
-								featureName = "eOpposite"
-								valueExpression = "var:instanceTarget"
-							]
-							subModelOperations += If.create [
-								conditionExpression = '''source = target'''.trimAql
-								subModelOperations += SetValue.create [
-									featureName = "name"
-									valueExpression = ''' target.name.toLower() + 'eOpposite' '''.trimAql
-								]
-							]
-						]
-						subModelOperations += ChangeContext.create [
-							browseExpression = "var:instanceTarget"
-							subModelOperations += SetValue.create [
-								featureName = "eOpposite"
-								valueExpression = "var:instanceSource"
-							]
-						]
-					]
-				]
+							subModelOperations += "eType".setter("var:target")
+							subModelOperations += "name".setter('''target.name.toLower()'''.trimAql)
+							subModelOperations += "eOpposite".setter("var:instanceTarget")
+							subModelOperations += '''source = target'''.trimAql.ifThenDo(
+								"name".setter(''' target.name.toLower() + 'eOpposite' '''.trimAql)
+							)
+						],
+						"var:instanceTarget".toOperation(
+							"eOpposite".setter("var:instanceSource")
+						)
+					)
+				)
 			]
 			ownedTools += EdgeCreationDescription.createAs(Ns.connect, "Composition") [
 				edgeMappings += EdgeMapping.localRef(Ns.edge, "EC_EReference")
@@ -1349,38 +1155,27 @@ class EntitiesDiagram extends AbstractDiagram {
 				targetVariable = TargetEdgeCreationVariable.create("target")
 				sourceViewVariable = SourceEdgeViewCreationVariable.create("sourceView")
 				targetViewVariable = TargetEdgeViewCreationVariable.create("targetView")
-				operation = ChangeContext.create [
-					browseExpression = "var:source"
-					subModelOperations += CreateInstance.create [
+				operation = "var:source".toOperation(
+					CreateInstance.create [
 						typeName = "ecore.EReference"
 						referenceName = "eStructuralFeatures"
-						subModelOperations += SetValue.create [
-							featureName = "name"
-							valueExpression = '''target.name.toLower()'''.trimAql
-						]
-						subModelOperations += SetValue.create [
-							featureName = "containment"
-							valueExpression = "true"
-						]
-						subModelOperations += SetValue.create [
-							featureName = "upperBound"
-							valueExpression = "-1"
-						]
+						subModelOperations += "name".setter('''target.name.toLower()'''.trimAql)
+						subModelOperations += "containment".setter("true")
+						subModelOperations += "upperBound".setter("-1")
 						subModelOperations += "service:setEType(target)".toOperation
 					]
-				]
+				)
 			]
 			ownedTools += DeleteElementDescription.createAs(Ns.del, "Delete ESuperType") [
 				element = ElementDeleteVariable.create("element")
 				elementView = ElementDeleteVariable.create("elementView")
 				containerView = ContainerViewVariable.create("containerView")
-				operation = ChangeContext.create [
-					browseExpression = "service:getEdgeSourceSemantic(elementView)"
-					subModelOperations += Unset.create [
+				operation = "service:getEdgeSourceSemantic(elementView)".toOperation(
+					Unset.create [
 						featureName = "eSuperTypes"
 						elementExpression = "service:getEdgeTargetSemantic(elementView)"
 					]
-				]
+				)
 			]
 		]
 	}
@@ -1395,10 +1190,9 @@ class EntitiesDiagram extends AbstractDiagram {
 				sourceView = SourceEdgeViewCreationVariable.create("sourceView")
 				targetView = TargetEdgeViewCreationVariable.create("targetView")
 				element = ElementSelectVariable.create("element")
-				operation = ChangeContext.create [
-					browseExpression = "var:element"
-					subModelOperations += "service:reconnectEReferenceSource(target)".toOperation
-				]
+				operation = "var:element".toOperation(
+					"service:reconnectEReferenceSource(target)".toOperation
+				)
 				edgeView = ElementSelectVariable.create("edgeView")
 			]
 			ownedTools += ReconnectEdgeDescription.createAs(Ns.reconnect, "ReconnectEReference Target") [
@@ -1407,10 +1201,9 @@ class EntitiesDiagram extends AbstractDiagram {
 				sourceView = SourceEdgeViewCreationVariable.create("sourceView")
 				targetView = TargetEdgeViewCreationVariable.create("targetView")
 				element = ElementSelectVariable.create("element")
-				operation = ChangeContext.create [
-					browseExpression = "var:element"
-					subModelOperations += "service:reconnectEReferenceTarget(target)".toOperation
-				]
+				operation = "var:element".toOperation(
+					"service:reconnectEReferenceTarget(target)".toOperation
+				)
 				edgeView = ElementSelectVariable.create("edgeView")
 			]
 			ownedTools += ReconnectEdgeDescription.createAs(Ns.reconnect, "ReconnectESupertypeSource") [
@@ -1420,10 +1213,9 @@ class EntitiesDiagram extends AbstractDiagram {
 				sourceView = SourceEdgeViewCreationVariable.create("sourceView")
 				targetView = TargetEdgeViewCreationVariable.create("targetView")
 				element = ElementSelectVariable.create("element")
-				operation = ChangeContext.create [
-					browseExpression = "var:element"
-					subModelOperations += '''self.reconnectESuperTypeSource(target,source,otherEnd,edgeView,sourceView)'''.trimAql.toOperation
-				]
+				operation = "var:element".toOperation(
+					'''self.reconnectESuperTypeSource(target,source,otherEnd,edgeView,sourceView)'''.trimAql.toOperation
+				)
 				edgeView = ElementSelectVariable.create("edgeView")
 			]
 			ownedTools += ReconnectEdgeDescription.createAs(Ns.reconnect, "ReconnectESupertypeTarget") [
@@ -1432,10 +1224,9 @@ class EntitiesDiagram extends AbstractDiagram {
 				sourceView = SourceEdgeViewCreationVariable.create("sourceView")
 				targetView = TargetEdgeViewCreationVariable.create("targetView")
 				element = ElementSelectVariable.create("element")
-				operation = ChangeContext.create [
-					browseExpression = "var:element"
-					subModelOperations += '''self.reconnectESuperTypeTarget(target,source,otherEnd,edgeView,sourceView)'''.trimAql.toOperation
-				]
+				operation = "var:element".toOperation(
+					'''self.reconnectESuperTypeTarget(target,source,otherEnd,edgeView,sourceView)'''.trimAql.toOperation
+				)
 				edgeView = ElementSelectVariable.create("edgeView")
 			]
 			ownedTools += ReconnectEdgeDescription.createAs(Ns.reconnect, "ReconnectBiDirectionnalEReference Source") [
@@ -1445,41 +1236,23 @@ class EntitiesDiagram extends AbstractDiagram {
 				sourceView = SourceEdgeViewCreationVariable.create("sourceView")
 				targetView = TargetEdgeViewCreationVariable.create("targetView")
 				element = ElementSelectVariable.create("element")
-				operation = ChangeContext.create [
-					browseExpression = "var:target"
-					subModelOperations += CreateInstance.create [
+				operation = "var:target".toOperation(
+					CreateInstance.create [
 						typeName = "ecore.EReference"
 						referenceName = "eStructuralFeatures"
 						variableName = "newSource"
-						subModelOperations += SetValue.create [
-							featureName = "name"
-							valueExpression = '''element.name'''.trimAql
-						]
-						subModelOperations += SetValue.create [
-							featureName = "eType"
-							valueExpression = '''element.eType'''.trimAql
-						]
-						subModelOperations += SetValue.create [
-							featureName = "eOpposite"
-							valueExpression = '''element.eOpposite'''.trimAql
-						]
-					]
-					subModelOperations += ChangeContext.create [
-						browseExpression = '''element.eOpposite'''.trimAql
-						subModelOperations += SetValue.create [
-							featureName = "eType"
-							valueExpression = "var:target"
-						]
-						subModelOperations += SetValue.create [
-							featureName = "eOpposite"
-							valueExpression = '''newSource'''.trimAql
-						]
-					]
-					subModelOperations += ChangeContext.create [
-						browseExpression = "var:element"
-						subModelOperations += RemoveElement.create
-					]
-				]
+						subModelOperations += "name".setter('''element.name'''.trimAql)
+						subModelOperations += "eType".setter('''element.eType'''.trimAql)
+						subModelOperations += "eOpposite".setter('''element.eOpposite'''.trimAql)
+					],
+					'''element.eOpposite'''.trimAql.toOperation(
+						"eType".setter("var:target"),
+						"eOpposite".setter('''newSource'''.trimAql)
+					),
+					"var:element".toOperation(
+						RemoveElement.create
+					)
+				)
 				edgeView = ElementSelectVariable.create("edgeView")
 			]
 			ownedTools += ReconnectEdgeDescription.createAs(Ns.reconnect, "ReconnectBiDirectionnalEReference Target") [
@@ -1488,41 +1261,23 @@ class EntitiesDiagram extends AbstractDiagram {
 				sourceView = SourceEdgeViewCreationVariable.create("sourceView")
 				targetView = TargetEdgeViewCreationVariable.create("targetView")
 				element = ElementSelectVariable.create("element")
-				operation = ChangeContext.create [
-					browseExpression = "var:target"
-					subModelOperations += CreateInstance.create [
+				operation = "var:target".toOperation(
+					CreateInstance.create [
 						typeName = "ecore.EReference"
 						referenceName = "eStructuralFeatures"
 						variableName = "newTarget"
-						subModelOperations += SetValue.create [
-							featureName = "name"
-							valueExpression = '''element.eOpposite.name'''.trimAql
-						]
-						subModelOperations += SetValue.create [
-							featureName = "eType"
-							valueExpression = '''element.eOpposite.eType'''.trimAql
-						]
-						subModelOperations += SetValue.create [
-							featureName = "eOpposite"
-							valueExpression = "var:element"
-						]
-					]
-					subModelOperations += ChangeContext.create [
-						browseExpression = '''element.eOpposite'''.trimAql
-						subModelOperations += RemoveElement.create
-					]
-					subModelOperations += ChangeContext.create [
-						browseExpression = "var:element"
-						subModelOperations += SetValue.create [
-							featureName = "eType"
-							valueExpression = "var:target"
-						]
-						subModelOperations += SetValue.create [
-							featureName = "eOpposite"
-							valueExpression = "var:newTarget"
-						]
-					]
-				]
+						subModelOperations += "name".setter('''element.eOpposite.name'''.trimAql)
+						subModelOperations += "eType".setter('''element.eOpposite.eType'''.trimAql)
+						subModelOperations += "eOpposite".setter("var:element")
+					],
+					'''element.eOpposite'''.trimAql.toOperation(
+						RemoveElement.create
+					),
+					"var:element".toOperation(
+						"eType".setter("var:target"),
+						"eOpposite".setter("var:newTarget")
+					)
+				)
 				edgeView = ElementSelectVariable.create("edgeView")
 			]
 		]
@@ -1533,10 +1288,7 @@ class EntitiesDiagram extends AbstractDiagram {
 		ToolSection.create("Direct Edit") [
 			ownedTools += DirectEditLabel.createAs(Ns.operation, "Edit Name with CamelCase") [
 				mask = "{0}"
-				operation = SetValue.create [
-					featureName = "name"
-					valueExpression = "service:toCamelCase(arg0)"
-				]
+				operation = "name".setter("service:toCamelCase(arg0)")
 			]
 			ownedTools += DirectEditLabel.createAs(Ns.operation, "Edit EStructuralFeature Name") [
 				mask = "{0}"
@@ -1563,9 +1315,8 @@ class EntitiesDiagram extends AbstractDiagram {
 				mappings += ContainerMapping.localRef(Ns.node, "Dropped Package")
 				element = ElementDoubleClickVariable.create("element")
 				elementView = ElementDoubleClickVariable.create("elementView")
-				operation = ChangeContext.create [
-					browseExpression = "var:element"
-					subModelOperations += DialogModelOperation.create [
+				operation = "var:element".toOperation(
+					DialogModelOperation.create [
 						titleExpression = ''' 'Properties for '  + input.emfEditServices(self).getText() '''.trimAql
 						buttons += DialogButton.create [
 							labelExpression = "Cancel"
@@ -1585,23 +1336,17 @@ class EntitiesDiagram extends AbstractDiagram {
 							extends = PageDescription.ref("page:DefaultViewExtension.ecore_page")
 						]
 					]
-				]
+				)
 			]
 			ownedTools += DirectEditLabel.createAs(Ns.operation, "InstanceClassName") [
 				documentation = "- \"name\" : change the name of the operation"
 				forceRefresh = true
 				mask = "{0}"
-				operation = SetValue.create [
-					featureName = "instanceClassName"
-					valueExpression = "var:arg0"
-				]
+				operation = "instanceClassName".setter("var:arg0")
 			]
 			ownedTools += DirectEditLabel.createAs(Ns.operation, "Edit Name no CamelCase") [
 				mask = "{0}"
-				operation = SetValue.create [
-					featureName = "name"
-					valueExpression = "var:arg0"
-				]
+				operation = "name".setter("var:arg0")
 			]
 			ownedTools += DirectEditLabel.createAs(Ns.operation, "Direct Edit EOpposite") [
 				mask = "{0}"
@@ -1617,13 +1362,9 @@ class EntitiesDiagram extends AbstractDiagram {
 			ownedTools += OperationAction.createAs(Ns.operation, "Open Entities User Guide") [
 				label = "Open User Guide"
 				view = ContainerViewVariable.create("views")
-				operation = ExternalJavaAction.create("Open Entities User Guide Action") [
-					id = "org.eclipse.sirius.ui.business.api.action.openHelpSection"
-					parameters += ExternalJavaActionParameter.create [
-						name = "href"
-						value = "/org.eclipse.emf.ecoretools.doc/doc/EcoreTools User Manual.html#EntitiesDiagramEditor"
-					]
-				]
+				operation = "org.eclipse.sirius.ui.business.api.action.openHelpSection".javaDo("Open Entities User Guide Action", 
+					"href".jparam("/org.eclipse.emf.ecoretools.doc/doc/EcoreTools User Manual.html#EntitiesDiagramEditor")
+				)
 			]
 		]
 	}
@@ -1636,13 +1377,9 @@ class EntitiesDiagram extends AbstractDiagram {
 				iconPath = "/org.eclipse.emf.ecoretools.design/icons/full/obj16/DynamicInstance.gif"
 				element = ElementVariable.create("element")
 				elementView = ElementViewVariable.create("elementView")
-				operation = ExternalJavaAction.create("Create dynamic instance of a specified EClass") [
-					id = "org.eclipse.emf.ecoretools.design.action.createDynamicInstanceActionID"
-					parameters += ExternalJavaActionParameter.create [
-						name = "eClass"
-						value = "var:element"
-					]
-				]
+				operation = "org.eclipse.emf.ecoretools.design.action.createDynamicInstanceActionID".javaDo("Create dynamic instance of a specified EClass", 
+					"eClass".jparam("var:element")
+				)
 			]
 		]
 	}
@@ -1692,13 +1429,9 @@ class EntitiesDiagram extends AbstractDiagram {
 					typeName = "ecore.EPackage"
 					referenceName = "eSubpackages"
 					variableName = "newPackage"
-					subModelOperations += ChangeContext.create [
-						browseExpression = "var:newPackage"
-						subModelOperations += SetValue.create [
-							featureName = "name"
-							valueExpression = ''' 'newPackage' + self.eContainer().eContents(ecore::EPackage)->size() '''.trimAql
-						]
-					]
+					subModelOperations += "var:newPackage".toOperation(
+						"name".setter(''' 'newPackage' + self.eContainer().eContents(ecore::EPackage)->size() '''.trimAql)
+					)
 				]
 			]
 			ownedTools += ContainerDropDescription.createAs(Ns.drop, "Drop EClassifier into EPackage") [
@@ -1710,13 +1443,9 @@ class EntitiesDiagram extends AbstractDiagram {
 				newContainer = DropContainerVariable.create("newSemanticContainer")
 				element = ElementDropVariable.create("element")
 				newViewContainer = ContainerViewVariable.create("newContainerView")
-				operation = ChangeContext.create [
-					browseExpression = "var:newSemanticContainer"
-					subModelOperations += SetValue.create [
-						featureName = "eClassifiers"
-						valueExpression = "var:element"
-					]
-				]
+				operation = "var:newSemanticContainer".toOperation(
+					"eClassifiers".setter("var:element")
+				)
 			]
 			ownedTools += ContainerDropDescription.createAs(Ns.drop, "Drop EPackage into EPackage") [
 				dragSource = DragSource.BOTH_LITERAL
@@ -1725,17 +1454,9 @@ class EntitiesDiagram extends AbstractDiagram {
 				newContainer = DropContainerVariable.create("newSemanticContainer")
 				element = ElementDropVariable.create("element")
 				newViewContainer = ContainerViewVariable.create("newContainerView")
-				operation = ChangeContext.create [
-					browseExpression = "var:newSemanticContainer"
-					subModelOperations += SetValue.create [
-						featureName = "eSubpackages"
-						valueExpression = "var:element"
-						subModelOperations += CreateView.create [
-							containerViewExpression = "var:newContainerView"
-							mapping = ContainerMapping.localRef(Ns.node, "Dropped Package")
-						]
-					]
-				]
+				operation = "var:newSemanticContainer".toOperation(
+					"eSubpackages".setter("var:element")
+				)
 			]
 		]
 	}
@@ -1824,48 +1545,31 @@ class EntitiesDiagram extends AbstractDiagram {
 				extraMappings += ContainerMapping.localRef(Ns.node, "Dropped Package")
 				variable = NodeCreationVariable.create("container")
 				viewVariable = ContainerViewVariable.create("containerView")
-				operation = ChangeContext.create [
-					browseExpression = "var:container"
-					subModelOperations += If.create [
-						conditionExpression = '''self.eAnnotations->select(a | a.source = 'http://www.eclipse.org/emf/2002/GenModel')->size() = 0'''.trimAql
-						subModelOperations += CreateInstance.create [
+				operation = "var:container".toOperation(
+					'''self.eAnnotations->select(a | a.source = 'http://www.eclipse.org/emf/2002/GenModel')->size() = 0'''.trimAql.ifThenDo(
+						CreateInstance.create [
 							typeName = "ecore.EAnnotation"
 							referenceName = "eAnnotations"
-							subModelOperations += SetValue.create [
-								featureName = "source"
-								valueExpression = ''' 'http://www.eclipse.org/emf/2002/GenModel' '''.trimAql
-							]
+							subModelOperations += "source".setter(''' 'http://www.eclipse.org/emf/2002/GenModel' '''.trimAql)
 						]
-					]
-					subModelOperations += ChangeContext.create [
-						browseExpression = '''self.eAnnotations->select(a | a.source = 'http://www.eclipse.org/emf/2002/GenModel')->asSequence()->first()'''.trimAql
-						subModelOperations += If.create [
-							conditionExpression = '''self.details->select(a | a.key = 'documentation')->size() = 0'''.trimAql
-							subModelOperations += CreateInstance.create [
+					),
+					'''self.eAnnotations->select(a | a.source = 'http://www.eclipse.org/emf/2002/GenModel')->asSequence()->first()'''.trimAql.toOperation(
+						'''self.details->select(a | a.key = 'documentation')->size() = 0'''.trimAql.ifThenDo(
+							CreateInstance.create [
 								typeName = "ecore.EStringToStringMapEntry"
 								referenceName = "details"
-								subModelOperations += SetValue.create [
-									featureName = "key"
-									valueExpression = ''' 'documentation' '''.trimAql
-								]
+								subModelOperations += "key".setter(''' 'documentation' '''.trimAql)
 							]
-						]
-						subModelOperations += ChangeContext.create [
-							browseExpression = '''self.details->select(a | a.key = 'documentation')->asSequence()->first()'''.trimAql
-							subModelOperations += SetValue.create [
-								featureName = "value"
-								valueExpression = ''' 'New documentation note' '''.trimAql
-							]
-						]
-					]
-				]
+						),
+						'''self.details->select(a | a.key = 'documentation')->asSequence()->first()'''.trimAql.toOperation(
+							"value".setter(''' 'New documentation note' '''.trimAql)
+						)
+					)
+				)
 			]
 			ownedTools += DirectEditLabel.createAs(Ns.operation, "Edit Detail") [
 				mask = "{0}"
-				operation = SetValue.create [
-					featureName = "value"
-					valueExpression = "var:arg0"
-				]
+				operation = "value".setter("var:arg0")
 			]
 			ownedTools += EdgeCreationDescription.createAs(Ns.connect, "Doc Assignment") [
 				forceRefresh = true
@@ -1875,13 +1579,12 @@ class EntitiesDiagram extends AbstractDiagram {
 				targetVariable = TargetEdgeCreationVariable.create("target")
 				sourceViewVariable = SourceEdgeViewCreationVariable.create("sourceView")
 				targetViewVariable = TargetEdgeViewCreationVariable.create("targetView")
-				operation = ChangeContext.create [
-					browseExpression = '''source.eContainer(ecore::EAnnotation)'''.trimAql
-					subModelOperations += MoveElement.create [
+				operation = '''source.eContainer(ecore::EAnnotation)'''.trimAql.toOperation(
+					MoveElement.create [
 						newContainerExpression = "var:target"
 						featureName = "eAnnotations"
 					]
-				]
+				)
 			]
 		]
 	}
@@ -1979,41 +1682,27 @@ class EntitiesDiagram extends AbstractDiagram {
 				extraMappings += ContainerMapping.localRef(Ns.node, "Dropped Package")
 				variable = NodeCreationVariable.create("container")
 				viewVariable = ContainerViewVariable.create("containerView")
-				operation = ChangeContext.create [
-					browseExpression = "var:container"
-					subModelOperations += If.create [
-						conditionExpression = '''self.eAnnotations->select(a | a.source = 'http://www.eclipse.org/emf/2002/Ecore')->size() = 0'''.trimAql
-						subModelOperations += CreateInstance.create [
+				operation = "var:container".toOperation(
+					'''self.eAnnotations->select(a | a.source = 'http://www.eclipse.org/emf/2002/Ecore')->size() = 0'''.trimAql.ifThenDo(
+						CreateInstance.create [
 							typeName = "ecore.EAnnotation"
 							referenceName = "eAnnotations"
-							subModelOperations += SetValue.create [
-								featureName = "source"
-								valueExpression = ''' 'http://www.eclipse.org/emf/2002/Ecore' '''.trimAql
-							]
+							subModelOperations += "source".setter(''' 'http://www.eclipse.org/emf/2002/Ecore' '''.trimAql)
 						]
-					]
-					subModelOperations += ChangeContext.create [
-						browseExpression = '''self.eAnnotations->select(a | a.source = 'http://www.eclipse.org/emf/2002/Ecore')->asSequence()->first()'''.trimAql
-						subModelOperations += If.create [
-							conditionExpression = '''self.details->select(a | a.key = 'constraints')->size() = 0'''.trimAql
-							subModelOperations += CreateInstance.create [
+					),
+					'''self.eAnnotations->select(a | a.source = 'http://www.eclipse.org/emf/2002/Ecore')->asSequence()->first()'''.trimAql.toOperation(
+						'''self.details->select(a | a.key = 'constraints')->size() = 0'''.trimAql.ifThenDo(
+							CreateInstance.create [
 								typeName = "ecore.EStringToStringMapEntry"
 								referenceName = "details"
-								subModelOperations += SetValue.create [
-									featureName = "key"
-									valueExpression = ''' 'constraints' '''.trimAql
-								]
+								subModelOperations += "key".setter(''' 'constraints' '''.trimAql)
 							]
-						]
-						subModelOperations += ChangeContext.create [
-							browseExpression = '''self.details->select(a | a.key = 'constraints')->asSequence()->first()'''.trimAql
-							subModelOperations += SetValue.create [
-								featureName = "value"
-								valueExpression = ''' 'Constraint1 Constraint2' '''.trimAql
-							]
-						]
-					]
-				]
+						),
+						'''self.details->select(a | a.key = 'constraints')->asSequence()->first()'''.trimAql.toOperation(
+							"value".setter(''' 'Constraint1 Constraint2' '''.trimAql)
+						)
+					)
+				)
 			]
 			ownedTools += EdgeCreationDescription.createAs(Ns.connect, "Constraint Assignment") [
 				forceRefresh = true
@@ -2023,13 +1712,12 @@ class EntitiesDiagram extends AbstractDiagram {
 				targetVariable = TargetEdgeCreationVariable.create("target")
 				sourceViewVariable = SourceEdgeViewCreationVariable.create("sourceView")
 				targetViewVariable = TargetEdgeViewCreationVariable.create("targetView")
-				operation = ChangeContext.create [
-					browseExpression = '''source.eContainer(ecore::EAnnotation)'''.trimAql
-					subModelOperations += MoveElement.create [
+				operation = '''source.eContainer(ecore::EAnnotation)'''.trimAql.toOperation(
+					MoveElement.create [
 						newContainerExpression = "var:target"
 						featureName = "eAnnotations"
 					]
-				]
+				)
 			]
 		]
 	}

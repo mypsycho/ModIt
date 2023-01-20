@@ -10,7 +10,7 @@
  * Contributors:
  *    Nicolas PERANSIN - initial API and implementation
  *******************************************************************************/
-package org.mypsycho.emf.modit.sirius
+package org.mypsycho.emf.modit.sirius.tests
 
 import java.io.LineNumberReader
 import java.nio.charset.Charset
