@@ -21,6 +21,7 @@ import org.eclipse.sirius.table.metamodel.table.description.LabelEditTool
 import org.eclipse.sirius.viewpoint.description.tool.ModelOperation
 import org.eclipse.xtext.xbase.lib.Functions.Function1
 import org.eclipse.xtext.xbase.lib.Procedures.Procedure2
+import org.eclipse.emf.ecore.EAttribute
 
 /**
  * Adaptation of Sirius model into Java and EClass reflections API
@@ -39,7 +40,7 @@ abstract class AbstractEditionTable extends AbstractTable<EditionTableDescriptio
 	]
 
 	/**
-	 * Create a factory for a diagram description.
+	 * Creates a factory for a diagram description.
 	 * 
 	 * @param parent of diagram
 	 */
@@ -47,10 +48,14 @@ abstract class AbstractEditionTable extends AbstractTable<EditionTableDescriptio
 		super(EditionTableDescription, parent, dLabel, dClass)
 	}
 
+	/**
+	 * Sets the feature of a column.
+	 */
 	protected def void setFeature(FeatureColumnMapping it, EStructuralFeature feat) {
 		featureName = feat.name
 	}
 	
+	/** Creates a column. */
 	def column(String id, (FeatureColumnMapping)=>void initializer) {
 		Objects.requireNonNull(initializer)
 		FeatureColumnMapping.createAs(Ns.column, id) [ 
@@ -59,11 +64,42 @@ abstract class AbstractEditionTable extends AbstractTable<EditionTableDescriptio
 		]
 	}
 	
+	/** Creates a column editing the feature. */
+	def column(String id, EStructuralFeature feat, (FeatureColumnMapping)=>void initializer) {
+		Objects.requireNonNull(initializer)
+		Objects.requireNonNull(feat)
+		id.column [
+			feature = feat
+			initializer.apply(it)
+		]
+	}
+	
+	/** Creates a column without feature. */
+	def virtualColumn(String id, (FeatureColumnMapping)=>void initializer) {
+		Objects.requireNonNull(initializer)
+		id.column [
+			featureName = "*" // See table documentation.
+			initializer.apply(it)
+		]
+	}
+	
+	
+	@Deprecated // use ownedColumn
 	def column(EditionTableDescription it, String id, (FeatureColumnMapping)=>void initializer) {
 		ownedColumnMappings += id.column(initializer)
 	}
 	
+	/** Creates a column in the table. */
+	def ownedColumn(EditionTableDescription it, String id, EStructuralFeature feat, (FeatureColumnMapping)=>void initializer) {
+		ownedColumnMappings += id.column(feat, initializer)
+	}
 	
+	/** Creates a column in the table. */
+	def ownedVirtualColumn(EditionTableDescription it, String id, (FeatureColumnMapping)=>void initializer) {
+		ownedColumnMappings += id.virtualColumn(initializer)
+	}
+	
+	/** References a column. */
 	protected def columnRef(String id) {
 		FeatureColumnMapping.ref(Ns.column.id(id))
 	}
@@ -106,6 +142,19 @@ abstract class AbstractEditionTable extends AbstractTable<EditionTableDescriptio
 	 */
 	protected def void setDirectEdit(FeatureColumnMapping it, ModelOperation operation) {
 		directEdit = operation.createLabelEdit
+	}
+	
+	/**
+	 * Defines the operation to edit a cell.
+	 * <p>
+	 * As Edition Table does not provide columns information, only line is provided.
+	 * </p>
+	 * 
+	 * @param it column to edit
+	 * @param operation on (line element, value)
+	 */
+	protected def void setDirectEdit(FeatureColumnMapping it, EAttribute editedFeat) {
+		directEdit = editedFeat.setter("var:" + EDIT_VALUE)
 	}
 	
 	/**

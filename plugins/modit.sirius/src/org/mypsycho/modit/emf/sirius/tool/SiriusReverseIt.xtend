@@ -178,9 +178,11 @@ class SiriusReverseIt {
 	}
 	
 	protected static def getMetamodels(EObject it) {
-		if (it instanceof RepresentationExtensionDescription) metamodel
-		else if (it instanceof RepresentationDescription) metamodel
-		else Collections.emptyList
+		switch(it) {
+			RepresentationExtensionDescription: metamodel
+			RepresentationDescription: metamodel
+			default: Collections.emptyList
+		}
 	}
 	
 	protected def aliasViewpoints(String prefix, String groupUri) {

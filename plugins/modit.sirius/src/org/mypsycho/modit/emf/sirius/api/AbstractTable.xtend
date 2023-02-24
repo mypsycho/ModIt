@@ -176,11 +176,21 @@ abstract class AbstractTable<T extends TableDescription> extends AbstractTypedEd
 		]
  	}
  	
+ 	@Deprecated // ambiguous: use ownedLine
 	def line(TableDescription it, String id, (LineMapping)=>void initializer) {
+		ownedLine(id, initializer)
+	}
+
+	@Deprecated // ambiguous: use ownedLine
+	def line(LineMapping it, String id, (LineMapping)=>void initializer) {
+		ownedLine(id, initializer)
+	}
+
+	def ownedLine(TableDescription it, String id, (LineMapping)=>void initializer) {
 		ownedLineMappings += id.line(initializer)
 	}
 
-	def line(LineMapping it, String id, (LineMapping)=>void initializer) {
+	def ownedLine(LineMapping it, String id, (LineMapping)=>void initializer) {
 		ownedSubLines += id.line(initializer)
 	}
 

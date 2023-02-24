@@ -18,12 +18,13 @@ import java.util.Objects
 import org.eclipse.emf.ecore.EObject
 
 /**
- * Utility class that contains the Mod-it abstraction.
+ * Abstract class that contains the Mod-it API.
  * <p>
  * This class must be associated to an implementation of model.
  * </p>
  * <p>
- * Mod-it frees developers from sequential description constraints and eases reference declarations.
+ * Mod-it frees developers from sequential description constraints and eases reference 
+ * declarations in model-oriented approach.
  * </p>
  */
 class ModIt<T> {
@@ -118,7 +119,7 @@ class ModIt<T> {
 	}
 
 	/**
-	 * Compose an new initialization task on element controlling previous task execution.
+	 * Composes an new initialization task on element controlling previous task execution.
 	 * 
 	 * @param <R> type of Object to build
 	 * @param it object to complete during assembling
@@ -136,6 +137,7 @@ class ModIt<T> {
 	/**
 	 * Builds a proxy to be resolved when {@link ModIt#assemble(T)} is called.
 	 * 
+	 * @param <R> type of reference
 	 * @param type of proxy to build (the interface of the EClass to build)
 	 * @param id of the target object
 	 * @throw IllegalArgumentException if type is not handled by the factory.
@@ -146,13 +148,38 @@ class ModIt<T> {
 
 	/**
 	 * Builds a proxy to be resolved when {@link ModIt#assemble(T)} is called.
+	 * <p>
+	 * Using lambda for the path postpones the resolution after the proxy resolution.
+	 * </p>
+	 * <p>
+	 * <b>Prefer:</b> {@link #refFrom(Class, Class, String, Function1)}.
+	 * </p>
 	 * 
+	 * @param <R> type of reference
 	 * @param type of proxy to build (the interface of the EClass to build)
-	 * @param id of the target object
+	 * @param id of the source object
+	 * @param path from source to target
 	 * @throw IllegalArgumentException if type is not handled by the factory.
 	 */
 	def <R extends T> R ref(Class<R> type, String id, (T)=>R path) {
 		impl.ref(type, id, path)
+	}
+
+	/**
+	 * Builds a proxy to be resolved when {@link ModIt#assemble(T)} is called.
+	 * <p>
+	 * Using lambda for the path postpones the resolution after the proxy resolution.
+	 * </p>
+	 * 
+	 * @param <R> type of reference
+	 * @param <S> type of initial reference
+	 * @param type of proxy to build (the interface of the EClass to build)
+	 * @param id of the source object
+	 * @param path from source to target
+	 * @throw IllegalArgumentException if type is not handled by the factory.
+	 */
+	def <R extends T, S extends T> R refFrom(Class<R> type, Class<S> srcType, String id, (S)=>R path) {
+		type.ref(id) [ path.apply(it as S) ]
 	}
 
 	/**
@@ -210,10 +237,15 @@ class ModIt<T> {
 	
 	/**
 	 * Creates an {@link EObject} and initializes it when assembling and associate it to id.
+	 * <p>
+	 * Returned object should not be modified directly, as it is not yet initialized.
+	 * But it can be used with {@link #andThen()}
+	 * </p>
 	 * 
 	 * @param id of created element
 	 * @param type of EObject to build
 	 * @param content parsed parsed by content provider
+	 * @return created element
 	 */
 	def <R extends T> R createAs(Class<R> type, String id, String content, (R)=>void init) {
 		id.alias(create(type, content, init))
@@ -232,6 +264,7 @@ class ModIt<T> {
 	 * @param <R> type of Object to build
 	 * @param it object to complete during assembling
 	 * @param task to run once object is assembled
+	 * @return it
 	 */
 	def <R extends T> onAssembled(R it, (R)=>void task) {
 		onAssembled[it, previous| 
@@ -250,6 +283,7 @@ class ModIt<T> {
 	 * @param <R> type of Object to build
 	 * @param it object to complete during assembling
 	 * @param task to run once object is assembled
+	 * @return it
 	 */
 	def <R extends T> onAssembled(R it, (R, (R)=>void)=>void task) {
 		Objects.requireNonNull(task, "Task undefined")
@@ -392,7 +426,7 @@ class ModIt<T> {
 	}
 
 	/**
-	 * Creates an {@link EObject} and initializes it.
+	 * Creates an {@link EObject} and initializes it and associate it to id.
 	 * 
 	 * @param type of EObject to build
 	 * @param initializer of the given {@link EObject}

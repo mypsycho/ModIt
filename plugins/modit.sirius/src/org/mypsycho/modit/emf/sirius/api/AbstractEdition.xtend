@@ -46,6 +46,7 @@ import org.mypsycho.modit.emf.EModIt
 import org.mypsycho.modit.emf.sirius.SiriusModelProvider
 
 import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*
+import java.util.Objects
 
 /**
  * Adaptation of Sirius model into Java and EClass reflections API
@@ -90,7 +91,7 @@ abstract class AbstractEdition {
 	 * @return element
 	 */
 	def <T> T extraRef(Class<T> type, String key) {
-		context.extraRef(type, key)
+		Objects.requireNonNull(context.extraRef(type, key))
 	}
 	
 	//
@@ -334,17 +335,18 @@ abstract class AbstractEdition {
         ChangeContext.create[ browseExpression = expression ]
     }
     
-	/**
-	 * Create an ChangeContext for an expression.
+    /**
+	 * Creates a ChangeContext from an expression.
 	 * 
 	 * @param expression
 	 * @return ChangeContext
 	 */
-    protected def toOperation(String expression, ModelOperation... subOperations) {
+    protected def toContext(String expression, ModelOperation... subOperations) {
     	expression.toOperation.andThen [
         	subModelOperations += subOperations
         ]
     }
+    
     
     protected def toTool(ModelOperation operation) {
         InitialOperation.create[
@@ -403,17 +405,18 @@ abstract class AbstractEdition {
         ]
     }
     
+    /** Creates a 'CreateIntance' operation. */
     protected def creator(EReference ref, Class<? extends EObject> instanceType) {
     	ref.name.creator(instanceType)
     }
     
+    /** Creates a 'CreateIntance' operation. */
     protected def creator(String refName, Class<? extends EObject> instanceType) {
     	CreateInstance.create [
 			referenceName = refName
 			typeName = instanceType.asDomainClass
 		]
     }
-
     
     
     /**
@@ -519,8 +522,8 @@ abstract class AbstractEdition {
 		initialOperation = value.toTool
 	}
 	
-	
-	protected def createCases(Pair<String, ? extends ModelOperation>... subCases) {
+	/** Creates a 'switch' operation. */
+	protected def switchDo(Pair<String, ? extends ModelOperation>... subCases) {
 		Switch.create[
 			cases += subCases.map[
 				val condition = key
@@ -535,13 +538,44 @@ abstract class AbstractEdition {
 		]
 	}
 	
+	/** Sets a default case to a 'Switch' operation. */
+	protected def setByDefault(Switch it, ModelOperation operation) {
+		^default = Default.create[
+			subModelOperations += operation
+		]
+		it		
+	}
+		
+	/** Creates a 'If' operation. */
 	protected def ifThenDo(String expression, ModelOperation... operations) {
+		expression.thenDo(operations)
+	}
+
+	/** Creates a 'If' operation. */
+	protected def thenDo(String expression, ModelOperation... operations) {
 		If.create [
 			conditionExpression = expression
 			subModelOperations += operations
 		]
 	}
 	
+	/**
+	 * Creates a 'For' operation.
+	 * 
+	 * @param it 'iterator' -&gt; 'collection'
+	 * @param operations to perform
+	 */
+	protected def forDo(Pair<String, String> it, ModelOperation... operations) {
+		value.forDo(key, operations)
+	}
+	
+	/**
+	 * Creates a 'For' operation.
+	 * 
+	 * @param valuesExpression to iterate on
+	 * @param iter iterator name
+	 * @param operations to perform
+	 */
 	protected def forDo(String valuesExpression, String iter, ModelOperation... operations) {
 		For.create [
 			expression = valuesExpression
@@ -550,22 +584,23 @@ abstract class AbstractEdition {
 		]
 	}
 	
+	/**
+	 * Creates a 'For' operation using 'i' as iterator.
+	 * 
+	 * @param valuesExpression to iterate on
+	 * @param operations to perform
+	 */
 	protected def forDo(String valuesExpression, ModelOperation... operations) {
 		valuesExpression.forDo("i", operations)
 	}
-	
-	protected def setDefault(Switch it, ModelOperation operation) {
-		^default = Default.create[
-			subModelOperations += operation
-		]
-		it		
-	}
-	
+
+	/** Adds a service to the child of Viewpoint. */
     protected def void addService(EObject it, Class<?> service) {
         eContainer(Viewpoint).ownedJavaExtensions += 
             JavaExtension.create[ qualifiedClassName = service.name ]
     }
 
+	/** Adds sub-operation to an operation container. */
 	protected def chain(ContainerModelOperation it, ModelOperation... operations) {
 		andThen[
 			subModelOperations += operations
@@ -589,4 +624,47 @@ abstract class AbstractEdition {
 			parameters += params
 		]
 	}
+	
+	/** Built-in color identities. */
+	static enum BasicColor {
+		blue, chocolate, gray, green, orange, purple, red, yellow, black, white
+	}
+	
+	/**
+	 * Retrieves the build-it in color.
+	 * 
+	 * @param it color 
+	 * @return SystemColor
+	 */
+	def getRegular(BasicColor it) {
+		getSystemColor("")
+	}
+	
+	/**
+	 * Retrieves the build-it in color but light.
+	 * 
+	 * @param it color 
+	 * @return SystemColor
+	 */
+	def getLight(BasicColor it) {
+		getSystemColor("light_")
+	}
+	
+	/**
+	 * Retrieves the build-it in color but dark.
+	 * 
+	 * @param it color 
+	 * @return SystemColor
+	 */
+	def getDark(BasicColor it) {
+		getSystemColor("dark_")
+	}
+	
+	private def getSystemColor(BasicColor it, String modifier) {
+		val mod = (it !== BasicColor.white && it !== BasicColor.black) 
+			 ? modifier 
+			 : "" // invariant
+		SystemColor.extraRef("color:" + mod + name)
+	}
+	
 }

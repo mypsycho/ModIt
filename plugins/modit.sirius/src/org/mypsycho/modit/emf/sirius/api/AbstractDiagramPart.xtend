@@ -74,6 +74,7 @@ import org.eclipse.sirius.viewpoint.description.tool.InitialNodeCreationOperatio
 import org.eclipse.sirius.viewpoint.description.tool.ModelOperation
 
 import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*
+import org.eclipse.sirius.viewpoint.description.style.StyleDescription
 
 /**
  * Adaptation of Sirius model into Java and EClass reflections API
@@ -91,7 +92,6 @@ abstract class AbstractDiagramPart<T extends EObject> extends AbstractTypedEditi
 		menu, mitem,
 		show // for filter + layer
 	}
-	
 	
 	/**
 	 * Creates a factory for a diagram description
@@ -121,7 +121,7 @@ abstract class AbstractDiagramPart<T extends EObject> extends AbstractTypedEditi
 	// 
 	
 	/**
-	 * Sets the domain class of a description.
+	 * Sets the domain class of a mapping.
 	 * <p>
 	 * EClass is resolved using businessPackages of AbstractGroup.
 	 * </p>
@@ -134,7 +134,7 @@ abstract class AbstractDiagramPart<T extends EObject> extends AbstractTypedEditi
 	}
 
 	/**
-	 * Sets the domain class of a description.
+	 * Sets the domain class of a mapping.
 	 * <p>
 	 * EClass is resolved using businessPackages of AbstractGroup.
 	 * </p>
@@ -147,7 +147,7 @@ abstract class AbstractDiagramPart<T extends EObject> extends AbstractTypedEditi
 	}
 
 	/**
-	 * Sets the domain class of a description.
+	 * Sets the domain class of a mapping.
 	 * <p>
 	 * EClass is resolved using businessPackages of AbstractGroup.
 	 * </p>
@@ -335,6 +335,40 @@ abstract class AbstractDiagramPart<T extends EObject> extends AbstractTypedEditi
         sizeComputationExpression = "1"
 	}
 	
+	/**
+	 * Customizes a Sirius layer.
+	 * <p>
+	 * Layer only support 1 customization. If it exists, content is aggregated.
+	 * </p>
+	 * 
+	 * @param it to customize
+	 * @param customs to apply
+	 */
+	def customizeStyles(Layer it, VSMElementCustomization... customs) {
+		if (customization === null) {
+			customization = Customization.create
+		}
+		customization.andThen[
+			vsmElementCustomizations += customs
+		]
+	}
+	
+		
+	/**
+	 * Creates a VSMElementCustomization.
+	 * 
+	 * @param predicate condition of customization
+	 * @param siriusReference customized reference
+	 * @param customValue to apply
+	 * @throws IllegalArgumentException when 'reference' is not a valid feature name
+	 */
+	def thenStyle(String predicate, EStructuralFeatureCustomization... customs) {
+		VSMElementCustomization.create[
+			predicateExpression = predicate
+			featureCustomizations += customs
+		]
+	}
+					
 	
 	/**
 	 * Customizes a Sirius reference with provided value.
@@ -348,7 +382,7 @@ abstract class AbstractDiagramPart<T extends EObject> extends AbstractTypedEditi
 	 * @param customValue to apply
 	 * @throws IllegalArgumentException when 'reference' is not a valid feature name
 	 */
-	def <T extends EObject> customizeRef(T it, 
+	def <T extends StyleDescription> customizeRef(T it, 
 		String condition, String siriusReference, EObject customValue
 	) {
 		doCustomize(condition, siriusReference, EReference, 
@@ -370,7 +404,7 @@ abstract class AbstractDiagramPart<T extends EObject> extends AbstractTypedEditi
 	 * @param customValue to apply
 	 * @throws IllegalArgumentException when 'siriusAttribute' is not a valid feature name
 	 */
-	def <T extends EObject> customize(T it, 
+	def <T extends StyleDescription> customize(T it, 
 		String condition, String siriusAttribute, String customExpression
 	) {
 		doCustomize(condition, siriusAttribute, EAttribute, 
@@ -392,7 +426,7 @@ abstract class AbstractDiagramPart<T extends EObject> extends AbstractTypedEditi
 	 * @param customValue to apply
 	 * @throws IllegalArgumentException when 'reference' is not a valid feature name
 	 */
-	def <T extends EObject> customize(T it, 
+	def <T extends StyleDescription> customize(T it, 
 		String condition, EReference siriusReference, EObject customValue
 	) {
 		customizeRef(condition, siriusReference.name, customValue)
@@ -410,13 +444,13 @@ abstract class AbstractDiagramPart<T extends EObject> extends AbstractTypedEditi
 	 * @param customValue to apply
 	 * @throws IllegalArgumentException when 'siriusAttribute' is not a valid feature name
 	 */
-	def <T extends EObject> customize(T it, 
+	def <T extends StyleDescription> customize(T it, 
 		String condition, EAttribute siriusAttribute, String customExpression
 	) {
 		customize(condition, siriusAttribute.name, customExpression)
 	}
 
-	private def <T extends EObject> T doCustomize(T target, String condition, String feature, 
+	private def <T extends StyleDescription> T doCustomize(T target, String condition, String feature, 
 		Class<? extends EStructuralFeature> type, EStructuralFeatureCustomization custo
 	) {
 		val layer = Objects.requireNonNull(target.eContainer(Layer))
@@ -425,16 +459,13 @@ abstract class AbstractDiagramPart<T extends EObject> extends AbstractTypedEditi
 				'''«target?.eClass» has no «type.simpleName» «feature»''')
 		}
 
-		VSMElementCustomization.create[
-			predicateExpression = condition
-			featureCustomizations += custo.andThen[
+		condition.thenStyle(
+			custo.andThen[
 				appliedOn += target
 			]
-		].onAssembledWith(layer)[
-			if (layer.customization === null) {
-				layer.customization = Customization.create
-			}
-			layer.customization.vsmElementCustomizations += it
+		).onAssembledWith(layer)[
+			// not sure andThen is supported at this moment
+			layer.customizeStyles().vsmElementCustomizations += it
 		]
 		target
 	}
@@ -469,7 +500,6 @@ abstract class AbstractDiagramPart<T extends EObject> extends AbstractTypedEditi
     protected def createNodeCreate(String toolname, 
             ModelOperation task, String... nodeNames) {
         NodeCreationDescription.createAs(Ns.creation, toolname) [
-            
             forceRefresh = true // simpler by default
             
             nodeMappings += nodeNames.map[ NodeMapping.ref(it) ]
@@ -549,10 +579,10 @@ abstract class AbstractDiagramPart<T extends EObject> extends AbstractTypedEditi
 
             edgeMappings += edgeNames.map[ EdgeMapping.ref(it) ]
 
-            sourceVariable = SourceEdgeCreationVariable.create[ name = "source" ]
-            sourceViewVariable= SourceEdgeViewCreationVariable.create [ name = "sourceView" ]
-            targetVariable = TargetEdgeCreationVariable.create [ name = "target" ]
-            targetViewVariable = TargetEdgeViewCreationVariable.create [ name = "targetView" ]
+			sourceVariable = SourceEdgeCreationVariable.create("source")
+			sourceViewVariable = SourceEdgeViewCreationVariable.create("sourceView")
+			targetVariable = TargetEdgeCreationVariable.create("target")
+			targetViewVariable = TargetEdgeViewCreationVariable.create("targetView")
 
             operation = task
         ]
@@ -725,20 +755,46 @@ abstract class AbstractDiagramPart<T extends EObject> extends AbstractTypedEditi
 		mask = EditMaskVariables.create[ mask = value ]
 	}
 
-	def labelEdit(String id, String feature) {
+	/** Creates a edition based on a EAttribute. */
+	def labelEdit(String id, String attribute) {
 		DirectEditLabel.createAs(Ns.operation, id) [
-			inputLabelExpression = feature.asFeature
+			inputLabelExpression = attribute.asFeature
 			mask = "{0}"
-			operation = feature.setter('''arg0'''.trimAql)
+			operation = attribute.setter('''arg0'''.trimAql)
 		]
 	}
 
+	/** Creates a edition based on a EAttribute. */
 	def labelEdit(String id, EAttribute feature) {
 		id.labelEdit(feature.name)
 	}
 
+	/** Sets a label edit based on the local id of 'DirectEditLabel' */
 	def setLabelEdit(DiagramElementMapping it, String localId) {
 		labelDirectEdit = DirectEditLabel.localRef(Ns.operation, localId)
+	}
+	
+
+	/**
+	 * Sets the synchronization mode of a mapping.
+	 * <p>
+	 * if 'mode' is null, the mapping will be driven by the "Unsynchronized" flag from diagram.
+	 * (user mode)
+	 * </p>
+	 * 
+	 * @param it mapping
+	 * @param mode 
+	 */
+	def setSynch(DiagramElementMapping it, Boolean mode) {
+		// See org.eclipse.sirius.diagram.editor.properties.section.description.diagramelementmapping
+		// #DiagramElementMappingSynchronizationPropertySection.
+		if (mode === null) {
+			createElements = true
+			synchronizationLock = false
+		} else {
+			createElements = mode
+			synchronizationLock = mode
+		}
 	}
 
 }

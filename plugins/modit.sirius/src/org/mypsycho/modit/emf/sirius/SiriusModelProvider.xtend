@@ -187,7 +187,7 @@ abstract class SiriusModelProvider implements ModitModel {
 	 * @param it resource set
 	 */
 	protected def void initExtras() {
-		// System colors are: blue,chocolate,green,orange,purple,red,yellow
+		// System colors are: blue,chocolate,gray,green,orange,purple,red,yellow
 		// With shade : 'dark_', <default>, 'light_'
 		// And: black,white
 		Environment.eObject("environment:/viewpoint#/")

@@ -29,6 +29,7 @@ import org.mypsycho.modit.emf.EReversIt
 import org.mypsycho.modit.emf.sirius.api.SiriusDesigns
 
 import static extension org.mypsycho.modit.emf.sirius.tool.SiriusReverseIt.*
+import org.eclipse.core.runtime.Platform
 
 /** 
  * Common methods for specific reverse for Representation Edition class.
@@ -153,14 +154,25 @@ ENDIF
  			return super.templateInnerCreate(it)
 		}
 	
-// Unsafe if class does not exists	
-'''«id.toJava».javaDo(«name.toJava», 
+'''«id.classExits
+			? id // use xtend reflection
+			: id.toJava».javaDo(«name.toJava», 
 	«parameters
 		.map[ templateCreate ]
 		.join(LValueSeparator)»
 )'''
 	}
 	
+	def classExits(String classname) {
+		try {
+			pluginId !== null
+				&& Platform?.getBundle(pluginId)
+					?.loadClass(classname) !== null
+		} catch(ClassNotFoundException cnfe) {
+			false
+		}
+	}
+				
 	def dispatch smartTemplateCreate(ExternalJavaActionParameter it) {
 '''«name.toJava».jparam(«value.toJava»)'''
 	}

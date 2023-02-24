@@ -22,8 +22,7 @@ import org.eclipse.sirius.viewpoint.description.Viewpoint
 import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*
 
 /**
- * Adaptation of Sirius model into Java and EClass reflections API
- * for Diagrams.
+ * Adaptation of Sirius model into Java and EClass reflections API for Diagrams.
  * 
  * @author nicolas.peransin
  */
