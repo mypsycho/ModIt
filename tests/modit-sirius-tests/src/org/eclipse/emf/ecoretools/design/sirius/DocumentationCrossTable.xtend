@@ -87,8 +87,8 @@ class DocumentationCrossTable extends AbstractCrossTable {
 				initVariables
 				forceRefresh = true
 				mask = "{0}"
-				operation = "var:lineSemantic".toOperation(
-					'''lineSemantic.eAnnotations->select(a | a.source = 'http://www.eclipse.org/emf/2002/GenModel')->size() = 0'''.trimAql.ifThenDo(
+				operation = "var:lineSemantic".toContext(
+					'''lineSemantic.eAnnotations->select(a | a.source = 'http://www.eclipse.org/emf/2002/GenModel')->size() = 0'''.trimAql.thenDo(
 						CreateInstance.create [
 							typeName = "ecore.EAnnotation"
 							referenceName = "eAnnotations"
@@ -96,8 +96,8 @@ class DocumentationCrossTable extends AbstractCrossTable {
 							subModelOperations += "source".setter(''' 'http://www.eclipse.org/emf/2002/GenModel' '''.trimAql)
 						]
 					),
-					'''lineSemantic.eAnnotations->select(a | a.source = 'http://www.eclipse.org/emf/2002/GenModel')->first()'''.trimAql.toOperation(
-						'''self.details->select(a| a.key = 'documentation')->size() = 0'''.trimAql.ifThenDo(
+					'''lineSemantic.eAnnotations->select(a | a.source = 'http://www.eclipse.org/emf/2002/GenModel')->first()'''.trimAql.toContext(
+						'''self.details->select(a| a.key = 'documentation')->size() = 0'''.trimAql.thenDo(
 							CreateInstance.create [
 								typeName = "ecore.EStringToStringMapEntry"
 								referenceName = "details"
@@ -106,7 +106,7 @@ class DocumentationCrossTable extends AbstractCrossTable {
 							]
 						)
 					),
-					'''lineSemantic.eAnnotations->select(a | a.source = 'http://www.eclipse.org/emf/2002/GenModel').details->select(a | a.key = 'documentation')->first()'''.trimAql.toOperation(
+					'''lineSemantic.eAnnotations->select(a | a.source = 'http://www.eclipse.org/emf/2002/GenModel').details->select(a | a.key = 'documentation')->first()'''.trimAql.toContext(
 						"value".setter("var:arg0")
 					)
 				)

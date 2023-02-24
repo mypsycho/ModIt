@@ -108,7 +108,7 @@ class DefaultViewExtension extends AbstractPropertySet {
 			actions += ToolbarAction.create [
 				tooltipExpression = "Add EAnnotation"
 				imageExpression = "/org.eclipse.emf.ecore.edit/icons/full/ctool16/CreateEModelElement_eAnnotations_EAnnotation.gif"
-				operation = "var:self".toOperation(
+				operation = "var:self".toContext(
 					CreateInstance.create [
 						typeName = "ecore::EAnnotation"
 						referenceName = "eAnnotations"
@@ -127,7 +127,7 @@ class DefaultViewExtension extends AbstractPropertySet {
 			actions += ToolbarAction.create [
 				tooltipExpression = "Generate Model"
 				imageExpression = "/org.eclipse.emf.ecoretools.design/icons/full/etools16/generate_single.gif"
-				operation = "var:self".toOperation(
+				operation = "var:self".toContext(
 					"org.eclipse.emf.ecoretools.design.action.generateAllID".javaDo("Generate Model Properties", 
 						"genmodels".jparam('''self.eInverse()->select( g | g.eClass().ePackage.nsURI->includes('http://www.eclipse.org/emf/2002/GenModel'))->asSet().eContainerOrSelf(genmodel::GenModel)->asSet()'''.trimAql),
 						"scope".jparam("model")
@@ -137,7 +137,7 @@ class DefaultViewExtension extends AbstractPropertySet {
 			actions += ToolbarAction.create [
 				tooltipExpression = "Generate Edit"
 				imageExpression = "/org.eclipse.emf.ecoretools.design/icons/full/etools16/generate_single.gif"
-				operation = "var:self".toOperation(
+				operation = "var:self".toContext(
 					"org.eclipse.emf.ecoretools.design.action.generateAllID".javaDo("Generate Edit Properties", 
 						"genmodels".jparam('''self.eInverse()->select( g | g.eClass().ePackage.nsURI->includes('http://www.eclipse.org/emf/2002/GenModel'))->asSet().eContainerOrSelf(genmodel::GenModel)->asSet()'''.trimAql),
 						"scope".jparam("edit")
@@ -147,7 +147,7 @@ class DefaultViewExtension extends AbstractPropertySet {
 			actions += ToolbarAction.create [
 				tooltipExpression = "Generate Editor"
 				imageExpression = "/org.eclipse.emf.ecoretools.design/icons/full/etools16/generate_single.gif"
-				operation = "var:self".toOperation(
+				operation = "var:self".toContext(
 					"org.eclipse.emf.ecoretools.design.action.generateAllID".javaDo("Generate Editor Properties", 
 						"genmodels".jparam('''self.eInverse()->select( g | g.eClass().ePackage.nsURI->includes('http://www.eclipse.org/emf/2002/GenModel'))->asSet().eContainerOrSelf(genmodel::GenModel)->asSet()'''.trimAql),
 						"scope".jparam("editor")
@@ -157,7 +157,7 @@ class DefaultViewExtension extends AbstractPropertySet {
 			actions += ToolbarAction.create [
 				tooltipExpression = "Generate All"
 				imageExpression = "/org.eclipse.emf.ecoretools.design/icons/full/etools16/generate.gif"
-				operation = "var:self".toOperation(
+				operation = "var:self".toContext(
 					"org.eclipse.emf.ecoretools.design.action.generateAllID".javaDo("Generate All Properties", 
 						"genmodels".jparam('''self.eInverse()->select( g | g.eClass().ePackage.nsURI->includes('http://www.eclipse.org/emf/2002/GenModel'))->asSet().eContainerOrSelf(genmodel::GenModel)->asSet()'''.trimAql),
 						"scope".jparam("model, edit, editor, tests")
@@ -186,7 +186,7 @@ class DefaultViewExtension extends AbstractPropertySet {
 						helpExpression = '''input.emfEditServices(self).getDescription(eStructuralFeature)'''.trimAql
 						isEnabledExpression = '''eStructuralFeature.changeable'''.trimAql
 						valueExpression = '''if eStructuralFeature.name = 'upperBound' and self.oclIsKindOf(ecore::ETypedElement) then self.upperBoundDisplay() else self.eGet(eStructuralFeature.name) endif'''.trimAql
-						operation = "var:self".toOperation(
+						operation = "var:self".toContext(
 							Switch.create [
 								cases += Case.create [
 									conditionExpression = '''eStructuralFeature.name = 'upperBound' and self.oclIsKindOf(ecore::ETypedElement)'''.trimAql
@@ -281,7 +281,7 @@ class DefaultViewExtension extends AbstractPropertySet {
 						]
 						actions += WidgetAction.create [
 							labelExpression = "∅"
-							operation = "var:self".toOperation(
+							operation = "var:self".toContext(
 								'''input.emfEditServices(self).setValue(eStructuralFeature, null)'''.trimAql.toOperation
 							)
 						]
@@ -428,7 +428,7 @@ class DefaultViewExtension extends AbstractPropertySet {
 				controls += TextAreaDescription.create("executable_body") [
 					lineCount = 14
 					valueExpression = '''self.getExecutableBody()'''.trimAql
-					operation = "var:self".toOperation(
+					operation = "var:self".toContext(
 						'''self.setExecutableBody(newValue)'''.trimAql.toOperation
 					)
 				]
@@ -473,7 +473,7 @@ class DefaultViewExtension extends AbstractPropertySet {
 						predicateExpression = '''true'''.trimAql
 						widget = ButtonDescription.create("execution_remove_import") [
 							buttonLabelExpression = "Remove Import"
-							operation = "var:jImport".toOperation(
+							operation = "var:jImport".toContext(
 								RemoveElement.create
 							)
 						]
@@ -501,7 +501,7 @@ class DefaultViewExtension extends AbstractPropertySet {
 						widget = TextDescription.create("param_name") [
 							labelExpression = "Name: "
 							valueExpression = '''self.name'''.trimAql
-							operation = "var:self".toOperation(
+							operation = "var:self".toContext(
 								"name".setter("var:newValue")
 							)
 							style [
@@ -532,7 +532,7 @@ class DefaultViewExtension extends AbstractPropertySet {
 							]
 							actions += WidgetAction.create [
 								labelExpression = "∅"
-								operation = "var:self".toOperation(
+								operation = "var:self".toContext(
 									"eType".setter('''null'''.trimAql)
 								)
 							]
@@ -543,7 +543,7 @@ class DefaultViewExtension extends AbstractPropertySet {
 						widget = ButtonDescription.create("up") [
 							isEnabledExpression = '''self.precedingSiblings()->filter(ecore::EParameter)->size() > 0'''.trimAql
 							imageExpression = "/org.eclipse.emf.ecoretools.design/icons/full/etools16/up.gif"
-							operation = "var:self".toOperation(
+							operation = "var:self".toContext(
 								'''self.moveUpInContainer()'''.trimAql.toOperation
 							)
 						]
@@ -553,7 +553,7 @@ class DefaultViewExtension extends AbstractPropertySet {
 						widget = ButtonDescription.create("down") [
 							isEnabledExpression = '''self.precedingSiblings()->filter(ecore::EParameter)->size() +1 < self.eContainer(ecore::EOperation).eParameters->size()'''.trimAql
 							imageExpression = "/org.eclipse.emf.ecoretools.design/icons/full/etools16/down.gif"
-							operation = "var:self".toOperation(
+							operation = "var:self".toContext(
 								'''self.moveDownInContainer()'''.trimAql.toOperation
 							)
 						]
@@ -562,7 +562,7 @@ class DefaultViewExtension extends AbstractPropertySet {
 						predicateExpression = '''true'''.trimAql
 						widget = ButtonDescription.create("del") [
 							imageExpression = "/org.eclipse.emf.ecoretools.design/icons/full/etools16/unset.gif"
-							operation = "var:self".toOperation(
+							operation = "var:self".toContext(
 								RemoveElement.create
 							)
 						]
@@ -589,7 +589,7 @@ class DefaultViewExtension extends AbstractPropertySet {
 			actions += ToolbarAction.create [
 				tooltipExpression = "Add New Parameter"
 				imageExpression = "/org.eclipse.emf.ecore.edit/icons/full/ctool16/CreateEOperation_eParameters_EParameter.gif"
-				operation = "var:self".toOperation(
+				operation = "var:self".toContext(
 					CreateInstance.create [
 						typeName = "ecore::EParameter"
 						referenceName = "eParameters"
@@ -606,7 +606,7 @@ class DefaultViewExtension extends AbstractPropertySet {
 				labelExpression = "Source:"
 				helpExpression = '''input.emfEditServices(self).getDescription(self.eClass().getEStructuralFeature('source'))'''.trimAql
 				valueExpression = '''self.source'''.trimAql
-				operation = "var:self".toOperation(
+				operation = "var:self".toContext(
 					"source".setter("var:newValue")
 				)
 			]
@@ -619,7 +619,7 @@ class DefaultViewExtension extends AbstractPropertySet {
 			controls += ContainerDescription.create("eannota_buttons") [
 				controls += ButtonDescription.create("eannotation_add_entry") [
 					buttonLabelExpression = "Add Entry"
-					operation = "var:self".toOperation(
+					operation = "var:self".toContext(
 						CreateInstance.create [
 							typeName = "ecore.EStringToStringMapEntry"
 							referenceName = "details"
@@ -637,7 +637,7 @@ class DefaultViewExtension extends AbstractPropertySet {
 						widget = TextDescription.create("detail_key") [
 							labelExpression = "Key:"
 							valueExpression = '''self.key'''.trimAql
-							operation = "var:self".toOperation(
+							operation = "var:self".toContext(
 								"key".setter("var:newValue")
 							)
 						]
@@ -647,7 +647,7 @@ class DefaultViewExtension extends AbstractPropertySet {
 						widget = TextDescription.create("detail_value") [
 							labelExpression = "Value:"
 							valueExpression = '''self.value'''.trimAql
-							operation = "var:self".toOperation(
+							operation = "var:self".toContext(
 								"value".setter("var:newValue")
 							)
 						]
@@ -657,7 +657,7 @@ class DefaultViewExtension extends AbstractPropertySet {
 						widget = ButtonDescription.create("del") [
 							helpExpression = "Delete the entry"
 							imageExpression = "/org.eclipse.emf.ecoretools.design/icons/full/etools16/unset.gif"
-							operation = "var:self".toOperation(
+							operation = "var:self".toContext(
 								RemoveElement.create
 							)
 						]
@@ -685,7 +685,7 @@ class DefaultViewExtension extends AbstractPropertySet {
 			actions += ToolbarAction.create [
 				tooltipExpression = "Delete EAnnotation"
 				imageExpression = "/org.eclipse.emf.ecoretools.design/icons/full/etools16/unset.gif"
-				operation = "var:self".toOperation(
+				operation = "var:self".toContext(
 					RemoveElement.create
 				)
 			]

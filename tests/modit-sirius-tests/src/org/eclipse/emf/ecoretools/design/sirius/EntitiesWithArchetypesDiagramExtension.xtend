@@ -98,15 +98,15 @@ class EntitiesWithArchetypesDiagramExtension extends AbstractDiagramExtension {
 				extraMappings += ContainerMapping.ref(EntitiesDiagram, Ns.node, "EC EClass")
 				variable = NodeCreationVariable.create("container")
 				viewVariable = ContainerViewVariable.create("containerView")
-				operation = "var:container".toOperation(
-					"service:isEPackage".ifThenDo(
+				operation = "var:container".toContext(
+					"service:isEPackage".thenDo(
 						CreateInstance.create [
 							typeName = "ecore.EClass"
 							referenceName = "eClassifiers"
 							subModelOperations += "name".setter(''' 'newMomentInterval' + self.eContainer()->filter(ecore::EPackage).eClassifiers->filter(ecore::EClass)->size() '''.trimAql)
 						]
 					),
-					"service:isEClass".ifThenDo(
+					"service:isEClass".thenDo(
 						'''self.addArchetypeAnnotation('MomentInterval')'''.trimAql.toOperation
 					)
 				)
@@ -119,15 +119,15 @@ class EntitiesWithArchetypesDiagramExtension extends AbstractDiagramExtension {
 				extraMappings += ContainerMapping.ref(EntitiesDiagram, Ns.node, "EC EClass")
 				variable = NodeCreationVariable.create("container")
 				viewVariable = ContainerViewVariable.create("containerView")
-				operation = "var:container".toOperation(
-					'''container.oclIsTypeOf(ecore::EPackage)'''.trimAql.ifThenDo(
+				operation = "var:container".toContext(
+					'''container.oclIsTypeOf(ecore::EPackage)'''.trimAql.thenDo(
 						CreateInstance.create [
 							typeName = "ecore.EClass"
 							referenceName = "eClassifiers"
 							subModelOperations += "name".setter(''' 'newDescription' + self.eContainer()->filter(ecore::EPackage).eClassifiers->filter(ecore::EClass)->size() '''.trimAql)
 						]
 					),
-					'''container.oclIsTypeOf(ecore::EClass)'''.trimAql.ifThenDo(
+					'''container.oclIsTypeOf(ecore::EClass)'''.trimAql.thenDo(
 						'''self.addArchetypeAnnotation('Description')'''.trimAql.toOperation
 					)
 				)
@@ -140,15 +140,15 @@ class EntitiesWithArchetypesDiagramExtension extends AbstractDiagramExtension {
 				extraMappings += ContainerMapping.ref(EntitiesDiagram, Ns.node, "EC EClass")
 				variable = NodeCreationVariable.create("container")
 				viewVariable = ContainerViewVariable.create("containerView")
-				operation = "var:container".toOperation(
-					'''container.oclIsTypeOf(ecore::EPackage)'''.trimAql.ifThenDo(
+				operation = "var:container".toContext(
+					'''container.oclIsTypeOf(ecore::EPackage)'''.trimAql.thenDo(
 						CreateInstance.create [
 							typeName = "ecore.EClass"
 							referenceName = "eClassifiers"
 							subModelOperations += "name".setter(''' 'newRole' + self.eContainer()->filter(ecore::EPackage).eClassifiers->filter(ecore::EClass)->size() '''.trimAql)
 						]
 					),
-					'''container.oclIsTypeOf(ecore::EClass)'''.trimAql.ifThenDo(
+					'''container.oclIsTypeOf(ecore::EClass)'''.trimAql.thenDo(
 						'''self.addArchetypeAnnotation('Role')'''.trimAql.toOperation
 					)
 				)
@@ -160,15 +160,15 @@ class EntitiesWithArchetypesDiagramExtension extends AbstractDiagramExtension {
 				extraMappings += ContainerMapping.ref(EntitiesDiagram, Ns.node, "EC EClass")
 				variable = NodeCreationVariable.create("container")
 				viewVariable = ContainerViewVariable.create("containerView")
-				operation = "var:container".toOperation(
-					'''container.oclIsTypeOf(ecore::EPackage)'''.trimAql.ifThenDo(
+				operation = "var:container".toContext(
+					'''container.oclIsTypeOf(ecore::EPackage)'''.trimAql.thenDo(
 						CreateInstance.create [
 							typeName = "ecore.EClass"
 							referenceName = "eClassifiers"
 							subModelOperations += "name".setter(''' 'newThing' + self.eContainer()->filter(ecore::EPackage).eClassifiers->filter(ecore::EClass)->size() '''.trimAql)
 						]
 					),
-					'''container.oclIsTypeOf(ecore::EClass)'''.trimAql.ifThenDo(
+					'''container.oclIsTypeOf(ecore::EClass)'''.trimAql.thenDo(
 						'''self.addArchetypeAnnotation('Thing')'''.trimAql.toOperation
 					)
 				)

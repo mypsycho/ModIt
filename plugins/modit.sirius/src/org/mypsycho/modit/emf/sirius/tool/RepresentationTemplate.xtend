@@ -121,7 +121,10 @@ ENDIF
 	}
  	
  	def dispatch smartTemplateCreate(ChangeContext it) {
-'''«browseExpression.toJava».toOperation«
+		if (subModelOperations.empty)
+'''«browseExpression.toJava».toOperation»'''
+		else
+'''«browseExpression.toJava».toContext«
 IF !subModelOperations.empty           »(
 	«templateContainerOperations»
 )«
@@ -130,7 +133,7 @@ ENDIF
 	}
  	
  	def dispatch smartTemplateCreate(If it) {
-'''«conditionExpression.toJava».ifThenDo(
+'''«conditionExpression.toJava».thenDo(
 	«templateContainerOperations»
 )'''
 	}
@@ -185,7 +188,7 @@ ENDIF
 	
 
  	def dispatch smartTemplateCreate(SetValue it) {
-		'''«featureName.toJava».setter(«valueExpression.toJava»)'''
+'''«featureName.toJava».setter(«valueExpression.toJava»)'''
 	}
 
 

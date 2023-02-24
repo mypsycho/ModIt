@@ -152,7 +152,7 @@ class DependenciesDiagram extends AbstractDiagram {
 				containerView = ContainerViewVariable.create("containerView")
 				container = SelectContainerVariable.create("container")
 				operation = "var:element".forDo("i", 
-					"service:isEPackage".ifThenDo(
+					"service:isEPackage".thenDo(
 						CreateView.create [
 							containerViewExpression = "var:containerView"
 							mapping = ContainerMapping.localRef(Ns.node, "Analyzed Package")
@@ -167,7 +167,7 @@ class DependenciesDiagram extends AbstractDiagram {
 				iconPath = "/org.eclipse.emf.ecoretools.design/icons/full/etools16/search.gif"
 				element = ElementVariable.create("element")
 				elementView = ElementViewVariable.create("elementView")
-				operation = "var:elementView".toOperation(
+				operation = "var:elementView".toContext(
 					DeleteView.create
 				)
 			]
@@ -178,8 +178,8 @@ class DependenciesDiagram extends AbstractDiagram {
 				newContainer = DropContainerVariable.create("newSemanticContainer")
 				element = ElementDropVariable.create("element")
 				newViewContainer = ContainerViewVariable.create("newContainerView")
-				operation = "var:element".toOperation(
-					"service:isEPackage".ifThenDo(
+				operation = "var:element".toContext(
+					"service:isEPackage".thenDo(
 						CreateView.create [
 							containerViewExpression = "var:newContainerView"
 							mapping = ContainerMapping.localRef(Ns.node, "Analyzed Package")
@@ -197,7 +197,7 @@ class DependenciesDiagram extends AbstractDiagram {
 					]
 				]
 				operation = "var:selected".forDo("i", 
-					"service:isEPackage".ifThenDo(
+					"service:isEPackage".thenDo(
 						CreateView.create [
 							containerViewExpression = "var:diagram"
 							mapping = ContainerMapping.ref(EntitiesDiagram, Ns.node, "EC EClass")

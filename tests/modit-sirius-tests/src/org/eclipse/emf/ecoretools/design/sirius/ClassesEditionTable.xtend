@@ -63,7 +63,7 @@ class ClassesEditionTable extends AbstractEditionTable {
 			forceRefresh = true
 			elementsToSelect = "service:stdEmptyCollection"
 			mapping = "Classes lines".lineRef
-			operation = "var:container".toOperation(
+			operation = "var:container".toContext(
 				CreateInstance.create [
 					typeName = "ecore.EClass"
 					referenceName = "eClassifiers"

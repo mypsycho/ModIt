@@ -326,10 +326,9 @@ abstract class AbstractEdition {
 	// 
 	
 	/**
-	 * Create an ChangeContext for an expression.
+	 * Creates an ChangeContext for an expression.
 	 * 
-	 * @param expression
-	 * @return ChangeContext
+	 * @param expression to evaluate
 	 */
     protected def toOperation(String expression) {
         ChangeContext.create[ browseExpression = expression ]
@@ -338,8 +337,7 @@ abstract class AbstractEdition {
     /**
 	 * Creates a ChangeContext from an expression.
 	 * 
-	 * @param expression
-	 * @return ChangeContext
+	 * @param expression to evaluate
 	 */
     protected def toContext(String expression, ModelOperation... subOperations) {
     	expression.toOperation.andThen [
@@ -347,6 +345,18 @@ abstract class AbstractEdition {
         ]
     }
     
+    /**
+	 * Creates a ChangeContext from an expression.
+	 * <p>
+	 * Use toContext when sub-operations are provided.
+	 * </p>
+	 * 
+	 * @param expression to evaluate
+	 */
+	@Deprecated
+    protected def toOperation(String expression, ModelOperation... subOperations) {
+    	expression.toContext(subOperations)
+    }
     
     protected def toTool(ModelOperation operation) {
         InitialOperation.create[
@@ -641,21 +651,13 @@ abstract class AbstractEdition {
 	}
 	
 	/**
-	 * Retrieves the build-it in color but light.
-	 * 
-	 * @param it color 
-	 * @return SystemColor
-	 */
+	 * Retrieves the build-it in color but in light mode. */
 	def getLight(BasicColor it) {
 		getSystemColor("light_")
 	}
 	
 	/**
-	 * Retrieves the build-it in color but dark.
-	 * 
-	 * @param it color 
-	 * @return SystemColor
-	 */
+	 * Retrieves the build-it in color but in dark mode. */
 	def getDark(BasicColor it) {
 		getSystemColor("dark_")
 	}
