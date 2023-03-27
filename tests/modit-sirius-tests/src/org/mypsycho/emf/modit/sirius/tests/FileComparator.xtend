@@ -80,7 +80,7 @@ class FileComparator extends SimpleFileVisitor<Path> {
 	
 	override preVisitDirectory(Path dir, BasicFileAttributes attrs) {
 		val opposite = target.resolve(source.relativize(dir))
-		if (!dir.isTypeEquals(opposite)) {
+		if (!dir.evaluateSameType(opposite)) {
 			return FileVisitResult.SKIP_SUBTREE
 		}
 		
@@ -94,7 +94,7 @@ class FileComparator extends SimpleFileVisitor<Path> {
 	
 	override visitFile(Path file, BasicFileAttributes attrs) {
 		val opposite = target.resolve(source.relativize(file))
-		if (!file.isTypeEquals(opposite)) {
+		if (!file.evaluateSameType(opposite)) {
 			return FileVisitResult.CONTINUE
 		}
 		
@@ -161,7 +161,7 @@ class FileComparator extends SimpleFileVisitor<Path> {
 	}
 	
 	
-	def isTypeEquals(Path src, Path tgt) {
+	def evaluateSameType(Path src, Path tgt) {
 		if (src.isDirectory != tgt.isDirectory || !tgt.exists) {
 			src.issue(
 				if (!tgt.exists) Type.sourceOnly
@@ -177,7 +177,7 @@ class FileComparator extends SimpleFileVisitor<Path> {
 	}
 
 	static def void assertIdentical(Path expected, Path value) {
-		assertEquals('''Files are different {«expected.toAbsolutePath», «value.toAbsolutePath»}''', 
+		assertEquals('''Files are different {«expected», «value»}''', 
 			Collections.emptyMap, new FileComparator(expected, value).exec
 		)
 	}

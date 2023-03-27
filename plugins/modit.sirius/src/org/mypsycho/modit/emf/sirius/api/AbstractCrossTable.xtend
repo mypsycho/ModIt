@@ -125,7 +125,7 @@ abstract class AbstractCrossTable extends AbstractTable<CrossTableDescription> {
 		Procedure3<? extends EObject, ? extends EObject, String> operation
 	) {
 		directEdit = context.expression(
-			params(EditArg.lineSemantic, EditArg.columnSemantic, EDIT_VALUE), 
+			params(EditArg.lineSemantic, EditArg.columnSemantic, SiriusDesigns.EDIT_VALUE), 
 			operation
 		)
 	}

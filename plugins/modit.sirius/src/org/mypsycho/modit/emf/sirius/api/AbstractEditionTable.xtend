@@ -154,7 +154,7 @@ abstract class AbstractEditionTable extends AbstractTable<EditionTableDescriptio
 	 * @param operation on (line element, value)
 	 */
 	protected def void setDirectEdit(FeatureColumnMapping it, EAttribute editedFeat) {
-		directEdit = editedFeat.setter("var:" + EDIT_VALUE)
+		directEdit = editedFeat.setter(SiriusDesigns.EDIT_VAR)
 	}
 	
 	/**
@@ -169,7 +169,7 @@ abstract class AbstractEditionTable extends AbstractTable<EditionTableDescriptio
 	protected def void setDirectEdit(FeatureColumnMapping it, 
 		Procedure2<? extends EObject, String> operation
 	) {
-		directEdit = context.expression(params(EditArg.lineSemantic, EDIT_VALUE), operation)
+		directEdit = context.expression(params(EditArg.lineSemantic, SiriusDesigns.EDIT_VALUE), operation)
 	}
 	
 }

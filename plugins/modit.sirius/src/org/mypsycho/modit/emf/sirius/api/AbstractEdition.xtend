@@ -12,6 +12,7 @@
  *******************************************************************************/
  package org.mypsycho.modit.emf.sirius.api
 
+import java.util.Objects
 import org.eclipse.emf.ecore.EClass
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EReference
@@ -42,11 +43,11 @@ import org.eclipse.sirius.viewpoint.description.tool.SelectionWizardDescription
 import org.eclipse.sirius.viewpoint.description.tool.SetValue
 import org.eclipse.sirius.viewpoint.description.tool.Switch
 import org.eclipse.sirius.viewpoint.description.tool.ToolDescription
+import org.eclipse.sirius.viewpoint.description.tool.Unset
 import org.mypsycho.modit.emf.EModIt
 import org.mypsycho.modit.emf.sirius.SiriusModelProvider
 
 import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*
-import java.util.Objects
 
 /**
  * Adaptation of Sirius model into Java and EClass reflections API
@@ -404,7 +405,7 @@ abstract class AbstractEdition {
      * Creates a Set operation for provided feature.
      * 
      * @param feature to set
-     * @param expression of value
+     * @param expr expression of value
      * @return a new SetValue
      */
     protected def <T> SetValue setter(EStructuralFeature feature, 
@@ -427,36 +428,43 @@ abstract class AbstractEdition {
 			typeName = instanceType.asDomainClass
 		]
     }
-    
-    
+        
     /**
      * Creates a remove element operation for provided feature.
-     * <p>
-     * Prefer 'remover'
-     * </p>
      * 
-     * @param feature to set
      * @param expression of value
-     * @return a new SetValue
-     */
-    @Deprecated
-    protected def removeElement(String expression) {
-    	expression.remover
-    }
-    
-     /**
-     * Creates a remove element operation for provided feature.
-     * 
-     * @param feature to set
-     * @param expression of value
-     * @return a new SetValue
+     * @return a new RemoveElement
      */
     protected def remover(String expression) {
-        expression.toOperation.andThen[
-            subModelOperations += RemoveElement.create[]
-        ]
+        expression.toOperation.chain(RemoveElement.create)
     }
     
+        
+    /**
+     * Creates a unset value operation for provided feature.
+     * 
+     * @param feature to unset
+     * @param expression of element
+     * @return a new Unset
+     */
+    protected def unsetter(String expression, String feature) {
+		Unset.create [
+			featureName = feature
+			elementExpression = expression
+		]
+    }
+    
+            
+    /**
+     * Creates a unset value operation for provided feature.
+     * 
+     * @param feature to unset
+     * @param expression of element
+     * @return a new Unset
+     */
+    protected def unsetter(String expression, EStructuralFeature feature) {
+    	expression.unsetter(feature.name)
+    }
     
     /**
 	 * Creates a Style with common default values.

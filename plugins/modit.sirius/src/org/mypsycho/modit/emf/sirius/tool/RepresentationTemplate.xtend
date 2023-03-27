@@ -122,7 +122,7 @@ ENDIF
  	
  	def dispatch smartTemplateCreate(ChangeContext it) {
 		if (subModelOperations.empty)
-'''«browseExpression.toJava».toOperation»'''
+'''«browseExpression.toJava».toOperation'''
 		else
 '''«browseExpression.toJava».toContext«
 IF !subModelOperations.empty           »(

@@ -79,8 +79,6 @@ abstract class AbstractTable<T extends TableDescription> extends AbstractTypedEd
 		EditArg.container -> null
 	]
 
-	/** Value return by field edit */
-	public static val EDIT_VALUE = "arg0"	
 
 	/**
 	 * Create a factory for a diagram description

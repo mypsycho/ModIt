@@ -52,7 +52,8 @@ abstract class AbstractDiagramExtension extends AbstractDiagramPart<DiagramExten
 		creationTasks.add[
 			if (extended !== null) {
 				representationName = extended.name
-				viewpointURI = extended.vpUri				
+				viewpointURI = extended.vpUri
+				metamodel += extended.metamodel
 			}
 		]
 	}

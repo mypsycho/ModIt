@@ -18,12 +18,13 @@ import org.eclipse.sirius.viewpoint.description.RepresentationElementMapping
 import org.eclipse.sirius.viewpoint.description.Viewpoint
 import org.eclipse.sirius.viewpoint.description.tool.ExternalJavaAction
 import org.eclipse.sirius.viewpoint.description.tool.ExternalJavaActionCall
-import org.eclipse.sirius.viewpoint.description.tool.ToolEntry
+import org.eclipse.sirius.viewpoint.description.tool.AbstractToolDescription
 
 class ODesignVerifications {
+	static val IDENT = "  "
 	
 	static val DISPLAYED_CLASSES = #{
-		ToolSection, ToolEntry, RepresentationDescription, // common
+		ToolSection, AbstractToolDescription, RepresentationDescription, // common
 		Viewpoint, AdditionalLayer, FilterDescription // diagram
 		// no table
 	}
@@ -46,10 +47,18 @@ class ODesignVerifications {
     		case Diagnostic.INFO : "Info"
     		default: Integer.toString(severity)	
 		}
-    	println(prefix + status + ": " + message) // Print report 
-    	children.forEach[
-    		printDiagnostic(prefix + "  ")
-    	]
+		// Only print INFO when no issue.
+		val withHint = severity <= Diagnostic.INFO
+
+    	println(prefix + status + ": " 
+    		+ message.replaceAll("\\R", // newline
+    			"\n" + prefix + IDENT + IDENT)
+    	) // Print report 
+    	children
+	    	.filter[ withHint || severity > Diagnostic.INFO ]
+	    	.forEach[
+	    		printDiagnostic(prefix + IDENT)
+	    	]
     }
     
     static def validateModel(String modelName, Resource res) {
@@ -93,7 +102,7 @@ class ODesignVerifications {
 IF label !== null && !label.empty
 			 »«label»=«i18n.getI18nLabel(it)»«
 ELSE
-			 »{«eClass.name»} <anonymous>«
+			 »{«eClass.name»} <no label>«
 ENDIF
 			 							 »«
 IF i18nRequired && !i18n.isI18nDefined(it)
@@ -115,13 +124,10 @@ ENDIF
     }
 
 	static def getI18nLabel(ResourceBundle i18n, IdentifiedElement it) {
-		if (!label.startsWith("%")) {
-			return " /!\\"
-		}
 		val key = label.substring(1)
 		
 		i18n.containsKey(key)
 			? i18n.getString(key)
-			: "<undefined>"
+			: "/!\\"
 	}
 }

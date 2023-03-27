@@ -26,10 +26,12 @@ import org.eclipse.sirius.diagram.description.ConditionalContainerStyleDescripti
 import org.eclipse.sirius.diagram.description.ConditionalEdgeStyleDescription
 import org.eclipse.sirius.diagram.description.ConditionalNodeStyleDescription
 import org.eclipse.sirius.diagram.description.ContainerMapping
+import org.eclipse.sirius.diagram.description.ContainerMappingImport
 import org.eclipse.sirius.diagram.description.DiagramElementMapping
 import org.eclipse.sirius.diagram.description.EdgeMapping
 import org.eclipse.sirius.diagram.description.Layer
 import org.eclipse.sirius.diagram.description.NodeMapping
+import org.eclipse.sirius.diagram.description.NodeMappingImport
 import org.eclipse.sirius.diagram.description.style.BorderedStyleDescription
 import org.eclipse.sirius.diagram.description.style.BundledImageDescription
 import org.eclipse.sirius.diagram.description.style.ContainerStyleDescription
@@ -60,6 +62,7 @@ import org.eclipse.sirius.viewpoint.description.EStructuralFeatureCustomization
 import org.eclipse.sirius.viewpoint.description.SystemColor
 import org.eclipse.sirius.viewpoint.description.VSMElementCustomization
 import org.eclipse.sirius.viewpoint.description.style.BasicLabelStyleDescription
+import org.eclipse.sirius.viewpoint.description.style.StyleDescription
 import org.eclipse.sirius.viewpoint.description.tool.AbstractToolDescription
 import org.eclipse.sirius.viewpoint.description.tool.ContainerViewVariable
 import org.eclipse.sirius.viewpoint.description.tool.DragSource
@@ -74,7 +77,6 @@ import org.eclipse.sirius.viewpoint.description.tool.InitialNodeCreationOperatio
 import org.eclipse.sirius.viewpoint.description.tool.ModelOperation
 
 import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*
-import org.eclipse.sirius.viewpoint.description.style.StyleDescription
 
 /**
  * Adaptation of Sirius model into Java and EClass reflections API
@@ -88,6 +90,7 @@ abstract class AbstractDiagramPart<T extends EObject> extends AbstractTypedEditi
 	enum Ns { // namespace for identication
 		node, creation, drop, del,
 		edge, connect, disconnect, reconnect,
+		importnode, importedge,
 		operation, section,
 		menu, mitem,
 		show // for filter + layer
@@ -797,4 +800,79 @@ abstract class AbstractDiagramPart<T extends EObject> extends AbstractTypedEditi
 		}
 	}
 
+	/**
+	 * Sets the imported mapping.
+	 * <p>
+	 * Also copies the content, mainly operations.
+	 * </p>
+	 * @param it import
+	 * @param imported mapping
+	 */
+	def void setImported(ContainerMappingImport it, ContainerMapping imported) {
+		importedMapping = imported
+		
+		reusedNodeMappings += imported.subNodeMappings
+		reusedNodeMappings += imported.reusedNodeMappings
+		reusedContainerMappings += imported.subContainerMappings
+		reusedContainerMappings += imported.reusedContainerMappings
+		if (reusedContainerMappings.contains(imported)) {
+			reusedContainerMappings += it
+		}
+		
+		// DragAndDropTargetDescription
+		dropDescriptions += imported.dropDescriptions
+		
+		childrenPresentation = imported.childrenPresentation
+		// no need to copy style
+				
+		copyMappingImport(imported)
+	}
+	
+	/**
+	 * Sets the imported mapping.
+	 * <p>
+	 * Also copies the content, mainly operations.
+	 * </p>
+	 * @param it import
+	 * @param imported mapping
+	 */
+	def void setImported(NodeMappingImport it, NodeMapping imported) {
+		importedMapping = imported
+		
+		// DragAndDropTargetDescription
+		dropDescriptions += imported.dropDescriptions
+		
+		copyMappingImport(imported)
+	}
+
+	/**
+	 * Copies the content of abstract node.
+	 * 
+	 * @param it import
+	 * @param imported mapping
+	 */
+	def copyMappingImport(AbstractNodeMapping it, AbstractNodeMapping imported) {
+
+		domainClass = imported.domainClass
+		// inherited ?
+		preconditionExpression = imported.preconditionExpression // required ?
+		semanticCandidatesExpression = imported.semanticCandidatesExpression
+		semanticElements = imported.semanticElements
+
+		reusedBorderedNodeMappings += imported.borderedNodeMappings
+		reusedBorderedNodeMappings += imported.reusedBorderedNodeMappings
+
+		deletionDescription = imported.deletionDescription
+		labelDirectEdit = imported.labelDirectEdit
+
+		synchronizationLock = imported.synchronizationLock
+		createElements = imported.createElements
+
+		doubleClickDescription = imported.doubleClickDescription
+		// RepresentationElementMapping
+		detailDescriptions += imported.detailDescriptions
+		navigationDescriptions += imported.navigationDescriptions
+
+	}
+	
 }

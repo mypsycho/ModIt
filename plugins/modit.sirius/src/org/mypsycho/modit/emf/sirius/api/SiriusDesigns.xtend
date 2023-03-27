@@ -40,6 +40,12 @@ class SiriusDesigns {
 	/** Expression for return semantic container */
 	public static val IDENTITY = "var:self"
 
+	/** Value return by field edit */
+	public static val EDIT_VALUE = "arg0"
+
+	/** Value return by field edit */
+	public static val EDIT_VAR = "var:" + EDIT_VALUE
+
 	/** Expression for return semantic container */
 	public static val ALWAYS = AQL + "true"
 
