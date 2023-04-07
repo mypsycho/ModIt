@@ -115,7 +115,7 @@ abstract class SiriusModelProvider implements ModitModel {
 				switch(it) {
 					AbstractVariable: name = text
 					IdentifiedElement: name = text
-					default: throw new UnsupportedOperationException("No content for " + it.class)
+					default: '''No content for «class»'''.verify(false)
 				}
 				
 			]
@@ -172,10 +172,7 @@ abstract class SiriusModelProvider implements ModitModel {
 	}
 
 	def getPluginId() {
-		if (pluginId === null) {
-			throw new IllegalStateException("Plugin ID is not defined for this generation")
-		}
-		pluginId
+		Objects.requireNonNull(pluginId, "Plugin ID is not defined for this generation")
 	}
 	
 	/**
@@ -322,6 +319,15 @@ abstract class SiriusModelProvider implements ModitModel {
 		val values = split(PARAM_SEP)
 		if (values.length == size + 1) it
 		else if (values.length == size) DEFAULT_INSTANCE + "," + it  // self is implicit
-		else throw new IllegalArgumentException('''Arguments [«it»] does not match signature size («size»)"''')
+		else '''Arguments [«it»] does not match signature size («size»)"'''.verify(false)
+	}
+		
+	/**
+	 * Raises an exception if the condition is not met.
+	 */
+	static def verify(CharSequence message, boolean condition) {
+		if (!condition) {
+			throw new UnsupportedOperationException(message.toString)
+		}
 	}
 }

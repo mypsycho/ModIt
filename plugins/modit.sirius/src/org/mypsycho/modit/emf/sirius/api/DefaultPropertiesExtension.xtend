@@ -348,8 +348,7 @@ class DefaultPropertiesExtension extends AbstractPropertySet {
 					// Create wrapper of org.eclipse.sirius.common.ui.tools.api.selection.EObjectSelectionWizard
 					// but the user must choose 
 				]
-				
-			default : throw new UnsupportedOperationException()
+
 		}
 		
 	}

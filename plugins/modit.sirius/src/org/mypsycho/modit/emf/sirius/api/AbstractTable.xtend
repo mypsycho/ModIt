@@ -16,16 +16,20 @@ import java.util.Objects
 import org.eclipse.emf.ecore.EClass
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EReference
+import org.eclipse.sirius.table.metamodel.table.description.BackgroundConditionalStyle
 import org.eclipse.sirius.table.metamodel.table.description.BackgroundStyleDescription
 import org.eclipse.sirius.table.metamodel.table.description.CreateLineTool
 import org.eclipse.sirius.table.metamodel.table.description.CreateTool
 import org.eclipse.sirius.table.metamodel.table.description.DeleteLineTool
+import org.eclipse.sirius.table.metamodel.table.description.ForegroundConditionalStyle
+import org.eclipse.sirius.table.metamodel.table.description.ForegroundStyleDescription
 import org.eclipse.sirius.table.metamodel.table.description.LabelEditTool
 import org.eclipse.sirius.table.metamodel.table.description.LineMapping
+import org.eclipse.sirius.table.metamodel.table.description.StyleUpdater
 import org.eclipse.sirius.table.metamodel.table.description.TableDescription
 import org.eclipse.sirius.table.metamodel.table.description.TableTool
 import org.eclipse.sirius.table.metamodel.table.description.TableVariable
-import org.eclipse.sirius.viewpoint.description.SystemColor
+import org.eclipse.sirius.viewpoint.description.ColorDescription
 import org.eclipse.sirius.viewpoint.description.tool.EditMaskVariables
 import org.eclipse.sirius.viewpoint.description.tool.ModelOperation
 import org.eclipse.xtext.xbase.lib.Procedures.Procedure2
@@ -147,13 +151,12 @@ abstract class AbstractTable<T extends TableDescription> extends AbstractTypedEd
 	def void setVirtual(LineMapping it, String headerExpression) {
 		val owner = eContainer
 		
-		domainClass = 
-			if (owner instanceof LineMapping) 
-				owner.domainClass
-			else if (owner instanceof TableDescription) 
-				owner.domainClass
-			else  // should not happen, log ?
-				SiriusDesigns.ANY_TYPE
+		domainClass = switch(owner) {
+			LineMapping: owner.domainClass
+			TableDescription: owner.domainClass
+			// should not happen, log ?
+			default: SiriusDesigns.ANY_TYPE
+		}
 		
 		semanticCandidatesExpression = SiriusDesigns.IDENTITY
 		noDelete // delete would apply on directory element.
@@ -161,9 +164,10 @@ abstract class AbstractTable<T extends TableDescription> extends AbstractTypedEd
 	}
 
 	protected def initDefaultLineStyle(LineMapping it) {
-		defaultBackground = BackgroundStyleDescription.create [ // null is grey
-			backgroundColor = SystemColor.extraRef("color:white")
-		]
+		// Default background is grey.
+		// (Sirius 6x ot more) There is a bug in header column
+		// Always grey !!
+		background = BasicColor.white.regular
 	}
 
 	def line(String id, (LineMapping)=>void initializer) {
@@ -185,11 +189,15 @@ abstract class AbstractTable<T extends TableDescription> extends AbstractTypedEd
 	}
 
 	def ownedLine(TableDescription it, String id, (LineMapping)=>void initializer) {
-		ownedLineMappings += id.line(initializer)
+		val result = id.line(initializer)
+		ownedLineMappings += result
+		result
 	}
 
 	def ownedLine(LineMapping it, String id, (LineMapping)=>void initializer) {
-		ownedSubLines += id.line(initializer)
+		val result = id.line(initializer)
+		ownedSubLines += result
+		result
 	}
 
 	def lineRef(String id) {
@@ -287,6 +295,35 @@ abstract class AbstractTable<T extends TableDescription> extends AbstractTypedEd
 		]
 	}
 	
+	/**
+     * Creates a creation tool for a line.
+     * 
+     * @param it container
+     * @param line id
+     * @param role of the tool
+     * @param toolLabel to display
+     * @param operation to perform
+     * @return new CreateLineTool instance
+     */
+	def createAddLine(TableDescription it, String line, String role, String toolLabel, ModelOperation operation) {
+		ownedCreateLine += line.createLine(role, toolLabel, operation)
+	}
+	
+	/**
+     * Creates a creation tool for a line.
+     * 
+     * @param it container
+     * @param line id
+     * @param role of the tool
+     * @param toolLabel to display
+     * @param operation to perform
+     * @return new CreateLineTool instance
+     */
+	def createAddLine(LineMapping it, String line, String role, String toolLabel, ModelOperation operation) {
+		create += line.createLine(role, toolLabel, operation)
+	}
+	
+	
 	def initVariables(CreateLineTool it) {
 		initVariables(CREATE_LINE_ARGS)
 	}
@@ -311,7 +348,8 @@ abstract class AbstractTable<T extends TableDescription> extends AbstractTypedEd
      * @param action(root target, line target, line view)
      * @return new CreateLineTool instance
      */
-    def createLine(String line, String toolLabel, Procedure3<EObject, EObject, EObject> action
+    def createLine(String line, String toolLabel, 
+    	Procedure3<EObject, EObject, EObject> action
 	) {
 		line.createLine("", toolLabel, action)
 	}
@@ -329,11 +367,69 @@ abstract class AbstractTable<T extends TableDescription> extends AbstractTypedEd
      * @return new CreateLineTool instance
      */
     static val CREATE_LINE_PARAMS = CREATE_LINE_ARGS.params
-    def createLine(String line, String role, String toolLabel, Procedure3<EObject, EObject, EObject> action
+    def createLine(String line, String role, String toolLabel, 
+    	Procedure3<EObject, EObject, EObject> action
 	) {
 		line.createLine(toolLabel, role, context.expression(CREATE_LINE_PARAMS, action).toOperation)
 	}
 	
+	/**
+	 * Set the foreground style.
+	 */
+	def setForeground(StyleUpdater it, (ForegroundStyleDescription)=>void descr) {
+		Objects.requireNonNull(descr)
+		defaultForeground = ForegroundStyleDescription.create[
+			initForeground
+			descr.apply(it)
+		]
+	}
+	
+	/**
+	 * Set the foreground style for specified condition.
+	 */	
+	def foregroundIf(StyleUpdater it, String condition, (ForegroundStyleDescription)=>void descr) {
+		Objects.requireNonNull(descr)
+		foregroundConditionalStyle += ForegroundConditionalStyle.create[
+			predicateExpression = condition
+			style = ForegroundStyleDescription.create[
+				initForeground
+				descr.apply(it)
+			]
+		]
+	}
 
+	/**
+	 * Set the background Color.
+	 */
+	def setBackground(StyleUpdater it, ColorDescription color) {
+		defaultBackground = BackgroundStyleDescription.create[
+			backgroundColor = color
+		]
+	}
+	
+	/**
+	 * Set the background Color for specified condition.
+	 */
+	def backgroundIf(StyleUpdater it, String condition, ColorDescription color) {
+		backgroundConditionalStyle += BackgroundConditionalStyle.create[
+			predicateExpression = condition
+			style = BackgroundStyleDescription.create[
+				backgroundColor = color
+			]
+		]
+	}
+	
+	/**
+	 * Initializes a Style with common default values.
+	 * 
+	 * @param <T> type of style
+	 * @param type of Style
+	 * @param init custom initialization of style
+	 * @return created Style
+	 */
+	protected def void initForeground(ForegroundStyleDescription it) {
+		labelSize = 11 // ODesign is provide 12, but eclipse default is Segoe:9
+		foreGroundColor = BasicColor.black.regular
+	}
 	
 }

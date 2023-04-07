@@ -55,8 +55,6 @@ import org.eclipse.sirius.properties.RadioWidgetStyle
 import org.eclipse.sirius.properties.SelectDescription
 import org.eclipse.sirius.properties.SelectWidgetConditionalStyle
 import org.eclipse.sirius.properties.SelectWidgetStyle
-import org.eclipse.sirius.properties.TextAreaDescription
-import org.eclipse.sirius.properties.TextDescription
 import org.eclipse.sirius.properties.TextWidgetConditionalStyle
 import org.eclipse.sirius.properties.TextWidgetStyle
 import org.eclipse.sirius.properties.ToolbarAction
@@ -469,8 +467,6 @@ abstract class AbstractPropertySet extends AbstractEdition {
     }
 	
 	
-	
-	
 	def String featureAql(String valueVar, EStructuralFeature feat) {
 		'''«valueVar».eClass().getEStructuralFeature('«feat.name»')'''
 	}
@@ -522,15 +518,15 @@ abstract class AbstractPropertySet extends AbstractEdition {
 	
 	def void setOperation(WidgetDescription it, ModelOperation value) {
 		val init = InitialOperation.create [ firstModelOperations = value ]
-		if (it instanceof ButtonDescription) initialOperation = init
-		else if (it instanceof CheckboxDescription) initialOperation = init
-		else if (it instanceof HyperlinkDescription) initialOperation = init
-		else if (it instanceof ListDescription) onClickOperation = init
-		else if (it instanceof RadioDescription) initialOperation = init
-		else if (it instanceof SelectDescription) initialOperation = init
-		else if (it instanceof TextAreaDescription) initialOperation = init
-		else if (it instanceof TextDescription) initialOperation = init
-		else throw new UnsupportedOperationException(it?.eClass?.name)
+		switch(it) {
+			ButtonDescription: initialOperation = init
+			CheckboxDescription: initialOperation = init
+			HyperlinkDescription: initialOperation = init
+			ListDescription: onClickOperation = init
+			RadioDescription: initialOperation = init
+			SelectDescription: initialOperation = init
+			AbstractTextAreaDescription: initialOperation = init
+		}
 	}
 
 	def void setOperation(WidgetDescription it, String expression) {

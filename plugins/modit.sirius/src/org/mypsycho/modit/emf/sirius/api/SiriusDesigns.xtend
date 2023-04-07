@@ -27,6 +27,7 @@ import org.eclipse.sirius.viewpoint.description.IdentifiedElement
 import org.eclipse.sirius.viewpoint.description.RepresentationDescription
 import org.eclipse.sirius.viewpoint.description.RepresentationExtensionDescription
 import org.mypsycho.modit.emf.sirius.SiriusConstantInterpreter
+import org.eclipse.emf.common.util.Enumerator
 
 /**
  * Convenient methods and constants for Sirius design creation.
@@ -107,6 +108,18 @@ class SiriusDesigns {
      */
     static def String asAql(EStructuralFeature it) {
         '''«EContainingClass.asAql».getEStructuralFeature('«name»')'''
+    }
+    
+    static def String asAql(Enumerator it) {
+    	val path = class.package.name
+    	val packageClass = path + '.'
+    		+ path.substring(path.lastIndexOf('.') + 1, path.length).toFirstUpper
+    		+ "Package"
+    	val eName = class.classLoader
+    		.loadClass(packageClass)
+    		.getDeclaredField('eNAME')
+    	
+    	'''«eName.get(null)»::«class.simpleName»::«name»'''
     }
 	
 		

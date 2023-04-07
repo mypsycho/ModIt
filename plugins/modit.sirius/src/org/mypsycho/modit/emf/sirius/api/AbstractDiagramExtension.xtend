@@ -70,9 +70,7 @@ abstract class AbstractDiagramExtension extends AbstractDiagramPart<DiagramExten
 
 	def static getExtraVpUri(Viewpoint it) {
 		val extendedUri = EcoreUtil.getURI(it)
-		if (!extendedUri.isPlatformPlugin) {
-			throw new IllegalArgumentException('''Unsupported reference: «extendedUri»''')
-		}
+		'''Not plugin reference: «extendedUri»'''.verify(extendedUri.isPlatformPlugin)
 		extendedUri.segment(1).encodeVpUri(name)
 	}
 	

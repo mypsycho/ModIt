@@ -40,7 +40,7 @@ abstract class AbstractTypedEdition<T extends EObject> extends AbstractEdition {
 	new(Class<T> type, AbstractGroup parent) {
 		super(parent)
 		contentType = type
-		creationTasks.add[  // xtend fails to infere '+=' .
+		creationTasks.add [ // xtend fails to infere '+=' .
 			if (it instanceof RepresentationExtensionDescription) {
 				name = contentAlias
 			} else if (it instanceof RepresentationDescription) {

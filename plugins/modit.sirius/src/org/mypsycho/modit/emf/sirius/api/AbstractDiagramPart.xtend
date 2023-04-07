@@ -457,10 +457,8 @@ abstract class AbstractDiagramPart<T extends EObject> extends AbstractTypedEditi
 		Class<? extends EStructuralFeature> type, EStructuralFeatureCustomization custo
 	) {
 		val layer = Objects.requireNonNull(target.eContainer(Layer))
-		if (!type.isInstance(target.eClass.getEStructuralFeature(feature))) {
-			throw new IllegalArgumentException(
-				'''«target?.eClass» has no «type.simpleName» «feature»''')
-		}
+		'''«target?.eClass» has no «type.simpleName» «feature»'''
+			.verify(type.isInstance(target.eClass.getEStructuralFeature(feature)))
 
 		condition.thenStyle(
 			custo.andThen[

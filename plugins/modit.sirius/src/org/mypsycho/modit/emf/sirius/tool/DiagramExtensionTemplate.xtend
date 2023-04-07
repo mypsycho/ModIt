@@ -17,6 +17,7 @@ import org.eclipse.sirius.viewpoint.description.RepresentationDescription
 import org.mypsycho.modit.emf.ClassId
 import org.mypsycho.modit.emf.sirius.api.AbstractDiagramExtension
 import org.mypsycho.modit.emf.sirius.api.SiriusDesigns
+import java.util.Objects
 
 /** 
  * Override of default reverse for SiriusModelProvider class.
@@ -108,11 +109,10 @@ class DiagramExtensionTemplate extends DiagramPartTemplate<DiagramExtensionDescr
 		}
 		val result = content.findDiagramFromExtras 
 			?: content.findDiagramFromIndirectExtras
-		if (result === null) {
-			throw new IllegalStateException(
-				'''No representation in extras: «content.viewpointURI»#/«content.representationName» ''')
-		}
-		result
+		
+		Objects.requireNonNull(result,
+			'''Missing representation in extras: «content.viewpointURI»#/«content.representationName» '''
+		)
 	}
 
 	override templateRepresentation(ClassId it, DiagramExtensionDescription content) {

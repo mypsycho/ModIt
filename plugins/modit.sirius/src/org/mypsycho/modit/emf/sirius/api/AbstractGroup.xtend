@@ -138,11 +138,10 @@ abstract class AbstractGroup extends SiriusModelProvider {
 		val result = businessPackages
 			.flatMap[ EClassifiers ]
 			.findFirst[ instanceClass == type ]
-		if (result === null) {
-			throw new UnsupportedOperationException(
-			'''EClass of «type» is not defined in packages [«businessPackages
-				.join(',')[ name ]»]''')
-		}
+			
+		'''EClass of «type» is not defined in packages [«businessPackages
+				.join(',')[ name ]»]'''.verify(result !== null)
+
 		result
 	}
 	

@@ -677,4 +677,12 @@ abstract class AbstractEdition {
 		SystemColor.extraRef("color:" + mod + name)
 	}
 	
+	/**
+	 * Raises an exception if the condition is not met.
+	 */
+	static def verify(CharSequence message, boolean condition) {
+		if (!condition) {
+			throw new UnsupportedOperationException(message.toString)
+		}
+	}
 }

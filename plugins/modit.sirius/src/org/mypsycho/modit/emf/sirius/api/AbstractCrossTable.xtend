@@ -22,6 +22,7 @@ import org.eclipse.sirius.table.metamodel.table.description.DeleteColumnTool
 import org.eclipse.sirius.table.metamodel.table.description.ElementColumnMapping
 import org.eclipse.sirius.table.metamodel.table.description.IntersectionMapping
 import org.eclipse.sirius.table.metamodel.table.description.LabelEditTool
+import org.eclipse.sirius.table.metamodel.table.description.LineMapping
 import org.eclipse.sirius.viewpoint.description.tool.EditMaskVariables
 import org.eclipse.sirius.viewpoint.description.tool.ModelOperation
 import org.eclipse.xtext.xbase.lib.Procedures.Procedure3
@@ -148,7 +149,7 @@ abstract class AbstractCrossTable extends AbstractTable<CrossTableDescription> {
         ]
     }
     
-    def column(CrossTableDescription it, 
+    def ownedColumn(CrossTableDescription it, 
     	String name, Class<? extends EObject> domain, 
     	(ElementColumnMapping)=>void initializer
     ) {
@@ -171,7 +172,7 @@ abstract class AbstractCrossTable extends AbstractTable<CrossTableDescription> {
         ]
     }
     
-    def column(CrossTableDescription it, String name, 
+    def ownedColumn(CrossTableDescription it, String name, 
     	(ElementColumnMapping)=>void initializer
     ) {
 		ownedColumnMappings += name.column(initializer)
@@ -268,5 +269,89 @@ abstract class AbstractCrossTable extends AbstractTable<CrossTableDescription> {
 		create
 	}
 	
+		
+	/**
+	 * Creates an Element Intersection.
+	 * <p>
+	 * Description must provide expression, edition and mappings using
+	 * {@link 
+	 * VseDataTable#toLines(IntersectionMapping, String, LineMapping...) 
+	 * toLines} and {@link 
+	 * VseDataTable#toColumn(IntersectionMapping, String, ElementColumnMapping) 
+	 * toColumn}.
+	 * </p>
+	 */
+	def cells(CrossTableDescription owner, String mappingName, Class<? extends EObject> domain, 
+		String candidatesExpr, (IntersectionMapping)=>void descr
+	) {
+		Objects.requireNonNull(descr)
+		owner.intersection += IntersectionMapping.create(mappingName) [
+			useDomainClass = true
+			domainClass = domain
+			
+			// self is root
+			semanticCandidatesExpression = candidatesExpr
+
+			// Required:
+			//   lineMapping,
+			//   columnMapping,
+			//   lineFinderExpression,
+			//   columnFinderExpression,
+			descr.apply(it)
+		]
+	}
+
+	/**
+	 * Defines the lines of Element-based cell.
+	 */
+	def toLines(IntersectionMapping it, String expr, LineMapping... mappings) {
+		"This method is applicable only to Domain intersection".verify(useDomainClass)
+		lineMapping += mappings
+		lineFinderExpression = expr
+	}
+
+	/**
+	 * Defines the column of Element-based cell.
+	 */
+	def toColumn(IntersectionMapping it, String expr, ElementColumnMapping mapping) {
+		"This method is applicable only to Domain intersection".verify(useDomainClass)
+		columnMapping = mapping
+		columnFinderExpression = expr
+	}
+
+	/**
+	 * Creates a Relationship Intersection.
+	 * <p>
+	 * Description must provide expression, edition and mappings using
+	 * {@link 
+	 * VseDataTable#forMappings(IntersectionMapping, ElementColumnMapping, LineMapping...) 
+	 * forMappings}.
+	 * </p>
+	 */
+	def links(CrossTableDescription owner, String mappingName, 
+		String columnExpr, (IntersectionMapping)=>void descr
+	) {
+		Objects.requireNonNull(descr)
+		owner.intersection += IntersectionMapping.create(mappingName) [
+			useDomainClass = false
+			
+			// self is root
+			columnFinderExpression = columnExpr
+
+			// Required:
+			//   lineMapping,
+			//   columnMapping
+			descr.apply(it)
+		]
+	}
+	
+	/**
+	 * Defines the mappings of RelationShip-based cell.
+	 */
+	def forMappings(IntersectionMapping it, ElementColumnMapping column, LineMapping... lines) {
+		"This method is applicable only to Relation intersection".verify(!useDomainClass)
+		columnMapping = column
+		lineMapping += lines
+	}
 	
 }
