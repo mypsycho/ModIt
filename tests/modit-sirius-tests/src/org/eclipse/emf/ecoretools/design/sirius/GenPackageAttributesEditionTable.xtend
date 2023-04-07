@@ -28,10 +28,10 @@ class GenPackageAttributesEditionTable extends AbstractEditionTable {
 		name = "GenPackage Attributes"
 		documentation = "<html>\n<head>\n</head>\n<body>\n<p>To set generation related parameters:</p>\n<ul>\n  <li>the property category</li>\n  <li>the user facing documentation for each property</li>\n</ul>\n<br>\n</body>\n</html>\n\n\n"
 		titleExpression = ''' self.prefix + ' generation table' '''.trimAql
-		it.line("GenClass") [
+		ownedLine("GenClass") [
 			domainClass = "genmodel.GenClass"
 			headerLabelExpression = '''self.ecoreClass.name'''.trimAql
-			it.line("GenFeature") [
+			ownedLine("GenFeature") [
 				domainClass = "genmodel.GenFeature"
 				semanticCandidatesExpression = '''self.eAllContents(genmodel::GenFeature)->select(a | a.ecoreFeature.oclIsTypeOf(ecore::EAttribute) or a.ecoreFeature.oclIsTypeOf(ecore::EReference) and not(a.ecoreFeature.oclAsType(ecore::EReference).containment) and not(a.ecoreFeature.oclAsType(ecore::EReference).derived))'''.trimAql
 				headerLabelExpression = '''self.ecoreFeature.name'''.trimAql
@@ -43,16 +43,14 @@ class GenPackageAttributesEditionTable extends AbstractEditionTable {
 				]
 			]
 		]
-		it.column("Category") [
+		ownedColumn("Category", "propertyCategory") [
 			headerLabelExpression = "Category"
 			canEdit = '''self.oclIsTypeOf(genmodel::GenFeature)'''.trimAql
-			featureName = "propertyCategory"
 			labelExpression = '''self->filter(genmodel::GenFeature).propertyCategory->first()'''.trimAql
 		]
-		it.column("Decription") [
+		ownedColumn("Decription", "propertyDescription") [
 			headerLabelExpression = "Description"
 			canEdit = '''self.oclIsTypeOf(genmodel::GenFeature)'''.trimAql
-			featureName = "propertyDescription"
 			labelExpression = '''self->filter(genmodel::GenFeature).propertyDescription->first()'''.trimAql
 		]
 	}

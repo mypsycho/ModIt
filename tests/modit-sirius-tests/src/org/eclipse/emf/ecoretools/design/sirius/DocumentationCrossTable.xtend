@@ -6,6 +6,7 @@ import org.eclipse.sirius.table.metamodel.table.description.CreateCellTool
 import org.eclipse.sirius.table.metamodel.table.description.CrossTableDescription
 import org.eclipse.sirius.table.metamodel.table.description.DeleteColumnTool
 import org.eclipse.sirius.table.metamodel.table.description.ElementColumnMapping
+import org.eclipse.sirius.table.metamodel.table.description.FeatureColumnMapping
 import org.eclipse.sirius.table.metamodel.table.description.IntersectionMapping
 import org.eclipse.sirius.table.metamodel.table.description.LabelEditTool
 import org.eclipse.sirius.table.metamodel.table.description.LineMapping
@@ -37,7 +38,7 @@ class DocumentationCrossTable extends AbstractCrossTable {
 		name = "Documentation"
 		documentation = "<html>\n<head>\n</head>\n<body>\n<p>Document the concepts in a package.</p>\n<br>\n<img src=\"/icons/full/wizban/documentation_table.png\"/>\n</body>\n</html>\n\n\n"
 		titleExpression = ''' self.name + ' documentation table' '''.trimAql
-		it.line("Doc EClassifiers") [
+		ownedLine("Doc EClassifiers") [
 			semanticElements = "var:self"
 			domainClass = "ecore.EClassifier"
 			semanticCandidatesExpression = "feature:eClassifiers"
@@ -45,7 +46,7 @@ class DocumentationCrossTable extends AbstractCrossTable {
 			defaultBackground = BackgroundStyleDescription.create [
 				backgroundColor = SystemColor.extraRef("color:white")
 			]
-			it.line("Doc EStructural Features") [
+			ownedLine("Doc EStructural Features") [
 				domainClass = "ecore.EStructuralFeature"
 				semanticCandidatesExpression = "feature:eContents"
 				headerLabelExpression = '''self.eClass().name + ' : ' + self.name'''.trimAql
@@ -54,7 +55,7 @@ class DocumentationCrossTable extends AbstractCrossTable {
 				]
 			]
 		]
-		it.column("Doc Root") [
+		ownedColumn("Doc Root") [
 			headerLabelExpression = "Domain Documentation"
 			domainClass = "ecore.EPackage"
 			semanticCandidatesExpression = "service:getRootContainer"

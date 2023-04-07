@@ -41,6 +41,9 @@ class TableTemplate extends RepresentationTemplate<TableDescription> {
 			SPKG.identifiedElement_Name,
 			TPKG.tableTool_Variables,
 			TPKG.tableTool_FirstModelOperation
+		},
+		FeatureColumnMapping -> #{
+			TPKG.featureColumnMapping_FeatureName
 		}
 	}
 	
@@ -71,10 +74,9 @@ class TableTemplate extends RepresentationTemplate<TableDescription> {
 		// Parent class cannot use import detection 
 		//   as class does not exist (part of generation)
 		val parentName = 
-			if (pack != context.mainClass.pack) 
-				context.mainClass.qName 
-			else 
-				context.mainClass.name
+			(pack != context.mainClass.pack) 
+				? context.mainClass.qName 
+				: context.mainClass.name
 		
 '''package «pack»
 
@@ -111,18 +113,21 @@ class «name» extends «content.tableEditor.templateClass» {
 	
 	override templatePropertyValue(EStructuralFeature feat, Object value, (Object)=>String encoding) {
 		if (feat instanceof EReference && (feat as EReference).containment) {
-					
-			val fct = switch(value) {
-				LineMapping: "line" -> value // autocast
-				ElementColumnMapping: "column" -> value
-				FeatureColumnMapping: "column" -> value
+			val call = switch(value) {
+				LineMapping: '''ownedLine(«value.name.toJava»)''' // autocast
+				ElementColumnMapping: '''ownedColumn(«value.name.toJava»)'''
+				FeatureColumnMapping:
+					(value.featureName == AbstractEditionTable.VIRTUAL_FEATURE) 
+						? '''ownedVirtualColumn(«value.name.toJava»)'''
+						: '''ownedColumn(«value.name.toJava», «value.featureName.toJava»)'''
 				default: null
 			}
-			if (fct !== null) {
-				val it = fct.value
+			if (call !== null) {
+				val it = value as EObject
+				val clazz = eClass.instanceClass as Class<? extends EObject>
 				return
-'''it.«fct.key»("«name»") [
-	«templateInnerContent(innerContent)»
+'''«call» [
+	«templateFilteredContent(clazz)»
 ]'''
 			}
 		}

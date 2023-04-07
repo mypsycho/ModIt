@@ -31,6 +31,8 @@ import org.eclipse.emf.ecore.EAttribute
  */
 abstract class AbstractEditionTable extends AbstractTable<EditionTableDescription> {
 
+	public static val VIRTUAL_FEATURE = "*"
+
 	static val CELL_EDIT_ARGS = #[ 
 	     EditArg.element -> null,
 	     EditArg.table -> null,
@@ -78,11 +80,10 @@ abstract class AbstractEditionTable extends AbstractTable<EditionTableDescriptio
 	def virtualColumn(String id, (FeatureColumnMapping)=>void initializer) {
 		Objects.requireNonNull(initializer)
 		id.column [
-			featureName = "*" // See table documentation.
+			featureName = VIRTUAL_FEATURE // See table documentation.
 			initializer.apply(it)
 		]
 	}
-	
 	
 	@Deprecated // use ownedColumn
 	def column(EditionTableDescription it, String id, (FeatureColumnMapping)=>void initializer) {
@@ -93,7 +94,15 @@ abstract class AbstractEditionTable extends AbstractTable<EditionTableDescriptio
 	def ownedColumn(EditionTableDescription it, String id, EStructuralFeature feat, (FeatureColumnMapping)=>void initializer) {
 		ownedColumnMappings += id.column(feat, initializer)
 	}
-	
+
+	/** Creates a column in the table. */
+	def ownedColumn(EditionTableDescription it, String id, String feat, (FeatureColumnMapping)=>void initializer) {
+		ownedColumnMappings += id.column[
+			featureName = feat
+			initializer.apply(it)
+		]
+	}
+		
 	/** Creates a column in the table. */
 	def ownedVirtualColumn(EditionTableDescription it, String id, (FeatureColumnMapping)=>void initializer) {
 		ownedColumnMappings += id.virtualColumn(initializer)

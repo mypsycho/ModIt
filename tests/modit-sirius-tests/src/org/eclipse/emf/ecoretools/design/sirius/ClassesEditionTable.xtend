@@ -35,7 +35,7 @@ class ClassesEditionTable extends AbstractEditionTable {
 		documentation = "<html>\n<head>\n</head>\n<body>\n<p>A tabular editor (spreadsheet-like) of the entities in an Ecore model.</p>\n<br>\n<img src=\"/icons/full/wizban/classes.png\"/>\n</body>\n</html>\n\n\n"
 		endUserDocumentation = "A tabular editor (spreadsheet-like) of the entities in an Ecore model."
 		titleExpression = ''' self.name + ' class table' '''.trimAql
-		it.line("Classes lines") [
+		ownedLine("Classes lines") [
 			domainClass = "ecore.EClass"
 			semanticCandidatesExpression = "feature:eContents"
 			reusedInMappings += "Package".lineRef
@@ -47,11 +47,11 @@ class ClassesEditionTable extends AbstractEditionTable {
 					foreGroundColor = SystemColor.extraRef("color:black")
 				]
 			]
-			it.line("Feature") [
+			ownedLine("Feature") [
 				domainClass = "ecore.EStructuralFeature"
 			]
 		]
-		it.line("Package") [
+		ownedLine("Package") [
 			domainClass = "ecore.EPackage"
 			headerLabelExpression = "feature:name"
 			defaultBackground = BackgroundStyleDescription.create [
@@ -71,9 +71,8 @@ class ClassesEditionTable extends AbstractEditionTable {
 				]
 			)
 		]
-		it.column("Name") [
+		ownedColumn("Name", "name") [
 			headerLabelExpression = "Name"
-			featureName = "name"
 			labelExpression = "service:getClassesTableName"
 		]
 	}
