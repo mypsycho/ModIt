@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
 Bundle-SymbolicName: org.mypsycho.emf.modit.dummy-model.edit;singleton:=true
 Automatic-Module-Name: org.mypsycho.emf.modit.dummy-model.edit
-Bundle-Version: 0.9.1.qualifier
+Bundle-Version: 0.9.3.qualifier
 Bundle-ClassPath: .
 Bundle-Activator: org.mypsycho.emf.modit.dw.dummyworld.provider.DummyWorldEditPlugin$Implementation
 Bundle-Vendor: %providerName
