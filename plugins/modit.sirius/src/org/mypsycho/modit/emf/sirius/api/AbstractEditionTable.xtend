@@ -57,11 +57,17 @@ abstract class AbstractEditionTable extends AbstractTable<EditionTableDescriptio
 		featureName = feat.name
 	}
 	
+	protected def initColumnStyle(FeatureColumnMapping it) {
+		// foreground = []
+		// background = null
+	}
+	
 	/** Creates a column. */
 	def column(String id, (FeatureColumnMapping)=>void initializer) {
 		Objects.requireNonNull(initializer)
 		FeatureColumnMapping.createAs(Ns.column, id) [ 
 			name = id
+			initColumnStyle
 			initializer.apply(it)
 		]
 	}
@@ -87,25 +93,31 @@ abstract class AbstractEditionTable extends AbstractTable<EditionTableDescriptio
 	
 	@Deprecated // use ownedColumn
 	def column(EditionTableDescription it, String id, (FeatureColumnMapping)=>void initializer) {
-		ownedColumnMappings += id.column(initializer)
+		val result = id.column(initializer)
+		ownedColumnMappings += result
+		result
 	}
 	
 	/** Creates a column in the table. */
 	def ownedColumn(EditionTableDescription it, String id, EStructuralFeature feat, (FeatureColumnMapping)=>void initializer) {
-		ownedColumnMappings += id.column(feat, initializer)
+		ownedColumn(id, feat.name, initializer)
 	}
 
 	/** Creates a column in the table. */
 	def ownedColumn(EditionTableDescription it, String id, String feat, (FeatureColumnMapping)=>void initializer) {
-		ownedColumnMappings += id.column[
+		val result = id.column[
 			featureName = feat
 			initializer.apply(it)
 		]
+		ownedColumnMappings += result
+		result
 	}
 		
 	/** Creates a column in the table. */
 	def ownedVirtualColumn(EditionTableDescription it, String id, (FeatureColumnMapping)=>void initializer) {
-		ownedColumnMappings += id.virtualColumn(initializer)
+		val result = id.virtualColumn(initializer)
+		ownedColumnMappings += result
+		result
 	}
 	
 	/** References a column. */

@@ -168,6 +168,7 @@ abstract class AbstractTable<T extends TableDescription> extends AbstractTypedEd
 		// (Sirius 6x ot more) There is a bug in header column
 		// Always grey !!
 		background = BasicColor.white.regular
+		foreground = []
 	}
 
 	def line(String id, (LineMapping)=>void initializer) {
@@ -306,7 +307,9 @@ abstract class AbstractTable<T extends TableDescription> extends AbstractTypedEd
      * @return new CreateLineTool instance
      */
 	def createAddLine(TableDescription it, String line, String role, String toolLabel, ModelOperation operation) {
-		ownedCreateLine += line.createLine(role, toolLabel, operation)
+		val result = line.createLine(role, toolLabel, operation)
+		ownedCreateLine += result
+		result
 	}
 	
 	/**
@@ -320,7 +323,9 @@ abstract class AbstractTable<T extends TableDescription> extends AbstractTypedEd
      * @return new CreateLineTool instance
      */
 	def createAddLine(LineMapping it, String line, String role, String toolLabel, ModelOperation operation) {
-		create += line.createLine(role, toolLabel, operation)
+		val result = line.createLine(role, toolLabel, operation)
+		create += result
+		result
 	}
 	
 	
@@ -428,7 +433,7 @@ abstract class AbstractTable<T extends TableDescription> extends AbstractTypedEd
 	 * @return created Style
 	 */
 	protected def void initForeground(ForegroundStyleDescription it) {
-		labelSize = 11 // ODesign is provide 12, but eclipse default is Segoe:9
+		labelSize = 9 // ODesign is provide 12, but eclipse default is Segoe:9
 		foreGroundColor = BasicColor.black.regular
 	}
 	

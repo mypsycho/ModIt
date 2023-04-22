@@ -16,6 +16,7 @@ import java.util.Objects
 import org.eclipse.emf.ecore.EClass
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.sirius.table.metamodel.table.description.CreateCellTool
+import org.eclipse.sirius.table.metamodel.table.description.CreateColumnTool
 import org.eclipse.sirius.table.metamodel.table.description.CreateCrossColumnTool
 import org.eclipse.sirius.table.metamodel.table.description.CrossTableDescription
 import org.eclipse.sirius.table.metamodel.table.description.DeleteColumnTool
@@ -153,7 +154,9 @@ abstract class AbstractCrossTable extends AbstractTable<CrossTableDescription> {
     	String name, Class<? extends EObject> domain, 
     	(ElementColumnMapping)=>void initializer
     ) {
-		ownedColumnMappings += name.column(domain, initializer)
+    	val result = name.column(domain, initializer)
+		ownedColumnMappings += result
+		result
 	}
     
 	/**
@@ -175,7 +178,9 @@ abstract class AbstractCrossTable extends AbstractTable<CrossTableDescription> {
     def ownedColumn(CrossTableDescription it, String name, 
     	(ElementColumnMapping)=>void initializer
     ) {
-		ownedColumnMappings += name.column(initializer)
+		val result = name.column(initializer)
+		ownedColumnMappings += result
+		result
 	}
 	
 	protected def columnRef(String id) {
@@ -220,6 +225,10 @@ abstract class AbstractCrossTable extends AbstractTable<CrossTableDescription> {
 		initVariables(COLUMN_CREATE_ARGS)
 	}
 	
+	def initVariables(CreateColumnTool it) {
+		initVariables(COLUMN_CREATE_ARGS)
+	}
+	
 	def initVariables(DeleteColumnTool it) {
 		initVariables(COLUMN_DEL_ARGS)
 	}
@@ -245,14 +254,39 @@ abstract class AbstractCrossTable extends AbstractTable<CrossTableDescription> {
 		}
 	}
 	
-	def createAddColumn(CrossTableDescription it, String toolLabel, ElementColumnMapping column, ModelOperation task) {
-		var result = CreateCrossColumnTool.create [
+	/**
+	 * Creates and add to tool create new column.
+	 * <p>
+	 * Reminder: Context menu has issue for Column header.
+	 * Menu only consider last selected cell to build the menu.
+	 * </p>
+	 */
+	def createAddColumn(CrossTableDescription it, String column, String role, String toolLabel, ModelOperation task) {
+		var result = CreateCrossColumnTool.createAs(Ns.create, column + role) [
 			initVariables
 			label = toolLabel
-			mapping = column
+			mapping = column.columnRef
 			operation = task
 		]
 		createColumn += result
+		result
+	}
+	
+	/**
+	 * Creates and add to tool create new column.
+	 * <p>
+	 * Reminder: Context menu has issue for Column header.
+	 * Menu only consider last selected cell to build the menu.
+	 * </p>
+	 */
+	def createAddColumn(ElementColumnMapping it, String role, String toolLabel, ModelOperation task) {
+		var result = CreateColumnTool.createAs(Ns.create, role) [
+			initVariables
+			label = toolLabel
+			// mapping is opposite
+			operation = task
+		]
+		create += result
 		result
 	}
 	
@@ -267,6 +301,11 @@ abstract class AbstractCrossTable extends AbstractTable<CrossTableDescription> {
 		]
 
 		create
+	}
+	
+		
+	protected def initCellStyle(IntersectionMapping it) {
+		foreground = []
 	}
 	
 		
@@ -285,13 +324,14 @@ abstract class AbstractCrossTable extends AbstractTable<CrossTableDescription> {
 		String candidatesExpr, (IntersectionMapping)=>void descr
 	) {
 		Objects.requireNonNull(descr)
-		owner.intersection += IntersectionMapping.create(mappingName) [
+		val result = IntersectionMapping.create(mappingName) [
 			useDomainClass = true
 			domainClass = domain
 			
 			// self is root
 			semanticCandidatesExpression = candidatesExpr
-
+			initCellStyle
+			
 			// Required:
 			//   lineMapping,
 			//   columnMapping,
@@ -299,6 +339,8 @@ abstract class AbstractCrossTable extends AbstractTable<CrossTableDescription> {
 			//   columnFinderExpression,
 			descr.apply(it)
 		]
+		owner.intersection += result
+		result
 	}
 
 	/**
@@ -332,17 +374,20 @@ abstract class AbstractCrossTable extends AbstractTable<CrossTableDescription> {
 		String columnExpr, (IntersectionMapping)=>void descr
 	) {
 		Objects.requireNonNull(descr)
-		owner.intersection += IntersectionMapping.create(mappingName) [
+		val result = IntersectionMapping.create(mappingName) [
 			useDomainClass = false
 			
 			// self is root
 			columnFinderExpression = columnExpr
+			initCellStyle
 
 			// Required:
 			//   lineMapping,
 			//   columnMapping
 			descr.apply(it)
 		]
+		owner.intersection += result
+		result
 	}
 	
 	/**
