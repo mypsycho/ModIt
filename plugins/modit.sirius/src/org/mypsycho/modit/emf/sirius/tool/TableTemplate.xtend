@@ -18,6 +18,8 @@ import org.mypsycho.modit.emf.sirius.api.AbstractCrossTable
 import org.mypsycho.modit.emf.sirius.api.AbstractEditionTable
 import org.mypsycho.modit.emf.sirius.api.AbstractTable
 
+import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*
+
 /** Override of default reverse for SiriusModelProvider class. */
 class TableTemplate extends RepresentationTemplate<TableDescription> {
 	
@@ -45,7 +47,7 @@ class TableTemplate extends RepresentationTemplate<TableDescription> {
 		FeatureColumnMapping -> #{
 			TPKG.featureColumnMapping_FeatureName
 		}
-	}
+	} + RepresentationTemplate.INIT_TEMPLATED
 	
 	override getInitTemplateds() {
 		INIT_TEMPLATED
@@ -113,26 +115,31 @@ class «name» extends «content.tableEditor.templateClass» {
 	
 	override templatePropertyValue(EStructuralFeature feat, Object value, (Object)=>String encoding) {
 		if (feat instanceof EReference && (feat as EReference).containment) {
-			val call = switch(value) {
-				LineMapping: '''ownedLine(«value.name.toJava»)''' // autocast
-				ElementColumnMapping: '''ownedColumn(«value.name.toJava»)'''
-				FeatureColumnMapping:
-					(value.featureName == AbstractEditionTable.VIRTUAL_FEATURE) 
-						? '''ownedVirtualColumn(«value.name.toJava»)'''
-						: '''ownedColumn(«value.name.toJava», «value.featureName.toJava»)'''
-				default: null
-			}
-			if (call !== null) {
-				val it = value as EObject
-				val clazz = eClass.instanceClass as Class<? extends EObject>
-				return
-'''«call» [
-	«templateFilteredContent(clazz)»
-]'''
+			val axisProperty = feat.templateAxisValue(value, encoding)
+			if (axisProperty !== null) {
+				return axisProperty
 			}
 		}
-		return super.templatePropertyValue(feat, value, encoding)
+		super.templatePropertyValue(feat, value, encoding)
 	}
+
+	def templateAxisValue(EStructuralFeature feat, Object value, (Object)=>String encoding) {
+		val call = switch(value) {
+			LineMapping: '''ownedLine(«value.name.toJava»)''' // autocast
+			ElementColumnMapping: '''ownedColumn(«value.name.toJava»)'''
+			FeatureColumnMapping:
+				(value.featureName == AbstractEditionTable.VIRTUAL_FEATURE) 
+					? '''ownedVirtualColumn(«value.name.toJava»)'''
+					: '''ownedColumn(«value.name.toJava», «value.featureName.toJava»)'''
+			default: return null
+		}
+
+		val it = value as EObject
+'''«call» [
+	«templateFilteredContent(eClass.instanceClass as Class<? extends EObject>)»
+]'''
+	}
+
 
  	def dispatch smartTemplateCreate(TableTool it) {
 '''«templateClass».create«
@@ -146,10 +153,16 @@ ENDIF                             » [
 	}
 
 	override templateRef(EObject it, Class<?> using) {
-		switch(it) {
-			LineMapping: '''"«name»".lineRef'''
-			ColumnMapping: '''"«name»".columnRef'''
-			default: super.templateRef(it, using)
-		}	
+		val localRef = 
+			if (currentContent.isContaining(it))
+				switch(it) {
+					LineMapping: '''«name.toJava».lineRef'''
+					ColumnMapping: '''«name.toJava».columnRef'''
+					default: null
+				}
+		localRef ?: super.templateRef(it, using)
 	}
+	
+	// TODO Template for links, cells, forMapping, toLines, toColumns
+	
 }

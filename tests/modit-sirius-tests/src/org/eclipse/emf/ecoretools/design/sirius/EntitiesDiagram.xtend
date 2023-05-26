@@ -127,53 +127,41 @@ class EntitiesDiagram extends AbstractDiagram {
 		dropDescriptions += ContainerDropDescription.localRef(Ns.drop, "Drop EClassifier into EPackage")
 		pasteDescriptions += PasteDescription.localRef(Ns.operation, "Paste Anything")
 		filters += CompositeFilterDescription.create("Hide class content") [
-			filters += MappingFilter.create [
-				mappings += NodeMapping.localRef(Ns.node, "EC EAttribute")
-				mappings += NodeMapping.localRef(Ns.node, "Operation")
-			]
+			filters += allHide(
+				NodeMapping.localRef(Ns.node, "EC EAttribute"),
+				NodeMapping.localRef(Ns.node, "Operation"))
 		]
 		filters += CompositeFilterDescription.create("Hide generalizations") [
-			filters += MappingFilter.create [
-				mappings += EdgeMapping.localRef(Ns.edge, "EC ESupertypes")
-			]
+			filters += allHide(
+				EdgeMapping.localRef(Ns.edge, "EC ESupertypes"))
 		]
 		filters += CompositeFilterDescription.create("Hide indirect generalizations") [
-			filters += MappingFilter.create [
-				viewConditionExpression = '''not self.oclAsType(diagram::DEdge).sourceNode.oclAsType(viewpoint::DSemanticDecorator).target.oclAsType(ecore::EClass).eSuperTypes->includes(self.oclAsType(diagram::DEdge).targetNode.oclAsType(viewpoint::DSemanticDecorator).target)'''.trimAql
-				mappings += EdgeMapping.localRef(Ns.edge, "EC ESupertypes")
-			]
+			filters += '''not self.oclAsType(diagram::DEdge).sourceNode.oclAsType(viewpoint::DSemanticDecorator).target.oclAsType(ecore::EClass).eSuperTypes->includes(self.oclAsType(diagram::DEdge).targetNode.oclAsType(viewpoint::DSemanticDecorator).target)'''.trimAql.viewHide(
+				EdgeMapping.localRef(Ns.edge, "EC ESupertypes"))
 		]
 		filters += CompositeFilterDescription.create("Hide references (edges)") [
-			filters += MappingFilter.create [
-				mappings += EdgeMapping.localRef(Ns.edge, "EC_EReference")
-				mappings += EdgeMapping.localRef(Ns.edge, "Bi-directional EC_EReference ")
-			]
+			filters += allHide(
+				EdgeMapping.localRef(Ns.edge, "EC_EReference"),
+				EdgeMapping.localRef(Ns.edge, "Bi-directional EC_EReference "))
 		]
 		filters += CompositeFilterDescription.create("Hide references (nodes)") [
-			filters += MappingFilter.create [
-				mappings += NodeMapping.localRef(Ns.node, "EC EReferenceNode")
-			]
+			filters += allHide(
+				NodeMapping.localRef(Ns.node, "EC EReferenceNode"))
 		]
 		filters += CompositeFilterDescription.create("Hide inherited references (nodes)") [
-			filters += MappingFilter.create [
-				viewConditionExpression = '''self.eContainer().oclAsType(viewpoint::DSemanticDecorator).target = self.oclAsType(viewpoint::DSemanticDecorator).target.eContainer()'''.trimAql
-				mappings += NodeMapping.localRef(Ns.node, "EC EReferenceNode")
-			]
+			filters += '''self.eContainer().oclAsType(viewpoint::DSemanticDecorator).target = self.oclAsType(viewpoint::DSemanticDecorator).target.eContainer()'''.trimAql.viewHide(
+				NodeMapping.localRef(Ns.node, "EC EReferenceNode"))
 		]
 		filters += CompositeFilterDescription.create("Hide derived features") [
-			filters += MappingFilter.create [
-				semanticConditionExpression = '''not self.derived'''.trimAql
-				mappings += EdgeMapping.localRef(Ns.edge, "EC_EReference")
-				mappings += NodeMapping.localRef(Ns.node, "EC EAttribute")
-				mappings += EdgeMapping.localRef(Ns.edge, "Bi-directional EC_EReference ")
-				mappings += NodeMapping.localRef(Ns.node, "EC EReferenceNode")
-			]
+			filters += '''not self.derived'''.trimAql.elementHide(
+				EdgeMapping.localRef(Ns.edge, "EC_EReference"),
+				NodeMapping.localRef(Ns.node, "EC EAttribute"),
+				EdgeMapping.localRef(Ns.edge, "Bi-directional EC_EReference "),
+				NodeMapping.localRef(Ns.node, "EC EReferenceNode"))
 		]
 		filters += CompositeFilterDescription.create("Hide operations") [
-			filters += MappingFilter.create [
-				semanticConditionExpression = ""
-				mappings += NodeMapping.localRef(Ns.node, "Operation")
-			]
+			filters += allHide(
+				NodeMapping.localRef(Ns.node, "Operation"))
 		]
 		validationSet = ValidationSet.create [
 			ownedRules += ViewValidationRule.create("Unused EClass") [
@@ -219,76 +207,6 @@ class EntitiesDiagram extends AbstractDiagram {
 				preconditionExpression = "service:viewContainerNotSemanticContainer(diagram,containerView)"
 				imageExpression = "/org.eclipse.emf.ecoretools.design/icons/full/ovr16/shortcut.gif"
 				domainClass = "ecore.EClassifier"
-			]
-		]
-		customization = Customization.create [
-			vsmElementCustomizations += VSMElementCustomization.create [
-				predicateExpression = "feature:required"
-				featureCustomizations += EAttributeCustomization.create [
-					attributeName = "labelFormat"
-					value = "service:fontFormatBold"
-					appliedOn += CenterLabelStyleDescription.ref("EntitiesDiagram")[ (it as DiagramDescription).defaultLayer.edgeMappings.at("EC_EReference").style.centerLabelStyleDescription ]
-					appliedOn += BundledImageDescription.ref("EntitiesDiagram")[ ((it as DiagramDescription).defaultLayer.containerMappings.at("EC EClass").subNodeMappings.at("EC EAttribute").style as BundledImageDescription) ]
-					appliedOn += BeginLabelStyleDescription.ref("EntitiesDiagram")[ (it as DiagramDescription).defaultLayer.edgeMappings.at("Bi-directional EC_EReference ").style.beginLabelStyleDescription ]
-					appliedOn += EndLabelStyleDescription.ref("EntitiesDiagram")[ (it as DiagramDescription).defaultLayer.edgeMappings.at("Bi-directional EC_EReference ").style.endLabelStyleDescription ]
-					appliedOn += BundledImageDescription.ref("EntitiesDiagram")[ ((it as DiagramDescription).defaultLayer.containerMappings.at("EC EClass").subNodeMappings.at("EC EReferenceNode").style as BundledImageDescription) ]
-					appliedOn += BundledImageDescription.ref("EntitiesDiagram")[ ((it as DiagramDescription).defaultLayer.containerMappings.at("EC EClass").subNodeMappings.at("EC EReferenceNode").conditionnalStyles.head.style as BundledImageDescription) ]
-				]
-				featureCustomizations += EReferenceCustomization.create [
-					referenceName = "strokeColor"
-					appliedOn += EdgeStyleDescription.ref("EntitiesDiagram")[ (it as DiagramDescription).defaultLayer.edgeMappings.at("Bi-directional EC_EReference ").style ]
-					appliedOn += EdgeStyleDescription.ref("EntitiesDiagram")[ (it as DiagramDescription).defaultLayer.edgeMappings.at("EC_EReference").style ]
-					value = SystemColor.extraRef("color:black")
-				]
-			]
-			vsmElementCustomizations += VSMElementCustomization.create [
-				predicateExpression = "feature:containment"
-				featureCustomizations += EAttributeCustomization.create [
-					attributeName = "sourceArrow"
-					value = "service:arrowsFillDiamond"
-					appliedOn += EdgeStyleDescription.ref("EntitiesDiagram")[ (it as DiagramDescription).defaultLayer.edgeMappings.at("EC_EReference").style ]
-					appliedOn += EdgeStyleDescription.ref("EntitiesDiagram")[ (it as DiagramDescription).defaultLayer.edgeMappings.at("Bi-directional EC_EReference ").style ]
-				]
-				featureCustomizations += EAttributeCustomization.create [
-					attributeName = "sizeComputationExpression"
-					value = "1"
-					appliedOn += EdgeStyleDescription.ref("EntitiesDiagram")[ (it as DiagramDescription).defaultLayer.edgeMappings.at("EC_EReference").style ]
-					appliedOn += EdgeStyleDescription.ref("EntitiesDiagram")[ (it as DiagramDescription).defaultLayer.edgeMappings.at("Bi-directional EC_EReference ").style ]
-				]
-			]
-			vsmElementCustomizations += VSMElementCustomization.create [
-				predicateExpression = "feature:container"
-				featureCustomizations += EAttributeCustomization.create [
-					attributeName = "targetArrow"
-					value = "service:arrowsFillDiamond"
-					appliedOn += EdgeStyleDescription.ref("EntitiesDiagram")[ (it as DiagramDescription).defaultLayer.edgeMappings.at("EC_EReference").style ]
-					appliedOn += EdgeStyleDescription.ref("EntitiesDiagram")[ (it as DiagramDescription).defaultLayer.edgeMappings.at("Bi-directional EC_EReference ").style ]
-				]
-				featureCustomizations += EAttributeCustomization.create [
-					attributeName = "sizeComputationExpression"
-					value = "1"
-					appliedOn += EdgeStyleDescription.ref("EntitiesDiagram")[ (it as DiagramDescription).defaultLayer.edgeMappings.at("EC_EReference").style ]
-					appliedOn += EdgeStyleDescription.ref("EntitiesDiagram")[ (it as DiagramDescription).defaultLayer.edgeMappings.at("Bi-directional EC_EReference ").style ]
-				]
-			]
-			vsmElementCustomizations += VSMElementCustomization.create [
-				predicateExpression = "feature:derived"
-				featureCustomizations += EReferenceCustomization.create [
-					referenceName = "strokeColor"
-					appliedOn += EdgeStyleDescription.ref("EntitiesDiagram")[ (it as DiagramDescription).defaultLayer.edgeMappings.at("EC_EReference").style ]
-					appliedOn += EdgeStyleDescription.ref("EntitiesDiagram")[ (it as DiagramDescription).defaultLayer.edgeMappings.at("Bi-directional EC_EReference ").style ]
-					value = SystemColor.extraRef("color:blue")
-				]
-				featureCustomizations += EReferenceCustomization.create [
-					referenceName = "labelColor"
-					appliedOn += BeginLabelStyleDescription.ref("EntitiesDiagram")[ (it as DiagramDescription).defaultLayer.edgeMappings.at("Bi-directional EC_EReference ").style.beginLabelStyleDescription ]
-					appliedOn += EndLabelStyleDescription.ref("EntitiesDiagram")[ (it as DiagramDescription).defaultLayer.edgeMappings.at("Bi-directional EC_EReference ").style.endLabelStyleDescription ]
-					appliedOn += CenterLabelStyleDescription.ref("EntitiesDiagram")[ (it as DiagramDescription).defaultLayer.edgeMappings.at("EC_EReference").style.centerLabelStyleDescription ]
-					appliedOn += BundledImageDescription.ref("EntitiesDiagram")[ ((it as DiagramDescription).defaultLayer.containerMappings.at("EC EClass").subNodeMappings.at("EC EAttribute").style as BundledImageDescription) ]
-					appliedOn += BundledImageDescription.ref("EntitiesDiagram")[ ((it as DiagramDescription).defaultLayer.containerMappings.at("EC EClass").subNodeMappings.at("EC EReferenceNode").style as BundledImageDescription) ]
-					appliedOn += BundledImageDescription.ref("EntitiesDiagram")[ ((it as DiagramDescription).defaultLayer.containerMappings.at("EC EClass").subNodeMappings.at("EC EReferenceNode").conditionnalStyles.head.style as BundledImageDescription) ]
-					value = SystemColor.extraRef("color:dark_blue")
-				]
 			]
 		]
 		nodeMappings += NodeMapping.createAs(Ns.node, "Empty Diagram") [
@@ -641,6 +559,54 @@ class EntitiesDiagram extends AbstractDiagram {
 				]
 			]
 		]
+		styleCustomisations += "feature:required".thenStyle(//
+			"labelFormat".attCustomization("service:fontFormatBold",
+				CenterLabelStyleDescription.localRef(Ns.edge, "EC_EReference") [ (it as EdgeMapping).style.centerLabelStyleDescription ],
+				BundledImageDescription.localRef(Ns.node, "EC EAttribute") [ (it as NodeMapping).style as BundledImageDescription ],
+				BeginLabelStyleDescription.localRef(Ns.edge, "Bi-directional EC_EReference ") [ (it as EdgeMapping).style.beginLabelStyleDescription ],
+				EndLabelStyleDescription.localRef(Ns.edge, "Bi-directional EC_EReference ") [ (it as EdgeMapping).style.endLabelStyleDescription ],
+				BundledImageDescription.localRef(Ns.node, "EC EReferenceNode") [ (it as NodeMapping).style as BundledImageDescription ],
+				BundledImageDescription.localRef(Ns.node, "EC EReferenceNode") [ (it as NodeMapping).conditionnalStyles.head.style as BundledImageDescription ]
+			),
+			"strokeColor".refCustomization(SystemColor.extraRef("color:black"),
+				EdgeStyleDescription.localRef(Ns.edge, "Bi-directional EC_EReference ") [ (it as EdgeMapping).style ],
+				EdgeStyleDescription.localRef(Ns.edge, "EC_EReference") [ (it as EdgeMapping).style ]
+			)
+		)
+		styleCustomisations += "feature:containment".thenStyle(//
+			"sourceArrow".attCustomization("service:arrowsFillDiamond",
+				EdgeStyleDescription.localRef(Ns.edge, "EC_EReference") [ (it as EdgeMapping).style ],
+				EdgeStyleDescription.localRef(Ns.edge, "Bi-directional EC_EReference ") [ (it as EdgeMapping).style ]
+			),
+			"sizeComputationExpression".attCustomization("1",
+				EdgeStyleDescription.localRef(Ns.edge, "EC_EReference") [ (it as EdgeMapping).style ],
+				EdgeStyleDescription.localRef(Ns.edge, "Bi-directional EC_EReference ") [ (it as EdgeMapping).style ]
+			)
+		)
+		styleCustomisations += "feature:container".thenStyle(//
+			"targetArrow".attCustomization("service:arrowsFillDiamond",
+				EdgeStyleDescription.localRef(Ns.edge, "EC_EReference") [ (it as EdgeMapping).style ],
+				EdgeStyleDescription.localRef(Ns.edge, "Bi-directional EC_EReference ") [ (it as EdgeMapping).style ]
+			),
+			"sizeComputationExpression".attCustomization("1",
+				EdgeStyleDescription.localRef(Ns.edge, "EC_EReference") [ (it as EdgeMapping).style ],
+				EdgeStyleDescription.localRef(Ns.edge, "Bi-directional EC_EReference ") [ (it as EdgeMapping).style ]
+			)
+		)
+		styleCustomisations += "feature:derived".thenStyle(//
+			"strokeColor".refCustomization(SystemColor.extraRef("color:blue"),
+				EdgeStyleDescription.localRef(Ns.edge, "EC_EReference") [ (it as EdgeMapping).style ],
+				EdgeStyleDescription.localRef(Ns.edge, "Bi-directional EC_EReference ") [ (it as EdgeMapping).style ]
+			),
+			"labelColor".refCustomization(SystemColor.extraRef("color:dark_blue"),
+				BeginLabelStyleDescription.localRef(Ns.edge, "Bi-directional EC_EReference ") [ (it as EdgeMapping).style.beginLabelStyleDescription ],
+				EndLabelStyleDescription.localRef(Ns.edge, "Bi-directional EC_EReference ") [ (it as EdgeMapping).style.endLabelStyleDescription ],
+				CenterLabelStyleDescription.localRef(Ns.edge, "EC_EReference") [ (it as EdgeMapping).style.centerLabelStyleDescription ],
+				BundledImageDescription.localRef(Ns.node, "EC EAttribute") [ (it as NodeMapping).style as BundledImageDescription ],
+				BundledImageDescription.localRef(Ns.node, "EC EReferenceNode") [ (it as NodeMapping).style as BundledImageDescription ],
+				BundledImageDescription.localRef(Ns.node, "EC EReferenceNode") [ (it as NodeMapping).conditionnalStyles.head.style as BundledImageDescription ]
+			)
+		)
 		toolSections += createExistingElementsTools
 		toolSections += createClassifierTools
 		toolSections += createFeatureTools
@@ -659,8 +625,8 @@ class EntitiesDiagram extends AbstractDiagram {
 					icon = "/org.eclipse.emf.ecoretools.design/icons/full/obj16/GenModel.gif"
 					view = ContainerViewVariable.create("views")
 					operation = "org.eclipse.emf.ecoretools.design.action.generateAllID".javaDo("Generate All", 
-						"genmodels".jparam('''OrderedSet{views.target}.eInverse().eContainerOrSelf(genmodel::GenModel)->asSet()'''.trimAql),
-						"scope".jparam("model, edit, editor, tests")
+						"genmodels" -> '''OrderedSet{views.target}.eInverse().eContainerOrSelf(genmodel::GenModel)->asSet()'''.trimAql,
+						"scope" -> "model, edit, editor, tests"
 					)
 				]
 				menuItemDescription += OperationAction.createAs(Ns.operation, "Model Code") [
@@ -668,8 +634,8 @@ class EntitiesDiagram extends AbstractDiagram {
 					icon = "/org.eclipse.emf.ecoretools.design/icons/full/obj16/GenModel.gif"
 					view = ContainerViewVariable.create("views")
 					operation = "org.eclipse.emf.ecoretools.design.action.generateAllID".javaDo("Generate All", 
-						"genmodels".jparam('''OrderedSet{views.target}.eInverse().eContainerOrSelf(genmodel::GenModel)->asSet()'''.trimAql),
-						"scope".jparam("model")
+						"genmodels" -> '''OrderedSet{views.target}.eInverse().eContainerOrSelf(genmodel::GenModel)->asSet()'''.trimAql,
+						"scope" -> "model"
 					)
 				]
 				menuItemDescription += OperationAction.createAs(Ns.operation, "Edit Code") [
@@ -677,8 +643,8 @@ class EntitiesDiagram extends AbstractDiagram {
 					icon = "/org.eclipse.emf.ecoretools.design/icons/full/obj16/GenModel.gif"
 					view = ContainerViewVariable.create("views")
 					operation = "org.eclipse.emf.ecoretools.design.action.generateAllID".javaDo("Generate All", 
-						"genmodels".jparam('''OrderedSet{views.target}.eInverse().eContainerOrSelf(genmodel::GenModel)->asSet()'''.trimAql),
-						"scope".jparam("edit")
+						"genmodels" -> '''OrderedSet{views.target}.eInverse().eContainerOrSelf(genmodel::GenModel)->asSet()'''.trimAql,
+						"scope" -> "edit"
 					)
 				]
 				menuItemDescription += OperationAction.createAs(Ns.operation, "Editor Code") [
@@ -686,8 +652,8 @@ class EntitiesDiagram extends AbstractDiagram {
 					icon = "/org.eclipse.emf.ecoretools.design/icons/full/obj16/GenModel.gif"
 					view = ContainerViewVariable.create("views")
 					operation = "org.eclipse.emf.ecoretools.design.action.generateAllID".javaDo("Generate All", 
-						"genmodels".jparam('''OrderedSet{views.target}.eInverse().eContainerOrSelf(genmodel::GenModel)->asSet()'''.trimAql),
-						"scope".jparam("editor")
+						"genmodels" -> '''OrderedSet{views.target}.eInverse().eContainerOrSelf(genmodel::GenModel)->asSet()'''.trimAql,
+						"scope" -> "editor"
 					)
 				]
 				menuItemDescription += OperationAction.createAs(Ns.operation, "Tests Code") [
@@ -695,8 +661,8 @@ class EntitiesDiagram extends AbstractDiagram {
 					icon = "/org.eclipse.emf.ecoretools.design/icons/full/obj16/GenModel.gif"
 					view = ContainerViewVariable.create("views")
 					operation = "org.eclipse.emf.ecoretools.design.action.generateAllID".javaDo("Generate All", 
-						"genmodels".jparam('''OrderedSet{views.target}.eInverse().eContainerOrSelf(genmodel::GenModel)->asSet()'''.trimAql),
-						"scope".jparam("tests")
+						"genmodels" -> '''OrderedSet{views.target}.eInverse().eContainerOrSelf(genmodel::GenModel)->asSet()'''.trimAql,
+						"scope" -> "tests"
 					)
 				]
 			]
@@ -705,22 +671,22 @@ class EntitiesDiagram extends AbstractDiagram {
 				menuItemDescription += OperationAction.createAs(Ns.operation, "Enable support") [
 					precondition = '''OrderedSet{views.target}.eInverse().eContainerOrSelf(genmodel::GenModel)->asSet()->size() > 0'''.trimAql
 					view = ContainerViewVariable.create("views")
-					operation = ExternalJavaAction.create [
-						id = "org.eclipse.emf.ecoretools.design.action.openConfirmationDialogID"
-						subModelOperations += '''self.enableCDOGen(OrderedSet{views->filter(viewpoint::DSemanticDecorator).target}.eInverse().eContainerOrSelf(genmodel::GenModel)->asSet())'''.trimAql.toOperation
-						parameters += "message".jparam("The selected generator model will be updated:\n\nSet Feature Delegation = Reflective\nSet Root Extends Class = org.eclipse.emf.internal.cdo.CDOObjectImpl\nSet Root Extends Interface = org.eclipse.emf.cdo.CDOObject\nAdded Model Plugin Variables = CDO=org.eclipse.emf.cdo \nCreated CDO.MF marker file\n\nYou need to regenerate the code to make these changes effective. \n")
-						parameters += "title".jparam("The selected generator model will be updated:\n\nSet Feature Delegation = Reflective\nSet Root Extends Class = org.eclipse.emf.internal.cdo.CDOObjectImpl\nSet Root Extends Interface = org.eclipse.emf.cdo.CDOObject\nAdd Model Plugin Variables = CDO=org.eclipse.emf.cdo \nCreate CDO.MF marker file\n\nYou need to regenerate the code to make these changes effective. ")
-					]
+					operation = "org.eclipse.emf.ecoretools.design.action.openConfirmationDialogID".javaDo("OpenConfirmationDialog", 
+						"message" -> "The selected generator model will be updated:\n\nSet Feature Delegation = Reflective\nSet Root Extends Class = org.eclipse.emf.internal.cdo.CDOObjectImpl\nSet Root Extends Interface = org.eclipse.emf.cdo.CDOObject\nAdded Model Plugin Variables = CDO=org.eclipse.emf.cdo \nCreated CDO.MF marker file\n\nYou need to regenerate the code to make these changes effective. \n",
+						"title" -> "The selected generator model will be updated:\n\nSet Feature Delegation = Reflective\nSet Root Extends Class = org.eclipse.emf.internal.cdo.CDOObjectImpl\nSet Root Extends Interface = org.eclipse.emf.cdo.CDOObject\nAdd Model Plugin Variables = CDO=org.eclipse.emf.cdo \nCreate CDO.MF marker file\n\nYou need to regenerate the code to make these changes effective. "
+					).chain(
+						'''self.enableCDOGen(OrderedSet{views->filter(viewpoint::DSemanticDecorator).target}.eInverse().eContainerOrSelf(genmodel::GenModel)->asSet())'''.trimAql.toOperation
+					)
 				]
 				menuItemDescription += OperationAction.createAs(Ns.operation, "Disable support") [
 					precondition = '''OrderedSet{views.target}.eInverse().eContainerOrSelf(genmodel::GenModel)->asSet()->size() > 0'''.trimAql
 					view = ContainerViewVariable.create("views")
-					operation = ExternalJavaAction.create [
-						id = "org.eclipse.emf.ecoretools.design.action.openConfirmationDialogID"
-						subModelOperations += '''self.disableCDOGen(OrderedSet{views->filter(viewpoint::DSemanticDecorator).target}.eInverse().eContainerOrSelf(genmodel::GenModel)->asSet())'''.trimAql.toOperation
-						parameters += "message".jparam("The selected generator model will be updated:...")
-						parameters += "title".jparam("Disable CDO Native support in .genmodel ?")
-					]
+					operation = "org.eclipse.emf.ecoretools.design.action.openConfirmationDialogID".javaDo("OpenConfirmationDialog", 
+						"message" -> "The selected generator model will be updated:...",
+						"title" -> "Disable CDO Native support in .genmodel ?"
+					).chain(
+						'''self.disableCDOGen(OrderedSet{views->filter(viewpoint::DSemanticDecorator).target}.eInverse().eContainerOrSelf(genmodel::GenModel)->asSet())'''.trimAql.toOperation
+					)
 				]
 			]
 			ownedTools += SelectionWizardDescription.createAs(Ns.operation, "Add") [
@@ -738,19 +704,19 @@ class EntitiesDiagram extends AbstractDiagram {
 				container = SelectContainerVariable.create("container")
 				operation = "var:element".forDo("i", 
 					"service:markForAutosize".toContext(
-						"service:isEClass".thenDo(
+						"service:isEClass".ifThenDo(
 							CreateView.create [
 								containerViewExpression = "var:containerView"
 								mapping = ContainerMapping.localRef(Ns.node, "EC EClass")
 							]
 						),
-						"service:isEDataType".thenDo(
+						"service:isEDataType".ifThenDo(
 							CreateView.create [
 								containerViewExpression = "var:containerView"
 								mapping = ContainerMapping.localRef(Ns.node, "EC EDataType")
 							]
 						),
-						"service:isEEnum".thenDo(
+						"service:isEEnum".ifThenDo(
 							CreateView.create [
 								containerViewExpression = "var:containerView"
 								mapping = ContainerMapping.localRef(Ns.node, "EC EEnum")
@@ -778,25 +744,25 @@ class EntitiesDiagram extends AbstractDiagram {
 				newViewContainer = ContainerViewVariable.create("newContainerView")
 				operation = "var:element".toContext(
 					"service:markForAutosize".toContext(
-						"service:isEClass".thenDo(
+						"service:isEClass".ifThenDo(
 							CreateView.create [
 								containerViewExpression = "var:newContainerView"
 								mapping = ContainerMapping.localRef(Ns.node, "EC EClass")
 							]
 						),
-						"service:isEDataType".thenDo(
+						"service:isEDataType".ifThenDo(
 							CreateView.create [
 								containerViewExpression = "var:newContainerView"
 								mapping = ContainerMapping.localRef(Ns.node, "EC EDataType")
 							]
 						),
-						"service:isEEnum".thenDo(
+						"service:isEEnum".ifThenDo(
 							CreateView.create [
 								containerViewExpression = "var:newContainerView"
 								mapping = ContainerMapping.localRef(Ns.node, "EC EEnum")
 							]
 						),
-						"service:isEPackage".thenDo(
+						"service:isEPackage".ifThenDo(
 							CreateView.create [
 								containerViewExpression = "var:newContainerView"
 								mapping = ContainerMapping.localRef(Ns.node, "Dropped Package")
@@ -817,19 +783,19 @@ class EntitiesDiagram extends AbstractDiagram {
 				]
 				operation = "var:selected".forDo("i", 
 					"service:markForAutosize".toContext(
-						"service:isEClass".thenDo(
+						"service:isEClass".ifThenDo(
 							CreateView.create [
 								containerViewExpression = "var:diagram"
 								mapping = ContainerMapping.localRef(Ns.node, "EC EClass")
 							]
 						),
-						"service:isEDataType".thenDo(
+						"service:isEDataType".ifThenDo(
 							CreateView.create [
 								containerViewExpression = "var:diagram"
 								mapping = ContainerMapping.localRef(Ns.node, "EC EDataType")
 							]
 						),
-						"service:isEEnum".thenDo(
+						"service:isEEnum".ifThenDo(
 							CreateView.create [
 								containerViewExpression = "var:diagram"
 								mapping = ContainerMapping.localRef(Ns.node, "EC EEnum")
@@ -845,10 +811,10 @@ class EntitiesDiagram extends AbstractDiagram {
 				element = ElementDropVariable.create("element")
 				newViewContainer = ContainerViewVariable.create("newContainerView")
 				operation = "var:newSemanticContainer".toContext(
-					"service:isEOperation".thenDo(
+					"service:isEOperation".ifThenDo(
 						"eOperations".setter("var:element")
 					),
-					"service:isEStructuralFeature".thenDo(
+					"service:isEStructuralFeature".ifThenDo(
 						"eStructuralFeatures".setter("var:element")
 					)
 				)
@@ -873,19 +839,19 @@ class EntitiesDiagram extends AbstractDiagram {
 				operation = "var:element".toContext(
 					"service:getRelated(elementView,diagram)".forDo("i", 
 						"service:markForAutosize".toContext(
-							"service:isEClass".thenDo(
+							"service:isEClass".ifThenDo(
 								CreateView.create [
 									containerViewExpression = "var:diagram"
 									mapping = ContainerMapping.localRef(Ns.node, "EC EClass")
 								]
 							),
-							"service:isEDataType".thenDo(
+							"service:isEDataType".ifThenDo(
 								CreateView.create [
 									containerViewExpression = "var:diagram"
 									mapping = ContainerMapping.localRef(Ns.node, "EC EDataType")
 								]
 							),
-							"service:isEEnum".thenDo(
+							"service:isEEnum".ifThenDo(
 								CreateView.create [
 									containerViewExpression = "var:diagram"
 									mapping = ContainerMapping.localRef(Ns.node, "EC EEnum")
@@ -910,14 +876,12 @@ class EntitiesDiagram extends AbstractDiagram {
 					variable = NodeCreationVariable.create("container")
 					viewVariable = ContainerViewVariable.create("containerView")
 					operation = "var:container".toContext(
-						"service:isEPackage".thenDo(
-							CreateInstance.create [
-								typeName = "ecore.EClass"
-								referenceName = "eClassifiers"
-								subModelOperations += "name".setter(''' 'NewEClass'  + self.eContainer().eContents(ecore::EClass)->size() '''.trimAql)
-							]
+						"service:isEPackage".ifThenDo(
+							"eClassifiers".creator("ecore.EClass").chain(
+								"name".setter(''' 'NewEClass'  + self.eContainer().eContents(ecore::EClass)->size() '''.trimAql)
+							)
 						),
-						"service:isEClass".thenDo(
+						"service:isEClass".ifThenDo(
 							"abstract".setter("false"),
 							"interface".setter("false")
 						)
@@ -931,15 +895,13 @@ class EntitiesDiagram extends AbstractDiagram {
 					variable = NodeCreationVariable.create("container")
 					viewVariable = ContainerViewVariable.create("containerView")
 					operation = "var:container".toContext(
-						"service:isEPackage".thenDo(
-							CreateInstance.create [
-								typeName = "ecore.EClass"
-								referenceName = "eClassifiers"
-								subModelOperations += "name".setter(''' 'NewAbstractClass' + self.eContainer().eContents(ecore::EClass)->size() '''.trimAql)
-								subModelOperations += "abstract".setter("true")
-							]
+						"service:isEPackage".ifThenDo(
+							"eClassifiers".creator("ecore.EClass").chain(
+								"name".setter(''' 'NewAbstractClass' + self.eContainer().eContents(ecore::EClass)->size() '''.trimAql),
+								"abstract".setter("true")
+							)
 						),
-						"service:isEClass".thenDo(
+						"service:isEClass".ifThenDo(
 							"abstract".setter("true"),
 							"interface".setter("false")
 						)
@@ -953,16 +915,14 @@ class EntitiesDiagram extends AbstractDiagram {
 					variable = NodeCreationVariable.create("container")
 					viewVariable = ContainerViewVariable.create("containerView")
 					operation = "var:container".toContext(
-						"service:isEPackage".thenDo(
-							CreateInstance.create [
-								typeName = "ecore.EClass"
-								referenceName = "eClassifiers"
-								subModelOperations += "name".setter(''' 'NewInterface' + self.eContainer().eContents(ecore::EClass)->size() '''.trimAql)
-								subModelOperations += "interface".setter("true")
-								subModelOperations += "abstract".setter("true")
-							]
+						"service:isEPackage".ifThenDo(
+							"eClassifiers".creator("ecore.EClass").chain(
+								"name".setter(''' 'NewInterface' + self.eContainer().eContents(ecore::EClass)->size() '''.trimAql),
+								"interface".setter("true"),
+								"abstract".setter("true")
+							)
 						),
-						"service:isEClass".thenDo(
+						"service:isEClass".ifThenDo(
 							"abstract".setter("true"),
 							"interface".setter("true")
 						)
@@ -973,22 +933,18 @@ class EntitiesDiagram extends AbstractDiagram {
 				containerMappings += ContainerMapping.localRef(Ns.node, "EC EDataType")
 				variable = NodeCreationVariable.create("container")
 				viewVariable = ContainerViewVariable.create("containerView")
-				operation = CreateInstance.create [
-					typeName = "ecore.EDataType"
-					referenceName = "eClassifiers"
-					subModelOperations += "name".setter(''' 'NewDataType' + self.eContainer().eContents(ecore::EDataType)->size() '''.trimAql)
-					subModelOperations += "instanceTypeName".setter(''' 'newDataType' + self.eContainer().eContents(ecore::EDataType)->size() '''.trimAql)
-				]
+				operation = "eClassifiers".creator("ecore.EDataType").chain(
+					"name".setter(''' 'NewDataType' + self.eContainer().eContents(ecore::EDataType)->size() '''.trimAql),
+					"instanceTypeName".setter(''' 'newDataType' + self.eContainer().eContents(ecore::EDataType)->size() '''.trimAql)
+				)
 			]
 			ownedTools += ContainerCreationDescription.createAs(Ns.operation, "Enumeration") [
 				containerMappings += ContainerMapping.localRef(Ns.node, "EC EEnum")
 				variable = NodeCreationVariable.create("container")
 				viewVariable = ContainerViewVariable.create("containerView")
-				operation = CreateInstance.create [
-					typeName = "ecore.EEnum"
-					referenceName = "eClassifiers"
-					subModelOperations += "name".setter(''' 'NewEnum' + self.eContainer().eContents(ecore::EEnum)->size() '''.trimAql)
-				]
+				operation = "eClassifiers".creator("ecore.EEnum").chain(
+					"name".setter(''' 'NewEnum' + self.eContainer().eContents(ecore::EEnum)->size() '''.trimAql)
+				)
 			]
 			ownedTools += DeleteElementDescription.createAs(Ns.del, "Delete EClass") [
 				element = ElementDeleteVariable.create("element")
@@ -1006,11 +962,9 @@ class EntitiesDiagram extends AbstractDiagram {
 				variable = NodeCreationVariable.create("container")
 				viewVariable = ContainerViewVariable.create("containerView")
 				operation = "var:container".toContext(
-					CreateInstance.create [
-						typeName = "ecore.ETypeParameter"
-						referenceName = "eTypeParameters"
-						subModelOperations += "name".setter("T")
-					]
+					"eTypeParameters".creator("ecore.ETypeParameter").chain(
+						"name".setter("T")
+					)
 				)
 			]
 			ownedTools += DeleteElementDescription.createAs(Ns.del, "NoOp") [
@@ -1030,32 +984,26 @@ class EntitiesDiagram extends AbstractDiagram {
 				nodeMappings += NodeMapping.localRef(Ns.node, "EC EEnumLiteral")
 				variable = NodeCreationVariable.create("container")
 				viewVariable = ContainerViewVariable.create("containerView")
-				operation = CreateInstance.create [
-					typeName = "ecore.EEnumLiteral"
-					referenceName = "eLiterals"
-					subModelOperations += "name".setter('''('literal' +( self.eContainer().eContents(ecore::EEnumLiteral)->size() -1)).toUpper()'''.trimAql)
-					subModelOperations += "value".setter('''self.eContainer().eContents(ecore::EEnumLiteral)->size()-1'''.trimAql)
-				]
+				operation = "eLiterals".creator("ecore.EEnumLiteral").chain(
+					"name".setter('''('literal' +( self.eContainer().eContents(ecore::EEnumLiteral)->size() -1)).toUpper()'''.trimAql),
+					"value".setter('''self.eContainer().eContents(ecore::EEnumLiteral)->size()-1'''.trimAql)
+				)
 			]
 			ownedTools += NodeCreationDescription.createAs(Ns.creation, "Operation") [
 				nodeMappings += NodeMapping.localRef(Ns.node, "Operation")
 				variable = NodeCreationVariable.create("container")
 				viewVariable = ContainerViewVariable.create("containerView")
-				operation = CreateInstance.create [
-					typeName = "ecore.EOperation"
-					referenceName = "eOperations"
-					subModelOperations += "name".setter(''' 'newOperation' + self.eContainer().eContents(ecore::EOperation)->size() '''.trimAql)
-				]
+				operation = "eOperations".creator("ecore.EOperation").chain(
+					"name".setter(''' 'newOperation' + self.eContainer().eContents(ecore::EOperation)->size() '''.trimAql)
+				)
 			]
 			ownedTools += NodeCreationDescription.createAs(Ns.creation, "Attribute") [
 				nodeMappings += NodeMapping.localRef(Ns.node, "EC EAttribute")
 				variable = NodeCreationVariable.create("container")
 				viewVariable = ContainerViewVariable.create("containerView")
-				operation = CreateInstance.create [
-					typeName = "ecore.EAttribute"
-					referenceName = "eStructuralFeatures"
-					subModelOperations += "name".setter("newAttribute")
-				]
+				operation = "eStructuralFeatures".creator("ecore.EAttribute").chain(
+					"name".setter("newAttribute")
+				)
 			]
 			ownedTools += ContainerDropDescription.createAs(Ns.drop, "Drop attribute") [
 				mappings += NodeMapping.localRef(Ns.node, "EC EAttribute")
@@ -1099,7 +1047,9 @@ class EntitiesDiagram extends AbstractDiagram {
 				sourceViewVariable = SourceEdgeViewCreationVariable.create("sourceView")
 				targetViewVariable = TargetEdgeViewCreationVariable.create("targetView")
 				operation = "var:source".toContext(
-					"eSuperTypes".setter("var:target")
+					"eSuperTypes".setter("var:target").chain(
+						"service:createTypeArgumentsIfNeeded(target)".toOperation
+					)
 				)
 			]
 			ownedTools += EdgeCreationDescription.createAs(Ns.connect, "Reference") [
@@ -1109,12 +1059,10 @@ class EntitiesDiagram extends AbstractDiagram {
 				sourceViewVariable = SourceEdgeViewCreationVariable.create("sourceView")
 				targetViewVariable = TargetEdgeViewCreationVariable.create("targetView")
 				operation = "var:source".toContext(
-					CreateInstance.create [
-						typeName = "ecore.EReference"
-						referenceName = "eStructuralFeatures"
-						subModelOperations += "name".setter('''target.name.toLower()'''.trimAql)
-						subModelOperations += "service:setEType(target)".toOperation
-					]
+					"eStructuralFeatures".creator("ecore.EReference").chain(
+						"name".setter('''target.name.toLower()'''.trimAql),
+						"service:setEType(target)".toOperation
+					)
 				)
 			]
 			ownedTools += EdgeCreationDescription.createAs(Ns.connect, "Bi-directional Reference") [
@@ -1124,25 +1072,19 @@ class EntitiesDiagram extends AbstractDiagram {
 				sourceViewVariable = SourceEdgeViewCreationVariable.create("sourceView")
 				targetViewVariable = TargetEdgeViewCreationVariable.create("targetView")
 				operation = "var:target".toContext(
-					CreateInstance.create [
-						typeName = "ecore.EReference"
-						referenceName = "eStructuralFeatures"
-						variableName = "instanceTarget"
-						subModelOperations += "eType".setter('''source'''.trimAql)
-						subModelOperations += "name".setter('''source.name.toLower()'''.trimAql)
-					],
+					"eStructuralFeatures".creator("ecore.EReference").andThen[ variableName = "instanceTarget" ].chain(
+						"eType".setter('''source'''.trimAql),
+						"name".setter('''source.name.toLower()'''.trimAql)
+					),
 					"var:source".toContext(
-						CreateInstance.create [
-							typeName = "ecore.EReference"
-							referenceName = "eStructuralFeatures"
-							variableName = "instanceSource"
-							subModelOperations += "eType".setter("var:target")
-							subModelOperations += "name".setter('''target.name.toLower()'''.trimAql)
-							subModelOperations += "eOpposite".setter("var:instanceTarget")
-							subModelOperations += '''source = target'''.trimAql.thenDo(
+						"eStructuralFeatures".creator("ecore.EReference").andThen[ variableName = "instanceSource" ].chain(
+							"eType".setter("var:target"),
+							"name".setter('''target.name.toLower()'''.trimAql),
+							"eOpposite".setter("var:instanceTarget"),
+							'''source = target'''.trimAql.ifThenDo(
 								"name".setter(''' target.name.toLower() + 'eOpposite' '''.trimAql)
 							)
-						],
+						),
 						"var:instanceTarget".toContext(
 							"eOpposite".setter("var:instanceSource")
 						)
@@ -1156,14 +1098,12 @@ class EntitiesDiagram extends AbstractDiagram {
 				sourceViewVariable = SourceEdgeViewCreationVariable.create("sourceView")
 				targetViewVariable = TargetEdgeViewCreationVariable.create("targetView")
 				operation = "var:source".toContext(
-					CreateInstance.create [
-						typeName = "ecore.EReference"
-						referenceName = "eStructuralFeatures"
-						subModelOperations += "name".setter('''target.name.toLower()'''.trimAql)
-						subModelOperations += "containment".setter("true")
-						subModelOperations += "upperBound".setter("-1")
-						subModelOperations += "service:setEType(target)".toOperation
-					]
+					"eStructuralFeatures".creator("ecore.EReference").chain(
+						"name".setter('''target.name.toLower()'''.trimAql),
+						"containment".setter("true"),
+						"upperBound".setter("-1"),
+						"service:setEType(target)".toOperation
+					)
 				)
 			]
 			ownedTools += DeleteElementDescription.createAs(Ns.del, "Delete ESuperType") [
@@ -1237,14 +1177,11 @@ class EntitiesDiagram extends AbstractDiagram {
 				targetView = TargetEdgeViewCreationVariable.create("targetView")
 				element = ElementSelectVariable.create("element")
 				operation = "var:target".toContext(
-					CreateInstance.create [
-						typeName = "ecore.EReference"
-						referenceName = "eStructuralFeatures"
-						variableName = "newSource"
-						subModelOperations += "name".setter('''element.name'''.trimAql)
-						subModelOperations += "eType".setter('''element.eType'''.trimAql)
-						subModelOperations += "eOpposite".setter('''element.eOpposite'''.trimAql)
-					],
+					"eStructuralFeatures".creator("ecore.EReference").andThen[ variableName = "newSource" ].chain(
+						"name".setter('''element.name'''.trimAql),
+						"eType".setter('''element.eType'''.trimAql),
+						"eOpposite".setter('''element.eOpposite'''.trimAql)
+					),
 					'''element.eOpposite'''.trimAql.toContext(
 						"eType".setter("var:target"),
 						"eOpposite".setter('''newSource'''.trimAql)
@@ -1262,14 +1199,11 @@ class EntitiesDiagram extends AbstractDiagram {
 				targetView = TargetEdgeViewCreationVariable.create("targetView")
 				element = ElementSelectVariable.create("element")
 				operation = "var:target".toContext(
-					CreateInstance.create [
-						typeName = "ecore.EReference"
-						referenceName = "eStructuralFeatures"
-						variableName = "newTarget"
-						subModelOperations += "name".setter('''element.eOpposite.name'''.trimAql)
-						subModelOperations += "eType".setter('''element.eOpposite.eType'''.trimAql)
-						subModelOperations += "eOpposite".setter("var:element")
-					],
+					"eStructuralFeatures".creator("ecore.EReference").andThen[ variableName = "newTarget" ].chain(
+						"name".setter('''element.eOpposite.name'''.trimAql),
+						"eType".setter('''element.eOpposite.eType'''.trimAql),
+						"eOpposite".setter("var:element")
+					),
 					'''element.eOpposite'''.trimAql.toContext(
 						RemoveElement.create
 					),
@@ -1363,7 +1297,7 @@ class EntitiesDiagram extends AbstractDiagram {
 				label = "Open User Guide"
 				view = ContainerViewVariable.create("views")
 				operation = "org.eclipse.sirius.ui.business.api.action.openHelpSection".javaDo("Open Entities User Guide Action", 
-					"href".jparam("/org.eclipse.emf.ecoretools.doc/doc/EcoreTools User Manual.html#EntitiesDiagramEditor")
+					"href" -> "/org.eclipse.emf.ecoretools.doc/doc/EcoreTools User Manual.html#EntitiesDiagramEditor"
 				)
 			]
 		]
@@ -1378,7 +1312,7 @@ class EntitiesDiagram extends AbstractDiagram {
 				element = ElementVariable.create("element")
 				elementView = ElementViewVariable.create("elementView")
 				operation = "org.eclipse.emf.ecoretools.design.action.createDynamicInstanceActionID".javaDo("Create dynamic instance of a specified EClass", 
-					"eClass".jparam("var:element")
+					"eClass" -> "var:element"
 				)
 			]
 		]
@@ -1425,14 +1359,11 @@ class EntitiesDiagram extends AbstractDiagram {
 				containerMappings += ContainerMapping.localRef(Ns.node, "Dropped Package")
 				variable = NodeCreationVariable.create("container")
 				viewVariable = ContainerViewVariable.create("containerView")
-				operation = CreateInstance.create [
-					typeName = "ecore.EPackage"
-					referenceName = "eSubpackages"
-					variableName = "newPackage"
-					subModelOperations += "var:newPackage".toContext(
+				operation = "eSubpackages".creator("ecore.EPackage").andThen[ variableName = "newPackage" ].chain(
+					"var:newPackage".toContext(
 						"name".setter(''' 'newPackage' + self.eContainer().eContents(ecore::EPackage)->size() '''.trimAql)
 					)
-				]
+				)
 			]
 			ownedTools += ContainerDropDescription.createAs(Ns.drop, "Drop EClassifier into EPackage") [
 				mappings += ContainerMapping.localRef(Ns.node, "EC EClass")
@@ -1455,7 +1386,12 @@ class EntitiesDiagram extends AbstractDiagram {
 				element = ElementDropVariable.create("element")
 				newViewContainer = ContainerViewVariable.create("newContainerView")
 				operation = "var:newSemanticContainer".toContext(
-					"eSubpackages".setter("var:element")
+					"eSubpackages".setter("var:element").chain(
+						CreateView.create [
+							containerViewExpression = "var:newContainerView"
+							mapping = ContainerMapping.localRef(Ns.node, "Dropped Package")
+						]
+					)
 				)
 			]
 		]
@@ -1464,34 +1400,6 @@ class EntitiesDiagram extends AbstractDiagram {
 
 	def createDocumentationLayer() {
 		AdditionalLayer.create("Documentation") [
-			customization = Customization.create [
-				vsmElementCustomizations += VSMElementCustomization.create [
-					predicateExpression = "service:hasNoDocAnnotation"
-					featureCustomizations += EReferenceCustomization.create [
-						referenceName = "labelColor"
-						appliedOn += FlatContainerStyleDescription.ref("EntitiesDiagram")[ ((it as DiagramDescription).defaultLayer.containerMappings.at("EC EClass").style as FlatContainerStyleDescription) ]
-						appliedOn += FlatContainerStyleDescription.ref("EntitiesDiagram")[ ((it as DiagramDescription).defaultLayer.containerMappings.at("EC EClass").conditionnalStyles.get(1).style as FlatContainerStyleDescription) ]
-						appliedOn += FlatContainerStyleDescription.ref("EntitiesDiagram")[ ((it as DiagramDescription).defaultLayer.containerMappings.at("EC EClass").conditionnalStyles.get(0).style as FlatContainerStyleDescription) ]
-						appliedOn += CenterLabelStyleDescription.ref("EntitiesDiagram")[ (it as DiagramDescription).defaultLayer.edgeMappings.at("EC_EReference").style.centerLabelStyleDescription ]
-						appliedOn += FlatContainerStyleDescription.ref("EntitiesDiagram")[ ((it as DiagramDescription).defaultLayer.containerMappings.at("EC EDataType").style as FlatContainerStyleDescription) ]
-						value = SystemColor.extraRef("color:red")
-					]
-					featureCustomizations += EReferenceCustomization.create [
-						referenceName = "borderColor"
-						appliedOn += FlatContainerStyleDescription.ref("EntitiesDiagram")[ ((it as DiagramDescription).defaultLayer.containerMappings.at("EC EClass").style as FlatContainerStyleDescription) ]
-						appliedOn += FlatContainerStyleDescription.ref("EntitiesDiagram")[ ((it as DiagramDescription).defaultLayer.containerMappings.at("EC EClass").conditionnalStyles.get(1).style as FlatContainerStyleDescription) ]
-						appliedOn += FlatContainerStyleDescription.ref("EntitiesDiagram")[ ((it as DiagramDescription).defaultLayer.containerMappings.at("EC EClass").conditionnalStyles.get(0).style as FlatContainerStyleDescription) ]
-						appliedOn += FlatContainerStyleDescription.ref("EntitiesDiagram")[ ((it as DiagramDescription).defaultLayer.containerMappings.at("EC EDataType").style as FlatContainerStyleDescription) ]
-						value = SystemColor.extraRef("color:red")
-					]
-					featureCustomizations += EReferenceCustomization.create [
-						referenceName = "strokeColor"
-						appliedOn += EdgeStyleDescription.ref("EntitiesDiagram")[ (it as DiagramDescription).defaultLayer.edgeMappings.at("Bi-directional EC_EReference ").style ]
-						appliedOn += EdgeStyleDescription.ref("EntitiesDiagram")[ (it as DiagramDescription).defaultLayer.edgeMappings.at("EC_EReference").style ]
-						value = SystemColor.extraRef("color:red")
-					]
-				]
-			]
 			nodeMappings += NodeMapping.createAs(Ns.node, "EC Doc Annotation") [
 				semanticCandidatesExpression = "service:getVisibleDocAnnotations(diagram)"
 				domainClass = "ecore.EStringToStringMapEntry"
@@ -1530,6 +1438,25 @@ class EntitiesDiagram extends AbstractDiagram {
 					]
 				]
 			]
+			styleCustomisations += "service:hasNoDocAnnotation".thenStyle(//
+				"labelColor".refCustomization(SystemColor.extraRef("color:red"),
+					FlatContainerStyleDescription.localRef(Ns.node, "EC EClass") [ (it as ContainerMapping).style as FlatContainerStyleDescription ],
+					FlatContainerStyleDescription.localRef(Ns.node, "EC EClass") [ (it as ContainerMapping).conditionnalStyles.get(1).style as FlatContainerStyleDescription ],
+					FlatContainerStyleDescription.localRef(Ns.node, "EC EClass") [ (it as ContainerMapping).conditionnalStyles.get(0).style as FlatContainerStyleDescription ],
+					CenterLabelStyleDescription.localRef(Ns.edge, "EC_EReference") [ (it as EdgeMapping).style.centerLabelStyleDescription ],
+					FlatContainerStyleDescription.localRef(Ns.node, "EC EDataType") [ (it as ContainerMapping).style as FlatContainerStyleDescription ]
+				),
+				"borderColor".refCustomization(SystemColor.extraRef("color:red"),
+					FlatContainerStyleDescription.localRef(Ns.node, "EC EClass") [ (it as ContainerMapping).style as FlatContainerStyleDescription ],
+					FlatContainerStyleDescription.localRef(Ns.node, "EC EClass") [ (it as ContainerMapping).conditionnalStyles.get(1).style as FlatContainerStyleDescription ],
+					FlatContainerStyleDescription.localRef(Ns.node, "EC EClass") [ (it as ContainerMapping).conditionnalStyles.get(0).style as FlatContainerStyleDescription ],
+					FlatContainerStyleDescription.localRef(Ns.node, "EC EDataType") [ (it as ContainerMapping).style as FlatContainerStyleDescription ]
+				),
+				"strokeColor".refCustomization(SystemColor.extraRef("color:red"),
+					EdgeStyleDescription.localRef(Ns.edge, "Bi-directional EC_EReference ") [ (it as EdgeMapping).style ],
+					EdgeStyleDescription.localRef(Ns.edge, "EC_EReference") [ (it as EdgeMapping).style ]
+				)
+			)
 			toolSections += createDocumentationTools
 		]
 	}
@@ -1546,20 +1473,16 @@ class EntitiesDiagram extends AbstractDiagram {
 				variable = NodeCreationVariable.create("container")
 				viewVariable = ContainerViewVariable.create("containerView")
 				operation = "var:container".toContext(
-					'''self.eAnnotations->select(a | a.source = 'http://www.eclipse.org/emf/2002/GenModel')->size() = 0'''.trimAql.thenDo(
-						CreateInstance.create [
-							typeName = "ecore.EAnnotation"
-							referenceName = "eAnnotations"
-							subModelOperations += "source".setter(''' 'http://www.eclipse.org/emf/2002/GenModel' '''.trimAql)
-						]
+					'''self.eAnnotations->select(a | a.source = 'http://www.eclipse.org/emf/2002/GenModel')->size() = 0'''.trimAql.ifThenDo(
+						"eAnnotations".creator("ecore.EAnnotation").chain(
+							"source".setter(''' 'http://www.eclipse.org/emf/2002/GenModel' '''.trimAql)
+						)
 					),
 					'''self.eAnnotations->select(a | a.source = 'http://www.eclipse.org/emf/2002/GenModel')->asSequence()->first()'''.trimAql.toContext(
-						'''self.details->select(a | a.key = 'documentation')->size() = 0'''.trimAql.thenDo(
-							CreateInstance.create [
-								typeName = "ecore.EStringToStringMapEntry"
-								referenceName = "details"
-								subModelOperations += "key".setter(''' 'documentation' '''.trimAql)
-							]
+						'''self.details->select(a | a.key = 'documentation')->size() = 0'''.trimAql.ifThenDo(
+							"details".creator("ecore.EStringToStringMapEntry").chain(
+								"key".setter(''' 'documentation' '''.trimAql)
+							)
 						),
 						'''self.details->select(a | a.key = 'documentation')->asSequence()->first()'''.trimAql.toContext(
 							"value".setter(''' 'New documentation note' '''.trimAql)
@@ -1593,40 +1516,31 @@ class EntitiesDiagram extends AbstractDiagram {
 	def createValidationLayer() {
 		AdditionalLayer.create("Validation") [
 			activeByDefault = true
-			customization = Customization.create [
-				vsmElementCustomizations += VSMElementCustomization.create [
-					predicateExpression = "service:hasError"
-					featureCustomizations += EReferenceCustomization.create [
-						referenceName = "labelColor"
-						appliedOn += BundledImageDescription.ref("EntitiesDiagram")[ ((it as DiagramDescription).defaultLayer.containerMappings.at("EC EClass").subNodeMappings.at("EC EAttribute").style as BundledImageDescription) ]
-						appliedOn += BundledImageDescription.ref("EntitiesDiagram")[ ((it as DiagramDescription).defaultLayer.containerMappings.at("EC EClass").subNodeMappings.at("Operation").style as BundledImageDescription) ]
-						appliedOn += CenterLabelStyleDescription.ref("EntitiesDiagram")[ (it as DiagramDescription).defaultLayer.edgeMappings.at("EC_EReference").style.centerLabelStyleDescription ]
-						appliedOn += CenterLabelStyleDescription.ref("EntitiesDiagram")[ (it as DiagramDescription).defaultLayer.edgeMappings.at("EC ESupertypes").style.centerLabelStyleDescription ]
-						appliedOn += CenterLabelStyleDescription.ref("EntitiesDiagram")[ (it as DiagramDescription).defaultLayer.edgeMappings.at("EC ESupertypes").conditionnalStyles.get(0).style.centerLabelStyleDescription ]
-						appliedOn += FlatContainerStyleDescription.ref("EntitiesDiagram")[ ((it as DiagramDescription).defaultLayer.containerMappings.at("EC EClass").conditionnalStyles.get(1).style as FlatContainerStyleDescription) ]
-						appliedOn += FlatContainerStyleDescription.ref("EntitiesDiagram")[ ((it as DiagramDescription).defaultLayer.containerMappings.at("EC EClass").conditionnalStyles.get(0).style as FlatContainerStyleDescription) ]
-						appliedOn += FlatContainerStyleDescription.ref("EntitiesDiagram")[ ((it as DiagramDescription).defaultLayer.containerMappings.at("EC EClass").style as FlatContainerStyleDescription) ]
-						appliedOn += FlatContainerStyleDescription.ref("EntitiesDiagram")[ ((it as DiagramDescription).defaultLayer.containerMappings.at("EC EDataType").style as FlatContainerStyleDescription) ]
-						value = SystemColor.extraRef("color:red")
-					]
-					featureCustomizations += EReferenceCustomization.create [
-						referenceName = "borderColor"
-						appliedOn += BundledImageDescription.ref("EntitiesDiagram")[ ((it as DiagramDescription).defaultLayer.containerMappings.at("EC EClass").subNodeMappings.at("EC EAttribute").style as BundledImageDescription) ]
-						appliedOn += FlatContainerStyleDescription.ref("EntitiesDiagram")[ ((it as DiagramDescription).defaultLayer.containerMappings.at("EC EClass").style as FlatContainerStyleDescription) ]
-						appliedOn += BundledImageDescription.ref("EntitiesDiagram")[ ((it as DiagramDescription).defaultLayer.containerMappings.at("EC EClass").subNodeMappings.at("Operation").style as BundledImageDescription) ]
-						appliedOn += FlatContainerStyleDescription.ref("EntitiesDiagram")[ ((it as DiagramDescription).defaultLayer.containerMappings.at("EC EClass").conditionnalStyles.get(1).style as FlatContainerStyleDescription) ]
-						appliedOn += FlatContainerStyleDescription.ref("EntitiesDiagram")[ ((it as DiagramDescription).defaultLayer.containerMappings.at("EC EClass").conditionnalStyles.get(0).style as FlatContainerStyleDescription) ]
-						appliedOn += FlatContainerStyleDescription.ref("EntitiesDiagram")[ ((it as DiagramDescription).defaultLayer.containerMappings.at("EC EDataType").style as FlatContainerStyleDescription) ]
-						value = SystemColor.extraRef("color:red")
-					]
-					featureCustomizations += EReferenceCustomization.create [
-						referenceName = "strokeColor"
-						appliedOn += EdgeStyleDescription.ref("EntitiesDiagram")[ (it as DiagramDescription).defaultLayer.edgeMappings.at("Bi-directional EC_EReference ").style ]
-						appliedOn += EdgeStyleDescription.ref("EntitiesDiagram")[ (it as DiagramDescription).defaultLayer.edgeMappings.at("EC_EReference").style ]
-						value = SystemColor.extraRef("color:red")
-					]
-				]
-			]
+			styleCustomisations += "service:hasError".thenStyle(//
+				"labelColor".refCustomization(SystemColor.extraRef("color:red"),
+					BundledImageDescription.localRef(Ns.node, "EC EAttribute") [ (it as NodeMapping).style as BundledImageDescription ],
+					BundledImageDescription.localRef(Ns.node, "Operation") [ (it as NodeMapping).style as BundledImageDescription ],
+					CenterLabelStyleDescription.localRef(Ns.edge, "EC_EReference") [ (it as EdgeMapping).style.centerLabelStyleDescription ],
+					CenterLabelStyleDescription.localRef(Ns.edge, "EC ESupertypes") [ (it as EdgeMapping).style.centerLabelStyleDescription ],
+					CenterLabelStyleDescription.localRef(Ns.edge, "EC ESupertypes") [ (it as EdgeMapping).conditionnalStyles.get(0).style.centerLabelStyleDescription ],
+					FlatContainerStyleDescription.localRef(Ns.node, "EC EClass") [ (it as ContainerMapping).conditionnalStyles.get(1).style as FlatContainerStyleDescription ],
+					FlatContainerStyleDescription.localRef(Ns.node, "EC EClass") [ (it as ContainerMapping).conditionnalStyles.get(0).style as FlatContainerStyleDescription ],
+					FlatContainerStyleDescription.localRef(Ns.node, "EC EClass") [ (it as ContainerMapping).style as FlatContainerStyleDescription ],
+					FlatContainerStyleDescription.localRef(Ns.node, "EC EDataType") [ (it as ContainerMapping).style as FlatContainerStyleDescription ]
+				),
+				"borderColor".refCustomization(SystemColor.extraRef("color:red"),
+					BundledImageDescription.localRef(Ns.node, "EC EAttribute") [ (it as NodeMapping).style as BundledImageDescription ],
+					FlatContainerStyleDescription.localRef(Ns.node, "EC EClass") [ (it as ContainerMapping).style as FlatContainerStyleDescription ],
+					BundledImageDescription.localRef(Ns.node, "Operation") [ (it as NodeMapping).style as BundledImageDescription ],
+					FlatContainerStyleDescription.localRef(Ns.node, "EC EClass") [ (it as ContainerMapping).conditionnalStyles.get(1).style as FlatContainerStyleDescription ],
+					FlatContainerStyleDescription.localRef(Ns.node, "EC EClass") [ (it as ContainerMapping).conditionnalStyles.get(0).style as FlatContainerStyleDescription ],
+					FlatContainerStyleDescription.localRef(Ns.node, "EC EDataType") [ (it as ContainerMapping).style as FlatContainerStyleDescription ]
+				),
+				"strokeColor".refCustomization(SystemColor.extraRef("color:red"),
+					EdgeStyleDescription.localRef(Ns.edge, "Bi-directional EC_EReference ") [ (it as EdgeMapping).style ],
+					EdgeStyleDescription.localRef(Ns.edge, "EC_EReference") [ (it as EdgeMapping).style ]
+				)
+			)
 		]
 	}
 
@@ -1683,20 +1597,16 @@ class EntitiesDiagram extends AbstractDiagram {
 				variable = NodeCreationVariable.create("container")
 				viewVariable = ContainerViewVariable.create("containerView")
 				operation = "var:container".toContext(
-					'''self.eAnnotations->select(a | a.source = 'http://www.eclipse.org/emf/2002/Ecore')->size() = 0'''.trimAql.thenDo(
-						CreateInstance.create [
-							typeName = "ecore.EAnnotation"
-							referenceName = "eAnnotations"
-							subModelOperations += "source".setter(''' 'http://www.eclipse.org/emf/2002/Ecore' '''.trimAql)
-						]
+					'''self.eAnnotations->select(a | a.source = 'http://www.eclipse.org/emf/2002/Ecore')->size() = 0'''.trimAql.ifThenDo(
+						"eAnnotations".creator("ecore.EAnnotation").chain(
+							"source".setter(''' 'http://www.eclipse.org/emf/2002/Ecore' '''.trimAql)
+						)
 					),
 					'''self.eAnnotations->select(a | a.source = 'http://www.eclipse.org/emf/2002/Ecore')->asSequence()->first()'''.trimAql.toContext(
-						'''self.details->select(a | a.key = 'constraints')->size() = 0'''.trimAql.thenDo(
-							CreateInstance.create [
-								typeName = "ecore.EStringToStringMapEntry"
-								referenceName = "details"
-								subModelOperations += "key".setter(''' 'constraints' '''.trimAql)
-							]
+						'''self.details->select(a | a.key = 'constraints')->size() = 0'''.trimAql.ifThenDo(
+							"details".creator("ecore.EStringToStringMapEntry").chain(
+								"key".setter(''' 'constraints' '''.trimAql)
+							)
 						),
 						'''self.details->select(a | a.key = 'constraints')->asSequence()->first()'''.trimAql.toContext(
 							"value".setter(''' 'Constraint1 Constraint2' '''.trimAql)
@@ -1790,21 +1700,14 @@ class EntitiesDiagram extends AbstractDiagram {
 	def createIconsPreviewLayer() {
 		AdditionalLayer.create("Icons Preview") [
 			icon = "/org.eclipse.emf.ecoretools.design/icons/full/etools16/image.gif"
-			customization = Customization.create [
-				vsmElementCustomizations += VSMElementCustomization.create [
-					predicateExpression = '''self.oclIsKindOf(ecore::EClass) and self.eInverse(genmodel::GenClass) <> null'''.trimAql
-					featureCustomizations += EAttributeCustomization.create [
-						attributeName = "iconPath"
-						value = '''self.eInverse(genmodel::GenClass).getEClassItemIconPath()->first()'''.trimAql
-						appliedOn += FlatContainerStyleDescription.ref("EntitiesDiagram")[ ((it as DiagramDescription).defaultLayer.containerMappings.at("EC EClass").conditionnalStyles.get(1).style as FlatContainerStyleDescription) ]
-						appliedOn += FlatContainerStyleDescription.ref("EntitiesDiagram")[ ((it as DiagramDescription).defaultLayer.containerMappings.at("EC EClass").conditionnalStyles.get(0).style as FlatContainerStyleDescription) ]
-						appliedOn += FlatContainerStyleDescription.ref("EntitiesDiagram")[ ((it as DiagramDescription).defaultLayer.containerMappings.at("EC EClass").style as FlatContainerStyleDescription) ]
-						appliedOn += FlatContainerStyleDescription.ref("EntitiesDiagram")[ ((it as DiagramDescription).additionalLayers.at("Related EClasses").containerMappings.at("EC External EClasses").conditionnalStyles.get(1).style as FlatContainerStyleDescription) ]
-						appliedOn += FlatContainerStyleDescription.ref("EntitiesDiagram")[ ((it as DiagramDescription).additionalLayers.at("Related EClasses").containerMappings.at("EC External EClasses").conditionnalStyles.get(0).style as FlatContainerStyleDescription) ]
-						appliedOn += FlatContainerStyleDescription.ref("EntitiesDiagram")[ ((it as DiagramDescription).additionalLayers.at("Related EClasses").containerMappings.at("EC External EClasses").style as FlatContainerStyleDescription) ]
-					]
-				]
-			]
+			styleCustomisations += '''self.oclIsKindOf(ecore::EClass) and self.eInverse(genmodel::GenClass) <> null'''.trimAql.thenStyle("iconPath".attCustomization('''self.eInverse(genmodel::GenClass).getEClassItemIconPath()->first()'''.trimAql,
+				FlatContainerStyleDescription.localRef(Ns.node, "EC EClass") [ (it as ContainerMapping).conditionnalStyles.get(1).style as FlatContainerStyleDescription ],
+				FlatContainerStyleDescription.localRef(Ns.node, "EC EClass") [ (it as ContainerMapping).conditionnalStyles.get(0).style as FlatContainerStyleDescription ],
+				FlatContainerStyleDescription.localRef(Ns.node, "EC EClass") [ (it as ContainerMapping).style as FlatContainerStyleDescription ],
+				FlatContainerStyleDescription.localRef(Ns.node, "EC External EClasses") [ (it as ContainerMapping).conditionnalStyles.get(1).style as FlatContainerStyleDescription ],
+				FlatContainerStyleDescription.localRef(Ns.node, "EC External EClasses") [ (it as ContainerMapping).conditionnalStyles.get(0).style as FlatContainerStyleDescription ],
+				FlatContainerStyleDescription.localRef(Ns.node, "EC External EClasses") [ (it as ContainerMapping).style as FlatContainerStyleDescription ]
+			))
 		]
 	}
 

@@ -71,10 +71,13 @@ import org.eclipse.sirius.viewpoint.description.tool.EditMaskVariables
 import org.eclipse.sirius.viewpoint.description.tool.ElementDeleteVariable
 import org.eclipse.sirius.viewpoint.description.tool.ElementDropVariable
 import org.eclipse.sirius.viewpoint.description.tool.ElementSelectVariable
+import org.eclipse.sirius.viewpoint.description.tool.ElementVariable
+import org.eclipse.sirius.viewpoint.description.tool.ElementViewVariable
 import org.eclipse.sirius.viewpoint.description.tool.InitEdgeCreationOperation
 import org.eclipse.sirius.viewpoint.description.tool.InitialContainerDropOperation
 import org.eclipse.sirius.viewpoint.description.tool.InitialNodeCreationOperation
 import org.eclipse.sirius.viewpoint.description.tool.ModelOperation
+import org.eclipse.sirius.viewpoint.description.tool.PasteDescription
 
 import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*
 
@@ -116,7 +119,6 @@ abstract class AbstractDiagramPart<T extends EObject> extends AbstractTypedEditi
 	new(Class<T> type, AbstractGroup parent, String descrLabel) {
 		super(type, parent, descrLabel)
 	}
-		
 
 	
 	//
@@ -343,10 +345,11 @@ abstract class AbstractDiagramPart<T extends EObject> extends AbstractTypedEditi
 	 * <p>
 	 * Layer only support 1 customization. If it exists, content is aggregated.
 	 * </p>
-	 * 
+	 * Deprecated: use getStyleCustomisations()
 	 * @param it to customize
 	 * @param customs to apply
 	 */
+	@Deprecated
 	def customizeStyles(Layer it, VSMElementCustomization... customs) {
 		if (customization === null) {
 			customization = Customization.create
@@ -354,6 +357,16 @@ abstract class AbstractDiagramPart<T extends EObject> extends AbstractTypedEditi
 		customization.andThen[
 			vsmElementCustomizations += customs
 		]
+	}
+	
+	/**
+	 * Gets the elements customization of a layer.
+	 */
+	def getStyleCustomisations(Layer it) {
+		if (customization === null) {
+			customization = Customization.create
+		}
+		customization.vsmElementCustomizations
 	}
 	
 		
@@ -456,32 +469,34 @@ abstract class AbstractDiagramPart<T extends EObject> extends AbstractTypedEditi
 	private def <T extends StyleDescription> T doCustomize(T target, String condition, String feature, 
 		Class<? extends EStructuralFeature> type, EStructuralFeatureCustomization custo
 	) {
-		val layer = Objects.requireNonNull(target.eContainer(Layer))
 		'''«target?.eClass» has no «type.simpleName» «feature»'''
 			.verify(type.isInstance(target.eClass.getEStructuralFeature(feature)))
 
-		condition.thenStyle(
-			custo.andThen[
-				appliedOn += target
-			]
-		).onAssembledWith(layer)[
-			// not sure andThen is supported at this moment
-			layer.customizeStyles().vsmElementCustomizations += it
-		]
+		target.eContainer(Layer).styleCustomisations += condition
+			.thenStyle(custo.andThen[ appliedOn += target ])
 		target
 	}
-	
-	def customization(EAttribute feature, String valueExpression, Iterable<? extends EObject> customizeds) {
+
+	// Compatible with Iterable.
+	def customization(EAttribute feature, String valueExpression, EObject... customizeds) {
+		feature.name.attCustomization(valueExpression, customizeds)
+	}
+
+	def customization(EReference feature, EObject newValue, EObject... customizeds) {
+		feature.name.refCustomization(newValue, customizeds)
+	}
+
+	def attCustomization(String feature, String valueExpression, EObject... customizeds) {
 		EAttributeCustomization.create [
-			attributeName = feature.name
+			attributeName = feature
 			value = valueExpression
 			appliedOn += customizeds			
 		]
 	}
 
-	def customization(EReference feature, EObject newValue, Iterable<? extends EObject> customizeds) {
+	def refCustomization(String feature, EObject newValue, EObject... customizeds) {
 		EReferenceCustomization.create [
-			referenceName = feature.name
+			referenceName = feature
 			value = newValue
 			appliedOn += customizeds
 		]
@@ -872,5 +887,69 @@ abstract class AbstractDiagramPart<T extends EObject> extends AbstractTypedEditi
 		navigationDescriptions += imported.navigationDescriptions
 
 	}
+
+	def initVariables(ContainerDropDescription it) {
+		oldContainer = DropContainerVariable.create("oldSemanticContainer")
+		newContainer = DropContainerVariable.create("newSemanticContainer")
+		element = ElementDropVariable.create("element")
+		newViewContainer = ContainerViewVariable.create("newContainerView")
+	}
+
+	def initVariables(DeleteElementDescription it) {
+		element = ElementDeleteVariable.create("element")
+		elementView = ElementDeleteVariable.create("view")
+		containerView = ContainerViewVariable.create("containerView")
+	}
+
+	def initVariables(ContainerCreationDescription it) {
+		variable = NodeCreationVariable.create("container")
+		viewVariable = ContainerViewVariable.create("containerView")
+	}
+
+	def initVariables(NodeCreationDescription it) {
+		variable = NodeCreationVariable.create("container")
+		viewVariable = ContainerViewVariable.create("containerView")
+	}
+
+	def initVariables(EdgeCreationDescription it) {
+		sourceVariable = SourceEdgeCreationVariable.create("source")
+		targetVariable = TargetEdgeCreationVariable.create("target")
+		sourceViewVariable = SourceEdgeViewCreationVariable.create("sourceView")
+		targetViewVariable = TargetEdgeViewCreationVariable.create("targetView")
+	}
 	
+	def initVariables(PasteDescription it) {
+		copiedElement = ElementVariable.create("copiedElement")
+		copiedView = ElementViewVariable.create("copiedView")
+		containerView = ContainerViewVariable.create("containerView")
+		container = DropContainerVariable .create("container")
+	}
+	
+	def initVariables(ReconnectEdgeDescription it) {
+		source = SourceEdgeCreationVariable.create("source")
+		target = TargetEdgeCreationVariable.create("target")
+		sourceView = SourceEdgeViewCreationVariable.create("sourceView")
+		targetView = TargetEdgeViewCreationVariable.create("targetView")
+		element = ElementSelectVariable.create("element")
+	}
+
+	
+	/**
+	 * Iterates on all styles of a mapping.
+	 */
+	static def allStyles(DiagramElementMapping it) {
+		switch(it) {
+			EdgeMapping: #[ style ] + conditionnalStyles.map[ style ]
+			ContainerMapping: #[ style ] + conditionnalStyles.map[ style ]
+			NodeMapping: #[ style ] + conditionnalStyles.map[ style ]
+			default: #[]
+		}
+	}
+	
+	/**
+	 * Iterates on all specific styles of a mapping.
+	 */
+	static def <T extends EObject> allStyles(DiagramElementMapping it, Class<T> type) {
+		allStyles.filter(type)
+	}	
 }

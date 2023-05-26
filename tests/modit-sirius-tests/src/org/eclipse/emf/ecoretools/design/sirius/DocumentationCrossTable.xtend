@@ -20,6 +20,7 @@ import org.eclipse.sirius.viewpoint.description.UserFixedColor
 import org.eclipse.sirius.viewpoint.description.tool.ChangeContext
 import org.eclipse.sirius.viewpoint.description.tool.CreateInstance
 import org.eclipse.sirius.viewpoint.description.tool.EditMaskVariables
+import org.eclipse.sirius.viewpoint.description.tool.ExternalJavaAction
 import org.eclipse.sirius.viewpoint.description.tool.If
 import org.eclipse.sirius.viewpoint.description.tool.SetValue
 import org.mypsycho.modit.emf.sirius.api.AbstractCrossTable
@@ -89,22 +90,16 @@ class DocumentationCrossTable extends AbstractCrossTable {
 				forceRefresh = true
 				mask = "{0}"
 				operation = "var:lineSemantic".toContext(
-					'''lineSemantic.eAnnotations->select(a | a.source = 'http://www.eclipse.org/emf/2002/GenModel')->size() = 0'''.trimAql.thenDo(
-						CreateInstance.create [
-							typeName = "ecore.EAnnotation"
-							referenceName = "eAnnotations"
-							variableName = "newAnnotation"
-							subModelOperations += "source".setter(''' 'http://www.eclipse.org/emf/2002/GenModel' '''.trimAql)
-						]
+					'''lineSemantic.eAnnotations->select(a | a.source = 'http://www.eclipse.org/emf/2002/GenModel')->size() = 0'''.trimAql.ifThenDo(
+						"eAnnotations".creator("ecore.EAnnotation").andThen[ variableName = "newAnnotation" ].chain(
+							"source".setter(''' 'http://www.eclipse.org/emf/2002/GenModel' '''.trimAql)
+						)
 					),
 					'''lineSemantic.eAnnotations->select(a | a.source = 'http://www.eclipse.org/emf/2002/GenModel')->first()'''.trimAql.toContext(
-						'''self.details->select(a| a.key = 'documentation')->size() = 0'''.trimAql.thenDo(
-							CreateInstance.create [
-								typeName = "ecore.EStringToStringMapEntry"
-								referenceName = "details"
-								variableName = "newDetail"
-								subModelOperations += "key".setter(''' 'documentation' '''.trimAql)
-							]
+						'''self.details->select(a| a.key = 'documentation')->size() = 0'''.trimAql.ifThenDo(
+							"details".creator("ecore.EStringToStringMapEntry").andThen[ variableName = "newDetail" ].chain(
+								"key".setter(''' 'documentation' '''.trimAql)
+							)
 						)
 					),
 					'''lineSemantic.eAnnotations->select(a | a.source = 'http://www.eclipse.org/emf/2002/GenModel').details->select(a | a.key = 'documentation')->first()'''.trimAql.toContext(

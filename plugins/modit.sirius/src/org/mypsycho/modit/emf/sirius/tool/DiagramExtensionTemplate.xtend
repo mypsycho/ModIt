@@ -126,6 +126,10 @@ class DiagramExtensionTemplate extends DiagramPartTemplate<DiagramExtensionDescr
 	}
 	
 	def String mainTemplate(ClassId it, DiagramExtensionDescription content) {
+		val extendedAlias = context.explicitExtras.get(extended)
+		if (extendedAlias === null) {
+			extended = null
+		}
 '''package «pack»
 
 «templateImports»
@@ -135,9 +139,9 @@ import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*
 class «name» extends «AbstractDiagramExtension.templateClass» {
 
 «
-IF extended !== null // 'extension' ensures reference expression works in constructor.
-»	new(extension «parentClassName» parent) {
-		super(parent, «super.templateRef(extended, DiagramDescription)»)«
+IF extendedAlias !== null // 'extension' ensures reference expression works in constructor.
+»	new(«parentClassName» parent) {
+		super(parent, «extendedAlias.toJava»)«
 ELSE
 »	new(«parentClassName» parent) {
 		super(parent)«

@@ -42,48 +42,26 @@ class EntitiesWithArchetypesDiagramExtension extends AbstractDiagramExtension {
 	def createArchetypesLayer() {
 		AdditionalLayer.create("Archetypes") [
 			activeByDefault = true
-			customization = Customization.create [
-				vsmElementCustomizations += VSMElementCustomization.create [
-					predicateExpression = "service:isMomentInterval"
-					featureCustomizations += EReferenceCustomization.create [
-						referenceName = "foregroundColor"
-						appliedOn += FlatContainerStyleDescription.ref("EntitiesDiagram")[ ((it as DiagramDescription).defaultLayer.containerMappings.at("EC EClass").style as FlatContainerStyleDescription) ]
-						appliedOn += FlatContainerStyleDescription.ref("EntitiesDiagram")[ ((it as DiagramDescription).defaultLayer.containerMappings.at("EC EClass").conditionnalStyles.get(1).style as FlatContainerStyleDescription) ]
-						appliedOn += FlatContainerStyleDescription.ref("EntitiesDiagram")[ ((it as DiagramDescription).defaultLayer.containerMappings.at("EC EClass").conditionnalStyles.get(0).style as FlatContainerStyleDescription) ]
-						value = UserFixedColor.ref("color:MomentIntervalColor")
-					]
-				]
-				vsmElementCustomizations += VSMElementCustomization.create [
-					predicateExpression = "service:isDescription"
-					featureCustomizations += EReferenceCustomization.create [
-						referenceName = "foregroundColor"
-						appliedOn += FlatContainerStyleDescription.ref("EntitiesDiagram")[ ((it as DiagramDescription).defaultLayer.containerMappings.at("EC EClass").style as FlatContainerStyleDescription) ]
-						appliedOn += FlatContainerStyleDescription.ref("EntitiesDiagram")[ ((it as DiagramDescription).defaultLayer.containerMappings.at("EC EClass").conditionnalStyles.get(1).style as FlatContainerStyleDescription) ]
-						appliedOn += FlatContainerStyleDescription.ref("EntitiesDiagram")[ ((it as DiagramDescription).defaultLayer.containerMappings.at("EC EClass").conditionnalStyles.get(0).style as FlatContainerStyleDescription) ]
-						value = UserFixedColor.ref("color:DescriptionColor")
-					]
-				]
-				vsmElementCustomizations += VSMElementCustomization.create [
-					predicateExpression = "service:isThing"
-					featureCustomizations += EReferenceCustomization.create [
-						referenceName = "foregroundColor"
-						appliedOn += FlatContainerStyleDescription.ref("EntitiesDiagram")[ ((it as DiagramDescription).defaultLayer.containerMappings.at("EC EClass").style as FlatContainerStyleDescription) ]
-						appliedOn += FlatContainerStyleDescription.ref("EntitiesDiagram")[ ((it as DiagramDescription).defaultLayer.containerMappings.at("EC EClass").conditionnalStyles.get(1).style as FlatContainerStyleDescription) ]
-						appliedOn += FlatContainerStyleDescription.ref("EntitiesDiagram")[ ((it as DiagramDescription).defaultLayer.containerMappings.at("EC EClass").conditionnalStyles.get(0).style as FlatContainerStyleDescription) ]
-						value = UserFixedColor.ref("color:PartyPlaceThingColor")
-					]
-				]
-				vsmElementCustomizations += VSMElementCustomization.create [
-					predicateExpression = "service:isRole"
-					featureCustomizations += EReferenceCustomization.create [
-						referenceName = "foregroundColor"
-						appliedOn += FlatContainerStyleDescription.ref("EntitiesDiagram")[ ((it as DiagramDescription).defaultLayer.containerMappings.at("EC EClass").style as FlatContainerStyleDescription) ]
-						appliedOn += FlatContainerStyleDescription.ref("EntitiesDiagram")[ ((it as DiagramDescription).defaultLayer.containerMappings.at("EC EClass").conditionnalStyles.get(1).style as FlatContainerStyleDescription) ]
-						appliedOn += FlatContainerStyleDescription.ref("EntitiesDiagram")[ ((it as DiagramDescription).defaultLayer.containerMappings.at("EC EClass").conditionnalStyles.get(0).style as FlatContainerStyleDescription) ]
-						value = UserFixedColor.ref("color:RoleColor")
-					]
-				]
-			]
+			styleCustomisations += "service:isMomentInterval".thenStyle("foregroundColor".refCustomization(UserFixedColor.ref("color:MomentIntervalColor"),
+				FlatContainerStyleDescription.ref(EntitiesDiagram, Ns.node, "EC EClass") [ (it as ContainerMapping).style as FlatContainerStyleDescription ],
+				FlatContainerStyleDescription.ref(EntitiesDiagram, Ns.node, "EC EClass") [ (it as ContainerMapping).conditionnalStyles.get(1).style as FlatContainerStyleDescription ],
+				FlatContainerStyleDescription.ref(EntitiesDiagram, Ns.node, "EC EClass") [ (it as ContainerMapping).conditionnalStyles.get(0).style as FlatContainerStyleDescription ]
+			))
+			styleCustomisations += "service:isDescription".thenStyle("foregroundColor".refCustomization(UserFixedColor.ref("color:DescriptionColor"),
+				FlatContainerStyleDescription.ref(EntitiesDiagram, Ns.node, "EC EClass") [ (it as ContainerMapping).style as FlatContainerStyleDescription ],
+				FlatContainerStyleDescription.ref(EntitiesDiagram, Ns.node, "EC EClass") [ (it as ContainerMapping).conditionnalStyles.get(1).style as FlatContainerStyleDescription ],
+				FlatContainerStyleDescription.ref(EntitiesDiagram, Ns.node, "EC EClass") [ (it as ContainerMapping).conditionnalStyles.get(0).style as FlatContainerStyleDescription ]
+			))
+			styleCustomisations += "service:isThing".thenStyle("foregroundColor".refCustomization(UserFixedColor.ref("color:PartyPlaceThingColor"),
+				FlatContainerStyleDescription.ref(EntitiesDiagram, Ns.node, "EC EClass") [ (it as ContainerMapping).style as FlatContainerStyleDescription ],
+				FlatContainerStyleDescription.ref(EntitiesDiagram, Ns.node, "EC EClass") [ (it as ContainerMapping).conditionnalStyles.get(1).style as FlatContainerStyleDescription ],
+				FlatContainerStyleDescription.ref(EntitiesDiagram, Ns.node, "EC EClass") [ (it as ContainerMapping).conditionnalStyles.get(0).style as FlatContainerStyleDescription ]
+			))
+			styleCustomisations += "service:isRole".thenStyle("foregroundColor".refCustomization(UserFixedColor.ref("color:RoleColor"),
+				FlatContainerStyleDescription.ref(EntitiesDiagram, Ns.node, "EC EClass") [ (it as ContainerMapping).style as FlatContainerStyleDescription ],
+				FlatContainerStyleDescription.ref(EntitiesDiagram, Ns.node, "EC EClass") [ (it as ContainerMapping).conditionnalStyles.get(1).style as FlatContainerStyleDescription ],
+				FlatContainerStyleDescription.ref(EntitiesDiagram, Ns.node, "EC EClass") [ (it as ContainerMapping).conditionnalStyles.get(0).style as FlatContainerStyleDescription ]
+			))
 			toolSections += createArchetypesArchetypeTools
 		]
 	}
@@ -99,14 +77,14 @@ class EntitiesWithArchetypesDiagramExtension extends AbstractDiagramExtension {
 				variable = NodeCreationVariable.create("container")
 				viewVariable = ContainerViewVariable.create("containerView")
 				operation = "var:container".toContext(
-					"service:isEPackage".thenDo(
-						CreateInstance.create [
-							typeName = "ecore.EClass"
-							referenceName = "eClassifiers"
-							subModelOperations += "name".setter(''' 'newMomentInterval' + self.eContainer()->filter(ecore::EPackage).eClassifiers->filter(ecore::EClass)->size() '''.trimAql)
-						]
+					"service:isEPackage".ifThenDo(
+						"eClassifiers".creator("ecore.EClass").chain(
+							"name".setter(''' 'newMomentInterval' + self.eContainer()->filter(ecore::EPackage).eClassifiers->filter(ecore::EClass)->size() '''.trimAql).chain(
+								'''self.addArchetypeAnnotation('MomentInterval')'''.trimAql.toOperation
+							)
+						)
 					),
-					"service:isEClass".thenDo(
+					"service:isEClass".ifThenDo(
 						'''self.addArchetypeAnnotation('MomentInterval')'''.trimAql.toOperation
 					)
 				)
@@ -120,14 +98,14 @@ class EntitiesWithArchetypesDiagramExtension extends AbstractDiagramExtension {
 				variable = NodeCreationVariable.create("container")
 				viewVariable = ContainerViewVariable.create("containerView")
 				operation = "var:container".toContext(
-					'''container.oclIsTypeOf(ecore::EPackage)'''.trimAql.thenDo(
-						CreateInstance.create [
-							typeName = "ecore.EClass"
-							referenceName = "eClassifiers"
-							subModelOperations += "name".setter(''' 'newDescription' + self.eContainer()->filter(ecore::EPackage).eClassifiers->filter(ecore::EClass)->size() '''.trimAql)
-						]
+					'''container.oclIsTypeOf(ecore::EPackage)'''.trimAql.ifThenDo(
+						"eClassifiers".creator("ecore.EClass").chain(
+							"name".setter(''' 'newDescription' + self.eContainer()->filter(ecore::EPackage).eClassifiers->filter(ecore::EClass)->size() '''.trimAql).chain(
+								'''self.addArchetypeAnnotation('Description')'''.trimAql.toOperation
+							)
+						)
 					),
-					'''container.oclIsTypeOf(ecore::EClass)'''.trimAql.thenDo(
+					'''container.oclIsTypeOf(ecore::EClass)'''.trimAql.ifThenDo(
 						'''self.addArchetypeAnnotation('Description')'''.trimAql.toOperation
 					)
 				)
@@ -141,14 +119,14 @@ class EntitiesWithArchetypesDiagramExtension extends AbstractDiagramExtension {
 				variable = NodeCreationVariable.create("container")
 				viewVariable = ContainerViewVariable.create("containerView")
 				operation = "var:container".toContext(
-					'''container.oclIsTypeOf(ecore::EPackage)'''.trimAql.thenDo(
-						CreateInstance.create [
-							typeName = "ecore.EClass"
-							referenceName = "eClassifiers"
-							subModelOperations += "name".setter(''' 'newRole' + self.eContainer()->filter(ecore::EPackage).eClassifiers->filter(ecore::EClass)->size() '''.trimAql)
-						]
+					'''container.oclIsTypeOf(ecore::EPackage)'''.trimAql.ifThenDo(
+						"eClassifiers".creator("ecore.EClass").chain(
+							"name".setter(''' 'newRole' + self.eContainer()->filter(ecore::EPackage).eClassifiers->filter(ecore::EClass)->size() '''.trimAql).chain(
+								'''self.addArchetypeAnnotation('Role')'''.trimAql.toOperation
+							)
+						)
 					),
-					'''container.oclIsTypeOf(ecore::EClass)'''.trimAql.thenDo(
+					'''container.oclIsTypeOf(ecore::EClass)'''.trimAql.ifThenDo(
 						'''self.addArchetypeAnnotation('Role')'''.trimAql.toOperation
 					)
 				)
@@ -161,14 +139,14 @@ class EntitiesWithArchetypesDiagramExtension extends AbstractDiagramExtension {
 				variable = NodeCreationVariable.create("container")
 				viewVariable = ContainerViewVariable.create("containerView")
 				operation = "var:container".toContext(
-					'''container.oclIsTypeOf(ecore::EPackage)'''.trimAql.thenDo(
-						CreateInstance.create [
-							typeName = "ecore.EClass"
-							referenceName = "eClassifiers"
-							subModelOperations += "name".setter(''' 'newThing' + self.eContainer()->filter(ecore::EPackage).eClassifiers->filter(ecore::EClass)->size() '''.trimAql)
-						]
+					'''container.oclIsTypeOf(ecore::EPackage)'''.trimAql.ifThenDo(
+						"eClassifiers".creator("ecore.EClass").chain(
+							"name".setter(''' 'newThing' + self.eContainer()->filter(ecore::EPackage).eClassifiers->filter(ecore::EClass)->size() '''.trimAql).chain(
+								'''self.addArchetypeAnnotation('Thing')'''.trimAql.toOperation
+							)
+						)
 					),
-					'''container.oclIsTypeOf(ecore::EClass)'''.trimAql.thenDo(
+					'''container.oclIsTypeOf(ecore::EClass)'''.trimAql.ifThenDo(
 						'''self.addArchetypeAnnotation('Thing')'''.trimAql.toOperation
 					)
 				)

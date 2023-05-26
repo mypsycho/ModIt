@@ -20,6 +20,7 @@ import org.eclipse.sirius.viewpoint.description.RepresentationDescription
 import org.eclipse.sirius.viewpoint.description.Viewpoint
 
 import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*
+import java.util.Objects
 
 /**
  * Adaptation of Sirius model into Java and EClass reflections API for Diagrams.
@@ -30,21 +31,32 @@ abstract class AbstractDiagramExtension extends AbstractDiagramPart<DiagramExten
 	
 	protected var DiagramDescription extended
 
-		
 	/**
 	 * Creates a factory for a diagram extension.
 	 * 
 	 * @param parent context of extension
 	 */
 	new(AbstractGroup parent) {
-		this(parent, null)
+		this(parent, null as DiagramDescription)
 	}
 	
 	/**
 	 * Creates a factory for a diagram description
 	 * 
 	 * @param parent context of extension
-	 * @param extended diagram
+	 * @param extendedId id of diagram (must be in extra)
+	 */
+	new(AbstractGroup parent, String extendedId) {
+		this(parent, 
+			Objects.requireNonNull(parent.extraRef(DiagramDescription, extendedId))
+		)
+	}
+	
+	/**
+	 * Creates a factory for a diagram description
+	 * 
+	 * @param parent context of extension
+	 * @param extended diagram (may be null)
 	 */
 	new(AbstractGroup parent, DiagramDescription extended) {
 		super(DiagramExtensionDescription, parent)

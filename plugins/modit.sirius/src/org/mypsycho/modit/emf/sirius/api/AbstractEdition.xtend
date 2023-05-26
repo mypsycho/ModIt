@@ -17,6 +17,7 @@ import org.eclipse.emf.ecore.EClass
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EReference
 import org.eclipse.emf.ecore.EStructuralFeature
+import org.eclipse.emf.ecore.util.EcoreUtil
 import org.eclipse.sirius.diagram.description.tool.DirectEditLabel
 import org.eclipse.sirius.properties.DialogButton
 import org.eclipse.sirius.viewpoint.description.IdentifiedElement
@@ -28,22 +29,31 @@ import org.eclipse.sirius.viewpoint.description.tool.AbstractToolDescription
 import org.eclipse.sirius.viewpoint.description.tool.Case
 import org.eclipse.sirius.viewpoint.description.tool.ChangeContext
 import org.eclipse.sirius.viewpoint.description.tool.ContainerModelOperation
+import org.eclipse.sirius.viewpoint.description.tool.ContainerViewVariable
 import org.eclipse.sirius.viewpoint.description.tool.CreateInstance
 import org.eclipse.sirius.viewpoint.description.tool.Default
+import org.eclipse.sirius.viewpoint.description.tool.ElementSelectVariable
+import org.eclipse.sirius.viewpoint.description.tool.ElementVariable
+import org.eclipse.sirius.viewpoint.description.tool.ElementViewVariable
 import org.eclipse.sirius.viewpoint.description.tool.ExternalJavaAction
 import org.eclipse.sirius.viewpoint.description.tool.ExternalJavaActionParameter
 import org.eclipse.sirius.viewpoint.description.tool.For
 import org.eclipse.sirius.viewpoint.description.tool.If
 import org.eclipse.sirius.viewpoint.description.tool.InitialOperation
+import org.eclipse.sirius.viewpoint.description.tool.Let
 import org.eclipse.sirius.viewpoint.description.tool.ModelOperation
+import org.eclipse.sirius.viewpoint.description.tool.NameVariable
 import org.eclipse.sirius.viewpoint.description.tool.OperationAction
 import org.eclipse.sirius.viewpoint.description.tool.PasteDescription
 import org.eclipse.sirius.viewpoint.description.tool.RemoveElement
+import org.eclipse.sirius.viewpoint.description.tool.RepresentationCreationDescription
+import org.eclipse.sirius.viewpoint.description.tool.RepresentationNavigationDescription
 import org.eclipse.sirius.viewpoint.description.tool.SelectionWizardDescription
 import org.eclipse.sirius.viewpoint.description.tool.SetValue
 import org.eclipse.sirius.viewpoint.description.tool.Switch
 import org.eclipse.sirius.viewpoint.description.tool.ToolDescription
 import org.eclipse.sirius.viewpoint.description.tool.Unset
+import org.eclipse.xtext.xbase.lib.Functions.Function1
 import org.mypsycho.modit.emf.EModIt
 import org.mypsycho.modit.emf.sirius.SiriusModelProvider
 
@@ -154,19 +164,22 @@ abstract class AbstractEdition {
 		]
 	}
 	
-//	/**
-//	 * Creates an {@link IdentifiedElement} and initializes it.
-//	 * 
-//	 * @param type of IdentifiedElement to instantiate
-//	 * @param eName name of element
-//	 * @param initializer of the given {@link EObject}
-//	 */
-//	protected def <R extends IdentifiedElement> R create(Class<R> type, String eName, (R)=>void init) {
-//		type.create [
-//			name = eName
-//			init?.apply(it)
-//		]
-//	}
+	/**
+	 * Copies an {@link IdentifiedElement} and initializes it.
+	 * 
+	 * @param type of IdentifiedElement to instantiate
+	 * @param cat category of element
+	 * @param eName name of element
+	 * @param initializer of the given {@link EObject}
+	 */
+	protected def <R extends IdentifiedElement> R copyAs(R original, Enum<?> cat, String eName, (R)=>void init) {
+		(EcoreUtil.copy(original) as R) => [
+			cat.id(eName).alias(it)
+			name = eName
+			init?.apply(it)
+		]
+	}
+	
 
 	/**
 	 * Builds an identification with provided category for local element.
@@ -216,6 +229,22 @@ abstract class AbstractEdition {
 			String name) {
 		type.ref(contentAlias, cat, name)
 	}
+		/**
+	 * Builds a proxy to be resolved on 'loadContent' for a local element.
+	 * 
+	 * @param <R> Type of created proxy
+	 * @param type of created proxy
+	 * @param category of identification
+	 * @param name of element
+	 */
+	protected def <R extends EObject> R localRef(
+			Class<R> type, 
+			Enum<?> cat, 
+			String name, (IdentifiedElement)=>R path
+	) {
+		type.ref(contentAlias, cat, name, path)
+	}
+	
 	
 			
 	/**
@@ -247,6 +276,23 @@ abstract class AbstractEdition {
 		type.ref(context.getContentAlias(container), cat, name)
 	}
 	
+	/**
+	 * Builds a proxy to be resolved on 'loadContent' for an element defined in provided container.
+	 * 
+	 * @param <R> Type of created proxy
+	 * @param type of created proxy
+	 * @param container of element
+	 * @param category of identification
+	 * @param name of element
+	 */
+	protected def <R extends EObject> R ref(
+			Class<R> type, 
+			Class<? extends AbstractEdition> container, 
+			Enum<?> cat, 
+			String name, (IdentifiedElement)=> R path) {
+		type.ref(context.getContentAlias(container), cat, name, path)
+	}
+	
 		
 	/**
 	 * Builds a proxy to be resolved on 'loadContent' for an element defined in provided container.
@@ -273,6 +319,22 @@ abstract class AbstractEdition {
 		Enum<?> cat, String id
 	) {
 		type.ref(cat.id(containerId, id))
+	}
+    
+	/**
+	 * Builds a proxy to be resolved on 'loadContent' for an element defined in provided container.
+	 * 
+	 * @param <R> Type of created proxy
+	 * @param type of created proxy
+	 * @param category of identification
+	 * @param containerId of element
+	 * @param name of element
+	 */
+	protected def <R extends EObject> R ref(
+		Class<R> type, String containerId, 
+		Enum<?> cat, String id, (IdentifiedElement)=>R path
+	) {
+		type.ref(cat.id(containerId, id)) [ path.apply(it as IdentifiedElement) ]
 	}
     
 	
@@ -416,6 +478,7 @@ abstract class AbstractEdition {
         ]
     }
     
+	
     /** Creates a 'CreateIntance' operation. */
     protected def creator(EReference ref, Class<? extends EObject> instanceType) {
     	ref.name.creator(instanceType)
@@ -423,12 +486,19 @@ abstract class AbstractEdition {
     
     /** Creates a 'CreateIntance' operation. */
     protected def creator(String refName, Class<? extends EObject> instanceType) {
+		refName.creator(instanceType.asDomainClass)
+    }
+
+    /** Deprecated: use typed signature. */
+	// for reverse template only
+    protected def creator(String refName, String instanceType) {
     	CreateInstance.create [
 			referenceName = refName
-			typeName = instanceType.asDomainClass
+			typeName = instanceType
 		]
     }
-        
+
+
     /**
      * Creates a remove element operation for provided feature.
      * 
@@ -454,9 +524,8 @@ abstract class AbstractEdition {
 		]
     }
     
-            
     /**
-     * Creates a unset value operation for provided feature.
+     * Creates an UnsetValue operation for provided feature.
      * 
      * @param feature to unset
      * @param expression of element
@@ -465,6 +534,23 @@ abstract class AbstractEdition {
     protected def unsetter(String expression, EStructuralFeature feature) {
     	expression.unsetter(feature.name)
     }
+    
+	
+    /**
+     * Creates a Let operation for provided feature.
+     * 
+     * @param feature to unset
+     * @param expression of element
+     * @return a new Unset
+     */
+    protected def let(String expression, String varName, ModelOperation... operations) {
+		Let.create [
+			variableName = varName
+			valueExpression = expression
+			subModelOperations += operations
+		]
+    }
+    
     
     /**
 	 * Creates a Style with common default values.
@@ -506,6 +592,23 @@ abstract class AbstractEdition {
 		labelColor = SystemColor.extraRef("color:black")
 		
 		labelExpression = context.itemProviderLabel
+	}
+	
+		
+	def initVariables(RepresentationNavigationDescription it) {
+		representationNameVariable = NameVariable.create("name")
+		containerVariable = ElementSelectVariable.create("copiedElement")
+		containerViewVariable = ContainerViewVariable.create("containerView")
+	}
+	
+	def initVariables(RepresentationCreationDescription it) {
+		representationNameVariable = NameVariable.create("name")
+		containerViewVariable = ContainerViewVariable.create("containerView")
+	}
+	
+	def initVariables(ToolDescription it) {
+		element = ElementVariable.create("element")
+		elementView = ElementViewVariable.create("elementView")
 	}
 	
 	/**
@@ -558,10 +661,12 @@ abstract class AbstractEdition {
 	
 	/** Sets a default case to a 'Switch' operation. */
 	protected def setByDefault(Switch it, ModelOperation operation) {
-		^default = Default.create[
-			subModelOperations += operation
+		andThen[
+			// must be performed after original empty default
+			^default = Default.create[
+				subModelOperations += operation
+			]
 		]
-		it		
 	}
 		
 	/** Creates a 'If' operation. */
@@ -569,7 +674,8 @@ abstract class AbstractEdition {
 		expression.thenDo(operations)
 	}
 
-	/** Creates a 'If' operation. */
+	/** Creates a 'If' operation. Use ifThenDo */
+	@Deprecated 
 	protected def thenDo(String expression, ModelOperation... operations) {
 		If.create [
 			conditionExpression = expression
@@ -619,7 +725,7 @@ abstract class AbstractEdition {
     }
 
 	/** Adds sub-operation to an operation container. */
-	protected def chain(ContainerModelOperation it, ModelOperation... operations) {
+	protected def <O extends ContainerModelOperation> O chain(O it, ModelOperation... operations) {
 		andThen[
 			subModelOperations += operations
 		]
@@ -632,19 +738,20 @@ abstract class AbstractEdition {
 		]
 	}
 	
-	def javaDo(Class<?> actionId, String name, ExternalJavaActionParameter... params) {
+	def javaDo(Class<?> actionId, String name, Pair<String, String>... params) {
 		actionId.name.javaDo(name, params)
 	}
 	
-	def javaDo(String actionId, String name, ExternalJavaActionParameter... params) {
+	def javaDo(String actionId, String name, Pair<String, String>... params) {
 		ExternalJavaAction.create(name) [
 			id = actionId
 			parameters += params
+				.map[ key.jparam(value) ]
 		]
 	}
 	
 	/** Built-in color identities. */
-	static enum BasicColor {
+	static enum DColor {
 		blue, chocolate, gray, green, orange, purple, red, yellow, black, white
 	}
 	
@@ -654,24 +761,24 @@ abstract class AbstractEdition {
 	 * @param it color 
 	 * @return SystemColor
 	 */
-	def getRegular(BasicColor it) {
+	def getRegular(DColor it) {
 		getSystemColor("")
 	}
 	
 	/**
 	 * Retrieves the build-it in color but in light mode. */
-	def getLight(BasicColor it) {
+	def getLight(DColor it) {
 		getSystemColor("light_")
 	}
 	
 	/**
 	 * Retrieves the build-it in color but in dark mode. */
-	def getDark(BasicColor it) {
+	def getDark(DColor it) {
 		getSystemColor("dark_")
 	}
 	
-	private def getSystemColor(BasicColor it, String modifier) {
-		val mod = (it !== BasicColor.white && it !== BasicColor.black) 
+	private def getSystemColor(DColor it, String modifier) {
+		val mod = (it !== DColor.white && it !== DColor.black) 
 			 ? modifier 
 			 : "" // invariant
 		SystemColor.extraRef("color:" + mod + name)

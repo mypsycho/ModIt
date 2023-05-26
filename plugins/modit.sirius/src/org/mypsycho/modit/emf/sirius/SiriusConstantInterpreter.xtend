@@ -43,7 +43,7 @@ class SiriusConstantInterpreter implements IInterpreter {
 		
 	static val String PROTOCOL = "cst:"
 	
-	static def isApplicable(String it) { startsWith(PROTOCOL) }
+	static def isApplicable(String it) { it !== null && startsWith(PROTOCOL) }
 	
 	static def String toExpression(String value) { PROTOCOL + value }
 	

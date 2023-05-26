@@ -47,7 +47,7 @@ class SiriusModelInterpreter implements IInterpreter {
 	static val String PROTOCOL = "modit" + SEP
 	
 	static def isApplicable(String it) {
-		startsWith(PROTOCOL)
+		it !== null && startsWith(PROTOCOL)
 	}
 	
 	static def String toExpression(SiriusModelProvider it, int methodId, String params) {

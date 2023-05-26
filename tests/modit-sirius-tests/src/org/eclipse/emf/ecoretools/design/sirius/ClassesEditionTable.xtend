@@ -17,6 +17,7 @@ import org.eclipse.sirius.viewpoint.description.SystemColor
 import org.eclipse.sirius.viewpoint.description.SytemColorsPalette
 import org.eclipse.sirius.viewpoint.description.tool.ChangeContext
 import org.eclipse.sirius.viewpoint.description.tool.CreateInstance
+import org.eclipse.sirius.viewpoint.description.tool.ExternalJavaAction
 import org.eclipse.sirius.viewpoint.description.tool.SetValue
 import org.mypsycho.modit.emf.sirius.api.AbstractEditionTable
 
@@ -64,11 +65,9 @@ class ClassesEditionTable extends AbstractEditionTable {
 			elementsToSelect = "service:stdEmptyCollection"
 			mapping = "Classes lines".lineRef
 			operation = "var:container".toContext(
-				CreateInstance.create [
-					typeName = "ecore.EClass"
-					referenceName = "eClassifiers"
-					subModelOperations += "name".setter(''' 'NewEClass'  + self.eContainer().eContents(ecore::EClass)->size() '''.trimAql)
-				]
+				"eClassifiers".creator("ecore.EClass").chain(
+					"name".setter(''' 'NewEClass'  + self.eContainer().eContents(ecore::EClass)->size() '''.trimAql)
+				)
 			)
 		]
 		ownedColumn("Name", "name") [

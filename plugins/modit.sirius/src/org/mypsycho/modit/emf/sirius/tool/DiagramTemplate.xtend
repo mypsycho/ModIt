@@ -4,7 +4,9 @@ import org.eclipse.emf.ecore.EObject
 import org.eclipse.sirius.diagram.description.AdditionalLayer
 import org.eclipse.sirius.diagram.description.DescriptionPackage
 import org.eclipse.sirius.diagram.description.DiagramDescription
+import org.eclipse.sirius.diagram.description.DiagramElementMapping
 import org.eclipse.sirius.diagram.description.Layer
+import org.eclipse.sirius.diagram.description.filter.MappingFilter
 import org.mypsycho.modit.emf.ClassId
 import org.mypsycho.modit.emf.sirius.api.AbstractDiagram
 
@@ -23,7 +25,7 @@ class DiagramTemplate extends DiagramPartTemplate<DiagramDescription> {
 	}
 	
 	static val INIT_TEMPLATED = #{
-		DiagramDescription -> #{
+		DiagramDescription as Class<? extends EObject> -> #{
 			// Diagram
 			SPKG.identifiedElement_Label, 
 			SPKG.representationDescription_Metamodel,
@@ -34,7 +36,7 @@ class DiagramTemplate extends DiagramPartTemplate<DiagramDescription> {
 			SPKG.identifiedElement_Name
 		},
 		AdditionalLayer -> #{}
-	}
+	} + RepresentationTemplate.INIT_TEMPLATED
 	
 	/** Set of classes used in sub parts by the default implementation  */
 	protected static val PART_IMPORTS = (
@@ -112,6 +114,27 @@ SEPARATOR statementSeparator
 ENDFOR
 »
 }''' // end-of-class
+	}
+	
+	def expressed(String it) {
+		it !== null && !blank
+	}
+	
+ 	def dispatch smartTemplateCreate(MappingFilter it) {
+ 		if (semanticConditionExpression.expressed
+ 			&& viewConditionExpression.expressed
+ 		) { // all values, unlikely
+ 			return defaultTemplateCreate
+ 		}
+'''«
+IF semanticConditionExpression.expressed  »«semanticConditionExpression.toJava».element«
+ELSE»«IF viewConditionExpression.expressed»«viewConditionExpression.toJava».view«
+ELSE                                      »all«
+ENDIF»«ENDIF                                   »«filterKind.getName().toLowerCase.toFirstUpper»(
+	«mappings
+		.map[ templateRef(DiagramElementMapping) ]
+		.join(LValueSeparator)
+»)'''
 	}
 	
 }

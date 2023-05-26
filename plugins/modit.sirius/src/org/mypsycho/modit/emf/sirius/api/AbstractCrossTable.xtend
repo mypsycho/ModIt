@@ -370,12 +370,14 @@ abstract class AbstractCrossTable extends AbstractTable<CrossTableDescription> {
 	 * forMappings}.
 	 * </p>
 	 */
+	@Deprecated
 	def links(CrossTableDescription owner, String mappingName, 
 		String columnExpr, (IntersectionMapping)=>void descr
 	) {
 		Objects.requireNonNull(descr)
 		val result = IntersectionMapping.create(mappingName) [
 			useDomainClass = false
+			// no DomainClass, no semanticCandidatesExpression
 			
 			// self is root
 			columnFinderExpression = columnExpr
@@ -393,9 +395,50 @@ abstract class AbstractCrossTable extends AbstractTable<CrossTableDescription> {
 	/**
 	 * Defines the mappings of RelationShip-based cell.
 	 */
+	@Deprecated
 	def forMappings(IntersectionMapping it, ElementColumnMapping column, LineMapping... lines) {
 		"This method is applicable only to Relation intersection".verify(!useDomainClass)
 		columnMapping = column
+		lineMapping += lines
+	}
+	
+	
+	/**
+	 * Creates a Relationship Intersection.
+	 * <p>
+	 * Description must provide expression, edition and mappings using
+	 * {@link 
+	 * VseDataTable#forMappings(IntersectionMapping, ElementColumnMapping, LineMapping...) 
+	 * forMappings}.
+	 * </p>
+	 */
+	def linkColumns(CrossTableDescription owner, String mappingName, 
+		ElementColumnMapping column, (IntersectionMapping)=>void descr
+	) {
+		Objects.requireNonNull(descr)
+		val result = IntersectionMapping.create(mappingName) [
+			useDomainClass = false
+			// no DomainClass, no semanticCandidatesExpression
+			
+			// self is root
+			columnMapping = column
+			initCellStyle
+
+			// Required:
+			//   lineMapping,
+			//   columnMapping
+			descr.apply(it)
+		]
+		owner.intersection += result
+		result
+	}
+	
+	/**
+	 * Defines the source mappings of RelationShip-based cell.
+	 */
+	def forLines(IntersectionMapping it, String toColumnExpr, LineMapping... lines) {
+		"This method is applicable only to Relation intersection".verify(!useDomainClass)
+		columnFinderExpression = toColumnExpr
 		lineMapping += lines
 	}
 	

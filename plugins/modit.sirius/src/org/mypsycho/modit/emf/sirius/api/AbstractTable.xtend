@@ -167,7 +167,7 @@ abstract class AbstractTable<T extends TableDescription> extends AbstractTypedEd
 		// Default background is grey.
 		// (Sirius 6x ot more) There is a bug in header column
 		// Always grey !!
-		background = BasicColor.white.regular
+		background = org.mypsycho.modit.emf.sirius.api.AbstractEdition$DColor.white.regular
 		foreground = []
 	}
 
@@ -434,7 +434,7 @@ abstract class AbstractTable<T extends TableDescription> extends AbstractTypedEd
 	 */
 	protected def void initForeground(ForegroundStyleDescription it) {
 		labelSize = 9 // ODesign is provide 12, but eclipse default is Segoe:9
-		foreGroundColor = BasicColor.black.regular
+		foreGroundColor = org.mypsycho.modit.emf.sirius.api.AbstractEdition$DColor.black.regular
 	}
 	
 }

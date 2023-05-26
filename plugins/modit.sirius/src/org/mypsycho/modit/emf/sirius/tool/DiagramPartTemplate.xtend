@@ -28,7 +28,11 @@ import org.eclipse.sirius.diagram.description.tool.ReconnectEdgeDescription
 import org.eclipse.sirius.diagram.description.tool.ToolSection
 import org.eclipse.sirius.properties.DialogButton
 import org.eclipse.sirius.properties.TextDescription
+import org.eclipse.sirius.viewpoint.description.Customization
+import org.eclipse.sirius.viewpoint.description.EAttributeCustomization
+import org.eclipse.sirius.viewpoint.description.EReferenceCustomization
 import org.eclipse.sirius.viewpoint.description.IdentifiedElement
+import org.eclipse.sirius.viewpoint.description.VSMElementCustomization
 import org.eclipse.sirius.viewpoint.description.tool.AbstractToolDescription
 import org.eclipse.sirius.viewpoint.description.tool.ContainerModelOperation
 import org.eclipse.sirius.viewpoint.description.tool.ExternalJavaAction
@@ -37,6 +41,7 @@ import org.eclipse.sirius.viewpoint.description.tool.PopupMenu
 import org.mypsycho.modit.emf.sirius.api.AbstractDiagramPart
 
 import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*
+import org.eclipse.sirius.viewpoint.description.EStructuralFeatureCustomization
 
 /** 
  * Override of default reverse for SiriusModelProvider class.
@@ -50,10 +55,11 @@ abstract class DiagramPartTemplate<R extends EObject> extends RepresentationTemp
 	}
 	
 	val static CONTAINMENT_ORDER = #[
-		Layer -> #[ 
+		Layer -> #[
 			DPKG.layer_NodeMappings,
 			DPKG.layer_ContainerMappings,
 			DPKG.layer_EdgeMappings,
+			DPKG.layer_Customization,
 			DPKG.layer_ToolSections
 		],
 		ContainerMapping -> #[
@@ -123,16 +129,13 @@ abstract class DiagramPartTemplate<R extends EObject> extends RepresentationTemp
 		AbstractToolDescription -> AbstractDiagramPart.Ns.operation
 	]
 	
-	override getNsMapping() {
-		NS_MAPPING
-	}
+	override getNsMapping() { NS_MAPPING }
 	
 	override findNs(IdentifiedElement it) {
 		// Some issue with internal operation.
 		if (it instanceof ExternalJavaAction 
 			&& (eContainer instanceof InitialOperation 
-				|| eContainer instanceof ContainerModelOperation
-			)
+				|| eContainer instanceof ContainerModelOperation)
 		) {
 			return null
 		}
@@ -156,7 +159,7 @@ abstract class DiagramPartTemplate<R extends EObject> extends RepresentationTemp
 '''elkLayout(
 «
 FOR option : (layout as CustomLayoutConfiguration).layoutOptions
-SEPARATOR "," + statementSeparator
+SEPARATOR LValueSeparator
 »	"«option.id.substring("org.eclipse.elk.".length)»".elk«
 	switch(option) {
 		BooleanLayoutOption: '''Bool(«option.value»'''
@@ -170,7 +173,6 @@ SEPARATOR "," + statementSeparator
 ENDFOR 																		»
 )'''
 	}
-
 	
 	override getToolModelOperation(EObject it) {
 		switch(it) {
@@ -186,6 +188,59 @@ ENDFOR 																		»
 			TextDescription: initialOperation.firstModelOperations
 			default: super.getToolModelOperation(it)
 		}
+	}
+	
+	override templatePropertyValue(EStructuralFeature feat, Object value, (Object)=>String encoding) {
+		if (DPKG.layer_Customization == feat)
+			(value as Customization).templateStyleCustomisation
+		else
+			super.templatePropertyValue(feat, value, encoding)
+	}
+	
+	def templateStyleCustomisation(Customization it) {
+		if (vsmElementCustomizations.empty) {
+			return "styleCustomisations" // simple getter
+		}
+'''«
+FOR custo : vsmElementCustomizations
+SEPARATOR statementSeparator
+»styleCustomisations += «custo.smartTemplateCreate»«
+ENDFOR
+»'''
+	}
+	
+	def dispatch smartTemplateCreate(VSMElementCustomization it) {
+'''«predicateExpression.toJava».thenStyle(«
+IF 	featureCustomizations.size == 1
+»«featureCustomizations.head.templateCreate»«
+ELSE
+»//
+	«featureCustomizations.map[ templateCreate ].join(LValueSeparator)»
+«
+ENDIF
+»)'''
+	}
+	
+	def dispatch smartTemplateCreate(EReferenceCustomization it) {
+'''«referenceName.toJava».refCustomization(«value.templateRef(EObject)»«endCustomization»'''
+	}
+	
+	def dispatch smartTemplateCreate(EAttributeCustomization it) {
+'''«attributeName.toJava».attCustomization(«value.toJava»«endCustomization»'''
+	}
+	
+	def endCustomization(EStructuralFeatureCustomization it) {
+'''«
+IF !appliedOn.empty
+»,
+	«appliedOn.map[ templateRef(EObject) ].join(LValueSeparator)»
+«
+ENDIF
+»)«
+IF applyOnAll
+».andThen[ applyOnAll = true]«
+ENDIF
+»'''
 	}
 	
 }

@@ -19,13 +19,27 @@ import org.eclipse.sirius.viewpoint.description.Viewpoint
 import org.eclipse.sirius.viewpoint.description.tool.ExternalJavaAction
 import org.eclipse.sirius.viewpoint.description.tool.ExternalJavaActionCall
 import org.eclipse.sirius.viewpoint.description.tool.AbstractToolDescription
+import org.eclipse.sirius.diagram.description.tool.ReconnectEdgeDescription
+import org.eclipse.sirius.diagram.description.tool.DeleteElementDescription
+import org.eclipse.sirius.diagram.description.tool.ContainerDropDescription
 
 class ODesignVerifications {
 	static val IDENT = "  "
 	
+	static val IMPLICIT_CLASSES = #{
+		// common
+		ExternalJavaAction, ExternalJavaActionCall, RepresentationElementMapping,
+		// diagram
+		DoubleClickDescription, ReconnectEdgeDescription, DeleteElementDescription,
+		ContainerDropDescription
+
+	}
+	
 	static val DISPLAYED_CLASSES = #{
-		ToolSection, AbstractToolDescription, RepresentationDescription, // common
-		Viewpoint, AdditionalLayer, FilterDescription // diagram
+		// common
+		ToolSection, AbstractToolDescription, RepresentationDescription,
+		// diagram
+		Viewpoint, AdditionalLayer, FilterDescription
 		// no table
 	}
 	
@@ -87,13 +101,7 @@ class ODesignVerifications {
  		// All elements
 	 	(#[ content ].iterator + content.eAllContents)
 		 	.filter(IdentifiedElement)
-		 	.filter[ // Such types are not interesting.
-		 		// in Poosl, external actions are never used at top level
- 		 		!(it instanceof ExternalJavaAction
-	 			|| it instanceof ExternalJavaActionCall
-	 			|| it instanceof DoubleClickDescription
-	 			|| it instanceof RepresentationElementMapping)
-		 	]
+		 	.filter[ !IMPLICIT_CLASSES.exists[ t | t.isInstance(it) ] ]
 		 	// regular case: no need to trace
 		 	.filter[ !(i18nRequired && i18n.isI18nDefined(it)) ]
 	 		.forEach[

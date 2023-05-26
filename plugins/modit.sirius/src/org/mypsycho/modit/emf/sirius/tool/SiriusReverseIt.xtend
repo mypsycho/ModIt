@@ -28,6 +28,7 @@ import org.eclipse.sirius.viewpoint.description.DescriptionPackage
 import org.eclipse.sirius.viewpoint.description.Group
 import org.eclipse.sirius.viewpoint.description.RepresentationDescription
 import org.eclipse.sirius.viewpoint.description.RepresentationExtensionDescription
+import org.eclipse.sirius.viewpoint.description.SystemColor
 import org.eclipse.sirius.viewpoint.description.Viewpoint
 import org.eclipse.xtend.lib.annotations.Accessors
 import org.mypsycho.modit.emf.ClassId
@@ -115,32 +116,26 @@ class SiriusReverseIt {
 		engine = source.eResource.createEngine(classname, dir) => [
 			
 			// Split RepresentationDescription DiagramExtensionDescription
-			splits += findDefaultSplits
+			val defaultSplits = findDefaultSplits
+			splits += defaultSplits
+
+			source.addDefaultAliases(mainClass, aliases)			
+			defaultSplits.forEach[ split, classId |
+				split.addDefaultAliases(classId, aliases)
+			]
 			
-			val aliases = it.aliases
-			
-			source.extensions
-				.filter(ViewExtensionDescription)
-				.forEach[
-					val context = toClassId
-					categories.forEach[
-						aliases.put(it, createId(AbstractPropertySet.Ns.category, context, name))
-						pages.forEach[
-							aliases.put(it, createId(AbstractPropertySet.Ns.page, context, name))
-						]
-						groups.forEach[
-							aliases.put(it, createId(AbstractPropertySet.Ns.group, context, name))
-						]
-					]
-				]
-			
-			explicitExtras.putAll(source.systemColorsPalette.entries.toInvertedMap[ "color:" + name ])
+			explicitExtras.putAll(source.systemColorsPalette.entries.<SystemColor, String>toInvertedMap[ "color:" + name ])
+
 			addExplicitExtras(rs, explicitExtras)
 
 			shortcuts += DescriptionPackage.eINSTANCE.identifiedElement_Name
 		]
 	}
 	
+	
+	// This reverse of:
+	//   AbstractGroup.createId(String, String, String)
+	//   used by AbstractEdition.createAs(Class<R>, Enum<?>, String, (R)=>void)
 	protected def String createId(Enum<?> category, ClassId context, String path) {
 		'''«category.name»:«context.name».«path.toFirstLower.replace(" ", "_")»'''
 	}
@@ -150,15 +145,28 @@ class SiriusReverseIt {
 	}
 	
 	protected def findDefaultSplits() {
-		source.findGroupParts
-			.toInvertedMap[ toClassId ]
+		source.findSplitGroupParts.toInvertedMap[ toClassId ]
 	}
 	
-	protected def findGroupParts(Group it) {
-		ownedViewpoints
-			.flatMap[ ownedRepresentations + ownedRepresentationExtensions ]
-		+ extensions.filter(ViewExtensionDescription)
+	protected def findSplitGroupParts(Group it) {
+		ownedViewpoints.flatMap[ ownedRepresentations + ownedRepresentationExtensions ]
+			+ extensions.filter(ViewExtensionDescription)
 	}
+	
+	protected def dispatch addDefaultAliases(EObject it, ClassId id, Map<EObject, String> aliases) {}
+	
+	protected def dispatch addDefaultAliases(ViewExtensionDescription it, ClassId id, Map<EObject, String> aliases) {
+		categories.forEach[
+			aliases.put(it, createId(AbstractPropertySet.Ns.category, id, name))
+			pages.forEach[
+				aliases.put(it, createId(AbstractPropertySet.Ns.page, id, name))
+			]
+			groups.forEach[
+				aliases.put(it, createId(AbstractPropertySet.Ns.group, id, name))
+			]
+		]
+	}
+	
 	
 	
 	protected def getUsedMetamodels() {		

@@ -43,6 +43,7 @@ import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl
 import org.eclipse.emf.ecore.util.EcoreEList
 import org.eclipse.emf.ecore.util.EcoreUtil
 import org.eclipse.xtend.lib.annotations.Accessors
+import java.lang.reflect.Field
 
 /**
  * Source code Generator reversing model into Xtend class.
@@ -189,6 +190,8 @@ class EReversIt {
 		this(parent.context)
 	}
 	
+	def getMainClass() { context.mainClass }
+	
 	def getSplits() { context.splits }
 	
 	def getAliases() { context.aliases }
@@ -206,6 +209,28 @@ class EReversIt {
 	 * 'namings' map.
 	 */
 	protected def prepareContext() {
+		checkContextContainment
+		checkExplicitUnicity
+
+		val mappings = #[ 
+			context.roots.mapValues[ name ], 
+			context.splits.mapValues[ name ], 
+			context.aliases
+		]
+		
+		// Checks mappings are a bijection.
+		mappings.checkAliasesUnicity
+
+		checkAliasesBidirection
+		
+		context.implicitExtras = new HashMap// We tracks anonymous extras elements
+		context.namings = mappings
+			.map[ entrySet ]
+			.flatten
+			.toMap([ key ], [ value ])
+	}
+	
+	protected def checkContextContainment() {
 		// Check alias and splits are defined in the serialized tree.
 		#[
 			"Alias" -> context.aliases, 
@@ -213,25 +238,28 @@ class EReversIt {
 		].forEach[
 			// val Map<EObject, Object> cast = new HashMap(value) // Cast is required by xtend transformation.
 			val headlesses = value.filter[ it, id | !context.roots.containsKey(toRoot) ].values
-			if (!headlesses.empty) {
-				throw new IllegalArgumentException(
-					key + " values must be contained by reversed resource. Use explicitExtras: " + headlesses
-				)
-			}
+			
+			headlesses.empty.validate[
+				key + " values must be contained by reversed resource. Use explicitExtras: " + headlesses
+			]
 		]
 
 		// Check explicit extra are pure reference
 		val illegalExtras = context.explicitExtras
 			.filter[ it, id | context.roots.containsKey(toRoot) ]
 			.values
-		if (!illegalExtras.empty) {
-			throw new IllegalArgumentException(
-				"Explicit extra values must not be contained by reversed resource. Use splits or alias: " + illegalExtras
-			)
-		}
-
+			
+		illegalExtras.empty.validate[
+			"Explicit extra values must not be contained by reversed resource."
+			+ " Use splits or alias: " + illegalExtras
+		]
+		
+	}
+	
+	protected def checkExplicitUnicity() {
 		// Check explicit extra are unique.
 		// extras may different instance but same uri: Package !!
+		
 		val extrasByUris = new HashMap<String, String>
 		val redundantExtras = new ArrayList<String>
 		context.explicitExtras.entrySet.forEach[
@@ -244,49 +272,44 @@ class EReversIt {
 			}
 		]
 		
-		if (!redundantExtras.empty) {
-			throw new IllegalArgumentException(
-				"Explicit extra must be unique for: " + redundantExtras
-			)
-		}
-
-		val mappings = #[ 
-			context.roots.mapValues[ name ], 
-			context.splits.mapValues[ name ], 
-			context.aliases
+		redundantExtras.empty.validate [
+			"Explicit extra must be unique for: " + redundantExtras
 		]
-		
-		// Checks mappings are a bijection.
+	}
+	
+	protected def checkAliasesUnicity(List<Map<EObject, String>> mappings) {
 		#[
-			"Target elements" -> [ Map<EObject, String> it| keySet ],
-			"Names" -> [ Map<EObject, String> it| values ]
+			"Target elements" -> [ Map<EObject, String> it | keySet ],
+			"Names" -> [ Map<EObject, String> it | values ]
 		].forEach[ rule |
-			val ends = mappings.map(rule.value).flatten.toList // list to keep all occurrences
+	 		// list to keep all occurrences
+			val ends = mappings
+	 			.map(rule.value)
+				.flatten
+				.toList
 			
-			val redundants = ends.filter[ !isUniqueIn(ends) ].toSet
-			if (!redundants.empty) {
-				throw new IllegalArgumentException(
-					rule.key + " cannot be used in several alias : " + redundants
-				)
-			}
+			val redundants = ends
+				.filter[ !isUniqueIn(ends) ]
+				.toSet
+			redundants.empty.validate [
+				rule.key + " cannot be used in several aliases : " + redundants
+			]
 		]
-
+	}
+	
+	protected def checkAliasesBidirection() {
 		val shortcutNames = context.shortcuts
 			.map[ EContainingClass.instanceClass.simpleName ]
 			.toList
 		val redundantShortcuts = shortcutNames
 			.filter[ !isUniqueIn(shortcutNames) ]
 			.toSet
-		if (!redundantShortcuts.empty) {
-			throw new IllegalArgumentException(
-				"Shortcuts have conflicting name : " + redundantShortcuts
-			)
-		}
 		
-		context.implicitExtras = new HashMap()// We tracks anonymous extras elements
-		context.namings = mappings.map[ entrySet ].flatten.toMap([ key ], [ value ])
-	}
-
+		redundantShortcuts.empty.validate [
+			"Shortcuts have conflicting name : " + redundantShortcuts
+		]
+	}	
+	
 	/**
 	 * Generates the classes for the models using EModIt.
 	 */
@@ -372,7 +395,7 @@ class EReversIt {
 		// call modit.assemble
 '''#[
 	«
-FOR value : values SEPARATOR ',' + statementSeparator
+FOR value : values SEPARATOR LValueSeparator
 »new «value.qName»(this).createContent«
 ENDFOR
 »
@@ -448,10 +471,10 @@ class «context.mainClass.name» implements ModitModel {
 
 	@Accessors
 	protected val extension EModIt factory = EModIt.using(
-		«
+«
 FOR p : packages 
 SEPARATOR LValueSeparator
-»«p.name».eINSTANCE«
+»		«p.name».eINSTANCE«
 ENDFOR
 »
 	)
@@ -654,6 +677,7 @@ ENDFOR
 		]
 	
 	}
+
 	
 	protected static class Expr {
 		public val EObject src
@@ -663,39 +687,80 @@ ENDFOR
 		public val EClass cast
 		public val (String)=>String segment
 		
-		new (EObject src, Iterable<? extends Class<?>> chain) {
-			parent = null
-			this.src = src
-			this.chain = chain
-			cast = null
-			segment = null
+		new (EObject src) {
+			this(null, src, 
+				#[ src.eClass.instanceClass, src.eClass.instanceClass ], 
+				null, null
+			)
 		}
 			
-		new (Expr parent, Iterable<? extends Class<?>> chain, EClass cast, (String)=>String segment) {
+		new (Expr parent, Iterable<? extends Class<?>> chain, 
+			EClass cast, (String)=>String segment
+		) {
+			this(parent, parent.src, chain, cast, segment)
+		}
+		
+		private new (Expr parent, EObject src, 
+				Iterable<? extends Class<?>> chain, 
+				EClass cast, (String)=>String segment
+		) {
 			this.parent = parent
-			this.src = parent.src
+			this.src = src
 			this.chain = chain
 			this.cast = cast
 			this.segment = segment
 		}
 		
 		def isEmpty() { segment === null }
+		
+		def Expr getRoot() { 
+			parent !== null 
+				? parent.root 
+				: this
+		}
 	}
+	
+		
+	protected static class AliasExpr extends Expr {
+		public val String name
+		
+		new(String alias, EObject src) {
+			super(src)
+			this.name = alias
+		}
+	}
+
+	protected static class EPackageExpr extends Expr {
+		new(EPackage src) {
+			super(src)
+		}
+	}
+
+	protected static class ExplicitExpr extends Expr {
+		public val String name
+		
+		new(String id, EObject src) {
+			super(src)
+			this.name = id
+		}
+	}
+
 
 	protected def String templateExpr(Expr it, String source) {
 		val key = (parent?.templateExpr(source) ?: source).templateCast(cast)
 		segment?.apply(key) ?: key
 	}
 
+	/** Template Alias declaration.  */
 	protected def String templateAlias(EObject it) {
 		val path = callPath(false)
-		val base = path.src
-		
+		val src = path.src
+				
 		path.templateExpr(
-			if (context.implicitExtras.containsKey(base))
+			if (context.implicitExtras.containsKey(src))
 			 	// FIXME suspicious: how to get an element not included ? (require test)
-				base.templateExtra(context.implicitExtras.get(base))
-			else base.templateExplicitAlias
+				src.templateExtra(context.implicitExtras.get(src))
+			else src.templateExplicitAlias
 		)
 	}
 	
@@ -716,51 +781,81 @@ ENDFOR
 	
 	protected def String templateRef(EObject it, Class<?> using) {
 		val path = callPath(true)
-		val alias = context.namings.get(path.src)
-		val expectedType = 
-			if (alias !== null) 
-				eClass.getInstanceClass() 
-			else 
-				using
-
-		val cast = if (!expectedType.isAssignableFrom(path.chain.head)) eClass // else null
-
-		if (alias !== null)
-			templateSimpleRef(path, alias, cast)
-		else if (context.explicitExtras.containsKey(path.src))
-			path.templateExpr(path.src.templateExtra(context.explicitExtras.get(path.src))).templateCast(cast)
-		else if (path.src.generatedEPackage)
-			path.templateExpr(templateEPackage(path.src as EPackage)) // no cast required
-		else if (path.src.eResource !== null)
-			path.templateExpr(path.src.templateExtra(identifyImplicitExtra(path.src))).templateCast(cast)
-		else "// headless object" // throw or generate invalid statement ?
+		templateRef(path.root, path, using)
 	}
 	
-	// Xtend
-	protected def String templateSimpleRef(EObject it, Expr path, String alias, EClass cast) {
-'''«templateClass».ref("«alias»")«
-IF !path.empty
-»[ «path.templateExpr("it".templateCast(path.src.eClass)).templateCast(cast)» ]«
-ENDIF
-»'''		
+	protected def getClassCast(EObject it, Expr path, Class<?> using) {
+		if (!using.isAssignableFrom(path.chain.head)) 
+			eClass 
+		// else null
+	}
+	
+	protected def dispatch String templateRef(EObject it, AliasExpr root, Expr path, Class<?> using) {
+'''«templateClass».ref(«root.name.toJava»)«templateAliasPath(path)»'''
+	}
+	
+	protected def String templateAliasPath(EObject it, Expr path) {
+		if (path.empty) {
+			return ""
+		}
+		val cast = getClassCast(path, eClass.instanceClass)
+''' [ «path.templateExpr("it".templateCast(path.src.eClass)).templateSimpleCast(cast)» ]'''
+	}
+
+	
+	protected def dispatch String templateRef(EObject it, EPackageExpr root, Expr path, Class<?> using) {
+		path.templateExpr(templateEPackage(path.src as EPackage)) // no cast required
+	}
+	
+	protected def dispatch String templateRef(EObject it, ExplicitExpr root, Expr path, Class<?> using) {
+		path.templateExpr(templateExplicitRef(path))
+				.templateCast(getClassCast(path, using))
+	}
+	
+	protected def dispatch String templateRef(EObject it, Expr root, Expr path, Class<?> using) {
+		if (root.src.eResource !== null)
+			path.templateExpr(templateImplicitRef(path))
+				.templateCast(getClassCast(path, using))
+		else // throw exception or generate invalid statement ?
+			"// headless object"
+	}
+	
+//	@Deprecated
+//	protected def isExplicitBased(Expr it) {
+//		context.explicitExtras.containsKey(src)
+//	}
+	
+	protected def templateExplicitRef(Expr it) {
+		src.templateExtra(context.explicitExtras.get(src))
+	}
+	
+//	@Deprecated
+//	protected def isImplicitBased(Expr it) {
+//		src.eResource !== null
+//	}
+	
+	protected def templateImplicitRef(Expr it) {
+		src.templateExtra(identifyImplicitExtra(src))
 	}	
+	
+
+	protected static def isEPackageInstanceField(Field it) {
+		Modifier.isStatic(modifiers)
+			&& Modifier.isPublic(modifiers)
+			&& name == "eINSTANCE"
+	}
 
 	protected def isGeneratedEPackage(EObject it) {
 		if (it instanceof EPackage) 
-			class.fields.exists[ // all public 
-				Modifier.isStatic(modifiers)
-				&& name == "eINSTANCE"
-			]
+			class.fields.exists[ isEPackageInstanceField ]
 		else false
 	}
 
 	// xtend (possibly the same for all packages)
 	protected def templateEPackage(EPackage it) {
-		class.fields.findFirst[
-			Modifier.isStatic(modifiers)
-			&& Modifier.isPublic(modifiers)
-			&& name == "eINSTANCE"
-		].declaringClass.name + ".eINSTANCE"
+		class.fields
+			.findFirst[ isEPackageInstanceField ]
+			.declaringClass.name + ".eINSTANCE"
 	}
 
 	protected def identifyImplicitExtra(EObject it) {
@@ -775,12 +870,27 @@ ENDIF
 	 * @return (root element) -> (exposed type) -> path
 	 */
 	protected def Expr callPath(EObject it, boolean withExtras) {
-		if (context.namings.containsKey(it)) 
-			return new Expr(it, #[ eClass.instanceClass, eClass.instanceClass ])
-
-		if (eContainer === null || (withExtras && context.explicitExtras.containsKey(it))) // To extras
-			return new Expr(it, #[ eClass.instanceClass, eClass.instanceClass ])
-
+		val alias = context.namings.get(it)
+		if (alias !== null) {
+			return new AliasExpr(alias, it)
+		}
+		if (isGeneratedEPackage) {
+			return new EPackageExpr(it as EPackage)
+		}
+		if (withExtras) {
+			val extra = context.explicitExtras.get(it)
+			if (extra !== null) {
+				return new ExplicitExpr(extra, it)
+			}
+		}
+		if (eContainer === null) { // Implicit extra
+			return new Expr(it)
+		}
+		complexCallPath(withExtras)
+	}
+	
+	protected def Expr complexCallPath(EObject it, boolean withExtras) {
+		
 		val feat = eContainingFeature as EReference		
 		val casted = feat.isReferenceSegmentCasted(it)
 		
@@ -788,15 +898,18 @@ ENDIF
 
 		// Test if cast required 
 		val declaring = feat.EContainingClass
-		val onRootAlias = !withExtras && eContainer.eContainer === null // eContainer is already handle
+		val onRootAlias = !withExtras // eContainer is already handled
+			&& eContainer.eContainer === null
 		val castRequired = !declaring.instanceClass.isAssignableFrom(parentPath.chain.head)
 			&& !onRootAlias
 		
 		val usedTypes = parentPath.chain.tail
 		val typePath = #[ 
-			if (casted) eClass.instanceClass else feat.EReferenceType.instanceClass,
+			casted ? eClass.instanceClass 
+				: feat.EReferenceType.instanceClass,
 			eClass.instanceClass
 		] + usedTypes
+		
 		// val typePathHead = typePath.toList.head // Debug expression
 		// val typePathTail = typePath.toList.tail.toList // Debug expression
 		new Expr(parentPath, typePath.toList, 
@@ -838,9 +951,14 @@ ENDIF
 
 	
 	//Xtend
-	def templateCast(CharSequence expr, EClass expected) {
+	def String templateCast(CharSequence expr, EClass expected) {
 		if (expected === null) expr.toString
-		else "(" + expr + " as " + expected.templateClass + ")"
+		else '''(«expr.templateSimpleCast(expected)»)'''
+	}
+	
+	def String templateSimpleCast(CharSequence expr, EClass expected) {
+		if (expected === null) expr.toString
+		else '''«expr» as «expected.templateClass»'''
 	}
 	
 	protected def templateProperty(EObject element, EStructuralFeature it, (Object, Class<?>)=>String encoding) {
@@ -1074,5 +1192,12 @@ ENDFOR
 	static def isUniqueIn(Object it, Iterable<?> values) {
 		values.filter[ value | it == value ].size <= 1
 	}
+
+	static def validate(boolean precondition, ()=>String message) {
+		if (!precondition) {
+			throw new IllegalArgumentException(message.apply)
+		}
+	}
+
 	
 }

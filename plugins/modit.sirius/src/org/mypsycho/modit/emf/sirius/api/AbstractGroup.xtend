@@ -124,7 +124,7 @@ abstract class AbstractGroup extends SiriusModelProvider {
 	 * @return encoded typee
 	 */
 	def String asDomainClass(Class<? extends EObject> it) {
-		SiriusDesigns.encode(asEClass)
+		if (it !== null) SiriusDesigns.encode(asEClass)
 	}
 
 	

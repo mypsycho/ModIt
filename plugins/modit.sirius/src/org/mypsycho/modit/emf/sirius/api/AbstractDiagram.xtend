@@ -17,6 +17,7 @@ import org.eclipse.emf.ecore.EObject
 import org.eclipse.sirius.diagram.description.BooleanLayoutOption
 import org.eclipse.sirius.diagram.description.CustomLayoutConfiguration
 import org.eclipse.sirius.diagram.description.DiagramDescription
+import org.eclipse.sirius.diagram.description.DiagramElementMapping
 import org.eclipse.sirius.diagram.description.DoubleLayoutOption
 import org.eclipse.sirius.diagram.description.EnumLayoutOption
 import org.eclipse.sirius.diagram.description.EnumLayoutValue
@@ -26,6 +27,8 @@ import org.eclipse.sirius.diagram.description.Layer
 import org.eclipse.sirius.diagram.description.LayoutOption
 import org.eclipse.sirius.diagram.description.LayoutOptionTarget
 import org.eclipse.sirius.diagram.description.StringLayoutOption
+import org.eclipse.sirius.diagram.description.filter.FilterKind
+import org.eclipse.sirius.diagram.description.filter.MappingFilter
 
 /**
  * Adaptation of Sirius model into Java and EClass reflections API for Diagrams.
@@ -213,6 +216,37 @@ abstract class AbstractDiagram extends AbstractDiagramPart<DiagramDescription> {
 
 	def elkString(String key, String value) {
 		key.elkString(value, NO_TARGET)
+	}
+
+	def filterMapping(FilterKind kind, DiagramElementMapping... mappings) {
+		MappingFilter.create [
+			filterKind = kind
+			mappings += mappings
+		]
+	}
+
+	def allHide(DiagramElementMapping... mappings) {
+		FilterKind.HIDE_LITERAL.filterMapping(mappings)
+	}
+
+	def allCollapse(DiagramElementMapping... mappings) {
+		FilterKind.COLLAPSE_LITERAL.filterMapping(mappings)
+	}
+
+	def viewHide(String expression, DiagramElementMapping... mappings) {
+		allHide(mappings).andThen[ viewConditionExpression = expression ]
+	}
+
+	def viewCollapse(String expression, DiagramElementMapping... mappings) {
+		allCollapse(mappings).andThen[ viewConditionExpression = expression ]
+	}
+
+	def elementHide(String expression, DiagramElementMapping... mappings) {
+		allHide(mappings).andThen[ semanticConditionExpression = expression ]
+	}
+
+	def elementCollapse(String expression, DiagramElementMapping... mappings) {
+		allCollapse(mappings).andThen[ semanticConditionExpression = expression ]
 	}
 
 }

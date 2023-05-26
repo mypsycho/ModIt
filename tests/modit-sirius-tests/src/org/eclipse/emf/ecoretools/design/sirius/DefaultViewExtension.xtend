@@ -109,10 +109,7 @@ class DefaultViewExtension extends AbstractPropertySet {
 				tooltipExpression = "Add EAnnotation"
 				imageExpression = "/org.eclipse.emf.ecore.edit/icons/full/ctool16/CreateEModelElement_eAnnotations_EAnnotation.gif"
 				operation = "var:self".toContext(
-					CreateInstance.create [
-						typeName = "ecore::EAnnotation"
-						referenceName = "eAnnotations"
-					]
+					"eAnnotations".creator("ecore::EAnnotation")
 				)
 			]
 		]
@@ -129,8 +126,8 @@ class DefaultViewExtension extends AbstractPropertySet {
 				imageExpression = "/org.eclipse.emf.ecoretools.design/icons/full/etools16/generate_single.gif"
 				operation = "var:self".toContext(
 					"org.eclipse.emf.ecoretools.design.action.generateAllID".javaDo("Generate Model Properties", 
-						"genmodels".jparam('''self.eInverse()->select( g | g.eClass().ePackage.nsURI->includes('http://www.eclipse.org/emf/2002/GenModel'))->asSet().eContainerOrSelf(genmodel::GenModel)->asSet()'''.trimAql),
-						"scope".jparam("model")
+						"genmodels" -> '''self.eInverse()->select( g | g.eClass().ePackage.nsURI->includes('http://www.eclipse.org/emf/2002/GenModel'))->asSet().eContainerOrSelf(genmodel::GenModel)->asSet()'''.trimAql,
+						"scope" -> "model"
 					)
 				)
 			]
@@ -139,8 +136,8 @@ class DefaultViewExtension extends AbstractPropertySet {
 				imageExpression = "/org.eclipse.emf.ecoretools.design/icons/full/etools16/generate_single.gif"
 				operation = "var:self".toContext(
 					"org.eclipse.emf.ecoretools.design.action.generateAllID".javaDo("Generate Edit Properties", 
-						"genmodels".jparam('''self.eInverse()->select( g | g.eClass().ePackage.nsURI->includes('http://www.eclipse.org/emf/2002/GenModel'))->asSet().eContainerOrSelf(genmodel::GenModel)->asSet()'''.trimAql),
-						"scope".jparam("edit")
+						"genmodels" -> '''self.eInverse()->select( g | g.eClass().ePackage.nsURI->includes('http://www.eclipse.org/emf/2002/GenModel'))->asSet().eContainerOrSelf(genmodel::GenModel)->asSet()'''.trimAql,
+						"scope" -> "edit"
 					)
 				)
 			]
@@ -149,8 +146,8 @@ class DefaultViewExtension extends AbstractPropertySet {
 				imageExpression = "/org.eclipse.emf.ecoretools.design/icons/full/etools16/generate_single.gif"
 				operation = "var:self".toContext(
 					"org.eclipse.emf.ecoretools.design.action.generateAllID".javaDo("Generate Editor Properties", 
-						"genmodels".jparam('''self.eInverse()->select( g | g.eClass().ePackage.nsURI->includes('http://www.eclipse.org/emf/2002/GenModel'))->asSet().eContainerOrSelf(genmodel::GenModel)->asSet()'''.trimAql),
-						"scope".jparam("editor")
+						"genmodels" -> '''self.eInverse()->select( g | g.eClass().ePackage.nsURI->includes('http://www.eclipse.org/emf/2002/GenModel'))->asSet().eContainerOrSelf(genmodel::GenModel)->asSet()'''.trimAql,
+						"scope" -> "editor"
 					)
 				)
 			]
@@ -159,8 +156,8 @@ class DefaultViewExtension extends AbstractPropertySet {
 				imageExpression = "/org.eclipse.emf.ecoretools.design/icons/full/etools16/generate.gif"
 				operation = "var:self".toContext(
 					"org.eclipse.emf.ecoretools.design.action.generateAllID".javaDo("Generate All Properties", 
-						"genmodels".jparam('''self.eInverse()->select( g | g.eClass().ePackage.nsURI->includes('http://www.eclipse.org/emf/2002/GenModel'))->asSet().eContainerOrSelf(genmodel::GenModel)->asSet()'''.trimAql),
-						"scope".jparam("model, edit, editor, tests")
+						"genmodels" -> '''self.eInverse()->select( g | g.eClass().ePackage.nsURI->includes('http://www.eclipse.org/emf/2002/GenModel'))->asSet().eContainerOrSelf(genmodel::GenModel)->asSet()'''.trimAql,
+						"scope" -> "model, edit, editor, tests"
 					)
 				)
 			]
@@ -272,11 +269,11 @@ class DefaultViewExtension extends AbstractPropertySet {
 						actions += WidgetAction.create [
 							labelExpression = "..."
 							operation = "org.eclipse.emf.ecoretools.design.action.openSelectModelElementID".javaDo("open select etype dialog", 
-								"message".jparam(''' 'Select an ' + eStructuralFeature.eType.name +  ' for the ' + eStructuralFeature.name +  ' reference.' '''.trimAql),
-								"title".jparam(''' 'Select ' + eStructuralFeature.eType.name '''.trimAql),
-								"candidates".jparam('''input.emfEditServices(self).getChoiceOfValues(eStructuralFeature)'''.trimAql),
-								"feature".jparam("var:eStructuralFeature"),
-								"host".jparam("var:self")
+								"message" -> ''' 'Select an ' + eStructuralFeature.eType.name +  ' for the ' + eStructuralFeature.name +  ' reference.' '''.trimAql,
+								"title" -> ''' 'Select ' + eStructuralFeature.eType.name '''.trimAql,
+								"candidates" -> '''input.emfEditServices(self).getChoiceOfValues(eStructuralFeature)'''.trimAql,
+								"feature" -> "var:eStructuralFeature",
+								"host" -> "var:self"
 							)
 						]
 						actions += WidgetAction.create [
@@ -334,7 +331,7 @@ class DefaultViewExtension extends AbstractPropertySet {
 					valueExpression = '''self'''.trimAql
 					displayExpression = '''if self.isJavaFileGenerated() then 'Open Java Implementation' else '' endif'''.trimAql
 					operation = "org.eclipse.emf.ecoretools.design.action.openFileInEditorID".javaDo("open java editor", 
-						"path".jparam('''self.getJavaImplementationPath()'''.trimAql)
+						"path" -> '''self.getJavaImplementationPath()'''.trimAql
 					)
 				]
 			]
@@ -379,17 +376,15 @@ class DefaultViewExtension extends AbstractPropertySet {
 				displayExpression = '''self.eTypeArguments->first().eTypeParameter.name'''.trimAql
 				actions += WidgetAction.create [
 					labelExpression = "..."
-					operation = Let.create [
-						variableName = "eStructuralFeature"
-						valueExpression = '''self.eClass().getEStructuralFeature('eTypeParameter')'''.trimAql
-						subModelOperations += "org.eclipse.emf.ecoretools.design.action.openSelectModelElementID".javaDo("open select etype dialog", 
-							"message".jparam(''' 'Select an ' + eStructuralFeature.eType.name +  ' for the ' + eStructuralFeature.name +  ' reference.' '''.trimAql),
-							"title".jparam(''' 'Select ' + eStructuralFeature.eType.name '''.trimAql),
-							"candidates".jparam('''input.emfEditServices(self).getChoiceOfValues(eStructuralFeature)'''.trimAql),
-							"feature".jparam("var:eStructuralFeature"),
-							"host".jparam("var:self")
+					operation = '''self.eClass().getEStructuralFeature('eTypeParameter')'''.trimAql.let("eStructuralFeature",
+						"org.eclipse.emf.ecoretools.design.action.openSelectModelElementID".javaDo("open select etype dialog", 
+							"message" -> ''' 'Select an ' + eStructuralFeature.eType.name +  ' for the ' + eStructuralFeature.name +  ' reference.' '''.trimAql,
+							"title" -> ''' 'Select ' + eStructuralFeature.eType.name '''.trimAql,
+							"candidates" -> '''input.emfEditServices(self).getChoiceOfValues(eStructuralFeature)'''.trimAql,
+							"feature" -> "var:eStructuralFeature",
+							"host" -> "var:self"
 						)
-					]
+					)
 				]
 			]
 			controls += LabelDescription.create("EClassifier label") [
@@ -398,17 +393,15 @@ class DefaultViewExtension extends AbstractPropertySet {
 				displayExpression = '''self.eTypeArguments->at(2).eClassifier.name'''.trimAql
 				actions += WidgetAction.create [
 					labelExpression = "..."
-					operation = Let.create [
-						variableName = "eStructuralFeature"
-						valueExpression = '''self.eClass().getEStructuralFeature('eClassifier')'''.trimAql
-						subModelOperations += "org.eclipse.emf.ecoretools.design.action.openSelectModelElementID".javaDo("open select etype dialog", 
-							"message".jparam(''' 'Select an ' + eStructuralFeature.eType.name +  ' for the ' + eStructuralFeature.name +  ' reference.' '''.trimAql),
-							"title".jparam(''' 'Select ' + eStructuralFeature.eType.name '''.trimAql),
-							"candidates".jparam('''input.emfEditServices(self).getChoiceOfValues(eStructuralFeature)'''.trimAql),
-							"feature".jparam("var:eStructuralFeature"),
-							"host".jparam("var:self")
+					operation = '''self.eClass().getEStructuralFeature('eClassifier')'''.trimAql.let("eStructuralFeature",
+						"org.eclipse.emf.ecoretools.design.action.openSelectModelElementID".javaDo("open select etype dialog", 
+							"message" -> ''' 'Select an ' + eStructuralFeature.eType.name +  ' for the ' + eStructuralFeature.name +  ' reference.' '''.trimAql,
+							"title" -> ''' 'Select ' + eStructuralFeature.eType.name '''.trimAql,
+							"candidates" -> '''input.emfEditServices(self).getChoiceOfValues(eStructuralFeature)'''.trimAql,
+							"feature" -> "var:eStructuralFeature",
+							"host" -> "var:self"
 						)
-					]
+					)
 				]
 			]
 		]
@@ -523,11 +516,11 @@ class DefaultViewExtension extends AbstractPropertySet {
 							actions += WidgetAction.create [
 								labelExpression = "..."
 								operation = "org.eclipse.emf.ecoretools.design.action.openSelectModelElementID".javaDo("open select etype dialog", 
-									"message".jparam(''' 'Select an EClass for the eType reference.' '''.trimAql),
-									"title".jparam(''' 'Select EClass' '''.trimAql),
-									"candidates".jparam('''input.emfEditServices(self).getChoiceOfValues(self.eClass().getEStructuralFeature('eType'))'''.trimAql),
-									"feature".jparam('''self.eClass().getEStructuralFeature('eType')'''.trimAql),
-									"host".jparam("var:self")
+									"message" -> ''' 'Select an EClass for the eType reference.' '''.trimAql,
+									"title" -> ''' 'Select EClass' '''.trimAql,
+									"candidates" -> '''input.emfEditServices(self).getChoiceOfValues(self.eClass().getEStructuralFeature('eType'))'''.trimAql,
+									"feature" -> '''self.eClass().getEStructuralFeature('eType')'''.trimAql,
+									"host" -> "var:self"
 								)
 							]
 							actions += WidgetAction.create [
@@ -590,11 +583,9 @@ class DefaultViewExtension extends AbstractPropertySet {
 				tooltipExpression = "Add New Parameter"
 				imageExpression = "/org.eclipse.emf.ecore.edit/icons/full/ctool16/CreateEOperation_eParameters_EParameter.gif"
 				operation = "var:self".toContext(
-					CreateInstance.create [
-						typeName = "ecore::EParameter"
-						referenceName = "eParameters"
-						subModelOperations += "name".setter(''' 'param' + self.eContainer().eContents()->filter(ecore::EParameter)->size() '''.trimAql)
-					]
+					"eParameters".creator("ecore::EParameter").chain(
+						"name".setter(''' 'param' + self.eContainer().eContents()->filter(ecore::EParameter)->size() '''.trimAql)
+					)
 				)
 			]
 		]
@@ -620,10 +611,7 @@ class DefaultViewExtension extends AbstractPropertySet {
 				controls += ButtonDescription.create("eannotation_add_entry") [
 					buttonLabelExpression = "Add Entry"
 					operation = "var:self".toContext(
-						CreateInstance.create [
-							typeName = "ecore.EStringToStringMapEntry"
-							referenceName = "details"
-						]
+						"details".creator("ecore.EStringToStringMapEntry")
 					)
 				]
 			]

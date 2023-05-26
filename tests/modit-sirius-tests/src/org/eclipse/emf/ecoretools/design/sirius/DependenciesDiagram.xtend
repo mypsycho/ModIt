@@ -129,7 +129,7 @@ class DependenciesDiagram extends AbstractDiagram {
 				label = "Open User Guide"
 				view = ContainerViewVariable.create("views")
 				operation = "org.eclipse.sirius.ui.business.api.action.openHelpSection".javaDo("Open Dependencies User Guide Action", 
-					"href".jparam("/org.eclipse.emf.ecoretools.design/doc/user-guide.html#quality.dependencies")
+					"href" -> "/org.eclipse.emf.ecoretools.design/doc/user-guide.html#quality.dependencies"
 				)
 			]
 		]
@@ -152,7 +152,7 @@ class DependenciesDiagram extends AbstractDiagram {
 				containerView = ContainerViewVariable.create("containerView")
 				container = SelectContainerVariable.create("container")
 				operation = "var:element".forDo("i", 
-					"service:isEPackage".thenDo(
+					"service:isEPackage".ifThenDo(
 						CreateView.create [
 							containerViewExpression = "var:containerView"
 							mapping = ContainerMapping.localRef(Ns.node, "Analyzed Package")
@@ -179,7 +179,7 @@ class DependenciesDiagram extends AbstractDiagram {
 				element = ElementDropVariable.create("element")
 				newViewContainer = ContainerViewVariable.create("newContainerView")
 				operation = "var:element".toContext(
-					"service:isEPackage".thenDo(
+					"service:isEPackage".ifThenDo(
 						CreateView.create [
 							containerViewExpression = "var:newContainerView"
 							mapping = ContainerMapping.localRef(Ns.node, "Analyzed Package")
@@ -197,7 +197,7 @@ class DependenciesDiagram extends AbstractDiagram {
 					]
 				]
 				operation = "var:selected".forDo("i", 
-					"service:isEPackage".thenDo(
+					"service:isEPackage".ifThenDo(
 						CreateView.create [
 							containerViewExpression = "var:diagram"
 							mapping = ContainerMapping.ref(EntitiesDiagram, Ns.node, "EC EClass")

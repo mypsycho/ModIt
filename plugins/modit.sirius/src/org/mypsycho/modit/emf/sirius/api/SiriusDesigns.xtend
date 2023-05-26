@@ -207,6 +207,17 @@ class SiriusDesigns {
 	}
 	
 	/**
+	 * Finds a identified element in list based on it name.
+	 * 
+	 * @param values of reference
+	 * @param keys of element
+	 * @return found element or null
+	 */
+	static def <T extends IdentifiedElement> atNamed(Iterable<T> values, String key) {
+		values.atIdentifiedElement(key)
+	}
+	
+	/**
 	 * !!! Why is not in EcoreUtil already? Every project uses it. :'(
 	 */
 	static def <T> T eContainer(EObject it, Class<T> type) {
@@ -215,6 +226,18 @@ class SiriusDesigns {
 			result = result.eContainer
 		}
 		result as T
+	}
+	
+	static def boolean isContaining(EObject it, EObject value) {
+		for(var current = value; 
+			current !== null; 
+			current = current.eContainer
+		) {
+			if (it == current) {
+				return true
+			}
+		}
+		false
 	}
 	
 	
