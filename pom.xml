@@ -10,6 +10,9 @@
 	<version>0.9.3-SNAPSHOT</version>
 	<name>Mod-it Container</name>
 	
+	<properties>
+		<tycho.version>2.7.5</tycho.version>
+	</properties>
 	<!-- 
 	Reminder:
 	* Changing version
@@ -19,9 +22,10 @@
 	
 	<licenses>
 		<license>
-			<name>Eclipse Public License v1.0</name>
+			<name>Eclipse Public License v2.0</name>
 			<comments><![CDATA[
-Copyright (c) 2018 Nicolas Peransin, Arthur Daussy and Jacob Geisel.
+Copyright (c) 2023 Nicolas Peransin.
+
 This program and the accompanying materials are made available 
 under the terms of the Eclipse Public License v2.0
 which accompanies this distribution, and is available at
@@ -91,7 +95,7 @@ https://www.eclipse.org/legal/epl-2.0/
 				<plugin>
 					<groupId>org.eclipse.tycho</groupId>
 					<artifactId>tycho-versions-plugin</artifactId>
-					<version>1.6.0</version>
+					<version>${tycho.version}</version>
 					<configuration>
 						<!-- List of ArtifactIds reachable by this pom. -->
 						<!-- Only the ones without project.parent. -->

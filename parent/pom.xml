@@ -12,7 +12,7 @@
 	<properties>
 		<tp.version>1.0.0-SNAPSHOT</tp.version>
 		<tp.mode>build</tp.mode>
-		<tycho.version>2.2.0</tycho.version>
+		<tycho.version>2.7.5</tycho.version>
 		<xtend.version>2.25.0</xtend.version>
 		<!-- Xtend plugin does not take source version from TPD  -->
 		<maven.compiler.source>11</maven.compiler.source>
@@ -21,6 +21,21 @@
 		<!-- supported: warning|error|ignore -->
 		<git.dirty>error</git.dirty>
 	</properties>
+	
+	<licenses>
+		<license>
+			<name>Eclipse Public License v2.0</name>
+			<comments><![CDATA[
+Copyright (c) 2023 Nicolas Peransin.
+
+This program and the accompanying materials are made available 
+under the terms of the Eclipse Public License v2.0
+which accompanies this distribution, and is available at
+https://www.eclipse.org/legal/epl-2.0/
+]]></comments>
+		</license>
+	</licenses>
+	
 	<modules>
 		<module>tpd</module>
 	</modules>
