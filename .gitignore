@@ -1,4 +1,5 @@
 target
+.tycho-consumer-pom.xml
 *~
 *.rej
 *.bak
