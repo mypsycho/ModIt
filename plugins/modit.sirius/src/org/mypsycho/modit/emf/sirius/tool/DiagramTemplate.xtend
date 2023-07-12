@@ -18,11 +18,17 @@ class DiagramTemplate extends DiagramPartTemplate<DiagramDescription> {
 	new(SiriusGroupTemplate container) {
 		super(container, DiagramDescription)
 	}
+
 	
-	override isApplicableTemplate(DiagramDescription it) {
-		defaultLayer !== null
-			&& domainClass.classFromDomain !== null
-	}
+	val static CONTAINMENT_ORDER = 
+		(#[ 
+			DiagramDescription -> #[
+				DPKG.diagramDescription_Concerns,
+				DPKG.diagramDescription_Filters
+			]
+		] 
+		+ DiagramPartTemplate.CONTAINMENT_ORDER).toList
+	
 	
 	static val INIT_TEMPLATED = #{
 		DiagramDescription as Class<? extends EObject> -> #{
@@ -38,13 +44,14 @@ class DiagramTemplate extends DiagramPartTemplate<DiagramDescription> {
 		AdditionalLayer -> #{}
 	} + RepresentationTemplate.INIT_TEMPLATED
 	
-	/** Set of classes used in sub parts by the default implementation  */
+	/** Set of classes used in sub-parts by the default implementation  */
 	protected static val PART_IMPORTS = (
-			#{ 
-				AbstractDiagram
-			} 
-			+ INIT_TEMPLATED.keySet
-		).toList
+		#{ AbstractDiagram } + INIT_TEMPLATED.keySet
+	).toList
+	
+	override getContainmentOrders() {
+		CONTAINMENT_ORDER
+	}
 	
 	override getPartStaticImports(EObject it) {
 		// no super: EModit and EObject are not used directly
@@ -54,6 +61,11 @@ class DiagramTemplate extends DiagramPartTemplate<DiagramDescription> {
 	
 	override getInitTemplateds() {
 		INIT_TEMPLATED
+	}
+
+	override isApplicableTemplate(DiagramDescription it) {
+		defaultLayer !== null
+			&& domainClass.classFromDomain !== null
 	}
 	
 	override templateRepresentation(ClassId it, DiagramDescription content) {

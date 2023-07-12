@@ -54,13 +54,12 @@ abstract class DiagramPartTemplate<R extends EObject> extends RepresentationTemp
 		super(container, targetClass)
 	}
 	
-	val static CONTAINMENT_ORDER = #[
+	protected val static CONTAINMENT_ORDER = #[
 		Layer -> #[
 			DPKG.layer_NodeMappings,
 			DPKG.layer_ContainerMappings,
 			DPKG.layer_EdgeMappings,
-			DPKG.layer_Customization,
-			DPKG.layer_ToolSections
+			DPKG.layer_Customization
 		],
 		ContainerMapping -> #[
 			// Default position
@@ -69,8 +68,7 @@ abstract class DiagramPartTemplate<R extends EObject> extends RepresentationTemp
 			DPKG.abstractNodeMapping_BorderedNodeMappings,
 			DPKG.containerMapping_SubNodeMappings,
 			DPKG.containerMapping_SubContainerMappings,
-			DPKG.layer_EdgeMappings,
-			DPKG.layer_ToolSections
+			DPKG.layer_EdgeMappings
 		],
 		NodeMapping -> #[
 			DPKG.nodeMapping_Style,
@@ -210,15 +208,9 @@ ENDFOR
 	}
 	
 	def dispatch smartTemplateCreate(VSMElementCustomization it) {
-'''«predicateExpression.toJava».thenStyle(«
-IF 	featureCustomizations.size == 1
-»«featureCustomizations.head.templateCreate»«
-ELSE
-»//
+'''«predicateExpression.toJava».thenStyle(
 	«featureCustomizations.map[ templateCreate ].join(LValueSeparator)»
-«
-ENDIF
-»)'''
+)'''
 	}
 	
 	def dispatch smartTemplateCreate(EReferenceCustomization it) {
