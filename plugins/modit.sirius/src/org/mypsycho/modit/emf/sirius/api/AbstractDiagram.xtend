@@ -218,10 +218,10 @@ abstract class AbstractDiagram extends AbstractDiagramPart<DiagramDescription> {
 		key.elkString(value, NO_TARGET)
 	}
 
-	def filterMapping(FilterKind kind, DiagramElementMapping... mappings) {
+	def filterMapping(FilterKind kind, DiagramElementMapping... dMappings) {
 		MappingFilter.create [
 			filterKind = kind
-			mappings += mappings
+			mappings += dMappings
 		]
 	}
 
