@@ -670,12 +670,17 @@ ENDFOR
 			// Ecore order is fine most of the times.
 			return refs
 		}
-		val defaultPosition = order.indexOf(null) // by default at begining
-		refs.sortBy[
+		val toSort = refs.toList
+
+		val nullPosition = order.indexOf(null)
+		val defaultPosition = nullPosition == -1  
+			? order.size// by default at end
+			: nullPosition
+		toSort.sortBy[
 			val priority = order.indexOf(it)
 			priority != -1 ? priority : defaultPosition
 		]
-	
+		toSort
 	}
 
 	

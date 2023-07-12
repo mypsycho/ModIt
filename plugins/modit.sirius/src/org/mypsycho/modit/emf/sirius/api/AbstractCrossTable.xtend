@@ -22,7 +22,6 @@ import org.eclipse.sirius.table.metamodel.table.description.CrossTableDescriptio
 import org.eclipse.sirius.table.metamodel.table.description.DeleteColumnTool
 import org.eclipse.sirius.table.metamodel.table.description.ElementColumnMapping
 import org.eclipse.sirius.table.metamodel.table.description.IntersectionMapping
-import org.eclipse.sirius.table.metamodel.table.description.LabelEditTool
 import org.eclipse.sirius.table.metamodel.table.description.LineMapping
 import org.eclipse.sirius.viewpoint.description.tool.EditMaskVariables
 import org.eclipse.sirius.viewpoint.description.tool.ModelOperation
@@ -35,6 +34,16 @@ import org.eclipse.xtext.xbase.lib.Procedures.Procedure3
  * @author nicolas.peransin
  */
 abstract class AbstractCrossTable extends AbstractTable<CrossTableDescription> {
+
+	
+	public static val CELL_LABEL_ARGS = #[ 
+	     EditArg.table -> null,
+	     EditArg.line -> null,
+	     EditArg.element -> "The currently edited element.",
+	     EditArg.lineSemantic -> null,
+	     EditArg.columnSemantic -> "The semantic element corresponding to the column (only available for Intersection Mapping).",
+	     EditArg.root -> "The semantic element of the table."
+	]
 
 	/**
 	 * Create a factory for a diagram description
@@ -200,59 +209,12 @@ abstract class AbstractCrossTable extends AbstractTable<CrossTableDescription> {
 		firstModelOperation = operation
 	}
 
-	static val CELL_CREATE_ARGS = #[ 
-	     EditArg.lineSemantic -> null,
-	     EditArg.columnSemantic -> null,
-	     EditArg.root -> null
-	]
 
-	static val COLUMN_CREATE_ARGS = #[ 
-	     EditArg.root -> null,
-	     EditArg.element -> null,
-	     EditArg.container -> null
-	]
-
-	static val COLUMN_DEL_ARGS = #[ 
-	     EditArg.root -> null,
-	     EditArg.element -> null
-	]
-
-	def initVariables(CreateCellTool it) {
-		initVariables(CELL_CREATE_ARGS)
-	}
-	
-	def initVariables(CreateCrossColumnTool it) {
-		initVariables(COLUMN_CREATE_ARGS)
-	}
-	
-	def initVariables(CreateColumnTool it) {
-		initVariables(COLUMN_CREATE_ARGS)
-	}
-	
-	def initVariables(DeleteColumnTool it) {
-		initVariables(COLUMN_DEL_ARGS)
-	}
 	
 	def setMask(CreateCellTool it, String value) {
 		mask = EditMaskVariables.create[ mask = value ]
 	}
-	
-	static val CELL_LABEL_ARGS = #[ 
-	     EditArg.table -> null,
-	     EditArg.line -> null,
-	     EditArg.element -> "The currently edited element.",
-	     EditArg.lineSemantic -> null,
-	     EditArg.columnSemantic -> "The semantic element corresponding to the column (only available for Intersection Mapping).",
-	     EditArg.root -> "The semantic element of the table."
-	]
-	
-	override initVariables(LabelEditTool it) {
-		if (eContainer instanceof IntersectionMapping) {
-			initVariables(CELL_LABEL_ARGS)
-		} else {
-			super.initVariables(it)
-		}
-	}
+
 	
 	/**
 	 * Creates and add to tool create new column.

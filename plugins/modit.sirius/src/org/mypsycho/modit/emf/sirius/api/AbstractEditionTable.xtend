@@ -13,15 +13,14 @@
  package org.mypsycho.modit.emf.sirius.api
 
 import java.util.Objects
+import org.eclipse.emf.ecore.EAttribute
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EStructuralFeature
 import org.eclipse.sirius.table.metamodel.table.description.EditionTableDescription
 import org.eclipse.sirius.table.metamodel.table.description.FeatureColumnMapping
-import org.eclipse.sirius.table.metamodel.table.description.LabelEditTool
 import org.eclipse.sirius.viewpoint.description.tool.ModelOperation
 import org.eclipse.xtext.xbase.lib.Functions.Function1
 import org.eclipse.xtext.xbase.lib.Procedures.Procedure2
-import org.eclipse.emf.ecore.EAttribute
 
 /**
  * Adaptation of Sirius model into Java and EClass reflections API
@@ -32,14 +31,6 @@ import org.eclipse.emf.ecore.EAttribute
 abstract class AbstractEditionTable extends AbstractTable<EditionTableDescription> {
 
 	public static val VIRTUAL_FEATURE = "*"
-
-	static val CELL_EDIT_ARGS = #[ 
-	     EditArg.element -> null,
-	     EditArg.table -> null,
-	     EditArg.line -> null,
-	     EditArg.lineSemantic -> null,
-	     EditArg.root -> null
-	]
 
 	/**
 	 * Creates a factory for a diagram description.
@@ -123,14 +114,6 @@ abstract class AbstractEditionTable extends AbstractTable<EditionTableDescriptio
 	/** References a column. */
 	protected def columnRef(String id) {
 		FeatureColumnMapping.ref(Ns.column.id(id))
-	}
-	
-	override initVariables(LabelEditTool it) {
-		if (eContainer instanceof FeatureColumnMapping) {
-			initVariables(CELL_EDIT_ARGS)
-		} else {
-			super.initVariables(it)
-		}
 	}
 	
 	protected def setCanEdit(FeatureColumnMapping it, 

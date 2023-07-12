@@ -28,7 +28,6 @@ import org.eclipse.sirius.table.metamodel.table.description.LineMapping
 import org.eclipse.sirius.table.metamodel.table.description.StyleUpdater
 import org.eclipse.sirius.table.metamodel.table.description.TableDescription
 import org.eclipse.sirius.table.metamodel.table.description.TableTool
-import org.eclipse.sirius.table.metamodel.table.description.TableVariable
 import org.eclipse.sirius.viewpoint.description.ColorDescription
 import org.eclipse.sirius.viewpoint.description.tool.EditMaskVariables
 import org.eclipse.sirius.viewpoint.description.tool.ModelOperation
@@ -59,18 +58,7 @@ abstract class AbstractTable<T extends TableDescription> extends AbstractTypedEd
 		container
 	}
 	
-	static val EDIT_ARGS_DOCUMENTATIONS = #{
-		EditArg.element -> "The current DCell.",
-		EditArg.table -> "The current DTable.",
-		EditArg.line -> "The DLine of the current DCell.",
-		EditArg.lineSemantic -> "The semantic element corresponding to the line.",
-		EditArg.root -> "The semantic root element of the table.",
-		EditArg.columnSemantic -> "The semantic element corresponding to the column.",
-		EditArg.column -> "xxx",
-		EditArg.container -> "The semantic element corresponding to the view container."
-	}
 	
-	static val ALL_ARGS = EditArg.values.map[ it -> null ]
 	
 	static val LINE_DELETE_ARGS = #[ 
 	     EditArg.element -> null, // line semantic
@@ -167,7 +155,7 @@ abstract class AbstractTable<T extends TableDescription> extends AbstractTypedEd
 		// Default background is grey.
 		// (Sirius 6x ot more) There is a bug in header column
 		// Always grey !!
-		background = org.mypsycho.modit.emf.sirius.api.AbstractEdition$DColor.white.regular
+		background = AbstractEdition.DColor.white.regular
 		foreground = []
 	}
 
@@ -204,16 +192,6 @@ abstract class AbstractTable<T extends TableDescription> extends AbstractTypedEd
 	def lineRef(String id) {
 		LineMapping.ref(Ns.line.id(id))
 	}
-	
-	def initVariables(TableTool it, Iterable<? extends Pair<EditArg, ?>> variableNames) {
-		variables += variableNames.map[ descr |
-            TableVariable.create[ 
-            	name = descr.key.name
-            	documentation = descr.value?.toString 
-            		?: EDIT_ARGS_DOCUMENTATIONS.get(descr.key)
-            ]
-        ]
-	}
 
 	def setOperation(TableTool it, ModelOperation operation) {
 		// For reversing mainly, more precise API exists.
@@ -241,8 +219,9 @@ abstract class AbstractTable<T extends TableDescription> extends AbstractTypedEd
 		mask = EditMaskVariables.create[ mask = value ]
 	}
 	
-	def initVariables(LabelEditTool it) {
-		initVariables(ALL_ARGS)
+	@SuppressWarnings("restriction")
+	def initVariables(TableTool it) {
+		new org.eclipse.sirius.table.business.internal.dialect.description.TableToolVariables().doSwitch(it);
 	}
 	
     /**
@@ -262,10 +241,6 @@ abstract class AbstractTable<T extends TableDescription> extends AbstractTypedEd
         ]
     }
 
-	def initVariables(DeleteLineTool it) {
-		initVariables(LINE_DELETE_ARGS)
-	}
-    
     /**
      * Set Delete tool of a line.
      * 
@@ -326,11 +301,6 @@ abstract class AbstractTable<T extends TableDescription> extends AbstractTypedEd
 		val result = line.createLine(role, toolLabel, operation)
 		create += result
 		result
-	}
-	
-	
-	def initVariables(CreateLineTool it) {
-		initVariables(CREATE_LINE_ARGS)
 	}
 
     /**
@@ -434,7 +404,7 @@ abstract class AbstractTable<T extends TableDescription> extends AbstractTypedEd
 	 */
 	protected def void initForeground(ForegroundStyleDescription it) {
 		labelSize = 9 // ODesign is provide 12, but eclipse default is Segoe:9
-		foreGroundColor = org.mypsycho.modit.emf.sirius.api.AbstractEdition$DColor.black.regular
+		foreGroundColor = AbstractEdition.DColor.black.regular
 	}
 	
 }
