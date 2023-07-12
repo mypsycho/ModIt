@@ -680,7 +680,6 @@ ENDFOR
 			val priority = order.indexOf(it)
 			priority != -1 ? priority : defaultPosition
 		]
-		toSort
 	}
 
 	

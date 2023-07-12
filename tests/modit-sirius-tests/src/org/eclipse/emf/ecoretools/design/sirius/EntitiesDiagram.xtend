@@ -200,15 +200,6 @@ class EntitiesDiagram extends AbstractDiagram {
 	}
 
 	override initContent(Layer it) {
-		decorationDescriptionsSet = DecorationDescriptionsSet.create [
-			decorationDescriptions += SemanticBasedDecoration.create [
-				name = "External"
-				position = Position.NORTH_EAST_LITERAL
-				preconditionExpression = "service:viewContainerNotSemanticContainer(diagram,containerView)"
-				imageExpression = "/org.eclipse.emf.ecoretools.design/icons/full/ovr16/shortcut.gif"
-				domainClass = "ecore.EClassifier"
-			]
-		]
 		nodeMappings += NodeMapping.createAs(Ns.node, "Empty Diagram") [
 			preconditionExpression = '''containerView.oclAsType(diagram::DDiagram).ownedDiagramElements.target->excluding(containerView.oclAsType(diagram::DSemanticDiagram).target)->size() = 0 and container.eClassifiers->size() > 0'''.trimAql
 			semanticCandidatesExpression = "var:self"
@@ -559,7 +550,7 @@ class EntitiesDiagram extends AbstractDiagram {
 				]
 			]
 		]
-		styleCustomisations += "feature:required".thenStyle(//
+		styleCustomisations += "feature:required".thenStyle(
 			"labelFormat".attCustomization("service:fontFormatBold",
 				CenterLabelStyleDescription.localRef(Ns.edge, "EC_EReference") [ (it as EdgeMapping).style.centerLabelStyleDescription ],
 				BundledImageDescription.localRef(Ns.node, "EC EAttribute") [ (it as NodeMapping).style as BundledImageDescription ],
@@ -573,7 +564,7 @@ class EntitiesDiagram extends AbstractDiagram {
 				EdgeStyleDescription.localRef(Ns.edge, "EC_EReference") [ (it as EdgeMapping).style ]
 			)
 		)
-		styleCustomisations += "feature:containment".thenStyle(//
+		styleCustomisations += "feature:containment".thenStyle(
 			"sourceArrow".attCustomization("service:arrowsFillDiamond",
 				EdgeStyleDescription.localRef(Ns.edge, "EC_EReference") [ (it as EdgeMapping).style ],
 				EdgeStyleDescription.localRef(Ns.edge, "Bi-directional EC_EReference ") [ (it as EdgeMapping).style ]
@@ -583,7 +574,7 @@ class EntitiesDiagram extends AbstractDiagram {
 				EdgeStyleDescription.localRef(Ns.edge, "Bi-directional EC_EReference ") [ (it as EdgeMapping).style ]
 			)
 		)
-		styleCustomisations += "feature:container".thenStyle(//
+		styleCustomisations += "feature:container".thenStyle(
 			"targetArrow".attCustomization("service:arrowsFillDiamond",
 				EdgeStyleDescription.localRef(Ns.edge, "EC_EReference") [ (it as EdgeMapping).style ],
 				EdgeStyleDescription.localRef(Ns.edge, "Bi-directional EC_EReference ") [ (it as EdgeMapping).style ]
@@ -593,7 +584,7 @@ class EntitiesDiagram extends AbstractDiagram {
 				EdgeStyleDescription.localRef(Ns.edge, "Bi-directional EC_EReference ") [ (it as EdgeMapping).style ]
 			)
 		)
-		styleCustomisations += "feature:derived".thenStyle(//
+		styleCustomisations += "feature:derived".thenStyle(
 			"strokeColor".refCustomization(SystemColor.extraRef("color:blue"),
 				EdgeStyleDescription.localRef(Ns.edge, "EC_EReference") [ (it as EdgeMapping).style ],
 				EdgeStyleDescription.localRef(Ns.edge, "Bi-directional EC_EReference ") [ (it as EdgeMapping).style ]
@@ -615,6 +606,15 @@ class EntitiesDiagram extends AbstractDiagram {
 		toolSections += createDirectEditTools
 		toolSections += createHelpTools
 		toolSections += createDynamicTools
+		decorationDescriptionsSet = DecorationDescriptionsSet.create [
+			decorationDescriptions += SemanticBasedDecoration.create [
+				name = "External"
+				position = Position.NORTH_EAST_LITERAL
+				preconditionExpression = "service:viewContainerNotSemanticContainer(diagram,containerView)"
+				imageExpression = "/org.eclipse.emf.ecoretools.design/icons/full/ovr16/shortcut.gif"
+				domainClass = "ecore.EClassifier"
+			]
+		]
 	}
 
 	def createExistingElementsTools() {
@@ -1438,7 +1438,7 @@ class EntitiesDiagram extends AbstractDiagram {
 					]
 				]
 			]
-			styleCustomisations += "service:hasNoDocAnnotation".thenStyle(//
+			styleCustomisations += "service:hasNoDocAnnotation".thenStyle(
 				"labelColor".refCustomization(SystemColor.extraRef("color:red"),
 					FlatContainerStyleDescription.localRef(Ns.node, "EC EClass") [ (it as ContainerMapping).style as FlatContainerStyleDescription ],
 					FlatContainerStyleDescription.localRef(Ns.node, "EC EClass") [ (it as ContainerMapping).conditionnalStyles.get(1).style as FlatContainerStyleDescription ],
@@ -1516,7 +1516,7 @@ class EntitiesDiagram extends AbstractDiagram {
 	def createValidationLayer() {
 		AdditionalLayer.create("Validation") [
 			activeByDefault = true
-			styleCustomisations += "service:hasError".thenStyle(//
+			styleCustomisations += "service:hasError".thenStyle(
 				"labelColor".refCustomization(SystemColor.extraRef("color:red"),
 					BundledImageDescription.localRef(Ns.node, "EC EAttribute") [ (it as NodeMapping).style as BundledImageDescription ],
 					BundledImageDescription.localRef(Ns.node, "Operation") [ (it as NodeMapping).style as BundledImageDescription ],
@@ -1700,14 +1700,16 @@ class EntitiesDiagram extends AbstractDiagram {
 	def createIconsPreviewLayer() {
 		AdditionalLayer.create("Icons Preview") [
 			icon = "/org.eclipse.emf.ecoretools.design/icons/full/etools16/image.gif"
-			styleCustomisations += '''self.oclIsKindOf(ecore::EClass) and self.eInverse(genmodel::GenClass) <> null'''.trimAql.thenStyle("iconPath".attCustomization('''self.eInverse(genmodel::GenClass).getEClassItemIconPath()->first()'''.trimAql,
-				FlatContainerStyleDescription.localRef(Ns.node, "EC EClass") [ (it as ContainerMapping).conditionnalStyles.get(1).style as FlatContainerStyleDescription ],
-				FlatContainerStyleDescription.localRef(Ns.node, "EC EClass") [ (it as ContainerMapping).conditionnalStyles.get(0).style as FlatContainerStyleDescription ],
-				FlatContainerStyleDescription.localRef(Ns.node, "EC EClass") [ (it as ContainerMapping).style as FlatContainerStyleDescription ],
-				FlatContainerStyleDescription.localRef(Ns.node, "EC External EClasses") [ (it as ContainerMapping).conditionnalStyles.get(1).style as FlatContainerStyleDescription ],
-				FlatContainerStyleDescription.localRef(Ns.node, "EC External EClasses") [ (it as ContainerMapping).conditionnalStyles.get(0).style as FlatContainerStyleDescription ],
-				FlatContainerStyleDescription.localRef(Ns.node, "EC External EClasses") [ (it as ContainerMapping).style as FlatContainerStyleDescription ]
-			))
+			styleCustomisations += '''self.oclIsKindOf(ecore::EClass) and self.eInverse(genmodel::GenClass) <> null'''.trimAql.thenStyle(
+				"iconPath".attCustomization('''self.eInverse(genmodel::GenClass).getEClassItemIconPath()->first()'''.trimAql,
+					FlatContainerStyleDescription.localRef(Ns.node, "EC EClass") [ (it as ContainerMapping).conditionnalStyles.get(1).style as FlatContainerStyleDescription ],
+					FlatContainerStyleDescription.localRef(Ns.node, "EC EClass") [ (it as ContainerMapping).conditionnalStyles.get(0).style as FlatContainerStyleDescription ],
+					FlatContainerStyleDescription.localRef(Ns.node, "EC EClass") [ (it as ContainerMapping).style as FlatContainerStyleDescription ],
+					FlatContainerStyleDescription.localRef(Ns.node, "EC External EClasses") [ (it as ContainerMapping).conditionnalStyles.get(1).style as FlatContainerStyleDescription ],
+					FlatContainerStyleDescription.localRef(Ns.node, "EC External EClasses") [ (it as ContainerMapping).conditionnalStyles.get(0).style as FlatContainerStyleDescription ],
+					FlatContainerStyleDescription.localRef(Ns.node, "EC External EClasses") [ (it as ContainerMapping).style as FlatContainerStyleDescription ]
+				)
+			)
 		]
 	}
 

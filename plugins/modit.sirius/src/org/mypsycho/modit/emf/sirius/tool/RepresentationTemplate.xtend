@@ -90,8 +90,8 @@ abstract class RepresentationTemplate<R extends EObject> extends EReversIt {
 	protected def String templateFilteredContent(EObject it, Class<? extends EObject> filter) {
 		val filtered = initTemplateds.get(filter) ?: Collections.emptySet
 		val content = innerContent
-			.filter[ !filtered.contains(key) ]	
-		
+			.filter[ !filtered.contains(key) ]
+			.toList
 		templateInnerContent(content)
 	}
  

@@ -42,26 +42,34 @@ class EntitiesWithArchetypesDiagramExtension extends AbstractDiagramExtension {
 	def createArchetypesLayer() {
 		AdditionalLayer.create("Archetypes") [
 			activeByDefault = true
-			styleCustomisations += "service:isMomentInterval".thenStyle("foregroundColor".refCustomization(UserFixedColor.ref("color:MomentIntervalColor"),
-				FlatContainerStyleDescription.ref(EntitiesDiagram, Ns.node, "EC EClass") [ (it as ContainerMapping).style as FlatContainerStyleDescription ],
-				FlatContainerStyleDescription.ref(EntitiesDiagram, Ns.node, "EC EClass") [ (it as ContainerMapping).conditionnalStyles.get(1).style as FlatContainerStyleDescription ],
-				FlatContainerStyleDescription.ref(EntitiesDiagram, Ns.node, "EC EClass") [ (it as ContainerMapping).conditionnalStyles.get(0).style as FlatContainerStyleDescription ]
-			))
-			styleCustomisations += "service:isDescription".thenStyle("foregroundColor".refCustomization(UserFixedColor.ref("color:DescriptionColor"),
-				FlatContainerStyleDescription.ref(EntitiesDiagram, Ns.node, "EC EClass") [ (it as ContainerMapping).style as FlatContainerStyleDescription ],
-				FlatContainerStyleDescription.ref(EntitiesDiagram, Ns.node, "EC EClass") [ (it as ContainerMapping).conditionnalStyles.get(1).style as FlatContainerStyleDescription ],
-				FlatContainerStyleDescription.ref(EntitiesDiagram, Ns.node, "EC EClass") [ (it as ContainerMapping).conditionnalStyles.get(0).style as FlatContainerStyleDescription ]
-			))
-			styleCustomisations += "service:isThing".thenStyle("foregroundColor".refCustomization(UserFixedColor.ref("color:PartyPlaceThingColor"),
-				FlatContainerStyleDescription.ref(EntitiesDiagram, Ns.node, "EC EClass") [ (it as ContainerMapping).style as FlatContainerStyleDescription ],
-				FlatContainerStyleDescription.ref(EntitiesDiagram, Ns.node, "EC EClass") [ (it as ContainerMapping).conditionnalStyles.get(1).style as FlatContainerStyleDescription ],
-				FlatContainerStyleDescription.ref(EntitiesDiagram, Ns.node, "EC EClass") [ (it as ContainerMapping).conditionnalStyles.get(0).style as FlatContainerStyleDescription ]
-			))
-			styleCustomisations += "service:isRole".thenStyle("foregroundColor".refCustomization(UserFixedColor.ref("color:RoleColor"),
-				FlatContainerStyleDescription.ref(EntitiesDiagram, Ns.node, "EC EClass") [ (it as ContainerMapping).style as FlatContainerStyleDescription ],
-				FlatContainerStyleDescription.ref(EntitiesDiagram, Ns.node, "EC EClass") [ (it as ContainerMapping).conditionnalStyles.get(1).style as FlatContainerStyleDescription ],
-				FlatContainerStyleDescription.ref(EntitiesDiagram, Ns.node, "EC EClass") [ (it as ContainerMapping).conditionnalStyles.get(0).style as FlatContainerStyleDescription ]
-			))
+			styleCustomisations += "service:isMomentInterval".thenStyle(
+				"foregroundColor".refCustomization(UserFixedColor.ref("color:MomentIntervalColor"),
+					FlatContainerStyleDescription.ref(EntitiesDiagram, Ns.node, "EC EClass") [ (it as ContainerMapping).style as FlatContainerStyleDescription ],
+					FlatContainerStyleDescription.ref(EntitiesDiagram, Ns.node, "EC EClass") [ (it as ContainerMapping).conditionnalStyles.get(1).style as FlatContainerStyleDescription ],
+					FlatContainerStyleDescription.ref(EntitiesDiagram, Ns.node, "EC EClass") [ (it as ContainerMapping).conditionnalStyles.get(0).style as FlatContainerStyleDescription ]
+				)
+			)
+			styleCustomisations += "service:isDescription".thenStyle(
+				"foregroundColor".refCustomization(UserFixedColor.ref("color:DescriptionColor"),
+					FlatContainerStyleDescription.ref(EntitiesDiagram, Ns.node, "EC EClass") [ (it as ContainerMapping).style as FlatContainerStyleDescription ],
+					FlatContainerStyleDescription.ref(EntitiesDiagram, Ns.node, "EC EClass") [ (it as ContainerMapping).conditionnalStyles.get(1).style as FlatContainerStyleDescription ],
+					FlatContainerStyleDescription.ref(EntitiesDiagram, Ns.node, "EC EClass") [ (it as ContainerMapping).conditionnalStyles.get(0).style as FlatContainerStyleDescription ]
+				)
+			)
+			styleCustomisations += "service:isThing".thenStyle(
+				"foregroundColor".refCustomization(UserFixedColor.ref("color:PartyPlaceThingColor"),
+					FlatContainerStyleDescription.ref(EntitiesDiagram, Ns.node, "EC EClass") [ (it as ContainerMapping).style as FlatContainerStyleDescription ],
+					FlatContainerStyleDescription.ref(EntitiesDiagram, Ns.node, "EC EClass") [ (it as ContainerMapping).conditionnalStyles.get(1).style as FlatContainerStyleDescription ],
+					FlatContainerStyleDescription.ref(EntitiesDiagram, Ns.node, "EC EClass") [ (it as ContainerMapping).conditionnalStyles.get(0).style as FlatContainerStyleDescription ]
+				)
+			)
+			styleCustomisations += "service:isRole".thenStyle(
+				"foregroundColor".refCustomization(UserFixedColor.ref("color:RoleColor"),
+					FlatContainerStyleDescription.ref(EntitiesDiagram, Ns.node, "EC EClass") [ (it as ContainerMapping).style as FlatContainerStyleDescription ],
+					FlatContainerStyleDescription.ref(EntitiesDiagram, Ns.node, "EC EClass") [ (it as ContainerMapping).conditionnalStyles.get(1).style as FlatContainerStyleDescription ],
+					FlatContainerStyleDescription.ref(EntitiesDiagram, Ns.node, "EC EClass") [ (it as ContainerMapping).conditionnalStyles.get(0).style as FlatContainerStyleDescription ]
+				)
+			)
 			toolSections += createArchetypesArchetypeTools
 		]
 	}
