@@ -18,9 +18,12 @@ import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EReference
 import org.eclipse.sirius.table.metamodel.table.description.BackgroundConditionalStyle
 import org.eclipse.sirius.table.metamodel.table.description.BackgroundStyleDescription
+import org.eclipse.sirius.table.metamodel.table.description.CellEditorTool
+import org.eclipse.sirius.table.metamodel.table.description.CreateCellTool
 import org.eclipse.sirius.table.metamodel.table.description.CreateLineTool
 import org.eclipse.sirius.table.metamodel.table.description.CreateTool
 import org.eclipse.sirius.table.metamodel.table.description.DeleteLineTool
+import org.eclipse.sirius.table.metamodel.table.description.DeleteTool
 import org.eclipse.sirius.table.metamodel.table.description.ForegroundConditionalStyle
 import org.eclipse.sirius.table.metamodel.table.description.ForegroundStyleDescription
 import org.eclipse.sirius.table.metamodel.table.description.LabelEditTool
@@ -28,6 +31,8 @@ import org.eclipse.sirius.table.metamodel.table.description.LineMapping
 import org.eclipse.sirius.table.metamodel.table.description.StyleUpdater
 import org.eclipse.sirius.table.metamodel.table.description.TableDescription
 import org.eclipse.sirius.table.metamodel.table.description.TableTool
+import org.eclipse.sirius.table.metamodel.table.description.TableVariable
+import org.eclipse.sirius.table.tools.api.interpreter.IInterpreterSiriusTableVariables
 import org.eclipse.sirius.viewpoint.description.ColorDescription
 import org.eclipse.sirius.viewpoint.description.tool.EditMaskVariables
 import org.eclipse.sirius.viewpoint.description.tool.ModelOperation
@@ -221,7 +226,41 @@ abstract class AbstractTable<T extends TableDescription> extends AbstractTypedEd
 	
 	@SuppressWarnings("restriction")
 	def initVariables(TableTool it) {
-		new org.eclipse.sirius.table.business.internal.metamodel.TableToolVariables().doSwitch(it);
+		// Inspired from TableToolVariables but is refactored between 6/7.
+		variables += switch(it) {
+			CreateCellTool: #[
+				IInterpreterSiriusTableVariables.LINE_SEMANTIC,
+				IInterpreterSiriusTableVariables.COLUMN_SEMANTIC,
+				IInterpreterSiriusTableVariables.ROOT
+			]
+			CreateTool: #[ // column, crosscolumn, line
+				IInterpreterSiriusTableVariables.ELEMENT,
+				IInterpreterSiriusTableVariables.CONTAINER,
+				IInterpreterSiriusTableVariables.ROOT
+			]
+			LabelEditTool: #[
+				IInterpreterSiriusTableVariables.ELEMENT,
+				IInterpreterSiriusTableVariables.TABLE,
+				IInterpreterSiriusTableVariables.LINE,
+				IInterpreterSiriusTableVariables.LINE_SEMANTIC,
+				IInterpreterSiriusTableVariables.COLUMN_SEMANTIC,
+				IInterpreterSiriusTableVariables.ROOT
+			]
+			CellEditorTool: #[
+				IInterpreterSiriusTableVariables.ELEMENT,
+				IInterpreterSiriusTableVariables.TABLE,
+				IInterpreterSiriusTableVariables.LINE,
+				IInterpreterSiriusTableVariables.LINE_SEMANTIC,
+				IInterpreterSiriusTableVariables.COLUMN_SEMANTIC,
+				IInterpreterSiriusTableVariables.ROOT,
+				IInterpreterSiriusTableVariables.CELL_EDITOR_RESULT
+			]
+			DeleteTool: #[ // line, column
+				IInterpreterSiriusTableVariables.ELEMENT,
+				IInterpreterSiriusTableVariables.ROOT
+			]
+			default: #[]
+		}.map[ vName | TableVariable.create[ name = vName ] ]
 	}
 	
     /**
