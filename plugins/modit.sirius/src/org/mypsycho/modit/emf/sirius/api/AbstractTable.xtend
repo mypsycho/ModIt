@@ -221,7 +221,7 @@ abstract class AbstractTable<T extends TableDescription> extends AbstractTypedEd
 	
 	@SuppressWarnings("restriction")
 	def initVariables(TableTool it) {
-		new org.eclipse.sirius.table.business.internal.dialect.description.TableToolVariables().doSwitch(it);
+		new org.eclipse.sirius.table.business.internal.metamodel.TableToolVariables().doSwitch(it);
 	}
 	
     /**
