@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Modit Sirius Tests
 Bundle-SymbolicName: org.mypsycho.emf.modit.sirius.tests;singleton:=true
-Bundle-Version: 0.10.0.qualifier
+Bundle-Version: 1.0.0.qualifier
 Automatic-Module-Name: org.mypsycho.emf.modit.sirius.tests
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: org.junit,
