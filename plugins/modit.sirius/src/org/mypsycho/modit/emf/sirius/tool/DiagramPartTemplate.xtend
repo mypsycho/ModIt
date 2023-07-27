@@ -214,6 +214,7 @@ ENDFOR
 	}
 	
 	def dispatch smartTemplateCreate(EReferenceCustomization it) {
+		// TODO better, cast is not necessary; it should not appear.
 '''«referenceName.toJava».refCustomization(«value.templateRef(EObject)»«endCustomization»'''
 	}
 	

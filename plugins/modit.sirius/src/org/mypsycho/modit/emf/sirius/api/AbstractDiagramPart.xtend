@@ -42,6 +42,7 @@ import org.eclipse.sirius.diagram.description.style.NodeStyleDescription
 import org.eclipse.sirius.diagram.description.style.WorkspaceImageDescription
 import org.eclipse.sirius.diagram.description.tool.ContainerCreationDescription
 import org.eclipse.sirius.diagram.description.tool.ContainerDropDescription
+import org.eclipse.sirius.diagram.description.tool.CreateView
 import org.eclipse.sirius.diagram.description.tool.DeleteElementDescription
 import org.eclipse.sirius.diagram.description.tool.DiagramCreationDescription
 import org.eclipse.sirius.diagram.description.tool.DirectEditLabel
@@ -80,6 +81,8 @@ import org.eclipse.sirius.viewpoint.description.tool.ModelOperation
 import org.eclipse.sirius.viewpoint.description.tool.PasteDescription
 
 import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*
+import static extension java.util.Objects.requireNonNull
+import org.eclipse.sirius.viewpoint.description.IVSMElementCustomization
 
 /**
  * Adaptation of Sirius model into Java and EClass reflections API
@@ -361,12 +364,33 @@ abstract class AbstractDiagramPart<T extends EObject> extends AbstractTypedEditi
 	
 	/**
 	 * Gets the elements customization of a layer.
+	 * <p>
+	 * Warning: Adding to this list only works when using full Reference.
+	 * NO NAVIGATION in built-in
+	 * </p>
+	 * Using 'styleCustomisation' is safer.
 	 */
 	def getStyleCustomisations(Layer it) {
 		if (customization === null) {
 			customization = Customization.create
 		}
 		customization.vsmElementCustomizations
+	}
+	
+	/**
+	 * Add customization on assembly.
+	 * <p>
+	 * <ul>
+	 * <li>Are available: self, diagram, view.</li>
+	 * <li>When contained: container, containerView.</li>
+	 * <li>When contained: sourceView, targetView.</li>
+	 * </ul>
+	 * </p>
+	 */
+	def styleCustomisation(Layer layer, ()=>IVSMElementCustomization provider) {
+		layer.onAssembled[
+			layer.styleCustomisations += provider.apply
+		]
 	}
 	
 		
@@ -490,7 +514,7 @@ abstract class AbstractDiagramPart<T extends EObject> extends AbstractTypedEditi
 		EAttributeCustomization.create [
 			attributeName = feature
 			value = valueExpression
-			appliedOn += customizeds			
+			appliedOn += customizeds
 		]
 	}
 
@@ -933,16 +957,32 @@ abstract class AbstractDiagramPart<T extends EObject> extends AbstractTypedEditi
 		element = ElementSelectVariable.create("element")
 	}
 
+	/**
+	 * Creates a CreateView instance for this mapping in a ToolDescription.
+	 */
+	def viewDo(DiagramElementMapping viewMapping) {
+		viewMapping.viewDo('''elementView''')
+	}
+		
+	def viewDo(DiagramElementMapping viewMapping, String containerView) {
+		CreateView.create [
+			containerViewExpression = containerView.trimAql
+			mapping = viewMapping
+		]
+	}
+	
+	
+	
 	
 	/**
 	 * Iterates on all styles of a mapping.
 	 */
 	static def allStyles(DiagramElementMapping it) {
 		switch(it) {
-			EdgeMapping: #[ style ] + conditionnalStyles.map[ style ]
-			ContainerMapping: #[ style ] + conditionnalStyles.map[ style ]
-			NodeMapping: #[ style ] + conditionnalStyles.map[ style ]
-			default: #[]
+			EdgeMapping: #[ style.requireNonNull ] + conditionnalStyles.map[ style ]
+			ContainerMapping: #[ style.requireNonNull ] + conditionnalStyles.map[ style ]
+			NodeMapping: #[ style.requireNonNull ] + conditionnalStyles.map[ style ]
+			default: #[] as Iterable<? extends EObject> 
 		}
 	}
 	

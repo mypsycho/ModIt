@@ -12,6 +12,7 @@
  *******************************************************************************/
 package org.mypsycho.modit
 
+import java.util.ArrayList
 import java.util.Collection
 import java.util.LinkedList
 import java.util.NoSuchElementException
@@ -53,72 +54,81 @@ class ModItAssembler<T, F> {
 		try {
 			CURRENT_RUN.set(this)
 
-			val builtValues = <T>newArrayList(values)
-			
-			// Builds all contents
-			val stack = <T>newLinkedList(builtValues)
-			while (!stack.empty || !onFlies.empty) {
-				if (!stack.empty) {
-					stack.applyPopAll[ 
-						val content = unbindContent
-						if (content !== null) {
-							context.description.contentProvider.accept(content, it)	
-						}
-						unbindInit?.apply(it)
-						onFlies.remove(it) // if already attached
-					]
-				} else {
-					onFlies.forEach[
-						if (containedBy(builtValues)) {
-							stack += it
-							unbindReference
-						} else if (reference.containedBy(builtValues)) {
-							builtValues += it
-							stack += it
-							unbindReference
-						}
-					]
+			doPerform(values)
 
-					onFlies.clear
-				}
-			}
-
-			// Builds all IDs
-			stack += builtValues
-			while (!stack.empty) {
-				stack.applyPopAll[ registerOnAlias ]
-			}
-
-			stack += builtValues
-			while (!stack.empty) {
-				stack.applyPopAll[ susbtituteAliases ]
+			while (!onFlies.empty) {
+				val incompletes = new ArrayList(onFlies)
+				onFlies.clear
+				doPerform(incompletes)
 			}
 			
-			// For post-action, we want deeper first and last (attached) first
-			val onAssemblies = new LinkedList<Pair<T, (T)=>void>>
-			
-			
-			stack += builtValues
-			while (!stack.empty) {
-				stack.applyPopAll[ // Store execution order to reverse it.
-					val onAssembly = unbindAssemble
-					if (onAssembly !== null) {
-						onAssemblies.add(0, it->onAssembly)
-					}
-				]
-			}
-			
-			// At the end, perform assembly tasks
-			onAssemblies.forEach[ value.apply(key) ]
-			
-
 		} finally {
-			onFlies.clear
 			CURRENT_RUN.remove
 		}
 		
 		this
 	}
+	
+	def void doPerform(Iterable<? extends T> values) {
+		val builtValues = <T>newArrayList(values)
+		
+		// Builds all contents
+		val stack = <T>newLinkedList(builtValues)
+		while (!stack.empty || !onFlies.empty) {
+			if (!stack.empty) {
+				stack.applyPopAll[ 
+					val content = unbindContent
+					if (content !== null) {
+						context.description.contentProvider.accept(content, it)	
+					}
+					unbindInit?.apply(it)
+					onFlies.remove(it) // if already attached
+				]
+			} else {
+				onFlies.forEach[
+					if (containedBy(builtValues)) {
+						stack += it
+						unbindReference
+					} else if (reference.containedBy(builtValues)) {
+						builtValues += it
+						stack += it
+						unbindReference
+					}
+				]
+
+				onFlies.clear
+			}
+		}
+
+		// Builds all IDs
+		val applyOnAllBuilt = [ (T)=>void action |	
+			stack += builtValues
+			while (!stack.empty) {
+				stack.applyPopAll(action)
+			}
+		]
+		
+		applyOnAllBuilt.apply[ registerOnAlias ]
+		// ?? Maybe substitution should happen when onAssembly is done. 
+		applyOnAllBuilt.apply[ susbtituteAliases ]
+		
+		// For post-action, we want deeper first and last (attached) first
+		val onAssemblies = new LinkedList<Pair<T, (T)=>void>>
+		
+		applyOnAllBuilt.apply[ 
+			// Store execution order to reverse it.
+			val onAssembly = unbindAssemble
+			if (onAssembly !== null) {
+				onAssemblies.add(0, it->onAssembly)
+			}
+		]
+		
+		// At the end, perform assembly tasks
+		onAssemblies.forEach[ value.apply(key) ]
+
+	}
+	
+	
 	
 	private def registerOnAlias(T it) {
 		if (registry.isRegistered(it)) {
@@ -155,7 +165,9 @@ class ModItAssembler<T, F> {
 	}
 	
 	package static def <T> void candidate(T element) {
-		(ModItAssembler.CURRENT_RUN.get as ModItAssembler<T, ?>)?.onFlies?.add(element)
+		(ModItAssembler.CURRENT_RUN.get as ModItAssembler<T, ?>)
+			?.onFlies
+			?.add(element)
 	}
 
 	def updateRef(T container, F prop) {

@@ -17,14 +17,12 @@ import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.util.EcoreUtil
 import org.eclipse.sirius.diagram.description.ContainerMapping
 import org.eclipse.sirius.diagram.description.DiagramDescription
-import org.eclipse.sirius.diagram.description.DiagramElementMapping
 import org.eclipse.sirius.diagram.description.EdgeMapping
 import org.eclipse.sirius.diagram.description.Layer
 import org.eclipse.sirius.diagram.description.NodeMapping
 import org.eclipse.sirius.diagram.description.filter.CompositeFilterDescription
 import org.eclipse.sirius.diagram.description.filter.MappingFilter
 import org.eclipse.sirius.diagram.description.tool.ContainerDropDescription
-import org.eclipse.sirius.diagram.description.tool.CreateView
 import org.eclipse.sirius.diagram.description.tool.ToolGroup
 import org.eclipse.sirius.diagram.description.tool.ToolSection
 import org.eclipse.sirius.viewpoint.description.Customization
@@ -32,8 +30,6 @@ import org.eclipse.sirius.viewpoint.description.DocumentedElement
 import org.eclipse.sirius.viewpoint.description.IVSMElementCustomization
 import org.eclipse.sirius.viewpoint.description.IdentifiedElement
 import org.eclipse.sirius.viewpoint.description.VSMElementCustomization
-import org.mypsycho.modit.emf.sirius.api.AbstractDiagram
-import org.mypsycho.modit.emf.sirius.api.AbstractGroup
 
 import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*
 
@@ -99,18 +95,7 @@ abstract class DerivedDiagram extends AbstractDiagram {
 	def void overrideContent(DiagramDescription it)
 	
 	
-	// To API
-	def viewDo(DiagramElementMapping viewMapping) {
-		viewMapping.viewDo('''elementView''')
-	}
-		
-	
-	def viewDo(DiagramElementMapping viewMapping, String containerView) {
-		CreateView.create [
-			containerViewExpression = containerView.trimAql
-			mapping = viewMapping
-		]
-	}
+
 	
 	
 	// Substitute Dispatch 

@@ -18,6 +18,9 @@ import java.util.List
 import org.eclipse.emf.ecore.EClassifier
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EPackage
+import org.eclipse.sirius.diagram.DiagramPackage
+import org.eclipse.sirius.table.metamodel.table.TablePackage
+import org.eclipse.sirius.viewpoint.ViewpointPackage
 import org.eclipse.sirius.viewpoint.description.Environment
 import org.eclipse.sirius.viewpoint.description.IdentifiedElement
 import org.eclipse.sirius.viewpoint.description.JavaExtension
@@ -35,6 +38,12 @@ abstract class AbstractGroup extends SiriusModelProvider {
 	/** Packages used in design */
 	protected val List<EPackage> businessPackages = new ArrayList
 	protected var boolean enableRtExpression = false
+	
+	static val BUILT_IN_PACKAGES = #[
+		ViewpointPackage.eINSTANCE,
+		DiagramPackage.eINSTANCE,
+		TablePackage.eINSTANCE
+	]
 	
 	/**
 	 * Construction of model using provided packages.
@@ -135,13 +144,15 @@ abstract class AbstractGroup extends SiriusModelProvider {
 	 * @return encoded typee
 	 */
 	def EClassifier asEClass(Class<? extends EObject> type) {
-		val result = businessPackages
+		val result = (businessPackages + BUILT_IN_PACKAGES)
 			.flatMap[ EClassifiers ]
 			.findFirst[ instanceClass == type ]
-			
-		'''EClass of «type» is not defined in packages [«businessPackages
-				.join(',')[ name ]»]'''.verify(result !== null)
-
+		
+		if (result === null) {
+			val names = (businessPackages + BUILT_IN_PACKAGES)
+				.join(',')[ name ]
+			'''EClass of «type» is not defined in packages [«names»]'''.verify(false)
+		}
 		result
 	}
 	
