@@ -17,6 +17,20 @@
 	<packaging>eclipse-repository</packaging>
 	<name>Mod-It Update Site</name>
 
+  <properties>
+  	<root.path>../..</root.path>
+  	<help.plugin>%inject:project.fullname%.help</help.plugin>  	
+  	<help.res.path>plugins/${help.plugin}/html</help.res.path>
+  	<tpd.path>parent/tpd</tpd.path>
+<!-- 
+Repository default path for archive is defined by in:
+https://github.com/eclipse/tycho/blob/tycho-2.3.0/tycho-p2/tycho-p2-repository-plugin/src/main/java/org/eclipse/tycho/plugins/p2/repository/AbstractRepositoryMojo.java
+-->
+
+  	<repo.outputDirectory>${project.build.directory}/repository</repo.outputDirectory>
+
+  </properties>
+
 	<build>
 		<plugins>
 			<plugin>
@@ -26,6 +40,75 @@
 					<repositoryName>MyPsycho Mod-it ${unqualifiedVersion}.${buildQualifier}</repositoryName>
 				</configuration>
 			</plugin>
+			
+	  		<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-resources-plugin</artifactId>
+	  			<executions>
+	  			<!-- No Help
+	  				<execution>
+	  					<id>include-online-help</id>
+	  					<goals><goal>copy-resources</goal></goals>
+	  					<phase>prepare-package</phase>
+	  					<configuration>
+							<resources>
+								<resource>
+									<directory>../../${help.res.path}</directory>
+								</resource>
+							</resources>
+	  						<outputDirectory>${repo.outputDirectory}/help</outputDirectory>
+	  					</configuration>
+	  				</execution>
+	  				  	 -->
+	  				<execution>
+	  					<id>publish-tpd</id>
+	  					<goals><goal>copy-resources</goal></goals>
+	  					<phase>prepare-package</phase>
+	  					<configuration>
+							<resources>
+								<resource>
+									<directory>../../${tpd.path}</directory>
+									<includes>
+										<include>**/*.tpd</include>
+									</includes>
+								</resource>
+							</resources>
+	  						<outputDirectory>${repo.outputDirectory}/tpd</outputDirectory>
+	  					</configuration>
+	  				</execution>
+	  			</executions>
+	  			<configuration>
+	  				<outputDirectory>${repo.outputDirectory}</outputDirectory>
+	  			</configuration>
+			</plugin>
+			
+			
+			<plugin>
+		    <artifactId>maven-antrun-plugin</artifactId>
+		    <executions>
+		        <execution>
+		            <id>content-index</id>
+		            <phase>prepare-package</phase>
+		            <goals>
+		                <goal>run</goal>
+		            </goals>
+		            <configuration>
+		                <target>
+							<!-- 
+							Extract content.xml created by assemble-repository
+							It is the only element from content.jar
+							-->
+							<unzip src="${repo.outputDirectory}/content.jar" dest="${repo.outputDirectory}/" />
+							<xslt style="content2html.xsl" 
+								in="${repo.outputDirectory}/content.xml" 
+								out="${repo.outputDirectory}/index.html" />
+							<delete file="${repo.outputDirectory}/content.xml" />
+		                </target>
+		            </configuration>
+		        </execution>
+		        
+		</plugin>
+			
 		</plugins>
 	</build>
 	
