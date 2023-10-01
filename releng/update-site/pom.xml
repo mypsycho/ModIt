@@ -106,7 +106,7 @@ https://github.com/eclipse/tycho/blob/tycho-2.3.0/tycho-p2/tycho-p2-repository-p
 		                </target>
 		            </configuration>
 		        </execution>
-		        
+		        </executions>
 		</plugin>
 			
 		</plugins>
