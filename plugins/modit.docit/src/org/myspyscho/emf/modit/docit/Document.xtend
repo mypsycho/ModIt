@@ -1,4 +1,4 @@
-package com.siemens.eda.vseanalysis.design.template
+package org.myspyscho.emf.modit.docit
 
 import java.nio.file.Path
 import org.eclipse.emf.ecore.EObject
