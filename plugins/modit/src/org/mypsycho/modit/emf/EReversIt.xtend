@@ -13,6 +13,7 @@
 package org.mypsycho.modit.emf
 
 import java.io.IOException
+import java.lang.reflect.Field
 import java.lang.reflect.Modifier
 import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
@@ -30,9 +31,10 @@ import org.eclipse.emf.common.notify.Notifier
 import org.eclipse.emf.common.util.EList
 import org.eclipse.emf.common.util.Enumerator
 import org.eclipse.emf.common.util.TreeIterator
-import org.eclipse.emf.common.util.URI
 import org.eclipse.emf.ecore.EAttribute
 import org.eclipse.emf.ecore.EClass
+import org.eclipse.emf.ecore.EClassifier
+import org.eclipse.emf.ecore.ENamedElement
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EPackage
 import org.eclipse.emf.ecore.EReference
@@ -40,10 +42,10 @@ import org.eclipse.emf.ecore.EStructuralFeature
 import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.emf.ecore.resource.ResourceSet
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl
-import org.eclipse.emf.ecore.util.EcoreEList
 import org.eclipse.emf.ecore.util.EcoreUtil
+import org.eclipse.emf.ecore.xmi.XMLResource
 import org.eclipse.xtend.lib.annotations.Accessors
-import java.lang.reflect.Field
+import org.eclipse.emf.ecore.EEnum
 
 /**
  * Source code Generator reversing model into Xtend class.
@@ -64,7 +66,7 @@ class EReversIt {
 		HashMap, Class, // java
 		Accessors, // xtend.lib
 		EObject, EList, EReference, Resource, ResourceSet, ResourceSetImpl, // emf
-		EcoreEList, URI, // emf queries
+		// EcoreEList, URI ??
 		EModIt, ModitModel
 	}
 	
@@ -117,18 +119,16 @@ class EReversIt {
 		@Accessors
 		var Map<EObject, String> implicitExtras // initialized in #preparecontext()
 
+		@Accessors
+		var boolean xmlId = false
 
 		new(ClassId definition, Path dir, Pair<? extends Notifier, ClassId>... values) {
 			mainClass = definition
 			target = dir
 			orderedRoots = values.map[ key.toEObject ]
-			roots = 
-				if (values.size == 1) 
-					#{ 
-						values.head.key.toEObject -> definition
-					}
-				else 
-					values.toMap( [ key.toEObject ], [ value ] )
+			roots = (values.size == 1) 
+				? #{ values.head.key.toEObject -> definition }
+				: values.toMap( [ key.toEObject ], [ value ] )
 		}
 
 	}
@@ -141,7 +141,7 @@ class EReversIt {
 	// Reset for each generated file.
 	
 	/** Imported Classes for the generated class */
-	val Map<Class<?>, Boolean> currentImports = new HashMap
+	protected val Map<Class<?>, Boolean> currentImports = new HashMap
 
 	/** Current generated Class */
 	protected var ClassId currentClass
@@ -201,6 +201,8 @@ class EReversIt {
 	def getShortcuts() { context.shortcuts }
 
 	def setEncoding(Charset encoding) { context.encoding = encoding }
+
+	def setWithXmlId(boolean enable) { context.xmlId = enable }
 
 	def isPartTemplate(EObject it) { true }
 
@@ -325,7 +327,10 @@ class EReversIt {
 		// val mainFile = context.target.resolve(context.mainClass.toPath)
 		
 		if (context.roots.size == 1) {
-			context.mainClass.resolePath.toFile[ context.orderedRoots.head.templateSimpleMain ]
+			context.mainClass.resolePath.toFile[ 
+				val content = context.orderedRoots.head
+				content.applicableTemplate.templateSimpleMain(content)
+			]
 			
 		} else {
 			// Write class of each elements
@@ -381,7 +386,7 @@ class EReversIt {
 				+ findShortcutsClasses
 			)
 			
-			templateMain(context.orderedRoots.usedPackages) [ 
+			null.templateMain(context.orderedRoots.usedPackages) [ 
 				context
 					.orderedRoots
 					.map[ context.roots.get(it) ]
@@ -403,44 +408,62 @@ ENDFOR
 	}
 
 	/** Set of classes used in sub parts by the default implementation  */
-	protected static val PART_IMPORTS = #{ EObject, EModIt }
+	protected static val PART_IMPORTS = #{ EModIt }
 
 	// XTend
 	def Iterable<?extends Class<?>> getPartStaticImports(EObject it) { PART_IMPORTS }
 
-	protected def templatePart(ClassId it, EObject content) {
-		(delegates.reverseView + #[ EReversIt.this /* default implementation */ ])
+
+	protected def getApplicableTemplate(EObject content) {
+		(delegates.reverseView + #[ this /* default implementation */ ])
 			// Delegate to applicable case.
 			.filter[ isPartTemplate(content) ]
 			.head
-			.performTemplatePart(it, content)
+	}
+	protected def templatePart(ClassId it, EObject content) {
+		content.applicableTemplate.performTemplatePart(it, content)
 	}
 	
 	protected def performTemplatePart(ClassId it, EObject content) {
 		withCurrent(content) [
 			currentContent = content
 			content.registerImports(content.partStaticImports)
+				
 			templatePartBody(content).toString
 		]
 	}
 
+	protected def getParentPart(ClassId it) {
+		// Special import for parent: no existing Class.
+		var String parentName = context.mainClass.name
+		var String parentImport = ""
+		
+		if (pack != context.mainClass.pack) {
+			val conflict = currentImports.keySet
+				.exists[ simpleName == context.mainClass.name ]
+			if (conflict) {
+				parentName = context.mainClass.qName 
+			} else {
+				parentImport = "import " + context.mainClass.qName + "\n"
+			}	
+		}
+		parentName -> parentImport
+	}
+
 	// Xtend
 	protected def templatePartBody(ClassId it, EObject content) {
-		val parentName = 
-			if (pack != context.mainClass.pack) 
-				context.mainClass.qName 
-			else 
-				context.mainClass.name
+		val parentTemplate = parentPart
+		
 '''package «pack»
 
-«templateImports(it)»
+«parentTemplate.value»«templateImports(it)»
 import static extension «context.mainClass.qName».*
 
 class «name» {
-	val «parentName» context
+	val «parentTemplate.key» context
 	val extension EModIt factory
 
-	new(«parentName» parent) {
+	new(«parentTemplate.key» parent) {
 		this.context = parent
 		this.factory = parent.factory
 	}
@@ -452,14 +475,14 @@ class «name» {
 	def <T> T extraRef(Class<T> type, String key) {
 		context.extraRef(type, key)
 	}
-	
+
 }
 '''
 	}
 
 
 	// Xtend
-	protected def String templateMain(Iterable<Class<?>> packages, ()=>String content) {
+	protected def String templateMain(EObject it, Iterable<Class<?>> packages, ()=>String content) {
 '''package «context.mainClass.pack»
 
 «templateImports(context.mainClass)»
@@ -507,25 +530,28 @@ ENDFOR
 		extras.get(key) as T
 	}
 
-	«templateShortcuts»
-}
+«templateShortcuts»}
 
 '''
 	}
 
 	// xtend
 	protected def String templateExtras() {
-		// 
-		(if (!context.implicitExtras.empty) templateImplicitExtras else "")
+		(!context.implicitExtras.empty ? templateImplicitExtras : "")
 		+ 
-		(if (!context.explicitExtras.empty) templateExplicitExtras else "")
+		(!context.explicitExtras.empty ? templateExplicitExtras : "")	
 	}
 
 	// xtend
 	protected def String templateImplicitExtras() {
 '''extras.putAll(#{ // anonymous resources
 «
-FOR ext : context.implicitExtras.entrySet.map[ value -> key ].toList.sortBy[ key ]
+FOR ext : context
+	.implicitExtras
+	.entrySet
+	.map[ value -> key ]
+	.toList
+	.sortBy[ key ]
 SEPARATOR LValueSeparator // cannot include comma in template: improper for last value
 »	"«ext.key»" -> eObject(«ext.value.templateClass», «ext.value.toUri.toString.toJava»)«
 ENDFOR
@@ -538,7 +564,11 @@ ENDFOR
 	protected def String templateExplicitExtras() {
 '''extras.putAll(#{ // Named elements
 «
-FOR ext : context.explicitExtras.entrySet.toList.sortBy[ value ]
+FOR ext : context
+	.explicitExtras
+	.entrySet
+	.toList
+	.sortBy[ value ]
 SEPARATOR LValueSeparator // cannot include comma in template: improper for last value
 »	«ext.value.toJava» -> «ext.key.templateAlias»«
 ENDFOR
@@ -551,12 +581,12 @@ ENDFOR
 	protected def String templateShortcuts() {
 '''«
 FOR shortcut : context.shortcuts 
-»
-static def <T extends «shortcut.EContainingClass.templateClass
-»> at«shortcut.EContainingClass.instanceClass.simpleName
-»(Iterable<T> values, Object key) {
-	values.findFirst[ «shortcut.name» == key ]
-}
+»	static def <T extends «shortcut.EContainingClass.templateClass
+		»> at«shortcut.EContainingClass.instanceClass.simpleName
+		»(Iterable<T> values, Object key) {
+		values.findFirst[ «shortcut.name» == key ]
+	}
+
 «
 ENDFOR
 »
@@ -569,37 +599,64 @@ ENDFOR
 			return "null"
 		}
 		val split = context.splits.get(it)
-		if (split !== null) templateOutterCreate(split)
-		else templateInnerCreate
+		(split !== null)
+			? templateOutterCreate(split)
+			: templateInnerCreate
 	}
 	
 	// Xtend
 	protected def String templateOutterCreate(EObject it, ClassId split) {
+		'''new «split.templateSplitClass»(this).createContent'''
+	}
+	
+	protected def templateSplitClass(ClassId it) {
 		// TODO use import registry short name ( a current package is needed )
-		val packPrefix = 
-			if (context.mainClass.pack != split.pack) 
-				split.pack + "." 
-			else 
-				""
-		'''new «packPrefix»«split.name»(this).createContent'''
+		context.mainClass.pack != pack
+			? pack + "." + name
+			: name		
+	}
+
+
+	def String templateInnerCreate(EObject it) {
+		smartTemplateCreate.toString
+	}
+	
+	def dispatch smartTemplateCreate(EObject it) { // Default
+		defaultTemplateCreate
 	}
 
 	// Xtend
-	protected def String templateInnerCreate(EObject it) {
+	def String defaultTemplateCreate(EObject it) { // Default
+
 		// Find setted attributes, references, <>references
-		val content = innerContent
+		val content = innerContent.toList
 
 '''«templateClass».create«
 IF context.namings.containsKey(it)
-»As(«context.namings.get(it).toJava»)«
-ENDIF
-»«
-IF content.exists[ c | eIsSet(c.key) ]
-» [
+                        »As(«context.namings.get(it).toJava»)«
+ENDIF                                                       »«
+IF !content.empty                                           » [
 	«templateInnerContent(content)»
 ]«
 ENDIF
-»'''
+»«templateXmlId(true)»'''
+	}
+	
+	protected def templateXmlId(EObject it, boolean field) {
+		val id = xmlId
+		if (id === null) {
+			return ""
+		}
+		val call = '''xmlId(«id.toJava»)'''
+		field
+			? "." + call
+			: call + "\n"
+	}
+	
+	protected def xmlId(EObject it) {
+		context.xmlId && eResource instanceof XMLResource
+			? (eResource as XMLResource).getID(it)
+			: null
 	}
 	
 	protected def String templateInnerContent(EObject it, 
@@ -619,14 +676,16 @@ ENDFOR
 		// Find setted attributes, references, <>references
 		// Order go from simplest to most complex
 		#[
-			eClass.EAllAttributes.filter[ a | eIsSet(a) && a.defaultValue != eGet(a) ]
+			eClass.EAllAttributes.filter[ a | !a.derived && eIsSet(a) && a.defaultValue != eGet(a) ]
 				-> [ Object it, Class<?> using | toJava ],
 			eClass.EAllReferences.filter[ r | eIsSet(r) && r.pureReference ]
 				-> [ Object it, Class<?> using | (it as EObject).templateRef(using) ],
 			orderContainment(eClass.EAllReferences.filter[ r | eIsSet(r) && r.isContainment ])
 				-> [ Object it, Class<?> using | (it as EObject).templateCreate ]
 		]
-		.flatMap[ (key as Iterable<EStructuralFeature>).map[ f | f -> value ] ]
+		.flatMap[ 
+			(key as Iterable<EStructuralFeature>).map[ f | f -> value ]
+		]
 	}
 	
 	
@@ -692,10 +751,11 @@ ENDFOR
 		public val (String)=>String segment
 		
 		new (EObject src) {
-			this(null, src, 
-				#[ src.eClass.instanceClass, src.eClass.instanceClass ], 
-				null, null
-			)
+			this(src, src.eClass.instanceClass, src.eClass.instanceClass)
+		}
+
+		protected new (EObject src, Class<?>... imports) {
+			this(null, src, imports, null, null)
 		}
 			
 		new (Expr parent, Iterable<? extends Class<?>> chain, 
@@ -734,11 +794,6 @@ ENDFOR
 		}
 	}
 
-	protected static class EPackageExpr extends Expr {
-		new(EPackage src) {
-			super(src)
-		}
-	}
 
 	protected static class ExplicitExpr extends Expr {
 		public val String name
@@ -806,22 +861,56 @@ ENDFOR
 ''' [ «path.templateExpr("it".templateCast(path.src.eClass)).templateSimpleCast(cast)» ]'''
 	}
 
-	
-	protected def dispatch String templateRef(EObject it, EPackageExpr root, Expr path, Class<?> using) {
-		path.templateExpr(templateEPackage(path.src as EPackage)) // no cast required
+	protected static class EEcoreExpr extends Expr {
+		new(ENamedElement src) {
+			super(src, src.eClass.instanceClass, 
+				src.toPackage.toDeclaringClass)
+		}
+		static def toPackage(ENamedElement it) {
+			switch(it) { // To package class
+				EClassifier: EPackage
+				EStructuralFeature: EContainingClass.EPackage
+				EPackage: it				
+			}
+		}
 	}
+	
+	protected def dispatch String templateRef(EObject it, EEcoreExpr root, Expr path, Class<?> using) {
+		path.templateExpr(templateEEcore(path.src as ENamedElement)) // no cast required
+	}
+
+
+	// xtend (possibly the same for all packages)
+	protected def String templateEEcore(ENamedElement it) {
+		switch (it) {
+			EPackage: toDeclaringClass.templateClass + ".eINSTANCE"
+			EClassifier: '''«EPackage.templateEEcore».«toXtendProperty.safename»'''
+			EStructuralFeature: 
+				'''«EContainingClass.EPackage.templateEEcore
+					».«EContainingClass.toXtendProperty
+					»_«name.toFirstUpper
+				»'''
+		}
+	}
+
+
+	protected static def toDeclaringClass(EPackage it) {
+		class.fields
+			.findFirst[ isEPackageInstanceField ]
+			.declaringClass
+	}
+	
 	
 	protected def dispatch String templateRef(EObject it, ExplicitExpr root, Expr path, Class<?> using) {
 		path.templateExpr(templateExplicitRef(path))
-				.templateCast(getClassCast(path, using))
+			.templateCast(getClassCast(path, using))
 	}
 	
 	protected def dispatch String templateRef(EObject it, Expr root, Expr path, Class<?> using) {
-		if (root.src.eResource !== null)
-			path.templateExpr(templateImplicitRef(path))
+		(root.src.eResource !== null)
+			? path.templateExpr(templateImplicitRef(path))
 				.templateCast(getClassCast(path, using))
-		else // throw exception or generate invalid statement ?
-			"// headless object"
+			: "// headless object" // throw exception or generate invalid statement ?
 	}
 	
 //	@Deprecated
@@ -855,12 +944,7 @@ ENDFOR
 		else false
 	}
 
-	// xtend (possibly the same for all packages)
-	protected def templateEPackage(EPackage it) {
-		class.fields
-			.findFirst[ isEPackageInstanceField ]
-			.declaringClass.name + ".eINSTANCE"
-	}
+
 
 	protected def identifyImplicitExtra(EObject it) {
 		context.implicitExtras.computeIfAbsent(it) [ "$" + context.implicitExtras.size ]
@@ -878,9 +962,13 @@ ENDFOR
 		if (alias !== null) {
 			return new AliasExpr(alias, it)
 		}
-		if (isGeneratedEPackage) {
-			return new EPackageExpr(it as EPackage)
+		if (it instanceof ENamedElement) {
+			val ecoreExpr = callEcorePath
+			if (ecoreExpr !== null) {
+				return ecoreExpr
+			}
 		}
+
 		if (withExtras) {
 			val extra = context.explicitExtras.get(it)
 			if (extra !== null) {
@@ -892,6 +980,25 @@ ENDFOR
 		}
 		complexCallPath(withExtras)
 	}
+	
+	
+	def protected callEcorePath(ENamedElement it) {
+		if (it instanceof EClass) {
+			if (isGeneratedEPackage(EPackage)) {
+				return new EEcoreExpr(it)
+			}
+		} else if (it instanceof EStructuralFeature) {
+			if (isGeneratedEPackage(EContainingClass.EPackage)) {
+				return new EEcoreExpr(it)
+			}
+		} else if (it instanceof EPackage) {
+			if (isGeneratedEPackage) {
+				return new EEcoreExpr(it)
+			}
+		}
+		null
+	}
+
 	
 	protected def Expr complexCallPath(EObject it, boolean withExtras) {
 		
@@ -929,9 +1036,10 @@ ENDFOR
 
 	// Xtend
 	def String templateReferenceSegment(EObject it, EReference feat, String source) {
-		if (!feat.many)
+		if (!feat.many) {
 			return source + "." + feat.toGetter
-
+		}
+		
 		val siblings = eContainer.eGet(feat) as List<EObject> // Ecore only provide Elist
 		val keyed = !feat.EKeys.empty
 		val shortcut = if (!keyed) context.shortcuts.findFirst[ 
@@ -956,25 +1064,25 @@ ENDFOR
 	
 	//Xtend
 	def String templateCast(CharSequence expr, EClass expected) {
-		if (expected === null) expr.toString
-		else '''(«expr.templateSimpleCast(expected)»)'''
+		expected === null
+			? expr.toString
+			: '''(«expr.templateSimpleCast(expected)»)'''
 	}
 	
 	def String templateSimpleCast(CharSequence expr, EClass expected) {
-		if (expected === null) expr.toString
-		else '''«expr» as «expected.templateClass»'''
+		expected === null
+			? expr.toString
+			: '''«expr» as «expected.templateClass»'''
 	}
 	
 	protected def templateProperty(EObject element, EStructuralFeature it, (Object, Class<?>)=>String encoding) {
 		val usingType = EType.instanceClass
 		val valueEncoding = [ encoding.apply(it, usingType) ]
-		if (isMany) {
-			(element.eGet(it) as Collection<?>)
+		isMany
+			? (element.eGet(it) as Collection<?>)
 				.join(statementSeparator) // Let's hope command separator is universal ...
 				[ value | templatePropertyValue(value, valueEncoding) ]
-		} else {
-			templatePropertyValue(element.eGet(it), valueEncoding)
-		}
+			: templatePropertyValue(element.eGet(it), valueEncoding)
 	}
 	
 	protected def templatePropertyValue(EStructuralFeature it, Object value, (Object)=>String encoding) {
@@ -985,12 +1093,11 @@ ENDFOR
 	// Xtend
 	protected def templatePropertyValue(EStructuralFeature it, String value) {
 		if (value === null)  // is this universal (for any lang) ??
-			'''// «safename» is headless''' // TODO log an error
+			'''// «toXtendProperty.safename» is headless''' // TODO log an error
 		else if (isMany) 
-			'''«safename» += «value»'''
+			'''«toXtendProperty.safename» += «value»'''
 		else 
-			'''«safename» = «value»'''
-
+			'''«toXtendProperty.safename» = «value»'''
 	}
 
 	protected def isPureReference(EReference it) {
@@ -1061,19 +1168,26 @@ ENDFOR
 	protected def getReferencedClasses(EObject it) {	
 		// we want the interface for EModIt
 		#[ eClass.instanceClass ]
-
+/* OLD
 		+ eClass.EAllAttributes // Enum
 			.map[ a| eGet(a) ]
 			.filterNull // get defined
 			.map[
 				if (it instanceof Collection<?>) (it as Collection<?>) 
 				else #[ it ]
-			].flatten
+			]
+			.flatten
 			.filter[ it instanceof Enum<?> ]
 			// TODO handle DataType parsing (using Package parse)
 			// We need the factory of the bound to the attributes
 			// to encode/decode
 			.map[ class ]
+*/
+
+		+ eClass.EAllAttributes // Enum
+			.filter[ a| a.EType instanceof EEnum && eIsSet(a) ]
+			.map[ EType.instanceClass ]
+
 
 		+ eClass.EAllReferences // only pure referenced elements
 			.filter[ pureReference ]
@@ -1168,11 +1282,7 @@ ENDFOR
 	}
 
 
-	static val XTEND_RESERVEDS = "extension,default,transient".split(",").toList
-	// Xtend
-	def safename(EStructuralFeature it) {
-		if (XTEND_RESERVEDS.contains(name)) '^' + name else name
-	}
+
 	
 	// Xtend (generic)
 	def getStatementSeparator() { "\n" }
@@ -1182,10 +1292,23 @@ ENDFOR
 
 	static def EObject toRoot(EObject it) { eContainer?.toRoot ?: it }
 
-	static def toGetter(EReference it) {
-		if (name.length > 1 && Character.isUpperCase(name.charAt(1))) name.toFirstUpper
-		else name
+	def toGetter(EReference it) {
+		toXtendProperty.safename
 	}
+
+	static def toXtendProperty(ENamedElement it) {
+		name.length > 1 && Character.isUpperCase(name.charAt(1)) 
+			? name.toFirstUpper
+			: name.toFirstLower
+	}
+	
+	static val XTEND_RESERVEDS = "extension,default,transient".split(",").toList
+	static def safename(String it) {
+		XTEND_RESERVEDS.contains(it) 
+			? '^' + it 
+			: it
+	}
+
 
 	static def toEObject(Notifier it) {
 		if (it instanceof EObject) it

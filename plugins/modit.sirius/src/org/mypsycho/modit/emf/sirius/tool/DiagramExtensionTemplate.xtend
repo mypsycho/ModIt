@@ -253,7 +253,7 @@ ENDFOR
 '''«
 FOR source : sources
 SEPARATOR statementSeparator 
-»«target.templatePropertyValue('''importedMapping.«source.safename»''')»«
+»«target.templatePropertyValue('''importedMapping.«source.name.safename»''')»«
 ENDFOR
 »«
 IF !getUncopiedValues(target, sources).empty »

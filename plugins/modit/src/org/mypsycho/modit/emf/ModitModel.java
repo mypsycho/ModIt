@@ -24,6 +24,7 @@ import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.util.EcoreEList;
+import org.mypsycho.modit.emf.EModItProcInfo.PiType;
 
 /** 
  * Interface for element managed by ModitResourceFactory.
@@ -107,6 +108,14 @@ public interface ModitModel {
 		}
 		return (T) result;
 	}
-
+	
+	static <O extends EObject> O xmlId(O it, String id) {
+		EModItProcInfo.bind(PiType.id, it, id);
+		return it;
+	}
+	
+	static String xmlId(EObject it) {
+		return (String) EModItProcInfo.unbind(PiType.id, it);
+	}
 
 }

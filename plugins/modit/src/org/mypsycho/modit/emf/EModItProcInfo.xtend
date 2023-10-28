@@ -26,7 +26,7 @@ class EModItProcInfo extends AdapterImpl {
 	
 	/** Possible types of attachment */
 	enum PiType { 
-		alias, path, content, init, assemble, reference
+		alias, path, content, init, assemble, reference, id
 	}
 
 	/** type of attachment */

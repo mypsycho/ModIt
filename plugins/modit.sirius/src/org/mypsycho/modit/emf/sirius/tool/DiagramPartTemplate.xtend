@@ -189,10 +189,9 @@ ENDFOR 																		»
 	}
 	
 	override templatePropertyValue(EStructuralFeature feat, Object value, (Object)=>String encoding) {
-		if (DPKG.layer_Customization == feat)
-			(value as Customization).templateStyleCustomisation
-		else
-			super.templatePropertyValue(feat, value, encoding)
+		DPKG.layer_Customization == feat
+			? (value as Customization).templateStyleCustomisation
+			: super.templatePropertyValue(feat, value, encoding)
 	}
 	
 	def templateStyleCustomisation(Customization it) {

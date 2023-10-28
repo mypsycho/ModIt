@@ -34,7 +34,6 @@ class SiriusGroupTemplate extends EReversIt {
 		delegates += new TableTemplate(this)
 		delegates += new PropertiesTemplate(this)
 		delegates += new DiagramExtensionTemplate(this)
-		
 	}
 	
 	// Only used in SiriusModelProvider class.
@@ -60,10 +59,10 @@ class SiriusGroupTemplate extends EReversIt {
 	}
 	
 	// Xtend
-	override templateMain(Iterable<Class<?>> packages, ()=>String content) {
+	override templateMain(EObject it, Iterable<Class<?>> packages, ()=>String content) {
 '''package «context.mainClass.pack»
 
-«templateImports(context.mainClass)»
+«context.mainClass.templateImports»
 
 import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*
 

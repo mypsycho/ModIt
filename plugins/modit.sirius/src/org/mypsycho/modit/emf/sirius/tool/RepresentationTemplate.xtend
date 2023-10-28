@@ -107,19 +107,6 @@ abstract class RepresentationTemplate<R extends EObject> extends EReversIt {
 			.filter[ !CONTENT_PROVIDER_FIELDS.contains(key) ]
 	}
 	
- 
-	override templateInnerCreate(EObject it) {
-		smartTemplateCreate.toString
-	}
-	
-	def dispatch smartTemplateCreate(EObject it) { // Default
-		defaultTemplateCreate
-	}
-
-	def defaultTemplateCreate(EObject it) { // Default
-		super.templateInnerCreate(it)
-	}
-
 
  	def dispatch smartTemplateCreate(AbstractVariable it) {
  		val content = innerContent
@@ -235,7 +222,7 @@ ENDIF                                               »)'''
 			?.value
 	}
 	
-	def templateIdentifiedCreate(IdentifiedElement it) { // Default
+	def String templateIdentifiedCreate(IdentifiedElement it) { // Default
 		// TODO verification:
 		// We assume names follows the guidelines.
 		// Store aliases to detect conflict.
