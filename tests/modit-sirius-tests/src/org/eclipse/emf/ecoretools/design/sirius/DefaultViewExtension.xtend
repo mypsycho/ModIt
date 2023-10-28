@@ -1,6 +1,7 @@
 package org.eclipse.emf.ecoretools.design.sirius
 
-import org.eclipse.emf.ecore.EPackage
+import org.eclipse.emf.codegen.ecore.genmodel.GenModelPackage
+import org.eclipse.emf.ecore.EcorePackage
 import org.eclipse.sirius.properties.ButtonDescription
 import org.eclipse.sirius.properties.Category
 import org.eclipse.sirius.properties.CheckboxDescription

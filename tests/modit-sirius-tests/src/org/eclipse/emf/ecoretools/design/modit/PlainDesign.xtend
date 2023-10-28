@@ -2,17 +2,15 @@ package org.eclipse.emf.ecoretools.design.modit
 
 import java.lang.Class
 import java.util.HashMap
+import org.eclipse.emf.codegen.ecore.genmodel.GenModelPackage
 import org.eclipse.emf.common.util.EList
-import org.eclipse.emf.common.util.URI
 import org.eclipse.emf.ecore.EObject
-import org.eclipse.emf.ecore.EPackage
 import org.eclipse.emf.ecore.EReference
+import org.eclipse.emf.ecore.EcorePackage
 import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.emf.ecore.resource.ResourceSet
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl
-import org.eclipse.emf.ecore.util.EcoreEList
 import org.eclipse.sirius.diagram.BackgroundStyle
-import org.eclipse.sirius.diagram.BundledImageShape
 import org.eclipse.sirius.diagram.ContainerLayout
 import org.eclipse.sirius.diagram.EdgeArrows
 import org.eclipse.sirius.diagram.EdgeRouting
@@ -20,7 +18,6 @@ import org.eclipse.sirius.diagram.LabelPosition
 import org.eclipse.sirius.diagram.LineStyle
 import org.eclipse.sirius.diagram.ResizeKind
 import org.eclipse.sirius.diagram.description.AdditionalLayer
-import org.eclipse.sirius.diagram.description.CenteringStyle
 import org.eclipse.sirius.diagram.description.ConditionalContainerStyleDescription
 import org.eclipse.sirius.diagram.description.ConditionalEdgeStyleDescription
 import org.eclipse.sirius.diagram.description.ConditionalNodeStyleDescription
@@ -28,11 +25,9 @@ import org.eclipse.sirius.diagram.description.ContainerMapping
 import org.eclipse.sirius.diagram.description.DiagramDescription
 import org.eclipse.sirius.diagram.description.DiagramExtensionDescription
 import org.eclipse.sirius.diagram.description.EdgeMapping
-import org.eclipse.sirius.diagram.description.FoldingStyle
 import org.eclipse.sirius.diagram.description.Layer
 import org.eclipse.sirius.diagram.description.NodeMapping
 import org.eclipse.sirius.diagram.description.filter.CompositeFilterDescription
-import org.eclipse.sirius.diagram.description.filter.FilterKind
 import org.eclipse.sirius.diagram.description.filter.MappingFilter
 import org.eclipse.sirius.diagram.description.style.BeginLabelStyleDescription
 import org.eclipse.sirius.diagram.description.style.BundledImageDescription
@@ -102,6 +97,7 @@ import org.eclipse.sirius.table.metamodel.table.description.BackgroundStyleDescr
 import org.eclipse.sirius.table.metamodel.table.description.CreateCellTool
 import org.eclipse.sirius.table.metamodel.table.description.CreateLineTool
 import org.eclipse.sirius.table.metamodel.table.description.CrossTableDescription
+import org.eclipse.sirius.table.metamodel.table.description.DeleteColumnTool
 import org.eclipse.sirius.table.metamodel.table.description.EditionTableDescription
 import org.eclipse.sirius.table.metamodel.table.description.ElementColumnMapping
 import org.eclipse.sirius.table.metamodel.table.description.FeatureColumnMapping
@@ -115,7 +111,6 @@ import org.eclipse.sirius.viewpoint.FontFormat
 import org.eclipse.sirius.viewpoint.LabelAlignment
 import org.eclipse.sirius.viewpoint.description.Customization
 import org.eclipse.sirius.viewpoint.description.DecorationDescriptionsSet
-import org.eclipse.sirius.viewpoint.description.DecorationDistributionDirection
 import org.eclipse.sirius.viewpoint.description.EAttributeCustomization
 import org.eclipse.sirius.viewpoint.description.EReferenceCustomization
 import org.eclipse.sirius.viewpoint.description.Environment
@@ -228,75 +223,75 @@ class PlainDesign implements ModitModel {
 					name = "Entities"
 					label = "Entities in a Class Diagram"
 					titleExpression = "aql:self.name + ' class diagram'"
-					domainClass = "ecore.EPackage"
+					domainClass = "ecore::EPackage"
 					enablePopupBars = true
-					dropDescriptions += ContainerDropDescription.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.toolSections.get(0).ownedTools.at(ContainerDropDescription, "External EClass from treeview") ]
-					dropDescriptions += ContainerDropDescription.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").additionalLayers.at("Package").toolSections.head.ownedTools.at(ContainerDropDescription, "Drop EClassifier into EPackage") ]
-					metamodel += org.eclipse.emf.ecore.EcorePackage.eINSTANCE
-					metamodel += org.eclipse.emf.codegen.ecore.genmodel.GenModelPackage.eINSTANCE
-					pasteDescriptions += PasteDescription.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.toolSections.get(0).ownedTools.at(PasteDescription, "Paste Anything") ]
+					dropDescriptions += ContainerDropDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.toolSections.get(0).ownedTools.at(ContainerDropDescription, "External EClass from treeview") ]
+					dropDescriptions += ContainerDropDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").additionalLayers.at("Package").toolSections.head.ownedTools.at(ContainerDropDescription, "Drop EClassifier into EPackage") ]
+					metamodel += EcorePackage.eINSTANCE
+					metamodel += GenModelPackage.eINSTANCE
+					pasteDescriptions += PasteDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.toolSections.get(0).ownedTools.at(PasteDescription, "Paste Anything") ]
 					filters += CompositeFilterDescription.create [
 						name = "Hide class content"
 						filters += MappingFilter.create [
-							mappings += NodeMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").subNodeMappings.at("EC EAttribute") ]
-							mappings += NodeMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").subNodeMappings.at("Operation") ]
+							mappings += NodeMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").subNodeMappings.at("EC EAttribute") ]
+							mappings += NodeMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").subNodeMappings.at("Operation") ]
 						]
 					]
 					filters += CompositeFilterDescription.create [
 						name = "Hide generalizations"
 						filters += MappingFilter.create [
-							mappings += EdgeMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.edgeMappings.at("EC ESupertypes") ]
+							mappings += EdgeMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.edgeMappings.at("EC ESupertypes") ]
 						]
 					]
 					filters += CompositeFilterDescription.create [
 						name = "Hide indirect generalizations"
 						filters += MappingFilter.create [
 							viewConditionExpression = "aql:not self.oclAsType(diagram::DEdge).sourceNode.oclAsType(viewpoint::DSemanticDecorator).target.oclAsType(ecore::EClass).eSuperTypes->includes(self.oclAsType(diagram::DEdge).targetNode.oclAsType(viewpoint::DSemanticDecorator).target)"
-							mappings += EdgeMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.edgeMappings.at("EC ESupertypes") ]
+							mappings += EdgeMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.edgeMappings.at("EC ESupertypes") ]
 						]
 					]
 					filters += CompositeFilterDescription.create [
 						name = "Hide references (edges)"
 						filters += MappingFilter.create [
-							mappings += EdgeMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.edgeMappings.at("EC_EReference") ]
-							mappings += EdgeMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.edgeMappings.at("Bi-directional EC_EReference ") ]
+							mappings += EdgeMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.edgeMappings.at("EC_EReference") ]
+							mappings += EdgeMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.edgeMappings.at("Bi-directional EC_EReference ") ]
 						]
 					]
 					filters += CompositeFilterDescription.create [
 						name = "Hide references (nodes)"
 						filters += MappingFilter.create [
-							mappings += NodeMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").subNodeMappings.at("EC EReferenceNode") ]
+							mappings += NodeMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").subNodeMappings.at("EC EReferenceNode") ]
 						]
 					]
 					filters += CompositeFilterDescription.create [
 						name = "Hide inherited references (nodes)"
 						filters += MappingFilter.create [
 							viewConditionExpression = "aql:self.eContainer().oclAsType(viewpoint::DSemanticDecorator).target = self.oclAsType(viewpoint::DSemanticDecorator).target.eContainer()"
-							mappings += NodeMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").subNodeMappings.at("EC EReferenceNode") ]
+							mappings += NodeMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").subNodeMappings.at("EC EReferenceNode") ]
 						]
 					]
 					filters += CompositeFilterDescription.create [
 						name = "Hide derived features"
 						filters += MappingFilter.create [
 							semanticConditionExpression = "aql:not self.derived"
-							mappings += EdgeMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.edgeMappings.at("EC_EReference") ]
-							mappings += NodeMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").subNodeMappings.at("EC EAttribute") ]
-							mappings += EdgeMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.edgeMappings.at("Bi-directional EC_EReference ") ]
-							mappings += NodeMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").subNodeMappings.at("EC EReferenceNode") ]
+							mappings += EdgeMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.edgeMappings.at("EC_EReference") ]
+							mappings += NodeMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").subNodeMappings.at("EC EAttribute") ]
+							mappings += EdgeMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.edgeMappings.at("Bi-directional EC_EReference ") ]
+							mappings += NodeMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").subNodeMappings.at("EC EReferenceNode") ]
 						]
 					]
 					filters += CompositeFilterDescription.create [
 						name = "Hide operations"
 						filters += MappingFilter.create [
 							semanticConditionExpression = ""
-							mappings += NodeMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").subNodeMappings.at("Operation") ]
+							mappings += NodeMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").subNodeMappings.at("Operation") ]
 						]
 					]
 					validationSet = ValidationSet.create [
 						ownedRules += ViewValidationRule.create [
 							name = "Unused EClass"
 							message = "aql:'The ' + self.target.oclAsType(ecore::EClass).name +' class is never used'"
-							targets += ContainerMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass") ]
+							targets += ContainerMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass") ]
 							audits += RuleAudit.create [
 								auditExpression = "aql:not self.target.oclAsType(ecore::EClass).eAllSuperTypes->including(self.target)->asSet().eInverse('eType')->isEmpty()"
 							]
@@ -314,7 +309,7 @@ class PlainDesign implements ModitModel {
 							name = "Too many superclasses"
 							level = ERROR_LEVEL.ERROR_LITERAL
 							message = "aql:'The ' + self.target.oclAsType(ecore::EClass).name +' class has more than 10 super types'"
-							targets += ContainerMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass") ]
+							targets += ContainerMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass") ]
 							audits += RuleAudit.create [
 								auditExpression = "aql:self.target.oclAsType(ecore::EClass).eAllSuperTypes->size() < 10"
 							]
@@ -332,7 +327,7 @@ class PlainDesign implements ModitModel {
 							preconditionExpression = "aql:containerView.oclAsType(diagram::DDiagram).ownedDiagramElements.target->excluding(containerView.oclAsType(diagram::DSemanticDiagram).target)->size() = 0 and container.eClassifiers->size() > 0"
 							semanticCandidatesExpression = "var:self"
 							domainClass = "ecore.EPackage"
-							deletionDescription = DeleteElementDescription.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.toolSections.get(1).ownedTools.at(DeleteElementDescription, "NoOp") ]
+							deletionDescription = DeleteElementDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.toolSections.get(1).ownedTools.at(DeleteElementDescription, "NoOp") ]
 							style = WorkspaceImageDescription.create [
 								showIcon = false
 								labelExpression = ""
@@ -355,14 +350,14 @@ class PlainDesign implements ModitModel {
 							sourceFinderExpression = "feature:eContainer"
 							domainClass = "ecore.EReference"
 							useDomainElement = true
-							labelDirectEdit = DirectEditLabel.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.toolSections.get(5).ownedTools.at(DirectEditLabel, "EReference Name") ]
-							sourceMapping += ContainerMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass") ]
-							sourceMapping += ContainerMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").additionalLayers.at("Related EClasses").containerMappings.at("EC External EClasses") ]
-							targetMapping += ContainerMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass") ]
-							targetMapping += NodeMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").borderedNodeMappings.at("EC ETypeParameter") ]
-							targetMapping += ContainerMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").additionalLayers.at("Related EClasses").containerMappings.at("EC External EClasses") ]
-							reconnections += ReconnectEdgeDescription.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.toolSections.get(4).ownedTools.at(ReconnectEdgeDescription, "ReconnectEReference Source") ]
-							reconnections += ReconnectEdgeDescription.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.toolSections.get(4).ownedTools.at(ReconnectEdgeDescription, "ReconnectEReference Target") ]
+							labelDirectEdit = DirectEditLabel.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.toolSections.get(5).ownedTools.at(DirectEditLabel, "EReference Name") ]
+							sourceMapping += ContainerMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass") ]
+							sourceMapping += ContainerMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").additionalLayers.at("Related EClasses").containerMappings.at("EC External EClasses") ]
+							targetMapping += ContainerMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass") ]
+							targetMapping += NodeMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").borderedNodeMappings.at("EC ETypeParameter") ]
+							targetMapping += ContainerMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").additionalLayers.at("Related EClasses").containerMappings.at("EC External EClasses") ]
+							reconnections += ReconnectEdgeDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.toolSections.get(4).ownedTools.at(ReconnectEdgeDescription, "ReconnectEReference Source") ]
+							reconnections += ReconnectEdgeDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.toolSections.get(4).ownedTools.at(ReconnectEdgeDescription, "ReconnectEReference Target") ]
 							style = EdgeStyleDescription.create [
 								routingStyle = EdgeRouting.MANHATTAN_LITERAL
 								strokeColor = Environment.extraRef("$0").systemColors.entries.at("black")
@@ -385,13 +380,13 @@ class PlainDesign implements ModitModel {
 							semanticElements = "var:self"
 							synchronizationLock = true
 							targetFinderExpression = "service:getDirectSuperTypesOrMostSpecificVisibleOnes(diagram)"
-							deletionDescription = DeleteElementDescription.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.toolSections.get(3).ownedTools.at(DeleteElementDescription, "Delete ESuperType") ]
-							sourceMapping += ContainerMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass") ]
-							sourceMapping += ContainerMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").additionalLayers.at("Related EClasses").containerMappings.at("EC External EClasses") ]
-							targetMapping += ContainerMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass") ]
-							targetMapping += ContainerMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").additionalLayers.at("Related EClasses").containerMappings.at("EC External EClasses") ]
-							reconnections += ReconnectEdgeDescription.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.toolSections.get(4).ownedTools.at(ReconnectEdgeDescription, "ReconnectESupertypeSource") ]
-							reconnections += ReconnectEdgeDescription.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.toolSections.get(4).ownedTools.at(ReconnectEdgeDescription, "ReconnectESupertypeTarget") ]
+							deletionDescription = DeleteElementDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.toolSections.get(3).ownedTools.at(DeleteElementDescription, "Delete ESuperType") ]
+							sourceMapping += ContainerMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass") ]
+							sourceMapping += ContainerMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").additionalLayers.at("Related EClasses").containerMappings.at("EC External EClasses") ]
+							targetMapping += ContainerMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass") ]
+							targetMapping += ContainerMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").additionalLayers.at("Related EClasses").containerMappings.at("EC External EClasses") ]
+							reconnections += ReconnectEdgeDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.toolSections.get(4).ownedTools.at(ReconnectEdgeDescription, "ReconnectESupertypeSource") ]
+							reconnections += ReconnectEdgeDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.toolSections.get(4).ownedTools.at(ReconnectEdgeDescription, "ReconnectESupertypeTarget") ]
 							style = EdgeStyleDescription.create [
 								targetArrow = EdgeArrows.INPUT_CLOSED_ARROW_LITERAL
 								routingStyle = EdgeRouting.TREE_LITERAL
@@ -432,7 +427,7 @@ class PlainDesign implements ModitModel {
 									lineStyle = LineStyle.DOT_LITERAL
 									targetArrow = EdgeArrows.INPUT_CLOSED_ARROW_LITERAL
 									routingStyle = EdgeRouting.TREE_LITERAL
-									strokeColor = UserFixedColor.ref("PlainDesign")[ (it as Group).userColorsPalettes.at("Ecore Palette").entries.at(UserFixedColor, "Inherited") ]
+									strokeColor = UserFixedColor.ref("PlainDesign") [ (it as Group).userColorsPalettes.at("Ecore Palette").entries.at(UserFixedColor, "Inherited") ]
 									beginLabelStyleDescription = BeginLabelStyleDescription.create [
 										labelFormat += FontFormat.ITALIC_LITERAL
 										showIcon = false
@@ -456,13 +451,13 @@ class PlainDesign implements ModitModel {
 							targetExpression = ""
 							domainClass = "ecore.EReference"
 							useDomainElement = true
-							labelDirectEdit = DirectEditLabel.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.toolSections.get(5).ownedTools.at(DirectEditLabel, "Direct Edit EOpposite") ]
-							sourceMapping += ContainerMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass") ]
-							sourceMapping += ContainerMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").additionalLayers.at("Related EClasses").containerMappings.at("EC External EClasses") ]
-							targetMapping += ContainerMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass") ]
-							targetMapping += ContainerMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").additionalLayers.at("Related EClasses").containerMappings.at("EC External EClasses") ]
-							reconnections += ReconnectEdgeDescription.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.toolSections.get(4).ownedTools.at(ReconnectEdgeDescription, "ReconnectBiDirectionnalEReference Target") ]
-							reconnections += ReconnectEdgeDescription.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.toolSections.get(4).ownedTools.at(ReconnectEdgeDescription, "ReconnectBiDirectionnalEReference Source") ]
+							labelDirectEdit = DirectEditLabel.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.toolSections.get(5).ownedTools.at(DirectEditLabel, "Direct Edit EOpposite") ]
+							sourceMapping += ContainerMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass") ]
+							sourceMapping += ContainerMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").additionalLayers.at("Related EClasses").containerMappings.at("EC External EClasses") ]
+							targetMapping += ContainerMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass") ]
+							targetMapping += ContainerMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").additionalLayers.at("Related EClasses").containerMappings.at("EC External EClasses") ]
+							reconnections += ReconnectEdgeDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.toolSections.get(4).ownedTools.at(ReconnectEdgeDescription, "ReconnectBiDirectionnalEReference Target") ]
+							reconnections += ReconnectEdgeDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.toolSections.get(4).ownedTools.at(ReconnectEdgeDescription, "ReconnectBiDirectionnalEReference Source") ]
 							style = EdgeStyleDescription.create [
 								sourceArrow = EdgeArrows.INPUT_ARROW_LITERAL
 								routingStyle = EdgeRouting.MANHATTAN_LITERAL
@@ -484,15 +479,15 @@ class PlainDesign implements ModitModel {
 							createElements = false
 							domainClass = "ecore.EClass"
 							childrenPresentation = ContainerLayout.LIST
-							deletionDescription = DeleteElementDescription.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.toolSections.get(1).ownedTools.at(DeleteElementDescription, "Delete EClass") ]
-							labelDirectEdit = DirectEditLabel.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.toolSections.get(5).ownedTools.at(DirectEditLabel, "Edit Name with CamelCase") ]
-							dropDescriptions += ContainerDropDescription.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.toolSections.get(2).ownedTools.at(ContainerDropDescription, "Drop attribute") ]
-							dropDescriptions += ContainerDropDescription.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.toolSections.get(2).ownedTools.at(ContainerDropDescription, "Drop operation") ]
+							deletionDescription = DeleteElementDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.toolSections.get(1).ownedTools.at(DeleteElementDescription, "Delete EClass") ]
+							labelDirectEdit = DirectEditLabel.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.toolSections.get(5).ownedTools.at(DirectEditLabel, "Edit Name with CamelCase") ]
+							dropDescriptions += ContainerDropDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.toolSections.get(2).ownedTools.at(ContainerDropDescription, "Drop attribute") ]
+							dropDescriptions += ContainerDropDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.toolSections.get(2).ownedTools.at(ContainerDropDescription, "Drop operation") ]
 							borderedNodeMappings += NodeMapping.create [
 								name = "EC ETypeParameter"
 								semanticCandidatesExpression = "feature:eTypeParameters"
 								domainClass = "ecore.ETypeParameter"
-								labelDirectEdit = DirectEditLabel.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.toolSections.get(5).ownedTools.at(DirectEditLabel, "Edit Name with CamelCase") ]
+								labelDirectEdit = DirectEditLabel.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.toolSections.get(5).ownedTools.at(DirectEditLabel, "Edit Name with CamelCase") ]
 								style = WorkspaceImageDescription.create [
 									showIcon = false
 									labelPosition = LabelPosition.NODE_LITERAL
@@ -508,8 +503,8 @@ class PlainDesign implements ModitModel {
 								name = "EC EAttribute"
 								semanticCandidatesExpression = "feature:eAttributes"
 								domainClass = "ecore.EAttribute"
-								labelDirectEdit = DirectEditLabel.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.toolSections.get(5).ownedTools.at(DirectEditLabel, "Edit EStructuralFeature Name") ]
-								dropDescriptions += ContainerDropDescription.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.toolSections.get(0).ownedTools.at(ContainerDropDescription, "Drop EStructuralFeature into EClass") ]
+								labelDirectEdit = DirectEditLabel.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.toolSections.get(5).ownedTools.at(DirectEditLabel, "Edit EStructuralFeature Name") ]
+								dropDescriptions += ContainerDropDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.toolSections.get(0).ownedTools.at(ContainerDropDescription, "Drop EStructuralFeature into EClass") ]
 								style = BundledImageDescription.create [
 									labelExpression = "service:render"
 									labelAlignment = LabelAlignment.LEFT
@@ -525,8 +520,8 @@ class PlainDesign implements ModitModel {
 								semanticCandidatesExpression = "feature:eOperations"
 								semanticElements = "service:eOperationSemanticElements"
 								domainClass = "ecore.EOperation"
-								labelDirectEdit = DirectEditLabel.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.toolSections.get(5).ownedTools.at(DirectEditLabel, "Operation Name") ]
-								dropDescriptions += ContainerDropDescription.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.toolSections.get(0).ownedTools.at(ContainerDropDescription, "Drop EStructuralFeature into EClass") ]
+								labelDirectEdit = DirectEditLabel.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.toolSections.get(5).ownedTools.at(DirectEditLabel, "Operation Name") ]
+								dropDescriptions += ContainerDropDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.toolSections.get(0).ownedTools.at(ContainerDropDescription, "Drop EStructuralFeature into EClass") ]
 								style = BundledImageDescription.create [
 									labelExpression = "service:render"
 									labelAlignment = LabelAlignment.LEFT
@@ -541,8 +536,8 @@ class PlainDesign implements ModitModel {
 								name = "EC EReferenceNode"
 								semanticCandidatesExpression = "service:getNonDisplayedEReferences(diagram)"
 								domainClass = "ecore.EReference"
-								labelDirectEdit = DirectEditLabel.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.toolSections.get(5).ownedTools.at(DirectEditLabel, "Edit EStructuralFeature Name") ]
-								dropDescriptions += ContainerDropDescription.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.toolSections.get(0).ownedTools.at(ContainerDropDescription, "Drop EStructuralFeature into EClass") ]
+								labelDirectEdit = DirectEditLabel.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.toolSections.get(5).ownedTools.at(DirectEditLabel, "Edit EStructuralFeature Name") ]
+								dropDescriptions += ContainerDropDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.toolSections.get(0).ownedTools.at(ContainerDropDescription, "Drop EStructuralFeature into EClass") ]
 								style = BundledImageDescription.create [
 									labelExpression = "service:renderAsNode"
 									labelAlignment = LabelAlignment.LEFT
@@ -561,7 +556,7 @@ class PlainDesign implements ModitModel {
 										tooltipExpression = "service:renderTooltip"
 										sizeComputationExpression = "1"
 										borderColor = Environment.extraRef("$0").systemColors.entries.at("black")
-										labelColor = UserFixedColor.ref("PlainDesign")[ (it as Group).userColorsPalettes.at("Ecore Palette").entries.at(UserFixedColor, "Inherited") ]
+										labelColor = UserFixedColor.ref("PlainDesign") [ (it as Group).userColorsPalettes.at("Ecore Palette").entries.at(UserFixedColor, "Inherited") ]
 										color = Environment.extraRef("$0").systemColors.entries.at("black")
 									]
 								]
@@ -578,7 +573,7 @@ class PlainDesign implements ModitModel {
 								borderColor = Environment.extraRef("$0").systemColors.entries.at("black")
 								labelColor = Environment.extraRef("$0").systemColors.entries.at("black")
 								backgroundColor = Environment.extraRef("$0").systemColors.entries.at("white")
-								foregroundColor = UserFixedColor.ref("PlainDesign")[ (it as Group).userColorsPalettes.at("Ecore Palette").entries.at(UserFixedColor, "EClass") ]
+								foregroundColor = UserFixedColor.ref("PlainDesign") [ (it as Group).userColorsPalettes.at("Ecore Palette").entries.at(UserFixedColor, "EClass") ]
 							]
 							conditionnalStyles += ConditionalContainerStyleDescription.create [
 								predicateExpression = "feature:interface"
@@ -593,10 +588,10 @@ class PlainDesign implements ModitModel {
 									widthComputationExpression = "12"
 									heightComputationExpression = "10"
 									backgroundStyle = BackgroundStyle.LIQUID_LITERAL
-									borderColor = UserFixedColor.ref("PlainDesign")[ (it as Group).userColorsPalettes.at("Ecore Palette").entries.at(UserFixedColor, "Dark EClass") ]
+									borderColor = UserFixedColor.ref("PlainDesign") [ (it as Group).userColorsPalettes.at("Ecore Palette").entries.at(UserFixedColor, "Dark EClass") ]
 									labelColor = Environment.extraRef("$0").systemColors.entries.at("black")
 									backgroundColor = Environment.extraRef("$0").systemColors.entries.at("white")
-									foregroundColor = UserFixedColor.ref("PlainDesign")[ (it as Group).userColorsPalettes.at("Ecore Palette").entries.at(UserFixedColor, "Abstract EClass") ]
+									foregroundColor = UserFixedColor.ref("PlainDesign") [ (it as Group).userColorsPalettes.at("Ecore Palette").entries.at(UserFixedColor, "Abstract EClass") ]
 								]
 							]
 							conditionnalStyles += ConditionalContainerStyleDescription.create [
@@ -612,10 +607,10 @@ class PlainDesign implements ModitModel {
 									widthComputationExpression = "12"
 									heightComputationExpression = "10"
 									backgroundStyle = BackgroundStyle.LIQUID_LITERAL
-									borderColor = UserFixedColor.ref("PlainDesign")[ (it as Group).userColorsPalettes.at("Ecore Palette").entries.at(UserFixedColor, "Dark EClass") ]
+									borderColor = UserFixedColor.ref("PlainDesign") [ (it as Group).userColorsPalettes.at("Ecore Palette").entries.at(UserFixedColor, "Dark EClass") ]
 									labelColor = Environment.extraRef("$0").systemColors.entries.at("black")
 									backgroundColor = Environment.extraRef("$0").systemColors.entries.at("white")
-									foregroundColor = UserFixedColor.ref("PlainDesign")[ (it as Group).userColorsPalettes.at("Ecore Palette").entries.at(UserFixedColor, "Abstract EClass") ]
+									foregroundColor = UserFixedColor.ref("PlainDesign") [ (it as Group).userColorsPalettes.at("Ecore Palette").entries.at(UserFixedColor, "Abstract EClass") ]
 								]
 							]
 						]
@@ -624,12 +619,12 @@ class PlainDesign implements ModitModel {
 							createElements = false
 							domainClass = "ecore.EEnum"
 							childrenPresentation = ContainerLayout.LIST
-							labelDirectEdit = DirectEditLabel.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.toolSections.get(5).ownedTools.at(DirectEditLabel, "Edit Name with CamelCase") ]
+							labelDirectEdit = DirectEditLabel.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.toolSections.get(5).ownedTools.at(DirectEditLabel, "Edit Name with CamelCase") ]
 							subNodeMappings += NodeMapping.create [
 								name = "EC EEnumLiteral"
 								semanticCandidatesExpression = "feature:eLiterals"
 								domainClass = "ecore.EEnumLiteral"
-								labelDirectEdit = DirectEditLabel.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.toolSections.get(5).ownedTools.at(DirectEditLabel, "Edit Name no CamelCase") ]
+								labelDirectEdit = DirectEditLabel.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.toolSections.get(5).ownedTools.at(DirectEditLabel, "Edit Name no CamelCase") ]
 								style = BundledImageDescription.create [
 									labelAlignment = LabelAlignment.LEFT
 									tooltipExpression = "service:renderTooltip"
@@ -647,10 +642,10 @@ class PlainDesign implements ModitModel {
 								widthComputationExpression = "12"
 								heightComputationExpression = "10"
 								backgroundStyle = BackgroundStyle.LIQUID_LITERAL
-								borderColor = UserFixedColor.ref("PlainDesign")[ (it as Group).userColorsPalettes.at("Ecore Palette").entries.at(UserFixedColor, "Dark EEnum") ]
+								borderColor = UserFixedColor.ref("PlainDesign") [ (it as Group).userColorsPalettes.at("Ecore Palette").entries.at(UserFixedColor, "Dark EEnum") ]
 								labelColor = Environment.extraRef("$0").systemColors.entries.at("black")
 								backgroundColor = Environment.extraRef("$0").systemColors.entries.at("white")
-								foregroundColor = UserFixedColor.ref("PlainDesign")[ (it as Group).userColorsPalettes.at("Ecore Palette").entries.at(UserFixedColor, "EEnum") ]
+								foregroundColor = UserFixedColor.ref("PlainDesign") [ (it as Group).userColorsPalettes.at("Ecore Palette").entries.at(UserFixedColor, "EEnum") ]
 							]
 						]
 						containerMappings += ContainerMapping.create [
@@ -659,12 +654,12 @@ class PlainDesign implements ModitModel {
 							createElements = false
 							domainClass = "ecore.EDataType"
 							childrenPresentation = ContainerLayout.LIST
-							labelDirectEdit = DirectEditLabel.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.toolSections.get(5).ownedTools.at(DirectEditLabel, "Edit Name with CamelCase") ]
+							labelDirectEdit = DirectEditLabel.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.toolSections.get(5).ownedTools.at(DirectEditLabel, "Edit Name with CamelCase") ]
 							subNodeMappings += NodeMapping.create [
 								name = "EC_DataType_InstanceClassName"
 								semanticCandidatesExpression = "var:self"
 								domainClass = "ecore.EDataType"
-								labelDirectEdit = DirectEditLabel.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.toolSections.get(5).ownedTools.at(DirectEditLabel, "InstanceClassName") ]
+								labelDirectEdit = DirectEditLabel.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.toolSections.get(5).ownedTools.at(DirectEditLabel, "InstanceClassName") ]
 								style = BundledImageDescription.create [
 									labelFormat += FontFormat.ITALIC_LITERAL
 									showIcon = false
@@ -684,10 +679,10 @@ class PlainDesign implements ModitModel {
 								widthComputationExpression = "14"
 								heightComputationExpression = "5"
 								backgroundStyle = BackgroundStyle.LIQUID_LITERAL
-								borderColor = UserFixedColor.ref("PlainDesign")[ (it as Group).userColorsPalettes.at("Ecore Palette").entries.at(UserFixedColor, "Dark EDataType") ]
+								borderColor = UserFixedColor.ref("PlainDesign") [ (it as Group).userColorsPalettes.at("Ecore Palette").entries.at(UserFixedColor, "Dark EDataType") ]
 								labelColor = Environment.extraRef("$0").systemColors.entries.at("black")
 								backgroundColor = Environment.extraRef("$0").systemColors.entries.at("white")
-								foregroundColor = UserFixedColor.ref("PlainDesign")[ (it as Group).userColorsPalettes.at("Ecore Palette").entries.at(UserFixedColor, "EDataType") ]
+								foregroundColor = UserFixedColor.ref("PlainDesign") [ (it as Group).userColorsPalettes.at("Ecore Palette").entries.at(UserFixedColor, "EDataType") ]
 							]
 						]
 						toolSections += ToolSection.create [
@@ -886,21 +881,21 @@ class PlainDesign implements ModitModel {
 												conditionExpression = "service:isEClass"
 												subModelOperations += CreateView.create [
 													containerViewExpression = "var:containerView"
-													mapping = ContainerMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass") ]
+													mapping = ContainerMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass") ]
 												]
 											]
 											subModelOperations += If.create [
 												conditionExpression = "service:isEDataType"
 												subModelOperations += CreateView.create [
 													containerViewExpression = "var:containerView"
-													mapping = ContainerMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EDataType") ]
+													mapping = ContainerMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EDataType") ]
 												]
 											]
 											subModelOperations += If.create [
 												conditionExpression = "service:isEEnum"
 												subModelOperations += CreateView.create [
 													containerViewExpression = "var:containerView"
-													mapping = ContainerMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EEnum") ]
+													mapping = ContainerMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EEnum") ]
 												]
 											]
 										]
@@ -950,28 +945,28 @@ class PlainDesign implements ModitModel {
 												conditionExpression = "service:isEClass"
 												subModelOperations += CreateView.create [
 													containerViewExpression = "var:newContainerView"
-													mapping = ContainerMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass") ]
+													mapping = ContainerMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass") ]
 												]
 											]
 											subModelOperations += If.create [
 												conditionExpression = "service:isEDataType"
 												subModelOperations += CreateView.create [
 													containerViewExpression = "var:newContainerView"
-													mapping = ContainerMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EDataType") ]
+													mapping = ContainerMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EDataType") ]
 												]
 											]
 											subModelOperations += If.create [
 												conditionExpression = "service:isEEnum"
 												subModelOperations += CreateView.create [
 													containerViewExpression = "var:newContainerView"
-													mapping = ContainerMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EEnum") ]
+													mapping = ContainerMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EEnum") ]
 												]
 											]
 											subModelOperations += If.create [
 												conditionExpression = "service:isEPackage"
 												subModelOperations += CreateView.create [
 													containerViewExpression = "var:newContainerView"
-													mapping = ContainerMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").additionalLayers.at("Package").containerMappings.at("Dropped Package") ]
+													mapping = ContainerMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").additionalLayers.at("Package").containerMappings.at("Dropped Package") ]
 												]
 											]
 										]
@@ -1000,21 +995,21 @@ class PlainDesign implements ModitModel {
 												conditionExpression = "service:isEClass"
 												subModelOperations += CreateView.create [
 													containerViewExpression = "var:diagram"
-													mapping = ContainerMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass") ]
+													mapping = ContainerMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass") ]
 												]
 											]
 											subModelOperations += If.create [
 												conditionExpression = "service:isEDataType"
 												subModelOperations += CreateView.create [
 													containerViewExpression = "var:diagram"
-													mapping = ContainerMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EDataType") ]
+													mapping = ContainerMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EDataType") ]
 												]
 											]
 											subModelOperations += If.create [
 												conditionExpression = "service:isEEnum"
 												subModelOperations += CreateView.create [
 													containerViewExpression = "var:diagram"
-													mapping = ContainerMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EEnum") ]
+													mapping = ContainerMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EEnum") ]
 												]
 											]
 										]
@@ -1023,7 +1018,7 @@ class PlainDesign implements ModitModel {
 							]
 							ownedTools += ContainerDropDescription.create [
 								name = "Drop EStructuralFeature into EClass"
-								mappings += ContainerMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").additionalLayers.at("Package").containerMappings.at("Dropped Package") ]
+								mappings += ContainerMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").additionalLayers.at("Package").containerMappings.at("Dropped Package") ]
 								oldContainer = DropContainerVariable.create [
 									name = "oldSemanticContainer"
 								]
@@ -1080,7 +1075,7 @@ class PlainDesign implements ModitModel {
 							ownedTools += DoubleClickDescription.create [
 								name = "Import Current EClasses"
 								forceRefresh = true
-								mappings += NodeMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.nodeMappings.at("Empty Diagram") ]
+								mappings += NodeMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.nodeMappings.at("Empty Diagram") ]
 								element = ElementDoubleClickVariable.create [
 									name = "element"
 								]
@@ -1102,21 +1097,21 @@ class PlainDesign implements ModitModel {
 													conditionExpression = "service:isEClass"
 													subModelOperations += CreateView.create [
 														containerViewExpression = "var:diagram"
-														mapping = ContainerMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass") ]
+														mapping = ContainerMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass") ]
 													]
 												]
 												subModelOperations += If.create [
 													conditionExpression = "service:isEDataType"
 													subModelOperations += CreateView.create [
 														containerViewExpression = "var:diagram"
-														mapping = ContainerMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EDataType") ]
+														mapping = ContainerMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EDataType") ]
 													]
 												]
 												subModelOperations += If.create [
 													conditionExpression = "service:isEEnum"
 													subModelOperations += CreateView.create [
 														containerViewExpression = "var:diagram"
-														mapping = ContainerMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EEnum") ]
+														mapping = ContainerMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EEnum") ]
 													]
 												]
 											]
@@ -1133,8 +1128,8 @@ class PlainDesign implements ModitModel {
 									documentation = "M1+Y"
 									name = "Class"
 									precondition = "aql:(not container.oclIsKindOf(ecore::EClass)) or (container.abstract) or (container.interface)"
-									containerMappings += ContainerMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass") ]
-									extraMappings += ContainerMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass") ]
+									containerMappings += ContainerMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass") ]
+									extraMappings += ContainerMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass") ]
 									variable = NodeCreationVariable.create [
 										name = "container"
 									]
@@ -1173,8 +1168,8 @@ class PlainDesign implements ModitModel {
 									name = "Abstract Class"
 									precondition = "aql:(not container.oclIsKindOf(ecore::EClass)) or (not container.abstract)"
 									iconPath = "/org.eclipse.emf.ecoretools.design/icons/full/obj16/EClass_abstract.gif"
-									containerMappings += ContainerMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass") ]
-									extraMappings += ContainerMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass") ]
+									containerMappings += ContainerMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass") ]
+									extraMappings += ContainerMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass") ]
 									variable = NodeCreationVariable.create [
 										name = "container"
 									]
@@ -1217,8 +1212,8 @@ class PlainDesign implements ModitModel {
 									name = "Interface"
 									precondition = "aql:(not container.oclIsKindOf(ecore::EClass)) or (not container.interface)"
 									iconPath = "/org.eclipse.emf.ecoretools.design/icons/full/obj16/EClass_interface.gif"
-									containerMappings += ContainerMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass") ]
-									extraMappings += ContainerMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass") ]
+									containerMappings += ContainerMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass") ]
+									extraMappings += ContainerMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass") ]
 									variable = NodeCreationVariable.create [
 										name = "container"
 									]
@@ -1264,7 +1259,7 @@ class PlainDesign implements ModitModel {
 							]
 							ownedTools += ContainerCreationDescription.create [
 								name = "Datatype"
-								containerMappings += ContainerMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EDataType") ]
+								containerMappings += ContainerMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EDataType") ]
 								variable = NodeCreationVariable.create [
 									name = "container"
 								]
@@ -1288,7 +1283,7 @@ class PlainDesign implements ModitModel {
 							]
 							ownedTools += ContainerCreationDescription.create [
 								name = "Enumeration"
-								containerMappings += ContainerMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EEnum") ]
+								containerMappings += ContainerMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EEnum") ]
 								variable = NodeCreationVariable.create [
 									name = "container"
 								]
@@ -1330,7 +1325,7 @@ class PlainDesign implements ModitModel {
 							]
 							ownedTools += NodeCreationDescription.create [
 								name = "ETypeParameter"
-								nodeMappings += NodeMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").borderedNodeMappings.at("EC ETypeParameter") ]
+								nodeMappings += NodeMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").borderedNodeMappings.at("EC ETypeParameter") ]
 								variable = NodeCreationVariable.create [
 									name = "container"
 								]
@@ -1374,7 +1369,7 @@ class PlainDesign implements ModitModel {
 							name = "Feature"
 							ownedTools += NodeCreationDescription.create [
 								name = "Literal"
-								nodeMappings += NodeMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EEnum").subNodeMappings.at("EC EEnumLiteral") ]
+								nodeMappings += NodeMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EEnum").subNodeMappings.at("EC EEnumLiteral") ]
 								variable = NodeCreationVariable.create [
 									name = "container"
 								]
@@ -1398,7 +1393,7 @@ class PlainDesign implements ModitModel {
 							]
 							ownedTools += NodeCreationDescription.create [
 								name = "Operation"
-								nodeMappings += NodeMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").subNodeMappings.at("Operation") ]
+								nodeMappings += NodeMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").subNodeMappings.at("Operation") ]
 								variable = NodeCreationVariable.create [
 									name = "container"
 								]
@@ -1418,7 +1413,7 @@ class PlainDesign implements ModitModel {
 							]
 							ownedTools += NodeCreationDescription.create [
 								name = "Attribute"
-								nodeMappings += NodeMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").subNodeMappings.at("EC EAttribute") ]
+								nodeMappings += NodeMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").subNodeMappings.at("EC EAttribute") ]
 								variable = NodeCreationVariable.create [
 									name = "container"
 								]
@@ -1438,8 +1433,8 @@ class PlainDesign implements ModitModel {
 							]
 							ownedTools += ContainerDropDescription.create [
 								name = "Drop attribute"
-								mappings += NodeMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").subNodeMappings.at("EC EAttribute") ]
-								mappings += NodeMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").subNodeMappings.at("EC EReferenceNode") ]
+								mappings += NodeMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").subNodeMappings.at("EC EAttribute") ]
+								mappings += NodeMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").subNodeMappings.at("EC EReferenceNode") ]
 								oldContainer = DropContainerVariable.create [
 									name = "oldSemanticContainer"
 								]
@@ -1464,7 +1459,7 @@ class PlainDesign implements ModitModel {
 							]
 							ownedTools += ContainerDropDescription.create [
 								name = "Drop operation"
-								mappings += NodeMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").subNodeMappings.at("Operation") ]
+								mappings += NodeMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").subNodeMappings.at("Operation") ]
 								oldContainer = DropContainerVariable.create [
 									name = "oldSemanticContainer"
 								]
@@ -1493,7 +1488,7 @@ class PlainDesign implements ModitModel {
 							ownedTools += DiagramCreationDescription.create [
 								name = "New Package Entities"
 								titleExpression = "aql:self.name + ' package entities'"
-								diagramDescription = DiagramDescription.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities") ]
+								diagramDescription = DiagramDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities") ]
 								initialOperation = InitialOperation.create [
 									firstModelOperations = ChangeContext.create [
 										browseExpression = "var:self"
@@ -1509,7 +1504,7 @@ class PlainDesign implements ModitModel {
 							ownedTools += EdgeCreationDescription.create [
 								name = "SuperType"
 								iconPath = "/org.eclipse.emf.ecoretools.design/icons/full/obj16/Inheritance.gif"
-								edgeMappings += EdgeMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.edgeMappings.at("EC ESupertypes") ]
+								edgeMappings += EdgeMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.edgeMappings.at("EC ESupertypes") ]
 								sourceVariable = SourceEdgeCreationVariable.create [
 									name = "source"
 								]
@@ -1537,7 +1532,7 @@ class PlainDesign implements ModitModel {
 							]
 							ownedTools += EdgeCreationDescription.create [
 								name = "Reference"
-								edgeMappings += EdgeMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.edgeMappings.at("EC_EReference") ]
+								edgeMappings += EdgeMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.edgeMappings.at("EC_EReference") ]
 								sourceVariable = SourceEdgeCreationVariable.create [
 									name = "source"
 								]
@@ -1569,7 +1564,7 @@ class PlainDesign implements ModitModel {
 							]
 							ownedTools += EdgeCreationDescription.create [
 								name = "Bi-directional Reference"
-								edgeMappings += EdgeMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.edgeMappings.at("Bi-directional EC_EReference ") ]
+								edgeMappings += EdgeMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.edgeMappings.at("Bi-directional EC_EReference ") ]
 								sourceVariable = SourceEdgeCreationVariable.create [
 									name = "source"
 								]
@@ -1637,7 +1632,7 @@ class PlainDesign implements ModitModel {
 							]
 							ownedTools += EdgeCreationDescription.create [
 								name = "Composition"
-								edgeMappings += EdgeMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.edgeMappings.at("EC_EReference") ]
+								edgeMappings += EdgeMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.edgeMappings.at("EC_EReference") ]
 								sourceVariable = SourceEdgeCreationVariable.create [
 									name = "source"
 								]
@@ -1986,14 +1981,14 @@ class PlainDesign implements ModitModel {
 							]
 							ownedTools += DoubleClickDescription.create [
 								name = "ShowPropertiesView"
-								mappings += ContainerMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass") ]
-								mappings += NodeMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").subNodeMappings.at("EC EAttribute") ]
-								mappings += NodeMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").subNodeMappings.at("Operation") ]
-								mappings += ContainerMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EDataType") ]
-								mappings += ContainerMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EEnum") ]
-								mappings += NodeMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EEnum").subNodeMappings.at("EC EEnumLiteral") ]
-								mappings += NodeMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").subNodeMappings.at("EC EReferenceNode") ]
-								mappings += ContainerMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").additionalLayers.at("Package").containerMappings.at("Dropped Package") ]
+								mappings += ContainerMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass") ]
+								mappings += NodeMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").subNodeMappings.at("EC EAttribute") ]
+								mappings += NodeMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").subNodeMappings.at("Operation") ]
+								mappings += ContainerMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EDataType") ]
+								mappings += ContainerMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EEnum") ]
+								mappings += NodeMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EEnum").subNodeMappings.at("EC EEnumLiteral") ]
+								mappings += NodeMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").subNodeMappings.at("EC EReferenceNode") ]
+								mappings += ContainerMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").additionalLayers.at("Package").containerMappings.at("Dropped Package") ]
 								element = ElementDoubleClickVariable.create [
 									name = "element"
 								]
@@ -2029,7 +2024,7 @@ class PlainDesign implements ModitModel {
 												name = "Default Page"
 												labelExpression = "aql:input.emfEditServices(self).getText()"
 												semanticCandidateExpression = "var:self"
-												extends = PageDescription.ref("PlainDesign")[ ((it as Group).extensions.head as ViewExtensionDescription).categories.head.pages.get(0) ]
+												extends = PageDescription.ref("PlainDesign") [ ((it as Group).extensions.head as ViewExtensionDescription).categories.head.pages.get(0) ]
 											]
 										]
 									]
@@ -2133,17 +2128,17 @@ class PlainDesign implements ModitModel {
 								featureCustomizations += EAttributeCustomization.create [
 									attributeName = "labelFormat"
 									value = "service:fontFormatBold"
-									appliedOn += CenterLabelStyleDescription.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.edgeMappings.at("EC_EReference").style.centerLabelStyleDescription ]
-									appliedOn += BundledImageDescription.ref("PlainDesign")[ ((it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").subNodeMappings.at("EC EAttribute").style as BundledImageDescription) ]
-									appliedOn += BeginLabelStyleDescription.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.edgeMappings.at("Bi-directional EC_EReference ").style.beginLabelStyleDescription ]
-									appliedOn += EndLabelStyleDescription.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.edgeMappings.at("Bi-directional EC_EReference ").style.endLabelStyleDescription ]
-									appliedOn += BundledImageDescription.ref("PlainDesign")[ ((it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").subNodeMappings.at("EC EReferenceNode").style as BundledImageDescription) ]
-									appliedOn += BundledImageDescription.ref("PlainDesign")[ ((it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").subNodeMappings.at("EC EReferenceNode").conditionnalStyles.head.style as BundledImageDescription) ]
+									appliedOn += CenterLabelStyleDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.edgeMappings.at("EC_EReference").style.centerLabelStyleDescription ]
+									appliedOn += BundledImageDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").subNodeMappings.at("EC EAttribute").style as BundledImageDescription ]
+									appliedOn += BeginLabelStyleDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.edgeMappings.at("Bi-directional EC_EReference ").style.beginLabelStyleDescription ]
+									appliedOn += EndLabelStyleDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.edgeMappings.at("Bi-directional EC_EReference ").style.endLabelStyleDescription ]
+									appliedOn += BundledImageDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").subNodeMappings.at("EC EReferenceNode").style as BundledImageDescription ]
+									appliedOn += BundledImageDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").subNodeMappings.at("EC EReferenceNode").conditionnalStyles.head.style as BundledImageDescription ]
 								]
 								featureCustomizations += EReferenceCustomization.create [
 									referenceName = "strokeColor"
-									appliedOn += EdgeStyleDescription.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.edgeMappings.at("Bi-directional EC_EReference ").style ]
-									appliedOn += EdgeStyleDescription.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.edgeMappings.at("EC_EReference").style ]
+									appliedOn += EdgeStyleDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.edgeMappings.at("Bi-directional EC_EReference ").style ]
+									appliedOn += EdgeStyleDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.edgeMappings.at("EC_EReference").style ]
 									value = Environment.extraRef("$0").systemColors.entries.at("black")
 								]
 							]
@@ -2152,14 +2147,14 @@ class PlainDesign implements ModitModel {
 								featureCustomizations += EAttributeCustomization.create [
 									attributeName = "sourceArrow"
 									value = "service:arrowsFillDiamond"
-									appliedOn += EdgeStyleDescription.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.edgeMappings.at("EC_EReference").style ]
-									appliedOn += EdgeStyleDescription.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.edgeMappings.at("Bi-directional EC_EReference ").style ]
+									appliedOn += EdgeStyleDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.edgeMappings.at("EC_EReference").style ]
+									appliedOn += EdgeStyleDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.edgeMappings.at("Bi-directional EC_EReference ").style ]
 								]
 								featureCustomizations += EAttributeCustomization.create [
 									attributeName = "sizeComputationExpression"
 									value = "1"
-									appliedOn += EdgeStyleDescription.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.edgeMappings.at("EC_EReference").style ]
-									appliedOn += EdgeStyleDescription.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.edgeMappings.at("Bi-directional EC_EReference ").style ]
+									appliedOn += EdgeStyleDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.edgeMappings.at("EC_EReference").style ]
+									appliedOn += EdgeStyleDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.edgeMappings.at("Bi-directional EC_EReference ").style ]
 								]
 							]
 							vsmElementCustomizations += VSMElementCustomization.create [
@@ -2167,32 +2162,32 @@ class PlainDesign implements ModitModel {
 								featureCustomizations += EAttributeCustomization.create [
 									attributeName = "targetArrow"
 									value = "service:arrowsFillDiamond"
-									appliedOn += EdgeStyleDescription.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.edgeMappings.at("EC_EReference").style ]
-									appliedOn += EdgeStyleDescription.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.edgeMappings.at("Bi-directional EC_EReference ").style ]
+									appliedOn += EdgeStyleDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.edgeMappings.at("EC_EReference").style ]
+									appliedOn += EdgeStyleDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.edgeMappings.at("Bi-directional EC_EReference ").style ]
 								]
 								featureCustomizations += EAttributeCustomization.create [
 									attributeName = "sizeComputationExpression"
 									value = "1"
-									appliedOn += EdgeStyleDescription.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.edgeMappings.at("EC_EReference").style ]
-									appliedOn += EdgeStyleDescription.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.edgeMappings.at("Bi-directional EC_EReference ").style ]
+									appliedOn += EdgeStyleDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.edgeMappings.at("EC_EReference").style ]
+									appliedOn += EdgeStyleDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.edgeMappings.at("Bi-directional EC_EReference ").style ]
 								]
 							]
 							vsmElementCustomizations += VSMElementCustomization.create [
 								predicateExpression = "feature:derived"
 								featureCustomizations += EReferenceCustomization.create [
 									referenceName = "strokeColor"
-									appliedOn += EdgeStyleDescription.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.edgeMappings.at("EC_EReference").style ]
-									appliedOn += EdgeStyleDescription.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.edgeMappings.at("Bi-directional EC_EReference ").style ]
+									appliedOn += EdgeStyleDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.edgeMappings.at("EC_EReference").style ]
+									appliedOn += EdgeStyleDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.edgeMappings.at("Bi-directional EC_EReference ").style ]
 									value = Environment.extraRef("$0").systemColors.entries.at("blue")
 								]
 								featureCustomizations += EReferenceCustomization.create [
 									referenceName = "labelColor"
-									appliedOn += BeginLabelStyleDescription.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.edgeMappings.at("Bi-directional EC_EReference ").style.beginLabelStyleDescription ]
-									appliedOn += EndLabelStyleDescription.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.edgeMappings.at("Bi-directional EC_EReference ").style.endLabelStyleDescription ]
-									appliedOn += CenterLabelStyleDescription.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.edgeMappings.at("EC_EReference").style.centerLabelStyleDescription ]
-									appliedOn += BundledImageDescription.ref("PlainDesign")[ ((it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").subNodeMappings.at("EC EAttribute").style as BundledImageDescription) ]
-									appliedOn += BundledImageDescription.ref("PlainDesign")[ ((it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").subNodeMappings.at("EC EReferenceNode").style as BundledImageDescription) ]
-									appliedOn += BundledImageDescription.ref("PlainDesign")[ ((it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").subNodeMappings.at("EC EReferenceNode").conditionnalStyles.head.style as BundledImageDescription) ]
+									appliedOn += BeginLabelStyleDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.edgeMappings.at("Bi-directional EC_EReference ").style.beginLabelStyleDescription ]
+									appliedOn += EndLabelStyleDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.edgeMappings.at("Bi-directional EC_EReference ").style.endLabelStyleDescription ]
+									appliedOn += CenterLabelStyleDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.edgeMappings.at("EC_EReference").style.centerLabelStyleDescription ]
+									appliedOn += BundledImageDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").subNodeMappings.at("EC EAttribute").style as BundledImageDescription ]
+									appliedOn += BundledImageDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").subNodeMappings.at("EC EReferenceNode").style as BundledImageDescription ]
+									appliedOn += BundledImageDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").subNodeMappings.at("EC EReferenceNode").conditionnalStyles.head.style as BundledImageDescription ]
 									value = Environment.extraRef("$0").systemColors.entries.at("dark_blue")
 								]
 							]
@@ -2206,14 +2201,14 @@ class PlainDesign implements ModitModel {
 							name = "Dropped Package"
 							createElements = false
 							domainClass = "ecore.EPackage"
-							detailDescriptions += DiagramCreationDescription.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.toolSections.get(3).ownedTools.at(DiagramCreationDescription, "New Package Entities") ]
-							pasteDescriptions += PasteDescription.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.toolSections.get(0).ownedTools.at(PasteDescription, "Paste Anything") ]
-							labelDirectEdit = DirectEditLabel.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.toolSections.get(5).ownedTools.at(DirectEditLabel, "Edit Name no CamelCase") ]
-							dropDescriptions += ContainerDropDescription.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").additionalLayers.at("Package").toolSections.head.ownedTools.at(ContainerDropDescription, "Drop EClassifier into EPackage") ]
-							dropDescriptions += ContainerDropDescription.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").additionalLayers.at("Package").toolSections.head.ownedTools.at(ContainerDropDescription, "Drop EPackage into EPackage") ]
-							reusedContainerMappings += ContainerMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass") ]
-							reusedContainerMappings += ContainerMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EDataType") ]
-							reusedContainerMappings += ContainerMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EEnum") ]
+							detailDescriptions += DiagramCreationDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.toolSections.get(3).ownedTools.at(DiagramCreationDescription, "New Package Entities") ]
+							pasteDescriptions += PasteDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.toolSections.get(0).ownedTools.at(PasteDescription, "Paste Anything") ]
+							labelDirectEdit = DirectEditLabel.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.toolSections.get(5).ownedTools.at(DirectEditLabel, "Edit Name no CamelCase") ]
+							dropDescriptions += ContainerDropDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").additionalLayers.at("Package").toolSections.head.ownedTools.at(ContainerDropDescription, "Drop EClassifier into EPackage") ]
+							dropDescriptions += ContainerDropDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").additionalLayers.at("Package").toolSections.head.ownedTools.at(ContainerDropDescription, "Drop EPackage into EPackage") ]
+							reusedContainerMappings += ContainerMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass") ]
+							reusedContainerMappings += ContainerMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EDataType") ]
+							reusedContainerMappings += ContainerMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EEnum") ]
 							style = FlatContainerStyleDescription.create [
 								arcWidth = 1
 								arcHeight = 1
@@ -2223,10 +2218,10 @@ class PlainDesign implements ModitModel {
 								widthComputationExpression = "24"
 								heightComputationExpression = "16"
 								backgroundStyle = BackgroundStyle.LIQUID_LITERAL
-								borderColor = UserFixedColor.ref("PlainDesign")[ (it as Group).userColorsPalettes.at("Ecore Palette").entries.at(UserFixedColor, "Dark EPackage") ]
+								borderColor = UserFixedColor.ref("PlainDesign") [ (it as Group).userColorsPalettes.at("Ecore Palette").entries.at(UserFixedColor, "Dark EPackage") ]
 								labelColor = Environment.extraRef("$0").systemColors.entries.at("black")
 								backgroundColor = Environment.extraRef("$0").systemColors.entries.at("white")
-								foregroundColor = UserFixedColor.ref("PlainDesign")[ (it as Group).userColorsPalettes.at("Ecore Palette").entries.at(UserFixedColor, "EPackage") ]
+								foregroundColor = UserFixedColor.ref("PlainDesign") [ (it as Group).userColorsPalettes.at("Ecore Palette").entries.at(UserFixedColor, "EPackage") ]
 								labelBorderStyle = Environment.extraRef("$0").labelBorderStyles.labelBorderStyleDescriptions.get(0)
 							]
 						]
@@ -2234,7 +2229,7 @@ class PlainDesign implements ModitModel {
 							name = "Package"
 							ownedTools += ContainerCreationDescription.create [
 								name = "Package"
-								containerMappings += ContainerMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").additionalLayers.at("Package").containerMappings.at("Dropped Package") ]
+								containerMappings += ContainerMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").additionalLayers.at("Package").containerMappings.at("Dropped Package") ]
 								variable = NodeCreationVariable.create [
 									name = "container"
 								]
@@ -2258,10 +2253,10 @@ class PlainDesign implements ModitModel {
 							]
 							ownedTools += ContainerDropDescription.create [
 								name = "Drop EClassifier into EPackage"
-								mappings += ContainerMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass") ]
-								mappings += ContainerMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EDataType") ]
-								mappings += ContainerMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EEnum") ]
-								mappings += ContainerMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").additionalLayers.at("Related EClasses").containerMappings.at("EC External EClasses") ]
+								mappings += ContainerMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass") ]
+								mappings += ContainerMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EDataType") ]
+								mappings += ContainerMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EEnum") ]
+								mappings += ContainerMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").additionalLayers.at("Related EClasses").containerMappings.at("EC External EClasses") ]
 								oldContainer = DropContainerVariable.create [
 									name = "oldSemanticContainer"
 								]
@@ -2287,7 +2282,7 @@ class PlainDesign implements ModitModel {
 							ownedTools += ContainerDropDescription.create [
 								name = "Drop EPackage into EPackage"
 								dragSource = DragSource.BOTH_LITERAL
-								mappings += ContainerMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").additionalLayers.at("Package").containerMappings.at("Dropped Package") ]
+								mappings += ContainerMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").additionalLayers.at("Package").containerMappings.at("Dropped Package") ]
 								oldContainer = DropContainerVariable.create [
 									name = "oldSemanticContainer"
 								]
@@ -2308,7 +2303,7 @@ class PlainDesign implements ModitModel {
 											valueExpression = "var:element"
 											subModelOperations += CreateView.create [
 												containerViewExpression = "var:newContainerView"
-												mapping = ContainerMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").additionalLayers.at("Package").containerMappings.at("Dropped Package") ]
+												mapping = ContainerMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").additionalLayers.at("Package").containerMappings.at("Dropped Package") ]
 											]
 										]
 									]
@@ -2322,7 +2317,7 @@ class PlainDesign implements ModitModel {
 							name = "EC Doc Annotation"
 							semanticCandidatesExpression = "service:getVisibleDocAnnotations(diagram)"
 							domainClass = "ecore.EStringToStringMapEntry"
-							labelDirectEdit = DirectEditLabel.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").additionalLayers.at("Documentation").toolSections.head.ownedTools.at(DirectEditLabel, "Edit Detail") ]
+							labelDirectEdit = DirectEditLabel.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").additionalLayers.at("Documentation").toolSections.head.ownedTools.at(DirectEditLabel, "Edit Detail") ]
 							style = SquareDescription.create [
 								borderSizeComputationExpression = "1"
 								showIcon = false
@@ -2335,20 +2330,20 @@ class PlainDesign implements ModitModel {
 								height = 10
 								borderColor = Environment.extraRef("$0").systemColors.entries.at("gray")
 								labelColor = Environment.extraRef("$0").systemColors.entries.at("black")
-								color = UserFixedColor.ref("PlainDesign")[ (it as Group).userColorsPalettes.at("Ecore Palette").entries.at(UserFixedColor, "Doc Annotation") ]
+								color = UserFixedColor.ref("PlainDesign") [ (it as Group).userColorsPalettes.at("Ecore Palette").entries.at(UserFixedColor, "Doc Annotation") ]
 							]
 						]
 						edgeMappings += EdgeMapping.create [
 							name = "EC Doc Assignment"
 							semanticCandidatesExpression = "aql:self.eAllContents()"
 							targetFinderExpression = "service:eContainerEContainer"
-							sourceMapping += NodeMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").additionalLayers.at("Documentation").nodeMappings.at("EC Doc Annotation") ]
-							targetMapping += EdgeMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.edgeMappings.at("EC_EReference") ]
-							targetMapping += EdgeMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.edgeMappings.at("Bi-directional EC_EReference ") ]
-							targetMapping += ContainerMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass") ]
-							targetMapping += ContainerMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").additionalLayers.at("Package").containerMappings.at("Dropped Package") ]
-							targetMapping += ContainerMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EDataType") ]
-							targetMapping += ContainerMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EEnum") ]
+							sourceMapping += NodeMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").additionalLayers.at("Documentation").nodeMappings.at("EC Doc Annotation") ]
+							targetMapping += EdgeMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.edgeMappings.at("EC_EReference") ]
+							targetMapping += EdgeMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.edgeMappings.at("Bi-directional EC_EReference ") ]
+							targetMapping += ContainerMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass") ]
+							targetMapping += ContainerMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").additionalLayers.at("Package").containerMappings.at("Dropped Package") ]
+							targetMapping += ContainerMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EDataType") ]
+							targetMapping += ContainerMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EEnum") ]
 							style = EdgeStyleDescription.create [
 								lineStyle = LineStyle.DOT_LITERAL
 								strokeColor = Environment.extraRef("$0").systemColors.entries.at("black")
@@ -2363,11 +2358,11 @@ class PlainDesign implements ModitModel {
 							ownedTools += NodeCreationDescription.create [
 								name = "Doc Annotation"
 								iconPath = "/org.eclipse.emf.ecoretools.design/icons/full/obj16/EAnnotation_24.gif"
-								nodeMappings += NodeMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").additionalLayers.at("Documentation").nodeMappings.at("EC Doc Annotation") ]
-								extraMappings += ContainerMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass") ]
-								extraMappings += ContainerMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EDataType") ]
-								extraMappings += ContainerMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EEnum") ]
-								extraMappings += ContainerMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").additionalLayers.at("Package").containerMappings.at("Dropped Package") ]
+								nodeMappings += NodeMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").additionalLayers.at("Documentation").nodeMappings.at("EC Doc Annotation") ]
+								extraMappings += ContainerMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass") ]
+								extraMappings += ContainerMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EDataType") ]
+								extraMappings += ContainerMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EEnum") ]
+								extraMappings += ContainerMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").additionalLayers.at("Package").containerMappings.at("Dropped Package") ]
 								variable = NodeCreationVariable.create [
 									name = "container"
 								]
@@ -2428,7 +2423,7 @@ class PlainDesign implements ModitModel {
 								name = "Doc Assignment"
 								forceRefresh = true
 								iconPath = "/org.eclipse.emf.ecoretools.design/icons/full/obj16/AnnotationLink.gif"
-								edgeMappings += EdgeMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").additionalLayers.at("Documentation").edgeMappings.at("EC Doc Assignment") ]
+								edgeMappings += EdgeMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").additionalLayers.at("Documentation").edgeMappings.at("EC Doc Assignment") ]
 								sourceVariable = SourceEdgeCreationVariable.create [
 									name = "source"
 								]
@@ -2457,25 +2452,25 @@ class PlainDesign implements ModitModel {
 								predicateExpression = "service:hasNoDocAnnotation"
 								featureCustomizations += EReferenceCustomization.create [
 									referenceName = "labelColor"
-									appliedOn += FlatContainerStyleDescription.ref("PlainDesign")[ ((it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").style as FlatContainerStyleDescription) ]
-									appliedOn += FlatContainerStyleDescription.ref("PlainDesign")[ ((it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").conditionnalStyles.get(1).style as FlatContainerStyleDescription) ]
-									appliedOn += FlatContainerStyleDescription.ref("PlainDesign")[ ((it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").conditionnalStyles.get(0).style as FlatContainerStyleDescription) ]
-									appliedOn += CenterLabelStyleDescription.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.edgeMappings.at("EC_EReference").style.centerLabelStyleDescription ]
-									appliedOn += FlatContainerStyleDescription.ref("PlainDesign")[ ((it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EDataType").style as FlatContainerStyleDescription) ]
+									appliedOn += FlatContainerStyleDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").style as FlatContainerStyleDescription ]
+									appliedOn += FlatContainerStyleDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").conditionnalStyles.get(1).style as FlatContainerStyleDescription ]
+									appliedOn += FlatContainerStyleDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").conditionnalStyles.get(0).style as FlatContainerStyleDescription ]
+									appliedOn += CenterLabelStyleDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.edgeMappings.at("EC_EReference").style.centerLabelStyleDescription ]
+									appliedOn += FlatContainerStyleDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EDataType").style as FlatContainerStyleDescription ]
 									value = Environment.extraRef("$0").systemColors.entries.at("red")
 								]
 								featureCustomizations += EReferenceCustomization.create [
 									referenceName = "borderColor"
-									appliedOn += FlatContainerStyleDescription.ref("PlainDesign")[ ((it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").style as FlatContainerStyleDescription) ]
-									appliedOn += FlatContainerStyleDescription.ref("PlainDesign")[ ((it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").conditionnalStyles.get(1).style as FlatContainerStyleDescription) ]
-									appliedOn += FlatContainerStyleDescription.ref("PlainDesign")[ ((it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").conditionnalStyles.get(0).style as FlatContainerStyleDescription) ]
-									appliedOn += FlatContainerStyleDescription.ref("PlainDesign")[ ((it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EDataType").style as FlatContainerStyleDescription) ]
+									appliedOn += FlatContainerStyleDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").style as FlatContainerStyleDescription ]
+									appliedOn += FlatContainerStyleDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").conditionnalStyles.get(1).style as FlatContainerStyleDescription ]
+									appliedOn += FlatContainerStyleDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").conditionnalStyles.get(0).style as FlatContainerStyleDescription ]
+									appliedOn += FlatContainerStyleDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EDataType").style as FlatContainerStyleDescription ]
 									value = Environment.extraRef("$0").systemColors.entries.at("red")
 								]
 								featureCustomizations += EReferenceCustomization.create [
 									referenceName = "strokeColor"
-									appliedOn += EdgeStyleDescription.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.edgeMappings.at("Bi-directional EC_EReference ").style ]
-									appliedOn += EdgeStyleDescription.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.edgeMappings.at("EC_EReference").style ]
+									appliedOn += EdgeStyleDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.edgeMappings.at("Bi-directional EC_EReference ").style ]
+									appliedOn += EdgeStyleDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.edgeMappings.at("EC_EReference").style ]
 									value = Environment.extraRef("$0").systemColors.entries.at("red")
 								]
 							]
@@ -2489,31 +2484,31 @@ class PlainDesign implements ModitModel {
 								predicateExpression = "service:hasError"
 								featureCustomizations += EReferenceCustomization.create [
 									referenceName = "labelColor"
-									appliedOn += BundledImageDescription.ref("PlainDesign")[ ((it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").subNodeMappings.at("EC EAttribute").style as BundledImageDescription) ]
-									appliedOn += BundledImageDescription.ref("PlainDesign")[ ((it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").subNodeMappings.at("Operation").style as BundledImageDescription) ]
-									appliedOn += CenterLabelStyleDescription.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.edgeMappings.at("EC_EReference").style.centerLabelStyleDescription ]
-									appliedOn += CenterLabelStyleDescription.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.edgeMappings.at("EC ESupertypes").style.centerLabelStyleDescription ]
-									appliedOn += CenterLabelStyleDescription.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.edgeMappings.at("EC ESupertypes").conditionnalStyles.get(0).style.centerLabelStyleDescription ]
-									appliedOn += FlatContainerStyleDescription.ref("PlainDesign")[ ((it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").conditionnalStyles.get(1).style as FlatContainerStyleDescription) ]
-									appliedOn += FlatContainerStyleDescription.ref("PlainDesign")[ ((it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").conditionnalStyles.get(0).style as FlatContainerStyleDescription) ]
-									appliedOn += FlatContainerStyleDescription.ref("PlainDesign")[ ((it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").style as FlatContainerStyleDescription) ]
-									appliedOn += FlatContainerStyleDescription.ref("PlainDesign")[ ((it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EDataType").style as FlatContainerStyleDescription) ]
+									appliedOn += BundledImageDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").subNodeMappings.at("EC EAttribute").style as BundledImageDescription ]
+									appliedOn += BundledImageDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").subNodeMappings.at("Operation").style as BundledImageDescription ]
+									appliedOn += CenterLabelStyleDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.edgeMappings.at("EC_EReference").style.centerLabelStyleDescription ]
+									appliedOn += CenterLabelStyleDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.edgeMappings.at("EC ESupertypes").style.centerLabelStyleDescription ]
+									appliedOn += CenterLabelStyleDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.edgeMappings.at("EC ESupertypes").conditionnalStyles.get(0).style.centerLabelStyleDescription ]
+									appliedOn += FlatContainerStyleDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").conditionnalStyles.get(1).style as FlatContainerStyleDescription ]
+									appliedOn += FlatContainerStyleDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").conditionnalStyles.get(0).style as FlatContainerStyleDescription ]
+									appliedOn += FlatContainerStyleDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").style as FlatContainerStyleDescription ]
+									appliedOn += FlatContainerStyleDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EDataType").style as FlatContainerStyleDescription ]
 									value = Environment.extraRef("$0").systemColors.entries.at("red")
 								]
 								featureCustomizations += EReferenceCustomization.create [
 									referenceName = "borderColor"
-									appliedOn += BundledImageDescription.ref("PlainDesign")[ ((it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").subNodeMappings.at("EC EAttribute").style as BundledImageDescription) ]
-									appliedOn += FlatContainerStyleDescription.ref("PlainDesign")[ ((it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").style as FlatContainerStyleDescription) ]
-									appliedOn += BundledImageDescription.ref("PlainDesign")[ ((it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").subNodeMappings.at("Operation").style as BundledImageDescription) ]
-									appliedOn += FlatContainerStyleDescription.ref("PlainDesign")[ ((it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").conditionnalStyles.get(1).style as FlatContainerStyleDescription) ]
-									appliedOn += FlatContainerStyleDescription.ref("PlainDesign")[ ((it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").conditionnalStyles.get(0).style as FlatContainerStyleDescription) ]
-									appliedOn += FlatContainerStyleDescription.ref("PlainDesign")[ ((it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EDataType").style as FlatContainerStyleDescription) ]
+									appliedOn += BundledImageDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").subNodeMappings.at("EC EAttribute").style as BundledImageDescription ]
+									appliedOn += FlatContainerStyleDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").style as FlatContainerStyleDescription ]
+									appliedOn += BundledImageDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").subNodeMappings.at("Operation").style as BundledImageDescription ]
+									appliedOn += FlatContainerStyleDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").conditionnalStyles.get(1).style as FlatContainerStyleDescription ]
+									appliedOn += FlatContainerStyleDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").conditionnalStyles.get(0).style as FlatContainerStyleDescription ]
+									appliedOn += FlatContainerStyleDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EDataType").style as FlatContainerStyleDescription ]
 									value = Environment.extraRef("$0").systemColors.entries.at("red")
 								]
 								featureCustomizations += EReferenceCustomization.create [
 									referenceName = "strokeColor"
-									appliedOn += EdgeStyleDescription.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.edgeMappings.at("Bi-directional EC_EReference ").style ]
-									appliedOn += EdgeStyleDescription.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.edgeMappings.at("EC_EReference").style ]
+									appliedOn += EdgeStyleDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.edgeMappings.at("Bi-directional EC_EReference ").style ]
+									appliedOn += EdgeStyleDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.edgeMappings.at("EC_EReference").style ]
 									value = Environment.extraRef("$0").systemColors.entries.at("red")
 								]
 							]
@@ -2525,7 +2520,7 @@ class PlainDesign implements ModitModel {
 							name = "EC Constraint Annotation"
 							semanticCandidatesExpression = "service:getVisibleConstraintsAnnotations(diagram)"
 							domainClass = "ecore.EStringToStringMapEntry"
-							labelDirectEdit = DirectEditLabel.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").additionalLayers.at("Documentation").toolSections.head.ownedTools.at(DirectEditLabel, "Edit Detail") ]
+							labelDirectEdit = DirectEditLabel.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").additionalLayers.at("Documentation").toolSections.head.ownedTools.at(DirectEditLabel, "Edit Detail") ]
 							style = SquareDescription.create [
 								borderSizeComputationExpression = "1"
 								showIcon = false
@@ -2544,10 +2539,10 @@ class PlainDesign implements ModitModel {
 							name = "EC Constraint Assignment"
 							semanticCandidatesExpression = "aql:self.eAllContents()"
 							targetFinderExpression = "service:eContainerEContainer"
-							sourceMapping += NodeMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").additionalLayers.at("Constraint").nodeMappings.at("EC Constraint Annotation") ]
-							targetMapping += ContainerMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass") ]
-							targetMapping += ContainerMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EDataType") ]
-							targetMapping += ContainerMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EEnum") ]
+							sourceMapping += NodeMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").additionalLayers.at("Constraint").nodeMappings.at("EC Constraint Annotation") ]
+							targetMapping += ContainerMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass") ]
+							targetMapping += ContainerMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EDataType") ]
+							targetMapping += ContainerMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EEnum") ]
 							style = EdgeStyleDescription.create [
 								lineStyle = LineStyle.DOT_LITERAL
 								strokeColor = Environment.extraRef("$0").systemColors.entries.at("dark_blue")
@@ -2562,11 +2557,11 @@ class PlainDesign implements ModitModel {
 							ownedTools += NodeCreationDescription.create [
 								name = "Constraint"
 								iconPath = "/org.eclipse.emf.ecoretools.design/icons/full/obj16/EAnnotation_24.gif"
-								nodeMappings += NodeMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").additionalLayers.at("Constraint").nodeMappings.at("EC Constraint Annotation") ]
-								extraMappings += ContainerMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass") ]
-								extraMappings += ContainerMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EDataType") ]
-								extraMappings += ContainerMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EEnum") ]
-								extraMappings += ContainerMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").additionalLayers.at("Package").containerMappings.at("Dropped Package") ]
+								nodeMappings += NodeMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").additionalLayers.at("Constraint").nodeMappings.at("EC Constraint Annotation") ]
+								extraMappings += ContainerMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass") ]
+								extraMappings += ContainerMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EDataType") ]
+								extraMappings += ContainerMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EEnum") ]
+								extraMappings += ContainerMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").additionalLayers.at("Package").containerMappings.at("Dropped Package") ]
 								variable = NodeCreationVariable.create [
 									name = "container"
 								]
@@ -2615,7 +2610,7 @@ class PlainDesign implements ModitModel {
 								name = "Constraint Assignment"
 								forceRefresh = true
 								iconPath = "/org.eclipse.emf.ecoretools.design/icons/full/obj16/AnnotationLink.gif"
-								edgeMappings += EdgeMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").additionalLayers.at("Constraint").edgeMappings.at("EC Constraint Assignment") ]
+								edgeMappings += EdgeMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").additionalLayers.at("Constraint").edgeMappings.at("EC Constraint Assignment") ]
 								sourceVariable = SourceEdgeCreationVariable.create [
 									name = "source"
 								]
@@ -2647,13 +2642,13 @@ class PlainDesign implements ModitModel {
 							semanticCandidatesExpression = "service:getExternalEClasses(diagram)"
 							domainClass = "ecore.EClass"
 							childrenPresentation = ContainerLayout.LIST
-							deletionDescription = DeleteElementDescription.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.toolSections.get(1).ownedTools.at(DeleteElementDescription, "NoOp") ]
-							labelDirectEdit = DirectEditLabel.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.toolSections.get(5).ownedTools.at(DirectEditLabel, "Edit Name with CamelCase") ]
-							reusedBorderedNodeMappings += NodeMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").borderedNodeMappings.at("EC ETypeParameter") ]
-							dropDescriptions += ContainerDropDescription.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.toolSections.get(2).ownedTools.at(ContainerDropDescription, "Drop attribute") ]
-							dropDescriptions += ContainerDropDescription.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.toolSections.get(2).ownedTools.at(ContainerDropDescription, "Drop operation") ]
-							reusedNodeMappings += NodeMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").subNodeMappings.at("EC EAttribute") ]
-							reusedNodeMappings += NodeMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").subNodeMappings.at("Operation") ]
+							deletionDescription = DeleteElementDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.toolSections.get(1).ownedTools.at(DeleteElementDescription, "NoOp") ]
+							labelDirectEdit = DirectEditLabel.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.toolSections.get(5).ownedTools.at(DirectEditLabel, "Edit Name with CamelCase") ]
+							reusedBorderedNodeMappings += NodeMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").borderedNodeMappings.at("EC ETypeParameter") ]
+							dropDescriptions += ContainerDropDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.toolSections.get(2).ownedTools.at(ContainerDropDescription, "Drop attribute") ]
+							dropDescriptions += ContainerDropDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.toolSections.get(2).ownedTools.at(ContainerDropDescription, "Drop operation") ]
+							reusedNodeMappings += NodeMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").subNodeMappings.at("EC EAttribute") ]
+							reusedNodeMappings += NodeMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").subNodeMappings.at("Operation") ]
 							style = FlatContainerStyleDescription.create [
 								arcWidth = 8
 								arcHeight = 8
@@ -2664,7 +2659,7 @@ class PlainDesign implements ModitModel {
 								borderColor = Environment.extraRef("$0").systemColors.entries.at("black")
 								labelColor = Environment.extraRef("$0").systemColors.entries.at("black")
 								backgroundColor = Environment.extraRef("$0").systemColors.entries.at("white")
-								foregroundColor = UserFixedColor.ref("PlainDesign")[ (it as Group).userColorsPalettes.at("Ecore Palette").entries.at(UserFixedColor, "EClass") ]
+								foregroundColor = UserFixedColor.ref("PlainDesign") [ (it as Group).userColorsPalettes.at("Ecore Palette").entries.at(UserFixedColor, "EClass") ]
 							]
 							conditionnalStyles += ConditionalContainerStyleDescription.create [
 								predicateExpression = "feature:interface"
@@ -2677,10 +2672,10 @@ class PlainDesign implements ModitModel {
 									tooltipExpression = "service:renderTooltip"
 									roundedCorner = true
 									backgroundStyle = BackgroundStyle.LIQUID_LITERAL
-									borderColor = UserFixedColor.ref("PlainDesign")[ (it as Group).userColorsPalettes.at("Ecore Palette").entries.at(UserFixedColor, "Dark EClass") ]
+									borderColor = UserFixedColor.ref("PlainDesign") [ (it as Group).userColorsPalettes.at("Ecore Palette").entries.at(UserFixedColor, "Dark EClass") ]
 									labelColor = Environment.extraRef("$0").systemColors.entries.at("black")
 									backgroundColor = Environment.extraRef("$0").systemColors.entries.at("white")
-									foregroundColor = UserFixedColor.ref("PlainDesign")[ (it as Group).userColorsPalettes.at("Ecore Palette").entries.at(UserFixedColor, "Abstract EClass") ]
+									foregroundColor = UserFixedColor.ref("PlainDesign") [ (it as Group).userColorsPalettes.at("Ecore Palette").entries.at(UserFixedColor, "Abstract EClass") ]
 								]
 							]
 							conditionnalStyles += ConditionalContainerStyleDescription.create [
@@ -2694,10 +2689,10 @@ class PlainDesign implements ModitModel {
 									tooltipExpression = "service:renderTooltip"
 									roundedCorner = true
 									backgroundStyle = BackgroundStyle.LIQUID_LITERAL
-									borderColor = UserFixedColor.ref("PlainDesign")[ (it as Group).userColorsPalettes.at("Ecore Palette").entries.at(UserFixedColor, "Dark EClass") ]
+									borderColor = UserFixedColor.ref("PlainDesign") [ (it as Group).userColorsPalettes.at("Ecore Palette").entries.at(UserFixedColor, "Dark EClass") ]
 									labelColor = Environment.extraRef("$0").systemColors.entries.at("black")
 									backgroundColor = Environment.extraRef("$0").systemColors.entries.at("white")
-									foregroundColor = UserFixedColor.ref("PlainDesign")[ (it as Group).userColorsPalettes.at("Ecore Palette").entries.at(UserFixedColor, "Abstract EClass") ]
+									foregroundColor = UserFixedColor.ref("PlainDesign") [ (it as Group).userColorsPalettes.at("Ecore Palette").entries.at(UserFixedColor, "Abstract EClass") ]
 								]
 							]
 						]
@@ -2711,12 +2706,12 @@ class PlainDesign implements ModitModel {
 								featureCustomizations += EAttributeCustomization.create [
 									attributeName = "iconPath"
 									value = "aql:self.eInverse(genmodel::GenClass).getEClassItemIconPath()->first()"
-									appliedOn += FlatContainerStyleDescription.ref("PlainDesign")[ ((it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").conditionnalStyles.get(1).style as FlatContainerStyleDescription) ]
-									appliedOn += FlatContainerStyleDescription.ref("PlainDesign")[ ((it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").conditionnalStyles.get(0).style as FlatContainerStyleDescription) ]
-									appliedOn += FlatContainerStyleDescription.ref("PlainDesign")[ ((it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").style as FlatContainerStyleDescription) ]
-									appliedOn += FlatContainerStyleDescription.ref("PlainDesign")[ ((it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").additionalLayers.at("Related EClasses").containerMappings.at("EC External EClasses").conditionnalStyles.get(1).style as FlatContainerStyleDescription) ]
-									appliedOn += FlatContainerStyleDescription.ref("PlainDesign")[ ((it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").additionalLayers.at("Related EClasses").containerMappings.at("EC External EClasses").conditionnalStyles.get(0).style as FlatContainerStyleDescription) ]
-									appliedOn += FlatContainerStyleDescription.ref("PlainDesign")[ ((it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").additionalLayers.at("Related EClasses").containerMappings.at("EC External EClasses").style as FlatContainerStyleDescription) ]
+									appliedOn += FlatContainerStyleDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").conditionnalStyles.get(1).style as FlatContainerStyleDescription ]
+									appliedOn += FlatContainerStyleDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").conditionnalStyles.get(0).style as FlatContainerStyleDescription ]
+									appliedOn += FlatContainerStyleDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").style as FlatContainerStyleDescription ]
+									appliedOn += FlatContainerStyleDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").additionalLayers.at("Related EClasses").containerMappings.at("EC External EClasses").conditionnalStyles.get(1).style as FlatContainerStyleDescription ]
+									appliedOn += FlatContainerStyleDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").additionalLayers.at("Related EClasses").containerMappings.at("EC External EClasses").conditionnalStyles.get(0).style as FlatContainerStyleDescription ]
+									appliedOn += FlatContainerStyleDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").additionalLayers.at("Related EClasses").containerMappings.at("EC External EClasses").style as FlatContainerStyleDescription ]
 								]
 							]
 						]
@@ -2728,14 +2723,14 @@ class PlainDesign implements ModitModel {
 					name = "Classes"
 					label = "Classes in a spreadsheet"
 					titleExpression = "aql:self.name + ' class table'"
-					domainClass = "ecore.EPackage"
-					metamodel += org.eclipse.emf.codegen.ecore.genmodel.GenModelPackage.eINSTANCE
-					metamodel += org.eclipse.emf.ecore.EcorePackage.eINSTANCE
+					domainClass = "ecore::EPackage"
+					metamodel += EcorePackage.eINSTANCE
+					metamodel += GenModelPackage.eINSTANCE
 					ownedLineMappings += LineMapping.create [
 						name = "Classes lines"
 						domainClass = "ecore.EClass"
 						semanticCandidatesExpression = "feature:eContents"
-						reusedInMappings += LineMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(EditionTableDescription, "Classes").ownedLineMappings.at("Package") ]
+						reusedInMappings += LineMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(EditionTableDescription, "Classes").ownedLineMappings.at("Package") ]
 						foregroundConditionalStyle += ForegroundConditionalStyle.create [
 							predicateExpression = "feature:abstract"
 							style = ForegroundStyleDescription.create [
@@ -2761,10 +2756,10 @@ class PlainDesign implements ModitModel {
 						name = "Create Class"
 						forceRefresh = true
 						elementsToSelect = "service:stdEmptyCollection"
-						mapping = LineMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(EditionTableDescription, "Classes").ownedLineMappings.at("Classes lines") ]
+						mapping = LineMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(EditionTableDescription, "Classes").ownedLineMappings.at("Classes lines") ]
 						variables += TableVariable.create [
 							name = "root"
-							documentation = "The semantic element of the table."
+							documentation = "The semantic root element of the table."
 						]
 						variables += TableVariable.create [
 							name = "element"
@@ -2814,7 +2809,7 @@ class PlainDesign implements ModitModel {
 					name = "Entities With Archetypes"
 					viewpointURI = "viewpoint:/org.mypsycho.emf.modit.sirius.tests/Design"
 					representationName = "Entities"
-					metamodel += org.eclipse.emf.ecore.EcorePackage.eINSTANCE
+					metamodel += EcorePackage.eINSTANCE
 					layers += AdditionalLayer.create [
 						name = "Archetypes"
 						activeByDefault = true
@@ -2825,8 +2820,8 @@ class PlainDesign implements ModitModel {
 								name = "MomentInterval"
 								forceRefresh = true
 								iconPath = "/org.eclipse.emf.ecoretools.design/icons/full/obj16/MomentInterval.gif"
-								containerMappings += ContainerMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass") ]
-								extraMappings += ContainerMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass") ]
+								containerMappings += ContainerMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass") ]
+								extraMappings += ContainerMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass") ]
 								variable = NodeCreationVariable.create [
 									name = "container"
 								]
@@ -2864,8 +2859,8 @@ class PlainDesign implements ModitModel {
 								name = "Description"
 								forceRefresh = true
 								iconPath = "/org.eclipse.emf.ecoretools.design/icons/full/obj16/Description.gif"
-								containerMappings += ContainerMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass") ]
-								extraMappings += ContainerMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass") ]
+								containerMappings += ContainerMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass") ]
+								extraMappings += ContainerMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass") ]
 								variable = NodeCreationVariable.create [
 									name = "container"
 								]
@@ -2903,8 +2898,8 @@ class PlainDesign implements ModitModel {
 								name = "Role"
 								forceRefresh = true
 								iconPath = "/org.eclipse.emf.ecoretools.design/icons/full/obj16/Role.gif"
-								containerMappings += ContainerMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass") ]
-								extraMappings += ContainerMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass") ]
+								containerMappings += ContainerMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass") ]
+								extraMappings += ContainerMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass") ]
 								variable = NodeCreationVariable.create [
 									name = "container"
 								]
@@ -2941,8 +2936,8 @@ class PlainDesign implements ModitModel {
 								name = "Place/Thing"
 								forceRefresh = true
 								iconPath = "/org.eclipse.emf.ecoretools.design/icons/full/obj16/Thing.gif"
-								containerMappings += ContainerMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass") ]
-								extraMappings += ContainerMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass") ]
+								containerMappings += ContainerMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass") ]
+								extraMappings += ContainerMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass") ]
 								variable = NodeCreationVariable.create [
 									name = "container"
 								]
@@ -2981,40 +2976,40 @@ class PlainDesign implements ModitModel {
 								predicateExpression = "service:isMomentInterval"
 								featureCustomizations += EReferenceCustomization.create [
 									referenceName = "foregroundColor"
-									appliedOn += FlatContainerStyleDescription.ref("PlainDesign")[ ((it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").style as FlatContainerStyleDescription) ]
-									appliedOn += FlatContainerStyleDescription.ref("PlainDesign")[ ((it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").conditionnalStyles.get(1).style as FlatContainerStyleDescription) ]
-									appliedOn += FlatContainerStyleDescription.ref("PlainDesign")[ ((it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").conditionnalStyles.get(0).style as FlatContainerStyleDescription) ]
-									value = UserFixedColor.ref("PlainDesign")[ (it as Group).userColorsPalettes.at("Ecore Palette").entries.at(UserFixedColor, "MomentIntervalColor") ]
+									appliedOn += FlatContainerStyleDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").style as FlatContainerStyleDescription ]
+									appliedOn += FlatContainerStyleDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").conditionnalStyles.get(1).style as FlatContainerStyleDescription ]
+									appliedOn += FlatContainerStyleDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").conditionnalStyles.get(0).style as FlatContainerStyleDescription ]
+									value = UserFixedColor.ref("PlainDesign") [ (it as Group).userColorsPalettes.at("Ecore Palette").entries.at(UserFixedColor, "MomentIntervalColor") ]
 								]
 							]
 							vsmElementCustomizations += VSMElementCustomization.create [
 								predicateExpression = "service:isDescription"
 								featureCustomizations += EReferenceCustomization.create [
 									referenceName = "foregroundColor"
-									appliedOn += FlatContainerStyleDescription.ref("PlainDesign")[ ((it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").style as FlatContainerStyleDescription) ]
-									appliedOn += FlatContainerStyleDescription.ref("PlainDesign")[ ((it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").conditionnalStyles.get(1).style as FlatContainerStyleDescription) ]
-									appliedOn += FlatContainerStyleDescription.ref("PlainDesign")[ ((it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").conditionnalStyles.get(0).style as FlatContainerStyleDescription) ]
-									value = UserFixedColor.ref("PlainDesign")[ (it as Group).userColorsPalettes.at("Ecore Palette").entries.at(UserFixedColor, "DescriptionColor") ]
+									appliedOn += FlatContainerStyleDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").style as FlatContainerStyleDescription ]
+									appliedOn += FlatContainerStyleDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").conditionnalStyles.get(1).style as FlatContainerStyleDescription ]
+									appliedOn += FlatContainerStyleDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").conditionnalStyles.get(0).style as FlatContainerStyleDescription ]
+									value = UserFixedColor.ref("PlainDesign") [ (it as Group).userColorsPalettes.at("Ecore Palette").entries.at(UserFixedColor, "DescriptionColor") ]
 								]
 							]
 							vsmElementCustomizations += VSMElementCustomization.create [
 								predicateExpression = "service:isThing"
 								featureCustomizations += EReferenceCustomization.create [
 									referenceName = "foregroundColor"
-									appliedOn += FlatContainerStyleDescription.ref("PlainDesign")[ ((it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").style as FlatContainerStyleDescription) ]
-									appliedOn += FlatContainerStyleDescription.ref("PlainDesign")[ ((it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").conditionnalStyles.get(1).style as FlatContainerStyleDescription) ]
-									appliedOn += FlatContainerStyleDescription.ref("PlainDesign")[ ((it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").conditionnalStyles.get(0).style as FlatContainerStyleDescription) ]
-									value = UserFixedColor.ref("PlainDesign")[ (it as Group).userColorsPalettes.at("Ecore Palette").entries.at(UserFixedColor, "PartyPlaceThingColor") ]
+									appliedOn += FlatContainerStyleDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").style as FlatContainerStyleDescription ]
+									appliedOn += FlatContainerStyleDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").conditionnalStyles.get(1).style as FlatContainerStyleDescription ]
+									appliedOn += FlatContainerStyleDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").conditionnalStyles.get(0).style as FlatContainerStyleDescription ]
+									value = UserFixedColor.ref("PlainDesign") [ (it as Group).userColorsPalettes.at("Ecore Palette").entries.at(UserFixedColor, "PartyPlaceThingColor") ]
 								]
 							]
 							vsmElementCustomizations += VSMElementCustomization.create [
 								predicateExpression = "service:isRole"
 								featureCustomizations += EReferenceCustomization.create [
 									referenceName = "foregroundColor"
-									appliedOn += FlatContainerStyleDescription.ref("PlainDesign")[ ((it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").style as FlatContainerStyleDescription) ]
-									appliedOn += FlatContainerStyleDescription.ref("PlainDesign")[ ((it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").conditionnalStyles.get(1).style as FlatContainerStyleDescription) ]
-									appliedOn += FlatContainerStyleDescription.ref("PlainDesign")[ ((it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").conditionnalStyles.get(0).style as FlatContainerStyleDescription) ]
-									value = UserFixedColor.ref("PlainDesign")[ (it as Group).userColorsPalettes.at("Ecore Palette").entries.at(UserFixedColor, "RoleColor") ]
+									appliedOn += FlatContainerStyleDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").style as FlatContainerStyleDescription ]
+									appliedOn += FlatContainerStyleDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").conditionnalStyles.get(1).style as FlatContainerStyleDescription ]
+									appliedOn += FlatContainerStyleDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass").conditionnalStyles.get(0).style as FlatContainerStyleDescription ]
+									value = UserFixedColor.ref("PlainDesign") [ (it as Group).userColorsPalettes.at("Ecore Palette").entries.at(UserFixedColor, "RoleColor") ]
 								]
 							]
 						]
@@ -3039,8 +3034,9 @@ class PlainDesign implements ModitModel {
 					name = "Documentation"
 					label = "Documentation annotations in a spreadsheet"
 					titleExpression = "aql:self.name + ' documentation table'"
-					domainClass = "ecore.EPackage"
-					metamodel += org.eclipse.emf.ecore.EcorePackage.eINSTANCE
+					domainClass = "ecore::EPackage"
+					metamodel += EcorePackage.eINSTANCE
+					metamodel += GenModelPackage.eINSTANCE
 					ownedLineMappings += LineMapping.create [
 						name = "Doc EClassifiers"
 						semanticElements = "var:self"
@@ -3065,6 +3061,9 @@ class PlainDesign implements ModitModel {
 						headerLabelExpression = "Domain Documentation"
 						domainClass = "ecore.EPackage"
 						semanticCandidatesExpression = "service:getRootContainer"
+						delete = DeleteColumnTool.create [
+							precondition = "aql:false"
+						]
 					]
 					intersection += IntersectionMapping.create [
 						name = "EModelElements to Doc Annotation"
@@ -3075,9 +3074,9 @@ class PlainDesign implements ModitModel {
 						lineFinderExpression = "aql:self.eContainer(ecore::EAnnotation).eContainer()"
 						semanticCandidatesExpression = "aql:self.eAllContents(ecore::EAnnotation)->select(a | a.source = 'http://www.eclipse.org/emf/2002/GenModel').details->select(a | a.key = 'documentation')"
 						domainClass = "ecore.EStringToStringMapEntry"
-						lineMapping += LineMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Review").ownedRepresentations.at(CrossTableDescription, "Documentation").ownedLineMappings.at("Doc EClassifiers") ]
-						lineMapping += LineMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Review").ownedRepresentations.at(CrossTableDescription, "Documentation").ownedLineMappings.at("Doc EClassifiers").ownedSubLines.at("Doc EStructural Features") ]
-						columnMapping = ElementColumnMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Review").ownedRepresentations.at(CrossTableDescription, "Documentation").ownedColumnMappings.head ]
+						lineMapping += LineMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Review").ownedRepresentations.at(CrossTableDescription, "Documentation").ownedLineMappings.at("Doc EClassifiers") ]
+						lineMapping += LineMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Review").ownedRepresentations.at(CrossTableDescription, "Documentation").ownedLineMappings.at("Doc EClassifiers").ownedSubLines.at("Doc EStructural Features") ]
+						columnMapping = ElementColumnMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Review").ownedRepresentations.at(CrossTableDescription, "Documentation").ownedColumnMappings.head ]
 						directEdit = LabelEditTool.create [
 							variables += TableVariable.create [
 								name = "table"
@@ -3112,7 +3111,7 @@ class PlainDesign implements ModitModel {
 							]
 						]
 						defaultBackground = BackgroundStyleDescription.create [
-							backgroundColor = UserFixedColor.ref("PlainDesign")[ (it as Group).userColorsPalettes.at("Ecore Palette").entries.at(UserFixedColor, "Doc Annotation") ]
+							backgroundColor = UserFixedColor.ref("PlainDesign") [ (it as Group).userColorsPalettes.at("Ecore Palette").entries.at(UserFixedColor, "Doc Annotation") ]
 						]
 						create = CreateCellTool.create [
 							name = "New Documentation"
@@ -3177,9 +3176,10 @@ class PlainDesign implements ModitModel {
 					name = "Dependencies"
 					label = "Package dependencies diagram"
 					titleExpression = "aql:self.name + ' package dependencies'"
-					domainClass = "ecore.EPackage"
-					dropDescriptions += ContainerDropDescription.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Review").ownedRepresentations.at(DiagramDescription, "Dependencies").defaultLayer.toolSections.get(1).ownedTools.at(ContainerDropDescription, "External EPackageTo Analyze from treeview") ]
-					metamodel += org.eclipse.emf.ecore.EcorePackage.eINSTANCE
+					domainClass = "ecore::EPackage"
+					dropDescriptions += ContainerDropDescription.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Review").ownedRepresentations.at(DiagramDescription, "Dependencies").defaultLayer.toolSections.get(1).ownedTools.at(ContainerDropDescription, "External EPackageTo Analyze from treeview") ]
+					metamodel += EcorePackage.eINSTANCE
+					metamodel += GenModelPackage.eINSTANCE
 					defaultLayer = Layer.create [
 						name = "Default"
 						edgeMappings += EdgeMapping.create [
@@ -3187,8 +3187,8 @@ class PlainDesign implements ModitModel {
 							semanticCandidatesExpression = "service:getPackageDependencies"
 							targetFinderExpression = "service:getPackageDependencies"
 							domainClass = "ecore.EPackage"
-							sourceMapping += ContainerMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Review").ownedRepresentations.at(DiagramDescription, "Dependencies").defaultLayer.containerMappings.at("Analyzed Package") ]
-							targetMapping += ContainerMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Review").ownedRepresentations.at(DiagramDescription, "Dependencies").defaultLayer.containerMappings.at("Analyzed Package") ]
+							sourceMapping += ContainerMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Review").ownedRepresentations.at(DiagramDescription, "Dependencies").defaultLayer.containerMappings.at("Analyzed Package") ]
+							targetMapping += ContainerMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Review").ownedRepresentations.at(DiagramDescription, "Dependencies").defaultLayer.containerMappings.at("Analyzed Package") ]
 							style = EdgeStyleDescription.create [
 								lineStyle = LineStyle.DASH_LITERAL
 								sizeComputationExpression = "service:getDependenciesAmount()"
@@ -3203,7 +3203,7 @@ class PlainDesign implements ModitModel {
 							createElements = false
 							domainClass = "ecore.EPackage"
 							childrenPresentation = ContainerLayout.LIST
-							labelDirectEdit = DirectEditLabel.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.toolSections.get(5).ownedTools.at(DirectEditLabel, "Edit Name no CamelCase") ]
+							labelDirectEdit = DirectEditLabel.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.toolSections.get(5).ownedTools.at(DirectEditLabel, "Edit Name no CamelCase") ]
 							subNodeMappings += NodeMapping.create [
 								name = "EClassfierIntroducingDependency"
 								semanticCandidatesExpression = "service:getElementsIntroducingDependencies(diagram)"
@@ -3226,10 +3226,10 @@ class PlainDesign implements ModitModel {
 								labelExpression = "feature:nsURI"
 								labelAlignment = LabelAlignment.LEFT
 								backgroundStyle = BackgroundStyle.LIQUID_LITERAL
-								borderColor = UserFixedColor.ref("PlainDesign")[ (it as Group).userColorsPalettes.at("Ecore Palette").entries.at(UserFixedColor, "Dark EPackage") ]
+								borderColor = UserFixedColor.ref("PlainDesign") [ (it as Group).userColorsPalettes.at("Ecore Palette").entries.at(UserFixedColor, "Dark EPackage") ]
 								labelColor = Environment.extraRef("$0").systemColors.entries.at("black")
 								backgroundColor = Environment.extraRef("$0").systemColors.entries.at("white")
-								foregroundColor = UserFixedColor.ref("PlainDesign")[ (it as Group).userColorsPalettes.at("Ecore Palette").entries.at(UserFixedColor, "EPackage") ]
+								foregroundColor = UserFixedColor.ref("PlainDesign") [ (it as Group).userColorsPalettes.at("Ecore Palette").entries.at(UserFixedColor, "EPackage") ]
 								labelBorderStyle = Environment.extraRef("$0").labelBorderStyles.labelBorderStyleDescriptions.get(0)
 							]
 						]
@@ -3283,7 +3283,7 @@ class PlainDesign implements ModitModel {
 											conditionExpression = "service:isEPackage"
 											subModelOperations += CreateView.create [
 												containerViewExpression = "var:containerView"
-												mapping = ContainerMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Review").ownedRepresentations.at(DiagramDescription, "Dependencies").defaultLayer.containerMappings.at("Analyzed Package") ]
+												mapping = ContainerMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Review").ownedRepresentations.at(DiagramDescription, "Dependencies").defaultLayer.containerMappings.at("Analyzed Package") ]
 											]
 										]
 									]
@@ -3331,7 +3331,7 @@ class PlainDesign implements ModitModel {
 											conditionExpression = "service:isEPackage"
 											subModelOperations += CreateView.create [
 												containerViewExpression = "var:newContainerView"
-												mapping = ContainerMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Review").ownedRepresentations.at(DiagramDescription, "Dependencies").defaultLayer.containerMappings.at("Analyzed Package") ]
+												mapping = ContainerMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Review").ownedRepresentations.at(DiagramDescription, "Dependencies").defaultLayer.containerMappings.at("Analyzed Package") ]
 											]
 										]
 									]
@@ -3356,7 +3356,7 @@ class PlainDesign implements ModitModel {
 											conditionExpression = "service:isEPackage"
 											subModelOperations += CreateView.create [
 												containerViewExpression = "var:diagram"
-												mapping = ContainerMapping.ref("PlainDesign")[ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass") ]
+												mapping = ContainerMapping.ref("PlainDesign") [ (it as Group).ownedViewpoints.at("Design").ownedRepresentations.at(DiagramDescription, "Entities").defaultLayer.containerMappings.at("EC EClass") ]
 											]
 										]
 									]
@@ -3384,9 +3384,9 @@ class PlainDesign implements ModitModel {
 					name = "GenPackage Attributes"
 					label = "Properties attributes and categories"
 					titleExpression = "aql:self.prefix + ' generation table'"
-					domainClass = "genmodel.GenPackage"
-					metamodel += org.eclipse.emf.codegen.ecore.genmodel.GenModelPackage.eINSTANCE
-					metamodel += org.eclipse.emf.ecore.EcorePackage.eINSTANCE
+					domainClass = "genmodel::GenPackage"
+					metamodel += EcorePackage.eINSTANCE
+					metamodel += GenModelPackage.eINSTANCE
 					ownedLineMappings += LineMapping.create [
 						name = "GenClass"
 						domainClass = "genmodel.GenClass"
@@ -3525,17 +3525,17 @@ class PlainDesign implements ModitModel {
 				]
 			]
 			extensions += ViewExtensionDescription.create [
-				name = "ecoretools"
-				metamodels += org.eclipse.emf.ecore.EcorePackage.eINSTANCE
-				metamodels += org.eclipse.emf.codegen.ecore.genmodel.GenModelPackage.eINSTANCE
+				name = "Default"
+				metamodels += EcorePackage.eINSTANCE
+				metamodels += GenModelPackage.eINSTANCE
 				categories += Category.create [
-					name = "Default"
+					name = "category:EcoretoolsViewExtension.default"
 					pages += PageDescription.create [
 						name = "ecore_page"
 						labelExpression = "Ecore"
 						semanticCandidateExpression = "var:self"
-						groups += GroupDescription.ref("PlainDesign")[ ((it as Group).extensions.head as ViewExtensionDescription).categories.head.groups.get(0) ]
-						groups += GroupDescription.ref("PlainDesign")[ ((it as Group).extensions.head as ViewExtensionDescription).categories.head.groups.get(5) ]
+						groups += GroupDescription.ref("PlainDesign") [ ((it as Group).extensions.head as ViewExtensionDescription).categories.head.groups.get(0) ]
+						groups += GroupDescription.ref("PlainDesign") [ ((it as Group).extensions.head as ViewExtensionDescription).categories.head.groups.get(5) ]
 						validationSet = PageValidationSetDescription.create [
 							semanticValidationRules += SemanticValidationRule.create [
 								name = "NoNameOrInvalid"
@@ -3543,7 +3543,7 @@ class PlainDesign implements ModitModel {
 								message = "aql:' The '  + self.eClass().name +  ' should have a name which is a valid Java identifier.'"
 								targetClass = "ecore::ENamedElement"
 								audits += RuleAudit.create [
-									auditExpression = "aql: (not self.oclIsKindOf(ecore::ENamedElement) ) or (self.name <> null and self.name.size() > 0)"
+									auditExpression = "aql:(not self.oclIsKindOf(ecore::ENamedElement) ) or (self.name <> null and self.name.size() > 0)"
 								]
 							]
 						]
@@ -3554,7 +3554,7 @@ class PlainDesign implements ModitModel {
 						domainClass = "ecore::EOperation"
 						semanticCandidateExpression = "var:self"
 						indented = true
-						groups += GroupDescription.ref("PlainDesign")[ ((it as Group).extensions.head as ViewExtensionDescription).categories.head.groups.get(9) ]
+						groups += GroupDescription.ref("PlainDesign") [ ((it as Group).extensions.head as ViewExtensionDescription).categories.head.groups.get(9) ]
 						validationSet = PageValidationSetDescription.create [
 							semanticValidationRules += SemanticValidationRule.create [
 								name = "NoNameOrInvalid"
@@ -3572,14 +3572,14 @@ class PlainDesign implements ModitModel {
 						labelExpression = "Documentation"
 						semanticCandidateExpression = "var:self"
 						indented = true
-						groups += GroupDescription.ref("PlainDesign")[ ((it as Group).extensions.head as ViewExtensionDescription).categories.head.groups.get(2) ]
+						groups += GroupDescription.ref("PlainDesign") [ ((it as Group).extensions.head as ViewExtensionDescription).categories.head.groups.get(2) ]
 					]
 					pages += PageDescription.create [
 						name = "annotation_page"
 						labelExpression = "Annotation"
 						semanticCandidateExpression = "var:self"
 						indented = true
-						groups += GroupDescription.ref("PlainDesign")[ ((it as Group).extensions.head as ViewExtensionDescription).categories.head.groups.get(10) ]
+						groups += GroupDescription.ref("PlainDesign") [ ((it as Group).extensions.head as ViewExtensionDescription).categories.head.groups.get(10) ]
 						actions += ToolbarAction.create [
 							tooltipExpression = "Add EAnnotation"
 							imageExpression = "/org.eclipse.emf.ecore.edit/icons/full/ctool16/CreateEModelElement_eAnnotations_EAnnotation.gif"
@@ -3599,10 +3599,10 @@ class PlainDesign implements ModitModel {
 						labelExpression = "Generation"
 						semanticCandidateExpression = "aql:self"
 						preconditionExpression = "aql:self.eInverse()->select( g | g.eClass().ePackage.nsURI->includes('http://www.eclipse.org/emf/2002/GenModel'))->asSet()->size() > 0"
-						groups += GroupDescription.ref("PlainDesign")[ ((it as Group).extensions.head as ViewExtensionDescription).categories.head.groups.get(4) ]
-						groups += GroupDescription.ref("PlainDesign")[ ((it as Group).extensions.head as ViewExtensionDescription).categories.head.groups.get(1) ]
-						groups += GroupDescription.ref("PlainDesign")[ ((it as Group).extensions.head as ViewExtensionDescription).categories.head.groups.get(3) ]
-						groups += GroupDescription.ref("PlainDesign")[ ((it as Group).extensions.head as ViewExtensionDescription).categories.head.groups.get(6) ]
+						groups += GroupDescription.ref("PlainDesign") [ ((it as Group).extensions.head as ViewExtensionDescription).categories.head.groups.get(4) ]
+						groups += GroupDescription.ref("PlainDesign") [ ((it as Group).extensions.head as ViewExtensionDescription).categories.head.groups.get(1) ]
+						groups += GroupDescription.ref("PlainDesign") [ ((it as Group).extensions.head as ViewExtensionDescription).categories.head.groups.get(3) ]
+						groups += GroupDescription.ref("PlainDesign") [ ((it as Group).extensions.head as ViewExtensionDescription).categories.head.groups.get(6) ]
 						actions += ToolbarAction.create [
 							tooltipExpression = "Generate Model"
 							imageExpression = "/org.eclipse.emf.ecoretools.design/icons/full/etools16/generate_single.gif"
@@ -3693,8 +3693,8 @@ class PlainDesign implements ModitModel {
 						labelExpression = "Execution"
 						semanticCandidateExpression = "var:self"
 						preconditionExpression = "aql:self.eContainerOrSelf(ecore::EPackage).isConfiguredForALE()"
-						groups += GroupDescription.ref("PlainDesign")[ ((it as Group).extensions.head as ViewExtensionDescription).categories.head.groups.get(7) ]
-						groups += GroupDescription.ref("PlainDesign")[ ((it as Group).extensions.head as ViewExtensionDescription).categories.head.groups.get(8) ]
+						groups += GroupDescription.ref("PlainDesign") [ ((it as Group).extensions.head as ViewExtensionDescription).categories.head.groups.get(7) ]
+						groups += GroupDescription.ref("PlainDesign") [ ((it as Group).extensions.head as ViewExtensionDescription).categories.head.groups.get(8) ]
 					]
 					groups += GroupDescription.create [
 						name = "default rules"
@@ -3852,7 +3852,7 @@ class PlainDesign implements ModitModel {
 												]
 												parameters += ExternalJavaActionParameter.create [
 													name = "title"
-													value = "aql:'Select ' + eStructuralFeature.eType.name "
+													value = "aql:'Select ' + eStructuralFeature.eType.name"
 												]
 												parameters += ExternalJavaActionParameter.create [
 													name = "candidates"
@@ -3901,7 +3901,7 @@ class PlainDesign implements ModitModel {
 						labelExpression = "aql:self.eClass().name"
 						semanticCandidateExpression = "aql:self.eInverse()->select( g | g.eClass().ePackage.nsURI->includes('http://www.eclipse.org/emf/2002/GenModel'))->asSet()"
 						preconditionExpression = ""
-						extends = GroupDescription.ref("PlainDesign")[ ((it as Group).extensions.head as ViewExtensionDescription).categories.head.groups.get(0) ]
+						extends = GroupDescription.ref("PlainDesign") [ ((it as Group).extensions.head as ViewExtensionDescription).categories.head.groups.get(0) ]
 						style = GroupStyle.create [
 							expandedByDefault = true
 						]
@@ -4004,7 +4004,7 @@ class PlainDesign implements ModitModel {
 						name = "egeneric supertypes-TBD"
 						labelExpression = "aql:'EGenericType : ' + input.emfEditServices(self).getText()"
 						domainClass = "ecore::EGenericType"
-						semanticCandidateExpression = "aql: input.getSemanticElement()->filter(ecore::EClass).eGenericSuperTypes"
+						semanticCandidateExpression = "aql:input.getSemanticElement()->filter(ecore::EClass).eGenericSuperTypes"
 						preconditionExpression = "aql:false and self.oclIsKindOf(ecore::EClass)"
 						controls += LabelDescription.create [
 							name = "etypeparameter label"
@@ -4026,7 +4026,7 @@ class PlainDesign implements ModitModel {
 											]
 											parameters += ExternalJavaActionParameter.create [
 												name = "title"
-												value = "aql:'Select ' + eStructuralFeature.eType.name "
+												value = "aql:'Select ' + eStructuralFeature.eType.name"
 											]
 											parameters += ExternalJavaActionParameter.create [
 												name = "candidates"
@@ -4065,7 +4065,7 @@ class PlainDesign implements ModitModel {
 											]
 											parameters += ExternalJavaActionParameter.create [
 												name = "title"
-												value = "aql:'Select ' + eStructuralFeature.eType.name "
+												value = "aql:'Select ' + eStructuralFeature.eType.name"
 											]
 											parameters += ExternalJavaActionParameter.create [
 												name = "candidates"
@@ -4090,7 +4090,7 @@ class PlainDesign implements ModitModel {
 						labelExpression = "aql:self.eClass().name"
 						semanticCandidateExpression = "aql:self->select(e | e.oclIsKindOf(ecore::EPackage)).eInverse()->select( g | g.eClass().ePackage.nsURI->includes('http://www.eclipse.org/emf/2002/GenModel')).eContainer(genmodel::GenModel)->asSet()"
 						preconditionExpression = ""
-						extends = GroupDescription.ref("PlainDesign")[ ((it as Group).extensions.head as ViewExtensionDescription).categories.head.groups.get(0) ]
+						extends = GroupDescription.ref("PlainDesign") [ ((it as Group).extensions.head as ViewExtensionDescription).categories.head.groups.get(0) ]
 						style = GroupStyle.create [
 							expandedByDefault = true
 						]
@@ -4523,5 +4523,6 @@ class PlainDesign implements ModitModel {
 	def <T> T extraRef(Class<T> type, String key) {
 		extras.get(key) as T
 	}
-	
+
 }
+

@@ -13,9 +13,15 @@
 package org.mypsycho.emf.modit.sirius.tests
 
 import org.eclipse.emf.common.util.URI
+import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl
+import org.eclipse.sirius.properties.ViewExtensionDescription
+import org.eclipse.sirius.viewpoint.description.Group
 import org.junit.Test
+import org.mypsycho.modit.emf.ClassId
 import org.mypsycho.modit.emf.EReversIt
+import org.mypsycho.modit.emf.ESingleReversIt
+import org.mypsycho.modit.emf.sirius.api.SiriusDesigns
 import org.mypsycho.modit.emf.sirius.tool.SiriusReverseIt
 
 /**
@@ -30,7 +36,7 @@ class EcoretoolsReverseTest extends EcoretoolsTestBase {
 	@Test
 	def void reverseSiriusModel() {
 		new SiriusReverseIt(
-			REFMODEL_PATH + "ecoretools_result.odesign",
+			REFMODEL_PATH + "ecoretools_sirius.odesign",
 			testSrcPath,
 			TEST_BUNDLE + ".sirius.EcoretoolsDesign"
 		) =>[
@@ -38,7 +44,7 @@ class EcoretoolsReverseTest extends EcoretoolsTestBase {
 			perform
 		]
 
-		assertSamePackage(PACKAGE_PATH + "/sirius")
+		assertSamePackage(TEST_BUNDLE + ".sirius")
 	}
 	
 	@Test
@@ -52,9 +58,43 @@ class EcoretoolsReverseTest extends EcoretoolsTestBase {
 		).perform
 		
 		// TODO fixme
-		// assertSamePackage(PACKAGE_PATH + "/modit")
+		assertSamePackage(TEST_BUNDLE + ".modit")
 	}
 
+	@Test
+	def void reverseSingleModel() {
+		val rs = new ResourceSetImpl
+		val uri = URI.createPlatformPluginURI(REFMODEL_PATH + "ecoretools_plain.odesign", true)
+		val res = rs.getResource(uri, true)
+		val pack = TEST_BUNDLE + ".split"
+		
+		val it = new ESingleReversIt(
+			pack + ".ToolDesign",
+			testSrcPath,
+			res
+		)
+		
+		
+		splits += (res.contents.head as Group)
+			.findSplitGroupParts
+			.toInvertedMap[ toClassId(pack) ]
+		
+		
+		perform
+		
+		// TODO fixme
+		assertSamePackage(TEST_BUNDLE + ".split")
+	}
+
+
+	protected def findSplitGroupParts(Group it) {
+		ownedViewpoints.flatMap[ ownedRepresentations + ownedRepresentationExtensions ]
+			+ extensions.filter(ViewExtensionDescription)
+	}
+
+	protected def toClassId(EObject it, String packName) {
+		new ClassId(packName, SiriusDesigns.toClassname(it))
+	}
 
 }
 

@@ -55,7 +55,7 @@ class ESingleReversIt extends EReversIt {
 		super(parent)
 	}
 	
-	override getMainStaticImports() { #[ EModel ] }
+	override getMainStaticImports() { #[ EModel, ResourceSet ] }
 	
 	// Xtend
 	override templateMain(EObject it, Iterable<Class<?>> packages, ()=>String content) {

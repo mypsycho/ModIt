@@ -1,6 +1,6 @@
 package org.eclipse.emf.ecoretools.design.sirius
 
-import org.eclipse.emf.ecore.EPackage
+import org.eclipse.emf.ecore.EcorePackage
 import org.eclipse.sirius.diagram.description.AdditionalLayer
 import org.eclipse.sirius.diagram.description.ConditionalContainerStyleDescription
 import org.eclipse.sirius.diagram.description.ContainerMapping
@@ -35,7 +35,7 @@ class EntitiesWithArchetypesDiagramExtension extends AbstractDiagramExtension {
 		name = "Entities With Archetypes"
 		viewpointURI = "viewpoint:/org.mypsycho.emf.modit.sirius.tests/Design"
 		representationName = "Entities"
-		metamodel += org.eclipse.emf.ecore.EcorePackage.eINSTANCE
+		metamodel += EcorePackage.eINSTANCE
 		layers += createArchetypesLayer
 	}
 

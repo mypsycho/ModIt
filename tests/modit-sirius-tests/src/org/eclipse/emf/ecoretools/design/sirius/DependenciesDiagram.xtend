@@ -1,20 +1,16 @@
 package org.eclipse.emf.ecoretools.design.sirius
 
-import org.eclipse.emf.ecore.EPackage
+import org.eclipse.emf.codegen.ecore.genmodel.GenModelPackage
+import org.eclipse.emf.ecore.EcorePackage
 import org.eclipse.sirius.diagram.BackgroundStyle
-import org.eclipse.sirius.diagram.BundledImageShape
 import org.eclipse.sirius.diagram.ContainerLayout
-import org.eclipse.sirius.diagram.EdgeArrows
-import org.eclipse.sirius.diagram.EdgeRouting
 import org.eclipse.sirius.diagram.LabelPosition
 import org.eclipse.sirius.diagram.LineStyle
 import org.eclipse.sirius.diagram.ResizeKind
 import org.eclipse.sirius.diagram.description.AdditionalLayer
-import org.eclipse.sirius.diagram.description.CenteringStyle
 import org.eclipse.sirius.diagram.description.ContainerMapping
 import org.eclipse.sirius.diagram.description.DiagramDescription
 import org.eclipse.sirius.diagram.description.EdgeMapping
-import org.eclipse.sirius.diagram.description.FoldingStyle
 import org.eclipse.sirius.diagram.description.Layer
 import org.eclipse.sirius.diagram.description.NodeMapping
 import org.eclipse.sirius.diagram.description.style.BundledImageDescription
@@ -59,7 +55,7 @@ import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*
 class DependenciesDiagram extends AbstractDiagram {
 
 	new(EcoretoolsDesign parent) {
-		super(parent, "Dependencies", "Package dependencies diagram", EPackage)
+		super(parent, "Dependencies", "Package dependencies diagram", org.eclipse.emf.ecore.EPackage)
 	}
 
 	override initContent(DiagramDescription it) {

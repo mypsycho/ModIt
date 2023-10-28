@@ -26,7 +26,7 @@
         <filters xsi:type="filter:MappingFilter" mappings="//@ownedViewpoints[name='Design']/@ownedRepresentations[name='Entities']/@defaultLayer/@edgeMappings[name='EC_EReference'] //@ownedViewpoints[name='Design']/@ownedRepresentations[name='Entities']/@defaultLayer/@containerMappings[name='EC%20EClass']/@subNodeMappings[name='EC%20EAttribute'] //@ownedViewpoints[name='Design']/@ownedRepresentations[name='Entities']/@defaultLayer/@edgeMappings[name='Bi-directional%20EC_EReference%20'] //@ownedViewpoints[name='Design']/@ownedRepresentations[name='Entities']/@defaultLayer/@containerMappings[name='EC%20EClass']/@subNodeMappings[name='EC%20EReferenceNode']" semanticConditionExpression="aql:not self.derived"/>
       </filters>
       <filters xsi:type="filter:CompositeFilterDescription" name="Hide operations">
-        <filters xsi:type="filter:MappingFilter" mappings="//@ownedViewpoints[name='Design']/@ownedRepresentations[name='Entities']/@defaultLayer/@containerMappings[name='EC%20EClass']/@subNodeMappings[name='Operation']"/>
+        <filters xsi:type="filter:MappingFilter" mappings="//@ownedViewpoints[name='Design']/@ownedRepresentations[name='Entities']/@defaultLayer/@containerMappings[name='EC%20EClass']/@subNodeMappings[name='Operation']" semanticConditionExpression=""/>
       </filters>
       <validationSet>
         <ownedRules xsi:type="validation:ViewValidationRule" name="Unused EClass" message="aql:'The ' + self.target.oclAsType(ecore::EClass).name +' class is never used'" targets="//@ownedViewpoints[name='Design']/@ownedRepresentations[name='Entities']/@defaultLayer/@containerMappings[name='EC%20EClass']">
@@ -1084,9 +1084,9 @@
         </defaultBackground>
       </ownedLineMappings>
       <ownedCreateLine name="Create Class" forceRefresh="true" elementsToSelect="service:stdEmptyCollection" mapping="//@ownedViewpoints[name='Design']/@ownedRepresentations[name='Classes']/@ownedLineMappings[name='Classes%20lines']">
-        <variables name="element"/>
-        <variables name="container"/>
-        <variables name="root"/>
+        <variables name="root" documentation="The semantic root element of the table."/>
+        <variables name="element" documentation="The semantic currently edited element."/>
+        <variables name="container" documentation="The semantic element corresponding to the view container."/>
         <firstModelOperation xsi:type="tool:ChangeContext" browseExpression="var:container">
           <subModelOperations xsi:type="tool:CreateInstance" typeName="ecore.EClass" referenceName="eClassifiers">
             <subModelOperations xsi:type="tool:SetValue" featureName="name" valueExpression="aql:'NewEClass'  + self.eContainer().eContents(ecore::EClass)->size()"/>
@@ -1214,26 +1214,26 @@
       </ownedLineMappings>
       <ownedColumnMappings name="Doc Root" headerLabelExpression="Domain Documentation" domainClass="ecore.EPackage" semanticCandidatesExpression="service:getRootContainer">
         <delete precondition="aql:false">
-          <variables name="element"/>
-          <variables name="root"/>
+          <variables name="element" documentation="The semantic currently edited element."/>
+          <variables name="root" documentation="The semantic root element of the table."/>
         </delete>
       </ownedColumnMappings>
       <intersection name="EModelElements to Doc Annotation" semanticElements="var:self" lineMapping="//@ownedViewpoints[name='Review']/@ownedRepresentations[name='Documentation']/@ownedLineMappings[name='Doc%20EClassifiers'] //@ownedViewpoints[name='Review']/@ownedRepresentations[name='Documentation']/@ownedLineMappings[name='Doc%20EClassifiers']/@ownedSubLines[name='Doc%20EStructural%20Features']" columnMapping="//@ownedViewpoints[name='Review']/@ownedRepresentations[name='Documentation']/@ownedColumnMappings.0" labelExpression="aql:self.value" useDomainClass="true" columnFinderExpression="service:getRootContainer" lineFinderExpression="aql:self.eContainer(ecore::EAnnotation).eContainer()" semanticCandidatesExpression="aql:self.eAllContents(ecore::EAnnotation)->select(a | a.source = 'http://www.eclipse.org/emf/2002/GenModel').details->select(a | a.key = 'documentation')" domainClass="ecore.EStringToStringMapEntry">
         <directEdit>
-          <variables name="element"/>
-          <variables name="table"/>
-          <variables name="line"/>
-          <variables name="lineSemantic"/>
-          <variables name="columnSemantic"/>
-          <variables name="root"/>
+          <variables name="table" documentation="The current DTable."/>
+          <variables name="line" documentation="The DLine of the current DCell."/>
+          <variables name="element" documentation="The currently edited element."/>
+          <variables name="lineSemantic" documentation="The semantic element corresponding to the line."/>
+          <variables name="columnSemantic" documentation="The semantic element corresponding to the column (only available for Intersection Mapping)."/>
+          <variables name="root" documentation="The semantic element of the table."/>
           <firstModelOperation xsi:type="tool:SetValue" featureName="value" valueExpression="var:arg0"/>
           <mask mask="{0}"/>
         </directEdit>
         <defaultBackground backgroundColor="//@userColorsPalettes[name='Ecore%20Palette']/@entries[name='Doc%20Annotation']"/>
         <create name="New Documentation" forceRefresh="true">
-          <variables name="lineSemantic"/>
-          <variables name="columnSemantic"/>
-          <variables name="root"/>
+          <variables name="lineSemantic" documentation="The semantic element corresponding to the line."/>
+          <variables name="columnSemantic" documentation="The semantic element corresponding to the column."/>
+          <variables name="root" documentation="The semantic root element of the table."/>
           <firstModelOperation xsi:type="tool:ChangeContext" browseExpression="var:lineSemantic">
             <subModelOperations xsi:type="tool:If" conditionExpression="aql:lineSemantic.eAnnotations->select(a | a.source = 'http://www.eclipse.org/emf/2002/GenModel')->size() = 0">
               <subModelOperations xsi:type="tool:CreateInstance" typeName="ecore.EAnnotation" referenceName="eAnnotations" variableName="newAnnotation">
@@ -1388,7 +1388,7 @@
   <extensions xsi:type="properties:ViewExtensionDescription" name="Default">
     <metamodels href="http://www.eclipse.org/emf/2002/Ecore#/"/>
     <metamodels href="http://www.eclipse.org/emf/2002/GenModel#/"/>
-    <categories name="category:DefaultViewExtension.default">
+    <categories name="category:EcoretoolsViewExtension.default">
       <pages name="ecore_page" labelExpression="Ecore" semanticCandidateExpression="var:self" groups="//@extensions.0/@categories.0/@groups.0 //@extensions.0/@categories.0/@groups.5">
         <validationSet>
           <semanticValidationRules name="NoNameOrInvalid" level="ERROR" message="aql:' The '  + self.eClass().name +  ' should have a name which is a valid Java identifier.'" targetClass="ecore::ENamedElement">
@@ -1460,6 +1460,18 @@
         <controls xsi:type="properties:DynamicMappingForDescription" name="sirius_default_rules_structural_features_for" iterator="eStructuralFeature" iterableExpression="aql:self.removeFeaturesToHide(input.emfEditServices(self).getEStructuralFeatures())">
           <ifs name="sirius_default_rules_mono_string_if" predicateExpression="aql:input.emfEditServices(self).needsTextWidget(eStructuralFeature) and not input.emfEditServices(self).isMultiline(eStructuralFeature)">
             <widget xsi:type="properties:TextDescription" name="sirius_default_rules_mono_string" labelExpression="aql:input.emfEditServices(self).getText(eStructuralFeature)+':'" helpExpression="aql:input.emfEditServices(self).getDescription(eStructuralFeature)" isEnabledExpression="aql:eStructuralFeature.changeable" valueExpression="aql:if eStructuralFeature.name = 'upperBound' and self.oclIsKindOf(ecore::ETypedElement) then self.upperBoundDisplay() else self.eGet(eStructuralFeature.name) endif">
+              <initialOperation>
+                <firstModelOperations xsi:type="tool:ChangeContext" browseExpression="var:self">
+                  <subModelOperations xsi:type="tool:Switch">
+                    <cases conditionExpression="aql:eStructuralFeature.name = 'upperBound' and self.oclIsKindOf(ecore::ETypedElement)">
+                      <subModelOperations xsi:type="tool:ChangeContext" browseExpression="aql:self.setUpperBound(newValue)"/>
+                    </cases>
+                    <default>
+                      <subModelOperations xsi:type="tool:ChangeContext" browseExpression="aql:input.emfEditServices(self).setValue(eStructuralFeature, newValue)"/>
+                    </default>
+                  </subModelOperations>
+                </firstModelOperations>
+              </initialOperation>
               <conditionalStyles preconditionExpression="aql:eStructuralFeature.lowerBound==1">
                 <style>
                   <labelFontFormat>bold</labelFontFormat>
@@ -1563,9 +1575,21 @@
         <style barStyle="NO_TITLE" toggleStyle="NONE" expandedByDefault="true"/>
       </groups>
       <groups name="genmodel_directories" labelExpression="Directories" domainClass="genmodel.GenModel" semanticCandidateExpression="aql:(OrderedSet{self} + self.eInverse()  + self.eInverse().eContainer()- self.eContents()- OrderedSet{self.eContainer()})->select(e | e.eClass().ePackage.nsURI->includes('http://www.eclipse.org/emf/2002/GenModel'))->asSet()">
-        <controls xsi:type="properties:TextDescription" name="modelDirectory" labelExpression="Model" valueExpression="aql:self.modelDirectory"/>
-        <controls xsi:type="properties:TextDescription" name="editDirectory" labelExpression="Edit" valueExpression="feature:editDirectory"/>
-        <controls xsi:type="properties:TextDescription" name="editorDirectory" labelExpression="Editor" valueExpression="feature:editorDirectory"/>
+        <controls xsi:type="properties:TextDescription" name="modelDirectory" labelExpression="Model" valueExpression="aql:self.modelDirectory">
+          <initialOperation>
+            <firstModelOperations xsi:type="tool:SetValue" featureName="modelDirectory" valueExpression="var:newValue"/>
+          </initialOperation>
+        </controls>
+        <controls xsi:type="properties:TextDescription" name="editDirectory" labelExpression="Edit" valueExpression="feature:editDirectory">
+          <initialOperation>
+            <firstModelOperations xsi:type="tool:SetValue" featureName="editDirectory" valueExpression="var:newValue"/>
+          </initialOperation>
+        </controls>
+        <controls xsi:type="properties:TextDescription" name="editorDirectory" labelExpression="Editor" valueExpression="feature:editorDirectory">
+          <initialOperation>
+            <firstModelOperations xsi:type="tool:SetValue" featureName="editorDirectory" valueExpression="var:newValue"/>
+          </initialOperation>
+        </controls>
         <style barStyle="SHORT_TITLE_BAR" expandedByDefault="true"/>
       </groups>
       <groups name="egeneric supertypes-TBD" labelExpression="aql:'EGenericType : ' + input.emfEditServices(self).getText()" domainClass="ecore::EGenericType" semanticCandidateExpression="aql:input.getSemanticElement()->filter(ecore::EClass).eGenericSuperTypes" preconditionExpression="aql:false and self.oclIsKindOf(ecore::EClass)">
@@ -1629,7 +1653,11 @@
         <controls xsi:type="properties:ContainerDescription" name="execution_imports_container">
           <controls xsi:type="properties:DynamicMappingForDescription" name="iterate over imports" iterator="jImport" iterableExpression="aql:self.getJavaImports()">
             <ifs name="true" predicateExpression="aql:true">
-              <widget xsi:type="properties:TextDescription" name="java_import" labelExpression="Qualified Class Name: " valueExpression="aql:jImport.getQualifiedName()"/>
+              <widget xsi:type="properties:TextDescription" name="java_import" labelExpression="Qualified Class Name: " valueExpression="aql:jImport.getQualifiedName()">
+                <initialOperation>
+                  <firstModelOperations xsi:type="tool:ChangeContext" browseExpression="aql:jImport.setQualifiedName(newValue)"/>
+                </initialOperation>
+              </widget>
             </ifs>
             <ifs name="true" predicateExpression="aql:true">
               <widget xsi:type="properties:ButtonDescription" name="execution_remove_import" buttonLabelExpression="Remove Import">
@@ -1650,6 +1678,11 @@
           <controls xsi:type="properties:DynamicMappingForDescription" name="foreach parameter" iterator="self" iterableExpression="aql:self.eParameters" forceRefresh="true">
             <ifs name="always true" predicateExpression="aql:true">
               <widget xsi:type="properties:TextDescription" name="param_name" labelExpression="Name: " valueExpression="aql:self.name">
+                <initialOperation>
+                  <firstModelOperations xsi:type="tool:ChangeContext" browseExpression="var:self">
+                    <subModelOperations xsi:type="tool:SetValue" featureName="name" valueExpression="var:newValue"/>
+                  </firstModelOperations>
+                </initialOperation>
                 <style labelFontSizeExpression="8">
                   <labelFontFormat>italic</labelFontFormat>
                 </style>
@@ -1712,7 +1745,11 @@
         </controls>
         <controls xsi:type="properties:DynamicMappingForDescription" name="dummy_workaround_bug515586" iterator="d" iterableExpression="aql:self" forceRefresh="true">
           <ifs name="always false" predicateExpression="aql:false">
-            <widget xsi:type="properties:TextDescription" name="dummy"/>
+            <widget xsi:type="properties:TextDescription" name="dummy">
+              <initialOperation>
+                <firstModelOperations xsi:type="tool:ChangeContext" browseExpression="var:self"/>
+              </initialOperation>
+            </widget>
           </ifs>
         </controls>
         <style expandedByDefault="true"/>
@@ -1727,7 +1764,13 @@
         </actions>
       </groups>
       <groups name="eannotation dynamic" labelExpression="aql:'EAnnotation ' + self.source" domainClass="ecore::EAnnotation" semanticCandidateExpression="aql:input.getSemanticElement()->filter(ecore::EModelElement).eAnnotations">
-        <controls xsi:type="properties:TextDescription" name="source" labelExpression="Source:" helpExpression="aql:input.emfEditServices(self).getDescription(self.eClass().getEStructuralFeature('source'))" valueExpression="aql:self.source"/>
+        <controls xsi:type="properties:TextDescription" name="source" labelExpression="Source:" helpExpression="aql:input.emfEditServices(self).getDescription(self.eClass().getEStructuralFeature('source'))" valueExpression="aql:self.source">
+          <initialOperation>
+            <firstModelOperations xsi:type="tool:ChangeContext" browseExpression="var:self">
+              <subModelOperations xsi:type="tool:SetValue" featureName="source" valueExpression="var:newValue"/>
+            </firstModelOperations>
+          </initialOperation>
+        </controls>
         <controls xsi:type="properties-ext-widgets-reference:ExtReferenceDescription" name="references ref" labelExpression="aql:input.emfEditServices(self).getText(self.eClass().getEStructuralFeature('references'))+':'" helpExpression="aql:input.emfEditServices(self).getDescription(self.eClass().getEStructuralFeature('references'))" referenceNameExpression="references" referenceOwnerExpression="aql:self"/>
         <controls xsi:type="properties:ContainerDescription" name="eannota_buttons">
           <controls xsi:type="properties:ButtonDescription" name="eannotation_add_entry" buttonLabelExpression="Add Entry">
@@ -1741,10 +1784,22 @@
         <controls xsi:type="properties:ContainerDescription" name="eannotation_conainer_entries">
           <controls xsi:type="properties:DynamicMappingForDescription" name="iterate over entries" iterator="self" iterableExpression="aql:self.details" forceRefresh="true">
             <ifs name="always_true" predicateExpression="aql:true">
-              <widget xsi:type="properties:TextDescription" name="detail_key" labelExpression="Key:" valueExpression="aql:self.key"/>
+              <widget xsi:type="properties:TextDescription" name="detail_key" labelExpression="Key:" valueExpression="aql:self.key">
+                <initialOperation>
+                  <firstModelOperations xsi:type="tool:ChangeContext" browseExpression="var:self">
+                    <subModelOperations xsi:type="tool:SetValue" featureName="key" valueExpression="var:newValue"/>
+                  </firstModelOperations>
+                </initialOperation>
+              </widget>
             </ifs>
             <ifs name="always_true" predicateExpression="aql:true">
-              <widget xsi:type="properties:TextDescription" name="detail_value" labelExpression="Value:" valueExpression="aql:self.value"/>
+              <widget xsi:type="properties:TextDescription" name="detail_value" labelExpression="Value:" valueExpression="aql:self.value">
+                <initialOperation>
+                  <firstModelOperations xsi:type="tool:ChangeContext" browseExpression="var:self">
+                    <subModelOperations xsi:type="tool:SetValue" featureName="value" valueExpression="var:newValue"/>
+                  </firstModelOperations>
+                </initialOperation>
+              </widget>
             </ifs>
             <ifs name="always_true" predicateExpression="aql:true">
               <widget xsi:type="properties:ButtonDescription" name="del" helpExpression="Delete the entry" imageExpression="/org.eclipse.emf.ecoretools.design/icons/full/etools16/unset.gif">
@@ -1760,7 +1815,11 @@
         </controls>
         <controls xsi:type="properties:DynamicMappingForDescription" name="dummy_workaround_bug515586" iterator="d" iterableExpression="aql:self" forceRefresh="true">
           <ifs name="always false" predicateExpression="aql:false">
-            <widget xsi:type="properties:TextDescription" name="dummy_text"/>
+            <widget xsi:type="properties:TextDescription" name="dummy_text">
+              <initialOperation>
+                <firstModelOperations xsi:type="tool:ChangeContext" browseExpression="var:self"/>
+              </initialOperation>
+            </widget>
           </ifs>
         </controls>
         <style toggleStyle="TREE_NODE" expandedByDefault="true"/>

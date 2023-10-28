@@ -1,8 +1,8 @@
 package org.eclipse.emf.ecoretools.design.sirius
 
-import org.eclipse.emf.ecore.EPackage
+import org.eclipse.emf.codegen.ecore.genmodel.GenModelPackage
+import org.eclipse.emf.ecore.EcorePackage
 import org.eclipse.sirius.diagram.BackgroundStyle
-import org.eclipse.sirius.diagram.BundledImageShape
 import org.eclipse.sirius.diagram.ContainerLayout
 import org.eclipse.sirius.diagram.EdgeArrows
 import org.eclipse.sirius.diagram.EdgeRouting
@@ -10,18 +10,15 @@ import org.eclipse.sirius.diagram.LabelPosition
 import org.eclipse.sirius.diagram.LineStyle
 import org.eclipse.sirius.diagram.ResizeKind
 import org.eclipse.sirius.diagram.description.AdditionalLayer
-import org.eclipse.sirius.diagram.description.CenteringStyle
 import org.eclipse.sirius.diagram.description.ConditionalContainerStyleDescription
 import org.eclipse.sirius.diagram.description.ConditionalEdgeStyleDescription
 import org.eclipse.sirius.diagram.description.ConditionalNodeStyleDescription
 import org.eclipse.sirius.diagram.description.ContainerMapping
 import org.eclipse.sirius.diagram.description.DiagramDescription
 import org.eclipse.sirius.diagram.description.EdgeMapping
-import org.eclipse.sirius.diagram.description.FoldingStyle
 import org.eclipse.sirius.diagram.description.Layer
 import org.eclipse.sirius.diagram.description.NodeMapping
 import org.eclipse.sirius.diagram.description.filter.CompositeFilterDescription
-import org.eclipse.sirius.diagram.description.filter.FilterKind
 import org.eclipse.sirius.diagram.description.filter.MappingFilter
 import org.eclipse.sirius.diagram.description.style.BeginLabelStyleDescription
 import org.eclipse.sirius.diagram.description.style.BundledImageDescription
@@ -57,7 +54,6 @@ import org.eclipse.sirius.viewpoint.FontFormat
 import org.eclipse.sirius.viewpoint.LabelAlignment
 import org.eclipse.sirius.viewpoint.description.Customization
 import org.eclipse.sirius.viewpoint.description.DecorationDescriptionsSet
-import org.eclipse.sirius.viewpoint.description.DecorationDistributionDirection
 import org.eclipse.sirius.viewpoint.description.EAttributeCustomization
 import org.eclipse.sirius.viewpoint.description.EReferenceCustomization
 import org.eclipse.sirius.viewpoint.description.Environment
@@ -114,7 +110,7 @@ import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*
 class EntitiesDiagram extends AbstractDiagram {
 
 	new(EcoretoolsDesign parent) {
-		super(parent, "Entities", "Entities in a Class Diagram", EPackage)
+		super(parent, "Entities", "Entities in a Class Diagram", org.eclipse.emf.ecore.EPackage)
 	}
 
 	override initContent(DiagramDescription it) {

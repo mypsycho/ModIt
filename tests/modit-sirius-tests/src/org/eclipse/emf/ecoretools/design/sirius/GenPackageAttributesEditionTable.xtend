@@ -1,7 +1,8 @@
 package org.eclipse.emf.ecoretools.design.sirius
 
+import org.eclipse.emf.codegen.ecore.genmodel.GenModelPackage
 import org.eclipse.emf.codegen.ecore.genmodel.GenPackage
-import org.eclipse.emf.ecore.EPackage
+import org.eclipse.emf.ecore.EcorePackage
 import org.eclipse.sirius.table.metamodel.table.description.BackgroundConditionalStyle
 import org.eclipse.sirius.table.metamodel.table.description.BackgroundStyleDescription
 import org.eclipse.sirius.table.metamodel.table.description.EditionTableDescription

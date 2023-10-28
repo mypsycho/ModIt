@@ -39,18 +39,20 @@ class EcoretoolsTestBase {
 
 	protected static val PLUGIN_ID = Activator.PLUGIN_ID
 	protected static val TEST_BUNDLE = "org.eclipse.emf.ecoretools.design"
-	protected static val PACKAGE_PATH = "org.eclipse.emf.ecoretools.design".replace('.', '/')
 	protected static val REFMODEL_PATH = '''/«PLUGIN_ID»/«RES_SEGMENT»/'''
 	
 	protected static val REFSRC_DIR = Paths.get("src").toAbsolutePath
 		
-	protected val testDir = Paths.get("target/test-run").toAbsolutePath
+	protected val testDir = Paths.get("target/test-run")
+		.toAbsolutePath
 		.resolve(getClass().simpleName)
 	protected val testSrcPath = testDir.resolve("src")
 			
 
     protected def void assertOdesignEquals(ModitModel content, String filename) {
-    	val testFile = testDir.resolve(RES_SEGMENT).resolve(filename)
+    	val testFile = testDir
+    		.resolve(RES_SEGMENT)
+    		.resolve(filename)
     	val rs = new ResourceSetImpl()
         val res = rs.createResource(URI.createFileURI(testFile.toString))
         content.loadContent(res).head
@@ -59,20 +61,18 @@ class EcoretoolsTestBase {
         	XMIResource.OPTION_ENCODING -> "ASCII"
         });
 
-		// TODO Fix issue with properties
-
-//        FileComparator.assertIdentical(
-//        	testFile, 
-//        	Paths.get(RES_SEGMENT).resolve(filename).toAbsolutePath
-//        )
+        FileComparator.assertIdentical(
+        	testFile, 
+        	Paths.get(RES_SEGMENT).resolve(filename).toAbsolutePath
+        )
     }
     
-	def assertSamePackage(String packagePath) {
+	def assertSamePackage(String packageName) {
+		val packagePath = packageName.replace('.', '/')
 		FileComparator.assertIdentical(
         	testSrcPath.resolve(packagePath),
         	REFSRC_DIR.resolve(packagePath)
         )
 	}	
-
 
 }

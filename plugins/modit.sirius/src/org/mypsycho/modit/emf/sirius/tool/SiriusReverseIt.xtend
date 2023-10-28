@@ -107,7 +107,7 @@ class SiriusReverseIt {
 		
 		editedPackages = (editeds + usedMetamodels)
 			// Normalize
-			.map[ EPackage.Registry.INSTANCE.getEPackage(nsURI) ]
+			.map[ toEcoreClass ]
 			.flatMap[ #[ it ] + eAllContents.toIterable.filter(EPackage) ]
 			.toSet
 			.toList
@@ -124,12 +124,24 @@ class SiriusReverseIt {
 				split.addDefaultAliases(classId, aliases)
 			]
 			
-			explicitExtras.putAll(source.systemColorsPalette.entries.<SystemColor, String>toInvertedMap[ "color:" + name ])
+			explicitExtras.putAll(source
+				.systemColorsPalette
+				.entries
+				.<SystemColor, String>toInvertedMap[ "color:" + name ]
+			)
 
 			addExplicitExtras(rs, explicitExtras)
 
 			shortcuts += DescriptionPackage.eINSTANCE.identifiedElement_Name
 		]
+	}
+	
+	def static toEcoreClass(EPackage it) {
+		val result = EPackage.Registry.INSTANCE.getEPackage(nsURI)
+		if (result === null) {
+			throw new IllegalStateException("No such Ecore model in Platform: " + nsURI)
+		}
+		result
 	}
 	
 	
