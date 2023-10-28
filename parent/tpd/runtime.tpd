@@ -4,7 +4,7 @@ with requirements
 
 environment JavaSE-11
 
-location eclipse_core "http://download.eclipse.org/releases/2021-09/" {
+location eclipse_core "https://download.eclipse.org/releases/2021-09/" {
 	
 	org.eclipse.emf.feature.group
 	// +-> emf, emf.edit, emf.edit.ui
