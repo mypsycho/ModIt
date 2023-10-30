@@ -77,9 +77,7 @@ abstract class DiagramPartTemplate<R extends EObject> extends RepresentationTemp
 		]
 	]
 	
-	override getContainmentOrders() {
-		CONTAINMENT_ORDER
-	}
+	override getContainmentOrders() { CONTAINMENT_ORDER }
  
 
 	def dispatch smartTemplateCreate(AdditionalLayer it) {
@@ -92,7 +90,7 @@ abstract class DiagramPartTemplate<R extends EObject> extends RepresentationTemp
 	def dispatch smartTemplateCreate(ToolSection it) {
 		val container = eContainer
 		if (!(container instanceof Layer)) {
-			return _smartTemplateCreate(it as EObject)
+			return super.smartTemplateCreate(it)
 		}
 		val prefix = container instanceof AdditionalLayer
 				? container.name.techName
@@ -150,7 +148,7 @@ abstract class DiagramPartTemplate<R extends EObject> extends RepresentationTemp
 			}
 		}
 		
-		super.templateProperty(element as EObject, it, encoding)
+		super.templateProperty(element, it, encoding)
 	}
 	
 	def templateElkLayout(DiagramDescription it) {
@@ -166,9 +164,11 @@ SEPARATOR LValueSeparator
 		IntegerLayoutOption: '''Int(«option.value»'''
 		StringLayoutOption: '''String("«option.value»"'''
 		EnumSetLayoutOption: '''Enums("«option.values.map[ name ].join(",")»"'''
-	}
-		», «option.targets.map[ "LayoutOptionTarget." + name() ].join(", ")»)«
-ENDFOR 																		»
+	}                                                  », «
+	option.targets
+		.map[ "LayoutOptionTarget." + name() ]
+		.join(", ") »)«
+ENDFOR»
 )'''
 	}
 	

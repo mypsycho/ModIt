@@ -115,7 +115,7 @@ class «name» extends «AbstractPropertySet.templateClass» {
 			}
 		}
 		
-		super.templateProperty(element as EObject, it, encoding)
+		super.templateProperty(element, it, encoding)
 	}
 	
 	def templateGroupStyle(GroupDescription element) {

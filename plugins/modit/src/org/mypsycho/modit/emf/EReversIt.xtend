@@ -621,7 +621,7 @@ ENDFOR
 		smartTemplateCreate.toString
 	}
 	
-	def dispatch smartTemplateCreate(EObject it) { // Default
+	def smartTemplateCreate(EObject it) { // Default
 		defaultTemplateCreate
 	}
 
@@ -939,9 +939,8 @@ ENDFOR
 	}
 
 	protected def isGeneratedEPackage(EObject it) {
-		if (it instanceof EPackage) 
-			class.fields.exists[ isEPackageInstanceField ]
-		else false
+		it instanceof EPackage 
+			&& class.fields.exists[ isEPackageInstanceField ]
 	}
 
 
@@ -1024,7 +1023,9 @@ ENDFOR
 		// val typePathHead = typePath.toList.head // Debug expression
 		// val typePathTail = typePath.toList.tail.toList // Debug expression
 		new Expr(parentPath, typePath.toList, 
-			if (castRequired) declaring else null
+			castRequired
+				? declaring
+				: null
 		) [ source | templateReferenceSegment(feat, source) ]
 	}
 
@@ -1037,7 +1038,7 @@ ENDFOR
 	// Xtend
 	def String templateReferenceSegment(EObject it, EReference feat, String source) {
 		if (!feat.many) {
-			return source + "." + feat.toGetter
+			return '''«source».«feat.toGetter»'''
 		}
 		
 		val siblings = eContainer.eGet(feat) as List<EObject> // Ecore only provide Elist
@@ -1048,9 +1049,9 @@ ENDFOR
 		
 		if (keyed) {// 'at' syntax is specific to Xtend
 			val typePrefix = 
-				if (feat.EType != eClass) 
-					templateClass + ", " 
-				else ""
+				feat.EType != eClass
+					? templateClass + ", " 
+					: ""
 '''«source».«feat.name».at(«typePrefix»«feat.EKeys.map[att| eGet(att).toJava ].join(', ')»)'''			
 		} else if (siblings.size == 1)
 '''«source».«feat.toGetter».head'''
@@ -1058,7 +1059,6 @@ ENDFOR
 '''«source».«feat.toGetter».at«shortcut.EContainingClass.instanceClass.simpleName»(«eGet(shortcut).toJava»)'''			
 		else 
 '''«source».«feat.toGetter».get(«siblings.indexOf(it)»)'''
-
 	}
 
 	
@@ -1118,7 +1118,9 @@ ENDFOR
 	}
 
 	protected def templateClass(Class<?> it) {
-		if (currentImports.get(it) ?: Boolean.FALSE) simpleName else name
+		(currentImports.get(it) ?: Boolean.FALSE)
+			? simpleName
+			: name
 	}
 
 	protected def usedPackages(Iterable<? extends EObject> values) {
@@ -1217,7 +1219,7 @@ ENDFOR
 	protected def templateImports(ClassId container) {
 '''«
 FOR c : currentImports.entrySet
-	.filter[ value && key.packageName != container.pack ]
+	.filter[ value && key.package.name != container.pack ]
 	.map[ key ]
 	.toList
 	.sortBy[ name ] 
@@ -1228,19 +1230,18 @@ ENDFOR
 	}
 		
 	// XTend
-	protected def templateImport(Class<?> it) { "import " + name }
-	
+	protected def templateImport(Class<?> it) { '''import «name»''' }
 
 	static def toContent(Resource res) { res.contents.get(0) }
 
 	def toFile(Path target, ()=>String content) throws IOException {
 		Files.createDirectories(target.parent)
-		val it = Files.newBufferedWriter(target, context.encoding)
-		try {
+		
+		try (val f = Files.newBufferedWriter(target, context.encoding)) {
 			print('Writing ' + target)
-			write(content.apply)
+			f.write(content.apply)
 			println(' : ok')
-		} finally { close }
+		}
 	}
 
 	static def findDeclaringPackageClass(EObject it) {
@@ -1253,14 +1254,10 @@ ENDFOR
 		]
 	}
 
-	dispatch def toJava(Void it) {
-		// to handle null in dispatch, uses void.
-		"null"
-	}
+	// to handle null in dispatch, uses void.
+	dispatch def toJava(Void it) { "null" }
 
-	dispatch def toJava(Object it) {
-		toString
-	}
+	dispatch def toJava(Object it) { toString }
 
 	dispatch def toJava(String it) {
 		// TODO: Very ugly, probably not complete
@@ -1273,16 +1270,13 @@ ENDFOR
 			+ "\""
 	}
 
-	dispatch def toJava(Enumerator it) {
-		class.templateClass
-			+ "." + (
-				if (class.isEnum) (it as Enum<?>).name()
-				else ("getByName(\"" + name + "\")")
-			)
+	dispatch def String toJava(Enumerator it) {
+'''«class.templateClass».«
+IF it instanceof Enum   »«name()»«
+ELSE                    »getByName("«name»")«
+ENDIF
+»'''
 	}
-
-
-
 	
 	// Xtend (generic)
 	def getStatementSeparator() { "\n" }
@@ -1292,9 +1286,7 @@ ENDFOR
 
 	static def EObject toRoot(EObject it) { eContainer?.toRoot ?: it }
 
-	def toGetter(EReference it) {
-		toXtendProperty.safename
-	}
+	def toGetter(EReference it) { toXtendProperty.safename }
 
 	static def toXtendProperty(ENamedElement it) {
 		name.length > 1 && Character.isUpperCase(name.charAt(1)) 

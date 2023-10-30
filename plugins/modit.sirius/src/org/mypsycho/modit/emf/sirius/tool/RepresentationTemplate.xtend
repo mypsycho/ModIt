@@ -106,7 +106,10 @@ abstract class RepresentationTemplate<R extends EObject> extends EReversIt {
 			// See org.mypsycho.modit.emf.sirius.SiriusModelProvider#new(Iterable<? extends EPackage>)
 			.filter[ !CONTENT_PROVIDER_FIELDS.contains(key) ]
 	}
-	
+
+ 	def dispatch smartTemplateCreate(EObject it) {
+		super.smartTemplateCreate(it)
+	}	
 
  	def dispatch smartTemplateCreate(AbstractVariable it) {
  		val content = innerContent
