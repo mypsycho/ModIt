@@ -14,7 +14,7 @@ import org.eclipse.xtend.lib.annotations.Accessors
 import org.mypsycho.modit.emf.EModIt
 import org.mypsycho.modit.emf.EReversIt
 import org.mypsycho.modit.emf.ModitModel
-import org.mypsycho.modit.emf.sirius.api.AbstractGroup
+import org.mypsycho.modit.emf.sirius.api.SiriusVpGroup
 
 /** 
  * Specific reverse for AbstractGroup class.
@@ -40,7 +40,7 @@ class SiriusGroupTemplate extends EReversIt {
 	static val UNUSED_MAIN_IMPORTS = #[ 
 		HashMap, ResourceSetImpl, Accessors, EModIt, ModitModel, EObject
 	]
-	static val EXTRA_MAIN_IMPORTS = #[ AbstractGroup, Environment ]
+	static val EXTRA_MAIN_IMPORTS = #[ SiriusVpGroup, Environment ]
 	
 	override getMainStaticImports() {
 		super.mainStaticImports
@@ -66,7 +66,7 @@ class SiriusGroupTemplate extends EReversIt {
 
 import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*
 
-class «context.mainClass.name» extends «AbstractGroup.templateClass» {
+class «context.mainClass.name» extends «SiriusVpGroup.templateClass» {
 	
 	new () {
         businessPackages += #[

@@ -19,6 +19,8 @@
 
 
 	<properties>
+		<!-- XTend maven does use .settings preferences -->
 		<maven.compiler.source>1.8</maven.compiler.source>
 	</properties>
+
 </project>

@@ -63,6 +63,7 @@ import org.eclipse.sirius.viewpoint.description.SystemColor
 import org.eclipse.sirius.viewpoint.description.SytemColorsPalette
 import org.eclipse.sirius.viewpoint.description.UserFixedColor
 import org.eclipse.sirius.viewpoint.description.VSMElementCustomization
+import org.eclipse.sirius.viewpoint.description.style.BasicLabelStyleDescription
 import org.eclipse.sirius.viewpoint.description.style.LabelBorderStyleDescription
 import org.eclipse.sirius.viewpoint.description.style.LabelBorderStyles
 import org.eclipse.sirius.viewpoint.description.tool.AcceleoVariable
@@ -103,11 +104,11 @@ import org.eclipse.sirius.viewpoint.description.validation.RuleAudit
 import org.eclipse.sirius.viewpoint.description.validation.ValidationFix
 import org.eclipse.sirius.viewpoint.description.validation.ValidationSet
 import org.eclipse.sirius.viewpoint.description.validation.ViewValidationRule
-import org.mypsycho.modit.emf.sirius.api.AbstractDiagram
+import org.mypsycho.modit.emf.sirius.api.SiriusDiagram
 
 import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*
 
-class EntitiesDiagram extends AbstractDiagram {
+class EntitiesDiagram extends SiriusDiagram {
 
 	new(EcoretoolsDesign parent) {
 		super(parent, "Entities", "Entities in a Class Diagram", org.eclipse.emf.ecore.EPackage)
@@ -122,42 +123,50 @@ class EntitiesDiagram extends AbstractDiagram {
 		dropDescriptions += ContainerDropDescription.localRef(Ns.drop, "External EClass from treeview")
 		dropDescriptions += ContainerDropDescription.localRef(Ns.drop, "Drop EClassifier into EPackage")
 		pasteDescriptions += PasteDescription.localRef(Ns.operation, "Paste Anything")
-		filters += CompositeFilterDescription.create("Hide class content") [
-			filters += allHide(
+		filtering("Hide class content") [
+			allHide(
 				NodeMapping.localRef(Ns.node, "EC EAttribute"),
-				NodeMapping.localRef(Ns.node, "Operation"))
+				NodeMapping.localRef(Ns.node, "Operation")
+			)
 		]
-		filters += CompositeFilterDescription.create("Hide generalizations") [
-			filters += allHide(
-				EdgeMapping.localRef(Ns.edge, "EC ESupertypes"))
+		filtering("Hide generalizations") [
+			allHide(
+				EdgeMapping.localRef(Ns.edge, "EC ESupertypes")
+			)
 		]
-		filters += CompositeFilterDescription.create("Hide indirect generalizations") [
-			filters += '''not self.oclAsType(diagram::DEdge).sourceNode.oclAsType(viewpoint::DSemanticDecorator).target.oclAsType(ecore::EClass).eSuperTypes->includes(self.oclAsType(diagram::DEdge).targetNode.oclAsType(viewpoint::DSemanticDecorator).target)'''.trimAql.viewHide(
-				EdgeMapping.localRef(Ns.edge, "EC ESupertypes"))
+		filtering("Hide indirect generalizations") [
+			viewHide('''not self.oclAsType(diagram::DEdge).sourceNode.oclAsType(viewpoint::DSemanticDecorator).target.oclAsType(ecore::EClass).eSuperTypes->includes(self.oclAsType(diagram::DEdge).targetNode.oclAsType(viewpoint::DSemanticDecorator).target)'''.trimAql,
+				EdgeMapping.localRef(Ns.edge, "EC ESupertypes")
+			)
 		]
-		filters += CompositeFilterDescription.create("Hide references (edges)") [
-			filters += allHide(
+		filtering("Hide references (edges)") [
+			allHide(
 				EdgeMapping.localRef(Ns.edge, "EC_EReference"),
-				EdgeMapping.localRef(Ns.edge, "Bi-directional EC_EReference "))
+				EdgeMapping.localRef(Ns.edge, "Bi-directional EC_EReference ")
+			)
 		]
-		filters += CompositeFilterDescription.create("Hide references (nodes)") [
-			filters += allHide(
-				NodeMapping.localRef(Ns.node, "EC EReferenceNode"))
+		filtering("Hide references (nodes)") [
+			allHide(
+				NodeMapping.localRef(Ns.node, "EC EReferenceNode")
+			)
 		]
-		filters += CompositeFilterDescription.create("Hide inherited references (nodes)") [
-			filters += '''self.eContainer().oclAsType(viewpoint::DSemanticDecorator).target = self.oclAsType(viewpoint::DSemanticDecorator).target.eContainer()'''.trimAql.viewHide(
-				NodeMapping.localRef(Ns.node, "EC EReferenceNode"))
+		filtering("Hide inherited references (nodes)") [
+			viewHide('''self.eContainer().oclAsType(viewpoint::DSemanticDecorator).target = self.oclAsType(viewpoint::DSemanticDecorator).target.eContainer()'''.trimAql,
+				NodeMapping.localRef(Ns.node, "EC EReferenceNode")
+			)
 		]
-		filters += CompositeFilterDescription.create("Hide derived features") [
-			filters += '''not self.derived'''.trimAql.elementHide(
+		filtering("Hide derived features") [
+			elementHide('''not self.derived'''.trimAql,
 				EdgeMapping.localRef(Ns.edge, "EC_EReference"),
 				NodeMapping.localRef(Ns.node, "EC EAttribute"),
 				EdgeMapping.localRef(Ns.edge, "Bi-directional EC_EReference "),
-				NodeMapping.localRef(Ns.node, "EC EReferenceNode"))
+				NodeMapping.localRef(Ns.node, "EC EReferenceNode")
+			)
 		]
-		filters += CompositeFilterDescription.create("Hide operations") [
-			filters += allHide(
-				NodeMapping.localRef(Ns.node, "Operation"))
+		filtering("Hide operations") [
+			allHide(
+				NodeMapping.localRef(Ns.node, "Operation")
+			)
 		]
 		validationSet = ValidationSet.create [
 			ownedRules += ViewValidationRule.create("Unused EClass") [
@@ -194,6 +203,9 @@ class EntitiesDiagram extends AbstractDiagram {
 		additionalLayers += createRelatedEClassesLayer
 		additionalLayers += createIconsPreviewLayer
 	}
+
+	override initDefaultStyle(BasicLabelStyleDescription it) {/* No reverse for Default */}
+	override initDefaultEdgeStyle(EdgeStyleDescription it) {/* No reverse for Default */}
 
 	override initContent(Layer it) {
 		nodeMappings += NodeMapping.createAs(Ns.node, "Empty Diagram") [
@@ -235,43 +247,37 @@ class EntitiesDiagram extends AbstractDiagram {
 				backgroundColor = SystemColor.extraRef("color:white")
 				foregroundColor = UserFixedColor.ref("color:EClass")
 			]
-			conditionnalStyles += ConditionalContainerStyleDescription.create [
-				predicateExpression = "feature:interface"
-				style = FlatContainerStyleDescription.create [
-					arcWidth = 8
-					arcHeight = 8
-					borderSizeComputationExpression = "1"
-					labelFormat += FontFormat.ITALIC_LITERAL
-					iconPath = "/org.eclipse.emf.ecoretools.design/icons/full/obj16/EClass_interface.gif"
-					tooltipExpression = "service:renderTooltip"
-					roundedCorner = true
-					widthComputationExpression = "12"
-					heightComputationExpression = "10"
-					backgroundStyle = BackgroundStyle.LIQUID_LITERAL
-					borderColor = UserFixedColor.ref("color:Dark EClass")
-					labelColor = SystemColor.extraRef("color:black")
-					backgroundColor = SystemColor.extraRef("color:white")
-					foregroundColor = UserFixedColor.ref("color:Abstract EClass")
-				]
+			styleIf(FlatContainerStyleDescription, "feature:interface") [
+				arcWidth = 8
+				arcHeight = 8
+				borderSizeComputationExpression = "1"
+				labelFormat += FontFormat.ITALIC_LITERAL
+				iconPath = "/org.eclipse.emf.ecoretools.design/icons/full/obj16/EClass_interface.gif"
+				tooltipExpression = "service:renderTooltip"
+				roundedCorner = true
+				widthComputationExpression = "12"
+				heightComputationExpression = "10"
+				backgroundStyle = BackgroundStyle.LIQUID_LITERAL
+				borderColor = UserFixedColor.ref("color:Dark EClass")
+				labelColor = SystemColor.extraRef("color:black")
+				backgroundColor = SystemColor.extraRef("color:white")
+				foregroundColor = UserFixedColor.ref("color:Abstract EClass")
 			]
-			conditionnalStyles += ConditionalContainerStyleDescription.create [
-				predicateExpression = "feature:abstract"
-				style = FlatContainerStyleDescription.create [
-					arcWidth = 8
-					arcHeight = 8
-					borderSizeComputationExpression = "1"
-					labelFormat += FontFormat.ITALIC_LITERAL
-					iconPath = "/org.eclipse.emf.ecoretools.design/icons/full/obj16/EClass_abstract.gif"
-					tooltipExpression = "service:renderTooltip"
-					roundedCorner = true
-					widthComputationExpression = "12"
-					heightComputationExpression = "10"
-					backgroundStyle = BackgroundStyle.LIQUID_LITERAL
-					borderColor = UserFixedColor.ref("color:Dark EClass")
-					labelColor = SystemColor.extraRef("color:black")
-					backgroundColor = SystemColor.extraRef("color:white")
-					foregroundColor = UserFixedColor.ref("color:Abstract EClass")
-				]
+			styleIf(FlatContainerStyleDescription, "feature:abstract") [
+				arcWidth = 8
+				arcHeight = 8
+				borderSizeComputationExpression = "1"
+				labelFormat += FontFormat.ITALIC_LITERAL
+				iconPath = "/org.eclipse.emf.ecoretools.design/icons/full/obj16/EClass_abstract.gif"
+				tooltipExpression = "service:renderTooltip"
+				roundedCorner = true
+				widthComputationExpression = "12"
+				heightComputationExpression = "10"
+				backgroundStyle = BackgroundStyle.LIQUID_LITERAL
+				borderColor = UserFixedColor.ref("color:Dark EClass")
+				labelColor = SystemColor.extraRef("color:black")
+				backgroundColor = SystemColor.extraRef("color:white")
+				foregroundColor = UserFixedColor.ref("color:Abstract EClass")
 			]
 			borderedNodeMappings += NodeMapping.createAs(Ns.node, "EC ETypeParameter") [
 				semanticCandidatesExpression = "feature:eTypeParameters"
@@ -333,18 +339,15 @@ class EntitiesDiagram extends AbstractDiagram {
 					labelColor = SystemColor.extraRef("color:black")
 					color = SystemColor.extraRef("color:blue")
 				]
-				conditionnalStyles += ConditionalNodeStyleDescription.create [
-					predicateExpression = '''container <> self.eContainer()'''.trimAql
-					style = BundledImageDescription.create [
-						labelFormat += FontFormat.ITALIC_LITERAL
-						labelExpression = "service:renderAsNode"
-						labelAlignment = LabelAlignment.LEFT
-						tooltipExpression = "service:renderTooltip"
-						sizeComputationExpression = "1"
-						borderColor = SystemColor.extraRef("color:black")
-						labelColor = UserFixedColor.ref("color:Inherited")
-						color = SystemColor.extraRef("color:black")
-					]
+				styleIf(BundledImageDescription, '''container <> self.eContainer()'''.trimAql) [
+					labelFormat += FontFormat.ITALIC_LITERAL
+					labelExpression = "service:renderAsNode"
+					labelAlignment = LabelAlignment.LEFT
+					tooltipExpression = "service:renderTooltip"
+					sizeComputationExpression = "1"
+					borderColor = SystemColor.extraRef("color:black")
+					labelColor = UserFixedColor.ref("color:Inherited")
+					color = SystemColor.extraRef("color:black")
 				]
 			]
 		]
@@ -475,42 +478,36 @@ class EntitiesDiagram extends AbstractDiagram {
 					labelColor = SystemColor.extraRef("color:black")
 				]
 			]
-			conditionnalStyles += ConditionalEdgeStyleDescription.create [
-				predicateExpression = "service:targetIsInterface(view)"
-				style = EdgeStyleDescription.create [
-					lineStyle = LineStyle.DASH_LITERAL
-					targetArrow = EdgeArrows.INPUT_CLOSED_ARROW_LITERAL
-					routingStyle = EdgeRouting.TREE_LITERAL
-					strokeColor = SystemColor.extraRef("color:gray")
-					beginLabelStyleDescription = BeginLabelStyleDescription.create [
-						labelFormat += FontFormat.ITALIC_LITERAL
-						showIcon = false
-						labelExpression = "service:superTypesLabel"
-						labelColor = SystemColor.extraRef("color:black")
-					]
-					centerLabelStyleDescription = CenterLabelStyleDescription.create [
-						showIcon = false
-						labelColor = SystemColor.extraRef("color:black")
-					]
+			styleIf("service:targetIsInterface(view)") [
+				lineStyle = LineStyle.DASH_LITERAL
+				targetArrow = EdgeArrows.INPUT_CLOSED_ARROW_LITERAL
+				routingStyle = EdgeRouting.TREE_LITERAL
+				strokeColor = SystemColor.extraRef("color:gray")
+				beginLabelStyleDescription = BeginLabelStyleDescription.create [
+					labelFormat += FontFormat.ITALIC_LITERAL
+					showIcon = false
+					labelExpression = "service:superTypesLabel"
+					labelColor = SystemColor.extraRef("color:black")
+				]
+				centerLabelStyleDescription = CenterLabelStyleDescription.create [
+					showIcon = false
+					labelColor = SystemColor.extraRef("color:black")
 				]
 			]
-			conditionnalStyles += ConditionalEdgeStyleDescription.create [
-				predicateExpression = '''not self.eSuperTypes->includes(view.oclAsType(diagram::DEdge).targetNode.oclAsType(viewpoint::DSemanticDecorator).target)'''.trimAql
-				style = EdgeStyleDescription.create [
-					lineStyle = LineStyle.DOT_LITERAL
-					targetArrow = EdgeArrows.INPUT_CLOSED_ARROW_LITERAL
-					routingStyle = EdgeRouting.TREE_LITERAL
-					strokeColor = UserFixedColor.ref("color:Inherited")
-					beginLabelStyleDescription = BeginLabelStyleDescription.create [
-						labelFormat += FontFormat.ITALIC_LITERAL
-						showIcon = false
-						labelExpression = "service:superTypesLabel"
-						labelColor = SystemColor.extraRef("color:black")
-					]
-					centerLabelStyleDescription = CenterLabelStyleDescription.create [
-						showIcon = false
-						labelColor = SystemColor.extraRef("color:black")
-					]
+			styleIf('''not self.eSuperTypes->includes(view.oclAsType(diagram::DEdge).targetNode.oclAsType(viewpoint::DSemanticDecorator).target)'''.trimAql) [
+				lineStyle = LineStyle.DOT_LITERAL
+				targetArrow = EdgeArrows.INPUT_CLOSED_ARROW_LITERAL
+				routingStyle = EdgeRouting.TREE_LITERAL
+				strokeColor = UserFixedColor.ref("color:Inherited")
+				beginLabelStyleDescription = BeginLabelStyleDescription.create [
+					labelFormat += FontFormat.ITALIC_LITERAL
+					showIcon = false
+					labelExpression = "service:superTypesLabel"
+					labelColor = SystemColor.extraRef("color:black")
+				]
+				centerLabelStyleDescription = CenterLabelStyleDescription.create [
+					showIcon = false
+					labelColor = SystemColor.extraRef("color:black")
 				]
 			]
 		]
@@ -1654,39 +1651,33 @@ class EntitiesDiagram extends AbstractDiagram {
 					backgroundColor = SystemColor.extraRef("color:white")
 					foregroundColor = UserFixedColor.ref("color:EClass")
 				]
-				conditionnalStyles += ConditionalContainerStyleDescription.create [
-					predicateExpression = "feature:interface"
-					style = FlatContainerStyleDescription.create [
-						arcWidth = 8
-						arcHeight = 8
-						borderSizeComputationExpression = "1"
-						labelFormat += FontFormat.ITALIC_LITERAL
-						iconPath = "/org.eclipse.emf.ecoretools.design/icons/full/obj16/EClass_interface.gif"
-						tooltipExpression = "service:renderTooltip"
-						roundedCorner = true
-						backgroundStyle = BackgroundStyle.LIQUID_LITERAL
-						borderColor = UserFixedColor.ref("color:Dark EClass")
-						labelColor = SystemColor.extraRef("color:black")
-						backgroundColor = SystemColor.extraRef("color:white")
-						foregroundColor = UserFixedColor.ref("color:Abstract EClass")
-					]
+				styleIf(FlatContainerStyleDescription, "feature:interface") [
+					arcWidth = 8
+					arcHeight = 8
+					borderSizeComputationExpression = "1"
+					labelFormat += FontFormat.ITALIC_LITERAL
+					iconPath = "/org.eclipse.emf.ecoretools.design/icons/full/obj16/EClass_interface.gif"
+					tooltipExpression = "service:renderTooltip"
+					roundedCorner = true
+					backgroundStyle = BackgroundStyle.LIQUID_LITERAL
+					borderColor = UserFixedColor.ref("color:Dark EClass")
+					labelColor = SystemColor.extraRef("color:black")
+					backgroundColor = SystemColor.extraRef("color:white")
+					foregroundColor = UserFixedColor.ref("color:Abstract EClass")
 				]
-				conditionnalStyles += ConditionalContainerStyleDescription.create [
-					predicateExpression = "feature:abstract"
-					style = FlatContainerStyleDescription.create [
-						arcWidth = 8
-						arcHeight = 8
-						borderSizeComputationExpression = "1"
-						labelFormat += FontFormat.ITALIC_LITERAL
-						iconPath = "/org.eclipse.emf.ecoretools.design/icons/full/obj16/EClass_abstract.gif"
-						tooltipExpression = "service:renderTooltip"
-						roundedCorner = true
-						backgroundStyle = BackgroundStyle.LIQUID_LITERAL
-						borderColor = UserFixedColor.ref("color:Dark EClass")
-						labelColor = SystemColor.extraRef("color:black")
-						backgroundColor = SystemColor.extraRef("color:white")
-						foregroundColor = UserFixedColor.ref("color:Abstract EClass")
-					]
+				styleIf(FlatContainerStyleDescription, "feature:abstract") [
+					arcWidth = 8
+					arcHeight = 8
+					borderSizeComputationExpression = "1"
+					labelFormat += FontFormat.ITALIC_LITERAL
+					iconPath = "/org.eclipse.emf.ecoretools.design/icons/full/obj16/EClass_abstract.gif"
+					tooltipExpression = "service:renderTooltip"
+					roundedCorner = true
+					backgroundStyle = BackgroundStyle.LIQUID_LITERAL
+					borderColor = UserFixedColor.ref("color:Dark EClass")
+					labelColor = SystemColor.extraRef("color:black")
+					backgroundColor = SystemColor.extraRef("color:white")
+					foregroundColor = UserFixedColor.ref("color:Abstract EClass")
 				]
 			]
 		]

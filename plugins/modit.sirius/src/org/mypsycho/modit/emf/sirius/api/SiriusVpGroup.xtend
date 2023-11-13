@@ -24,6 +24,8 @@ import org.eclipse.sirius.viewpoint.ViewpointPackage
 import org.eclipse.sirius.viewpoint.description.Environment
 import org.eclipse.sirius.viewpoint.description.IdentifiedElement
 import org.eclipse.sirius.viewpoint.description.JavaExtension
+import org.eclipse.sirius.viewpoint.description.RepresentationDescription
+import org.eclipse.sirius.viewpoint.description.RepresentationExtensionDescription
 import org.eclipse.sirius.viewpoint.description.UserFixedColor
 import org.eclipse.sirius.viewpoint.description.Viewpoint
 import org.mypsycho.modit.emf.sirius.SiriusModelProvider
@@ -33,7 +35,7 @@ import org.mypsycho.modit.emf.sirius.SiriusModelProvider
  * 
  * @author nicolas.peransin
  */
-abstract class AbstractGroup extends SiriusModelProvider {
+abstract class SiriusVpGroup extends SiriusModelProvider {
 	
 	/** Packages used in design */
 	protected val List<EPackage> businessPackages = new ArrayList
@@ -177,6 +179,17 @@ abstract class AbstractGroup extends SiriusModelProvider {
 	    ownedJavaExtensions += JavaExtension.create[ qualifiedClassName = service.name ]
 	}
 	
+	
+	protected def owned(Viewpoint owner, Class<? extends AbstractTypedEdition<?>> descr) {
+		val part = descr.constructors.head.newInstance(this) as AbstractTypedEdition<?>
+		part.createContent => [
+			switch(it) {
+				RepresentationExtensionDescription: owner.ownedRepresentationExtensions += it
+				RepresentationDescription: owner.ownedRepresentations += it
+			}	
+		]		
+	}
+	
 	//
 	// Identification
 	// 
@@ -231,6 +244,6 @@ abstract class AbstractGroup extends SiriusModelProvider {
 	 * @return found element
 	 */
 	static def <T extends IdentifiedElement> atIdentifiedElement(Iterable<T> values, Object key) {
-		SiriusDesigns.atIdentifiedElement(values, key)
+		SiriusDesigns.atNamed(values, key as String)
 	}
 }

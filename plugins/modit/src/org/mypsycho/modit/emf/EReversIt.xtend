@@ -676,7 +676,7 @@ ENDFOR
 		// Find setted attributes, references, <>references
 		// Order go from simplest to most complex
 		#[
-			eClass.EAllAttributes.filter[ a | !a.derived && eIsSet(a) && a.defaultValue != eGet(a) ]
+			eClass.EAllAttributes.filter[ a | !a.derived && isAttributeReversed(a) ]
 				-> [ Object it, Class<?> using | toJava ],
 			eClass.EAllReferences.filter[ r | eIsSet(r) && r.pureReference ]
 				-> [ Object it, Class<?> using | (it as EObject).templateRef(using) ],
@@ -688,6 +688,9 @@ ENDFOR
 		]
 	}
 	
+	protected def isAttributeReversed(EObject it, EAttribute a) {
+		eIsSet(a) && a.defaultValue != eGet(a)
+	}
 	
 
 	protected def 
@@ -938,11 +941,6 @@ ENDFOR
 			&& name == "eINSTANCE"
 	}
 
-	protected def isGeneratedEPackage(EObject it) {
-		it instanceof EPackage 
-			&& class.fields.exists[ isEPackageInstanceField ]
-	}
-
 
 
 	protected def identifyImplicitExtra(EObject it) {
@@ -982,20 +980,19 @@ ENDFOR
 	
 	
 	def protected callEcorePath(ENamedElement it) {
-		if (it instanceof EClass) {
-			if (isGeneratedEPackage(EPackage)) {
-				return new EEcoreExpr(it)
-			}
-		} else if (it instanceof EStructuralFeature) {
-			if (isGeneratedEPackage(EContainingClass.EPackage)) {
-				return new EEcoreExpr(it)
-			}
-		} else if (it instanceof EPackage) {
-			if (isGeneratedEPackage) {
-				return new EEcoreExpr(it)
-			}
+		val ePackage = switch(it) {
+			EClass: EPackage
+			EStructuralFeature: EContainingClass.EPackage
+			EPackage: it
+			default: null
 		}
-		null
+		
+		val generatedEPackage = ePackage !== null
+			&& ePackage.class.fields.exists[ isEPackageInstanceField ]
+
+		generatedEPackage
+			? new EEcoreExpr(it)
+			: null
 	}
 
 	
@@ -1092,12 +1089,11 @@ ENDFOR
 	
 	// Xtend
 	protected def templatePropertyValue(EStructuralFeature it, String value) {
-		if (value === null)  // is this universal (for any lang) ??
-			'''// «toXtendProperty.safename» is headless''' // TODO log an error
-		else if (isMany) 
-			'''«toXtendProperty.safename» += «value»'''
-		else 
-			'''«toXtendProperty.safename» = «value»'''
+		value === null  // is this universal (for any lang) ??
+			? '''// «toXtendProperty.safename» is headless''' // TODO log an error
+			: isMany
+			? '''«toXtendProperty.safename» += «value»'''
+			: '''«toXtendProperty.safename» = «value»'''
 	}
 
 	protected def isPureReference(EReference it) {

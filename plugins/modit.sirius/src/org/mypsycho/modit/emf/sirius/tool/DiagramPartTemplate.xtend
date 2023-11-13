@@ -5,6 +5,9 @@ import org.eclipse.emf.ecore.EStructuralFeature
 import org.eclipse.sirius.diagram.description.AbstractNodeMapping
 import org.eclipse.sirius.diagram.description.AdditionalLayer
 import org.eclipse.sirius.diagram.description.BooleanLayoutOption
+import org.eclipse.sirius.diagram.description.ConditionalContainerStyleDescription
+import org.eclipse.sirius.diagram.description.ConditionalEdgeStyleDescription
+import org.eclipse.sirius.diagram.description.ConditionalNodeStyleDescription
 import org.eclipse.sirius.diagram.description.ContainerMapping
 import org.eclipse.sirius.diagram.description.CustomLayoutConfiguration
 import org.eclipse.sirius.diagram.description.DescriptionPackage
@@ -31,8 +34,10 @@ import org.eclipse.sirius.properties.TextDescription
 import org.eclipse.sirius.viewpoint.description.Customization
 import org.eclipse.sirius.viewpoint.description.EAttributeCustomization
 import org.eclipse.sirius.viewpoint.description.EReferenceCustomization
+import org.eclipse.sirius.viewpoint.description.EStructuralFeatureCustomization
 import org.eclipse.sirius.viewpoint.description.IdentifiedElement
 import org.eclipse.sirius.viewpoint.description.VSMElementCustomization
+import org.eclipse.sirius.viewpoint.description.style.StyleDescription
 import org.eclipse.sirius.viewpoint.description.tool.AbstractToolDescription
 import org.eclipse.sirius.viewpoint.description.tool.ContainerModelOperation
 import org.eclipse.sirius.viewpoint.description.tool.ExternalJavaAction
@@ -41,7 +46,6 @@ import org.eclipse.sirius.viewpoint.description.tool.PopupMenu
 import org.mypsycho.modit.emf.sirius.api.AbstractDiagramPart
 
 import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*
-import org.eclipse.sirius.viewpoint.description.EStructuralFeatureCustomization
 
 /** 
  * Override of default reverse for SiriusModelProvider class.
@@ -189,10 +193,37 @@ ENDFOR»
 	}
 	
 	override templatePropertyValue(EStructuralFeature feat, Object value, (Object)=>String encoding) {
-		DPKG.layer_Customization == feat
+		DPKG.layer_Customization == feat 
 			? (value as Customization).templateStyleCustomisation
+			: DPKG.nodeMapping_ConditionnalStyles == feat 
+			? (value as ConditionalNodeStyleDescription).templateMappingConditionnalStyle
+			: DPKG.containerMapping_ConditionnalStyles == feat 
+			? (value as ConditionalContainerStyleDescription).templateMappingConditionnalStyle
+			: DPKG.edgeMapping_ConditionnalStyles == feat 
+			? (value as ConditionalEdgeStyleDescription).templateMappingConditionnalStyle
 			: super.templatePropertyValue(feat, value, encoding)
 	}
+	
+	def templateMappingConditionnalStyle(ConditionalContainerStyleDescription it) {
+		predicateExpression.templateMappingConditionnalStyle(style, true)
+	}
+	
+	def templateMappingConditionnalStyle(ConditionalNodeStyleDescription it) {
+		predicateExpression.templateMappingConditionnalStyle(style, true)
+	}
+	
+	def templateMappingConditionnalStyle(ConditionalEdgeStyleDescription it) {
+		predicateExpression.templateMappingConditionnalStyle(style, false)
+	}
+	
+	def templateMappingConditionnalStyle(String condition, StyleDescription style, boolean typed) {
+'''styleIf(«
+IF typed  »«style?.eClass?.instanceClass?.templateClass ?: ""», «
+ENDIF     »«condition.toJava») [
+	«style?.templateInnerContent(style?.innerContent) ?: ""»
+]'''
+	}
+	
 	
 	def templateStyleCustomisation(Customization it) {
 		if (vsmElementCustomizations.empty) {

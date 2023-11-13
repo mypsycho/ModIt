@@ -1,14 +1,22 @@
 package org.mypsycho.modit.emf.sirius.tool
 
 import org.eclipse.emf.ecore.EObject
+import org.eclipse.emf.ecore.EStructuralFeature
 import org.eclipse.sirius.diagram.description.AdditionalLayer
 import org.eclipse.sirius.diagram.description.DescriptionPackage
 import org.eclipse.sirius.diagram.description.DiagramDescription
 import org.eclipse.sirius.diagram.description.DiagramElementMapping
+import org.eclipse.sirius.diagram.description.DiagramImportDescription
 import org.eclipse.sirius.diagram.description.Layer
+import org.eclipse.sirius.diagram.description.filter.CompositeFilterDescription
+import org.eclipse.sirius.diagram.description.filter.FilterPackage
 import org.eclipse.sirius.diagram.description.filter.MappingFilter
+import org.eclipse.sirius.diagram.description.style.EdgeStyleDescription
+import org.eclipse.sirius.diagram.sequence.description.SequenceDiagramDescription
+import org.eclipse.sirius.viewpoint.description.style.BasicLabelStyleDescription
 import org.mypsycho.modit.emf.ClassId
-import org.mypsycho.modit.emf.sirius.api.AbstractDiagram
+import org.mypsycho.modit.emf.sirius.api.SiriusDiagram
+import org.mypsycho.modit.emf.sirius.api.SiriusSequenceDiagram
 
 /** Override of default reverse for SiriusModelProvider class. */
 class DiagramTemplate extends DiagramPartTemplate<DiagramDescription> {
@@ -44,27 +52,33 @@ class DiagramTemplate extends DiagramPartTemplate<DiagramDescription> {
 		AdditionalLayer -> #{}
 	} + RepresentationTemplate.INIT_TEMPLATED
 	
-	/** Set of classes used in sub-parts by the default implementation  */
-	protected static val PART_IMPORTS = (
-		#{ AbstractDiagram } + INIT_TEMPLATED.keySet
-	).toList
-	
+		
 	override getContainmentOrders() {
 		CONTAINMENT_ORDER
 	}
 	
+	/** Set of classes used in sub-parts by the default implementation  */
 	override getPartStaticImports(EObject it) {
-		// no super: EModit and EObject are not used directly
-		PART_IMPORTS
+		#{ baseApiClass, BasicLabelStyleDescription, EdgeStyleDescription } + INIT_TEMPLATED.keySet
 			// + !!! requires metamodel !!!
 	}
+	
+	def getBaseApiClass(EObject it) {
+		switch(it) {
+			SequenceDiagramDescription: SiriusSequenceDiagram
+			DiagramImportDescription: null
+			DiagramDescription: SiriusDiagram
+		}
+	}
+	
 	
 	override getInitTemplateds() {
 		INIT_TEMPLATED
 	}
 
 	override isApplicableTemplate(DiagramDescription it) {
-		defaultLayer !== null
+		baseApiClass !== null // not applicable
+			&& defaultLayer !== null // ill-formed
 			&& domainClass.classFromDomain !== null
 	}
 	
@@ -78,10 +92,13 @@ class DiagramTemplate extends DiagramPartTemplate<DiagramDescription> {
 
 import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*
 
-class «name» extends «AbstractDiagram.templateClass» {
+class «name» extends «content.baseApiClass.templateClass» {
 
 	new(«parentClassName» parent) {
-		super(parent, «content.name.toJava», «content.label.toJava», «content.domainClass.classFromDomain.templateClass»)
+		super(parent, «
+			content.name.toJava», «
+			content.label.toJava», «
+			content.domainClass.classFromDomain.templateClass»)
 	}
 
 «
@@ -93,7 +110,10 @@ IF !explicitInitContent.empty
 
 «
 ENDIF
-»	override initContent(Layer it) {
+»	override initDefaultStyle(BasicLabelStyleDescription it) {/* No reverse for Default */}
+	override initDefaultEdgeStyle(EdgeStyleDescription it) {/* No reverse for Default */}
+
+	override initContent(Layer it) {
 		«content.defaultLayer.templateFilteredContent(Layer)»
 	}
 
@@ -132,21 +152,49 @@ ENDFOR
 		it !== null && !blank
 	}
 	
- 	def dispatch smartTemplateCreate(MappingFilter it) {
- 		if (semanticConditionExpression.expressed
- 			&& viewConditionExpression.expressed
- 		) { // all values, unlikely
- 			return defaultTemplateCreate
- 		}
-'''«
-IF semanticConditionExpression.expressed  »«semanticConditionExpression.toJava».element«
-ELSE»«IF viewConditionExpression.expressed»«viewConditionExpression.toJava».view«
-ELSE                                      »all«
-ENDIF»«ENDIF                                   »«filterKind.getName().toLowerCase.toFirstUpper»(
-	«mappings
-		.map[ templateRef(DiagramElementMapping) ]
-		.join(LValueSeparator)
-»)'''
+	override templatePropertyValue(EStructuralFeature feat, Object value, (Object)=>String encoding) {
+ 		DPKG.diagramDescription_Filters == feat && value instanceof CompositeFilterDescription
+			? (value as CompositeFilterDescription).templateFiltering
+			: FilterPackage.eINSTANCE.compositeFilterDescription_Filters == feat && value instanceof MappingFilter
+			? (value as MappingFilter).templateMappingFilter(encoding)
+			: super.templatePropertyValue(feat, value, encoding)
+	}
+	
+	
+	def templateFiltering(CompositeFilterDescription it) {
+'''filtering(«name.toJava») [
+	«templateInnerContent(innerContent)»
+]'''
+	}
+	
+	
+	def templateMappingFilter(MappingFilter it, (Object)=>String encoding) {
+		val withView = viewConditionExpression.expressed
+		val withElement = semanticConditionExpression.expressed
+		
+		withView && withElement  // all values, unlikely
+ 			? super.templatePropertyValue(FilterPackage.eINSTANCE.compositeFilterDescription_Filters, it, encoding)
+ 			: withElement ? templateElementFilter(it)
+ 			: withView ? templateViewFilter(it)
+ 			: templateAllFilter(it)
+	}
+ 			
+	def String templateElementFilter(MappingFilter it) {
+'''element«filterKind.getName().toLowerCase.toFirstUpper»(«semanticConditionExpression.toJava»,
+	«mappings.map[ templateRef(DiagramElementMapping) ].join(LValueSeparator)»
+)'''
+	} 			
+ 			
+	def String templateViewFilter(MappingFilter it) {
+'''view«filterKind.getName().toLowerCase.toFirstUpper»(«viewConditionExpression.toJava»,
+	«mappings.map[ templateRef(DiagramElementMapping) ].join(LValueSeparator)»
+)'''
+	} 			
+ 			
+	def String templateAllFilter(MappingFilter it) {
+'''all«filterKind.getName().toLowerCase.toFirstUpper»(
+	«mappings.map[ templateRef(DiagramElementMapping) ].join(LValueSeparator)»
+)'''
 	}
 	
 }

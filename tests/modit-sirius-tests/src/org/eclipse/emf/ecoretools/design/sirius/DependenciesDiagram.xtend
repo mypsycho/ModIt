@@ -26,6 +26,7 @@ import org.eclipse.sirius.viewpoint.description.Environment
 import org.eclipse.sirius.viewpoint.description.SystemColor
 import org.eclipse.sirius.viewpoint.description.SytemColorsPalette
 import org.eclipse.sirius.viewpoint.description.UserFixedColor
+import org.eclipse.sirius.viewpoint.description.style.BasicLabelStyleDescription
 import org.eclipse.sirius.viewpoint.description.style.LabelBorderStyleDescription
 import org.eclipse.sirius.viewpoint.description.style.LabelBorderStyles
 import org.eclipse.sirius.viewpoint.description.tool.ChangeContext
@@ -48,11 +49,11 @@ import org.eclipse.sirius.viewpoint.description.tool.SelectContainerVariable
 import org.eclipse.sirius.viewpoint.description.tool.SelectModelElementVariable
 import org.eclipse.sirius.viewpoint.description.tool.SelectionWizardDescription
 import org.eclipse.sirius.viewpoint.description.tool.ToolDescription
-import org.mypsycho.modit.emf.sirius.api.AbstractDiagram
+import org.mypsycho.modit.emf.sirius.api.SiriusDiagram
 
 import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*
 
-class DependenciesDiagram extends AbstractDiagram {
+class DependenciesDiagram extends SiriusDiagram {
 
 	new(EcoretoolsDesign parent) {
 		super(parent, "Dependencies", "Package dependencies diagram", org.eclipse.emf.ecore.EPackage)
@@ -64,6 +65,9 @@ class DependenciesDiagram extends AbstractDiagram {
 		titleExpression = ''' self.name + ' package dependencies' '''.trimAql
 		dropDescriptions += ContainerDropDescription.localRef(Ns.drop, "External EPackageTo Analyze from treeview")
 	}
+
+	override initDefaultStyle(BasicLabelStyleDescription it) {/* No reverse for Default */}
+	override initDefaultEdgeStyle(EdgeStyleDescription it) {/* No reverse for Default */}
 
 	override initContent(Layer it) {
 		containerMappings += ContainerMapping.createAs(Ns.node, "Analyzed Package") [

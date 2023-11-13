@@ -33,7 +33,7 @@ import org.eclipse.xtext.xbase.lib.Procedures.Procedure3
  * 
  * @author nicolas.peransin
  */
-abstract class AbstractCrossTable extends AbstractTable<CrossTableDescription> {
+abstract class SiriusCrossTable extends AbstractTable<CrossTableDescription> {
 
 	
 	public static val CELL_LABEL_ARGS = #[ 
@@ -50,7 +50,7 @@ abstract class AbstractCrossTable extends AbstractTable<CrossTableDescription> {
 	 * 
 	 * @param parent of diagram
 	 */
-	new(AbstractGroup parent, String dLabel, Class<? extends EObject> dClass) {
+	new(SiriusVpGroup parent, String dLabel, Class<? extends EObject> dClass) {
 		super(CrossTableDescription, parent, dLabel, dClass)
 	}
 	

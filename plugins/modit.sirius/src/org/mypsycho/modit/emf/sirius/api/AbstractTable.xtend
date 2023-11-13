@@ -82,7 +82,7 @@ abstract class AbstractTable<T extends TableDescription> extends AbstractTypedEd
 	 * 
 	 * @param parent of diagram
 	 */
-	new(Class<T> type, AbstractGroup parent, String dLabel, Class<? extends EObject> dClass) {
+	new(Class<T> type, SiriusVpGroup parent, String dLabel, Class<? extends EObject> dClass) {
 		super(type, parent, dLabel)
 		creationTasks.add [
 			domainClass = context.asDomainClass(dClass)
@@ -182,16 +182,16 @@ abstract class AbstractTable<T extends TableDescription> extends AbstractTypedEd
 		ownedLine(id, initializer)
 	}
 
-	def ownedLine(TableDescription it, String id, (LineMapping)=>void initializer) {
-		val result = id.line(initializer)
-		ownedLineMappings += result
-		result
+	def ownedLine(TableDescription owner, String id, (LineMapping)=>void initializer) {
+		id.line(initializer) => [
+			owner.ownedLineMappings += it
+		]
 	}
 
-	def ownedLine(LineMapping it, String id, (LineMapping)=>void initializer) {
-		val result = id.line(initializer)
-		ownedSubLines += result
-		result
+	def ownedLine(LineMapping owner, String id, (LineMapping)=>void initializer) {
+		id.line(initializer) => [
+			owner.ownedSubLines += it
+		]
 	}
 
 	def lineRef(String id) {
@@ -320,10 +320,10 @@ abstract class AbstractTable<T extends TableDescription> extends AbstractTypedEd
      * @param operation to perform
      * @return new CreateLineTool instance
      */
-	def createAddLine(TableDescription it, String line, String role, String toolLabel, ModelOperation operation) {
-		val result = line.createLine(role, toolLabel, operation)
-		ownedCreateLine += result
-		result
+	def createAddLine(TableDescription owner, String line, String role, String toolLabel, ModelOperation operation) {
+		line.createLine(role, toolLabel, operation) => [
+			owner.ownedCreateLine += it
+		]
 	}
 	
 	/**
@@ -336,10 +336,10 @@ abstract class AbstractTable<T extends TableDescription> extends AbstractTypedEd
      * @param operation to perform
      * @return new CreateLineTool instance
      */
-	def createAddLine(LineMapping it, String line, String role, String toolLabel, ModelOperation operation) {
-		val result = line.createLine(role, toolLabel, operation)
-		create += result
-		result
+	def createAddLine(LineMapping owner, String line, String role, String toolLabel, ModelOperation operation) {
+		line.createLine(role, toolLabel, operation) => [
+			owner.create += it
+		]
 	}
 
     /**
@@ -386,6 +386,80 @@ abstract class AbstractTable<T extends TableDescription> extends AbstractTypedEd
 	) {
 		line.createLine(toolLabel, role, context.expression(CREATE_LINE_PARAMS, action).toOperation)
 	}
+	
+	
+    /**
+     * Creates a creation tool for a line.
+     * 
+     * @param line name
+     * @param toolLabel to display
+     * @param action(root target, line target, line view)
+     * @return new CreateLineTool instance
+     */
+    def createAddLine(TableDescription owner, String line, String toolLabel, 
+    	Procedure3<EObject, EObject, EObject> action
+	) {
+		line.createLine("", toolLabel, action) => [
+			owner.ownedCreateLine += it
+		]
+	}
+	
+    /**
+     * Creates a creation tool for a line.
+     * <p>
+     * A role is required if there is several way to create this kind of line. 
+     * </p>
+     * 
+     * @param line name
+     * @param role of the tool
+     * @param toolLabel to display
+     * @param action(root target, line target, line view)
+     * @return new CreateLineTool instance
+     */
+    def createAddLine(TableDescription owner, String line, String role, String toolLabel, 
+    	Procedure3<EObject, EObject, EObject> action
+	) {
+		line.createLine(toolLabel, role, context.expression(CREATE_LINE_PARAMS, action).toOperation) => [
+			owner.ownedCreateLine += it
+		]
+	}
+	
+    /**
+     * Creates a creation tool for a line.
+     * 
+     * @param line name
+     * @param toolLabel to display
+     * @param action(root target, line target, line view)
+     * @return new CreateLineTool instance
+     */
+    def createAddLine(LineMapping owner, String line, String toolLabel, 
+    	Procedure3<EObject, EObject, EObject> action
+	) {
+		line.createLine("", toolLabel, action) => [
+			owner.create += it
+		]
+	}
+	
+    /**
+     * Creates a creation tool for a line.
+     * <p>
+     * A role is required if there is several way to create this kind of line. 
+     * </p>
+     * 
+     * @param line name
+     * @param role of the tool
+     * @param toolLabel to display
+     * @param action(root target, line target, line view)
+     * @return new CreateLineTool instance
+     */
+    def createAddLine(LineMapping owner, String line, String role, String toolLabel, 
+    	Procedure3<EObject, EObject, EObject> action
+	) {
+		line.createLine(toolLabel, role, context.expression(CREATE_LINE_PARAMS, action).toOperation) => [
+			owner.create += it
+		]
+	}
+	
 	
 	/**
 	 * Set the foreground style.

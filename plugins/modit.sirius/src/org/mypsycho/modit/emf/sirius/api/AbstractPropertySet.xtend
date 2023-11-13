@@ -94,7 +94,7 @@ abstract class AbstractPropertySet extends AbstractEdition {
 	}
 	protected static val EMFEDIT = "self".eefEdit
 
-	new(AbstractGroup parent) {
+	new(SiriusVpGroup parent) {
 		super(parent)
 		
 		// Compatibility:

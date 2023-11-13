@@ -14,6 +14,7 @@ package org.mypsycho.modit.emf.sirius.api
 
 import java.util.regex.Pattern
 import org.eclipse.emf.common.util.EList
+import org.eclipse.emf.common.util.Enumerator
 import org.eclipse.emf.ecore.EClassifier
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EReference
@@ -27,7 +28,6 @@ import org.eclipse.sirius.viewpoint.description.IdentifiedElement
 import org.eclipse.sirius.viewpoint.description.RepresentationDescription
 import org.eclipse.sirius.viewpoint.description.RepresentationExtensionDescription
 import org.mypsycho.modit.emf.sirius.SiriusConstantInterpreter
-import org.eclipse.emf.common.util.Enumerator
 
 /**
  * Convenient methods and constants for Sirius design creation.
@@ -167,6 +167,7 @@ class SiriusDesigns {
 	 * @throws IllegalArgumentException if number of key is not matching
 	 */
 	// Only works for feature with keys
+	// Ambiguous
 	static def <R extends EObject> R at(EList<?> values, Class<R> type, Object... keys) {
 		val attKeys = ((values as EcoreEList<?>).feature as EReference).EKeys
 		val keyValues = keys.toList
@@ -202,7 +203,7 @@ class SiriusDesigns {
 	 * @param keys of element
 	 * @return found element or null
 	 */
-	static def <T extends IdentifiedElement> atIdentifiedElement(Iterable<T> values, Object key) {
+	static def <T extends IdentifiedElement> atNamed(Iterable<T> values, String key) {
 		values.findFirst[ name == key ]
 	}
 	
@@ -213,10 +214,10 @@ class SiriusDesigns {
 	 * @param keys of element
 	 * @return found element or null
 	 */
-	static def <T extends IdentifiedElement> atNamed(Iterable<T> values, String key) {
-		values.atIdentifiedElement(key)
+	static def <T extends IdentifiedElement, R extends T> T atNamed(Iterable<T> values, Class<R> expectedType, String key) {
+		values.filter(expectedType).findFirst[ name == key ]
 	}
-	
+		
 	/**
 	 * !!! Why is not in EcoreUtil already? Every project uses it. :'(
 	 */

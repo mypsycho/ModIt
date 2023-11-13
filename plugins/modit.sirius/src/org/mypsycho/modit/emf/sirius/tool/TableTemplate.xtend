@@ -14,11 +14,11 @@ import org.eclipse.sirius.table.metamodel.table.description.TableDescription
 import org.eclipse.sirius.table.metamodel.table.description.TableTool
 import org.eclipse.sirius.viewpoint.description.IdentifiedElement
 import org.mypsycho.modit.emf.ClassId
-import org.mypsycho.modit.emf.sirius.api.AbstractCrossTable
-import org.mypsycho.modit.emf.sirius.api.AbstractEditionTable
 import org.mypsycho.modit.emf.sirius.api.AbstractTable
 
 import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*
+import org.mypsycho.modit.emf.sirius.api.SiriusCrossTable
+import org.mypsycho.modit.emf.sirius.api.SiriusFeatureTable
 
 /** Override of default reverse for SiriusModelProvider class. */
 class TableTemplate extends RepresentationTemplate<TableDescription> {
@@ -66,9 +66,9 @@ class TableTemplate extends RepresentationTemplate<TableDescription> {
 	
 	def getTableEditor(EObject it) {
 		if (it instanceof CrossTableDescription)
-			AbstractCrossTable
+			SiriusCrossTable
 		else
-			AbstractEditionTable
+			SiriusFeatureTable
 	}
 	
 	
@@ -128,7 +128,7 @@ class «name» extends «content.tableEditor.templateClass» {
 			LineMapping: '''ownedLine(«value.name.toJava»)''' // autocast
 			ElementColumnMapping: '''ownedColumn(«value.name.toJava»)'''
 			FeatureColumnMapping:
-				(value.featureName == AbstractEditionTable.VIRTUAL_FEATURE) 
+				(value.featureName == SiriusFeatureTable.VIRTUAL_FEATURE) 
 					? '''ownedVirtualColumn(«value.name.toJava»)'''
 					: '''ownedColumn(«value.name.toJava», «value.featureName.toJava»)'''
 			default: return null

@@ -36,15 +36,15 @@ import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*
 /**
  * Abstract class to create diagram duplicating an existing one.
  */
-abstract class DerivedDiagram extends AbstractDiagram {
+abstract class DerivedDiagram extends SiriusDiagram {
 	
 	protected val DiagramDescription origin
-	new(AbstractGroup parent, String dName, String dLabel, String extraId) {
+	new(SiriusVpGroup parent, String dName, String dLabel, String extraId) {
 		this(parent, dName, dLabel, 
 			parent.extraRef(DiagramDescription, extraId)
 		)
 	}
-	new(AbstractGroup parent, String dName, String dLabel, DiagramDescription dOrigin) {
+	new(SiriusVpGroup parent, String dName, String dLabel, DiagramDescription dOrigin) {
 		super(parent, dName, dLabel, null)
 		origin = dOrigin
 	}

@@ -25,11 +25,11 @@ import org.eclipse.sirius.viewpoint.description.tool.EditMaskVariables
 import org.eclipse.sirius.viewpoint.description.tool.ExternalJavaAction
 import org.eclipse.sirius.viewpoint.description.tool.If
 import org.eclipse.sirius.viewpoint.description.tool.SetValue
-import org.mypsycho.modit.emf.sirius.api.AbstractCrossTable
+import org.mypsycho.modit.emf.sirius.api.SiriusCrossTable
 
 import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*
 
-class DocumentationCrossTable extends AbstractCrossTable {
+class DocumentationCrossTable extends SiriusCrossTable {
 
 	new(EcoretoolsDesign parent) {
 		super(parent, "Documentation annotations in a spreadsheet", EPackage)

@@ -14,11 +14,11 @@ import org.eclipse.sirius.viewpoint.description.Environment
 import org.eclipse.sirius.viewpoint.description.SystemColor
 import org.eclipse.sirius.viewpoint.description.SytemColorsPalette
 import org.eclipse.sirius.viewpoint.description.tool.ExternalJavaAction
-import org.mypsycho.modit.emf.sirius.api.AbstractEditionTable
+import org.mypsycho.modit.emf.sirius.api.SiriusFeatureTable
 
 import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*
 
-class GenPackageAttributesEditionTable extends AbstractEditionTable {
+class GenPackageAttributesEditionTable extends SiriusFeatureTable {
 
 	new(EcoretoolsDesign parent) {
 		super(parent, "Properties attributes and categories", GenPackage)

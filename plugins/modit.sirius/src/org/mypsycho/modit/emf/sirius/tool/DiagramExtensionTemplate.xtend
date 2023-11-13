@@ -5,6 +5,7 @@ import java.util.Collection
 import java.util.Collections
 import java.util.List
 import java.util.Map
+import java.util.Objects
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EReference
 import org.eclipse.emf.ecore.EStructuralFeature
@@ -12,12 +13,13 @@ import org.eclipse.sirius.diagram.description.AdditionalLayer
 import org.eclipse.sirius.diagram.description.ContainerMappingImport
 import org.eclipse.sirius.diagram.description.DiagramDescription
 import org.eclipse.sirius.diagram.description.DiagramExtensionDescription
+import org.eclipse.sirius.diagram.description.style.EdgeStyleDescription
 import org.eclipse.sirius.viewpoint.description.Group
 import org.eclipse.sirius.viewpoint.description.RepresentationDescription
+import org.eclipse.sirius.viewpoint.description.style.BasicLabelStyleDescription
 import org.mypsycho.modit.emf.ClassId
-import org.mypsycho.modit.emf.sirius.api.AbstractDiagramExtension
 import org.mypsycho.modit.emf.sirius.api.SiriusDesigns
-import java.util.Objects
+import org.mypsycho.modit.emf.sirius.api.SiriusDiagramExtension
 
 /** 
  * Override of default reverse for SiriusModelProvider class.
@@ -44,8 +46,8 @@ class DiagramExtensionTemplate extends DiagramPartTemplate<DiagramExtensionDescr
 	/** Set of classes used in sub parts by the default implementation  */
 	protected static val PART_IMPORTS = (
 			#{ 
-				AbstractDiagramExtension
-			} 
+				SiriusDiagramExtension, BasicLabelStyleDescription, EdgeStyleDescription
+			}
 			+ INIT_TEMPLATED.keySet
 		).toList
 	
@@ -62,7 +64,7 @@ class DiagramExtensionTemplate extends DiagramPartTemplate<DiagramExtensionDescr
 	static def isMatching(RepresentationDescription descr, DiagramExtensionDescription content) {
 		try {
 			content.representationName == descr.name
-				&& content.viewpointURI == AbstractDiagramExtension.getExtraVpUri(descr)
+				&& content.viewpointURI == SiriusDiagramExtension.getExtraVpUri(descr)
 		} catch (IllegalArgumentException iae) {
 			false
 		}
@@ -136,18 +138,17 @@ class DiagramExtensionTemplate extends DiagramPartTemplate<DiagramExtensionDescr
 
 import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*
 
-class «name» extends «AbstractDiagramExtension.templateClass» {
+class «name» extends «SiriusDiagramExtension.templateClass» {
 
-«
+	new(«parentClassName» parent) {
+		super(parent«
 IF extendedAlias !== null // 'extension' ensures reference expression works in constructor.
-»	new(«parentClassName» parent) {
-		super(parent, «extendedAlias.toJava»)«
-ELSE
-»	new(«parentClassName» parent) {
-		super(parent)«
-ENDIF
-»
+					», «extendedAlias.toJava»«
+ENDIF               »)
 	}
+
+	override initDefaultStyle(BasicLabelStyleDescription it) {/* No reverse for Default */}
+	override initDefaultEdgeStyle(EdgeStyleDescription it) {/* No reverse for Default */}
 
 	override initContent(«DiagramExtensionDescription.templateClass» it) {
 		name = «content.name.toJava»«

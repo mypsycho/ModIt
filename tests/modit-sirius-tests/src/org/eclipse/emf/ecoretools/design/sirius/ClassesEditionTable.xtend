@@ -21,11 +21,11 @@ import org.eclipse.sirius.viewpoint.description.tool.ChangeContext
 import org.eclipse.sirius.viewpoint.description.tool.CreateInstance
 import org.eclipse.sirius.viewpoint.description.tool.ExternalJavaAction
 import org.eclipse.sirius.viewpoint.description.tool.SetValue
-import org.mypsycho.modit.emf.sirius.api.AbstractEditionTable
+import org.mypsycho.modit.emf.sirius.api.SiriusFeatureTable
 
 import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*
 
-class ClassesEditionTable extends AbstractEditionTable {
+class ClassesEditionTable extends SiriusFeatureTable {
 
 	new(EcoretoolsDesign parent) {
 		super(parent, "Classes in a spreadsheet", EPackage)

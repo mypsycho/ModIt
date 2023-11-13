@@ -15,11 +15,11 @@ import org.eclipse.sirius.viewpoint.description.SytemColorsPalette
 import org.eclipse.sirius.viewpoint.description.UserColorsPalette
 import org.eclipse.sirius.viewpoint.description.UserFixedColor
 import org.eclipse.sirius.viewpoint.description.Viewpoint
-import org.mypsycho.modit.emf.sirius.api.AbstractGroup
+import org.mypsycho.modit.emf.sirius.api.SiriusVpGroup
 
 import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*
 
-class EcoretoolsDesign extends AbstractGroup {
+class EcoretoolsDesign extends SiriusVpGroup {
 	
 	new () {
         businessPackages += #[

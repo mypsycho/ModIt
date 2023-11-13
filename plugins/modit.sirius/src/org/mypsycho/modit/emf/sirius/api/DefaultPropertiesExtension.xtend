@@ -57,15 +57,15 @@ class DefaultPropertiesExtension extends AbstractPropertySet {
 	
 	protected val List<Object> tabNames = new ArrayList
 		
-	new(AbstractGroup parent) {
+	new(SiriusVpGroup parent) {
 		this(parent, parent.businessPackages.head?.name)
 	}
 	
-	new(AbstractGroup parent, Object... tabs) {
+	new(SiriusVpGroup parent, Object... tabs) {
 		this(parent, tabs.toList)
 	}
 	
-	new(AbstractGroup parent, Iterable<?> tabs) {
+	new(SiriusVpGroup parent, Iterable<?> tabs) {
 		super(parent)
 		
 		tabNames += tabs

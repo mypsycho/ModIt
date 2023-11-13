@@ -37,7 +37,7 @@ abstract class AbstractTypedEdition<T extends EObject> extends AbstractEdition {
 	 * @param parent context of representation
 	 * @param descrLabel displayed on representation groups
 	 */
-	new(Class<T> type, AbstractGroup parent) {
+	new(Class<T> type, SiriusVpGroup parent) {
 		super(parent)
 		contentType = type
 		creationTasks.add [ // xtend fails to infere '+=' .
@@ -57,7 +57,7 @@ abstract class AbstractTypedEdition<T extends EObject> extends AbstractEdition {
 	 * @param parent context of representation
 	 * @param descrLabel displayed on representation groups
 	 */
-	 new(Class<T> type, AbstractGroup parent, String descrLabel) {
+	 new(Class<T> type, SiriusVpGroup parent, String descrLabel) {
 		this(type, parent)
 	
 		creationTasks.add[  // xtend fails to infere '+=' .

@@ -27,7 +27,7 @@ import java.util.Objects
  * 
  * @author nicolas.peransin
  */
-abstract class AbstractDiagramExtension extends AbstractDiagramPart<DiagramExtensionDescription> {
+abstract class SiriusDiagramExtension extends AbstractDiagramPart<DiagramExtensionDescription> {
 	
 	protected var DiagramDescription extended
 
@@ -36,7 +36,7 @@ abstract class AbstractDiagramExtension extends AbstractDiagramPart<DiagramExten
 	 * 
 	 * @param parent context of extension
 	 */
-	new(AbstractGroup parent) {
+	new(SiriusVpGroup parent) {
 		this(parent, null as DiagramDescription)
 	}
 	
@@ -46,7 +46,7 @@ abstract class AbstractDiagramExtension extends AbstractDiagramPart<DiagramExten
 	 * @param parent context of extension
 	 * @param extendedId id of diagram (must be in extra)
 	 */
-	new(AbstractGroup parent, String extendedId) {
+	new(SiriusVpGroup parent, String extendedId) {
 		this(parent, 
 			Objects.requireNonNull(parent.extraRef(DiagramDescription, extendedId))
 		)
@@ -58,7 +58,7 @@ abstract class AbstractDiagramExtension extends AbstractDiagramPart<DiagramExten
 	 * @param parent context of extension
 	 * @param extended diagram (may be null)
 	 */
-	new(AbstractGroup parent, DiagramDescription extended) {
+	new(SiriusVpGroup parent, DiagramDescription extended) {
 		super(DiagramExtensionDescription, parent)
 		this.extended = extended
 		creationTasks.add[

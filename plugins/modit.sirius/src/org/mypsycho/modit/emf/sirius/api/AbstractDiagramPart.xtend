@@ -83,6 +83,7 @@ import org.eclipse.sirius.viewpoint.description.tool.PasteDescription
 import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*
 import static extension java.util.Objects.requireNonNull
 import org.eclipse.sirius.viewpoint.description.IVSMElementCustomization
+import org.eclipse.sirius.viewpoint.description.style.StylePackage
 
 /**
  * Adaptation of Sirius model into Java and EClass reflections API
@@ -102,13 +103,16 @@ abstract class AbstractDiagramPart<T extends EObject> extends AbstractTypedEditi
 		show // for filter + layer
 	}
 	
+	public static val STYLE = StylePackage.eINSTANCE
+	public static val DSTYLE = org.eclipse.sirius.diagram.description.style.StylePackage.eINSTANCE
+	
 	/**
 	 * Creates a factory for a diagram description
 	 * 
 	 * @param type of edition
 	 * @param parent context of representation
 	 */
-	new(Class<T> type, AbstractGroup parent) {
+	new(Class<T> type, SiriusVpGroup parent) {
 		super(type, parent)
 	}
 		
@@ -119,7 +123,7 @@ abstract class AbstractDiagramPart<T extends EObject> extends AbstractTypedEditi
 	 * @param parent context of representation
 	 * @param descrLabel displayed on representation groups
 	 */
-	new(Class<T> type, AbstractGroup parent, String descrLabel) {
+	new(Class<T> type, SiriusVpGroup parent, String descrLabel) {
 		super(type, parent, descrLabel)
 	}
 
@@ -332,7 +336,7 @@ abstract class AbstractDiagramPart<T extends EObject> extends AbstractTypedEditi
         ]
 	}
 	
-	protected def initDefaultEdgeStyle(EdgeStyleDescription it) {
+	def initDefaultEdgeStyle(EdgeStyleDescription it) {
         // centerLabelStyleDescription = null <=> no label
         endsCentering = CenteringStyle.BOTH
         routingStyle = EdgeRouting.MANHATTAN_LITERAL // (Rectilinear)

@@ -29,7 +29,7 @@ import org.mypsycho.emf.modit.dw.dummyworld.Company
 import org.mypsycho.emf.modit.dw.dummyworld.DwPackage
 import org.mypsycho.emf.modit.dw.dummyworld.Job
 import org.mypsycho.emf.modit.dw.dummyworld.Service
-import org.mypsycho.modit.emf.sirius.api.AbstractDiagram
+import org.mypsycho.modit.emf.sirius.api.SiriusDiagram
 import org.mypsycho.modit.emf.sirius.api.SiriusDesigns
 
 /**
@@ -37,7 +37,7 @@ import org.mypsycho.modit.emf.sirius.api.SiriusDesigns
  *
  * @author nperansin
  */
-class CompanyDiagram extends AbstractDiagram {
+class CompanyDiagram extends SiriusDiagram {
 	
 	static val PKG = DwPackage.eINSTANCE
 	

@@ -17,37 +17,22 @@ import org.eclipse.emf.ecore.EObject
 import org.eclipse.sirius.diagram.description.BooleanLayoutOption
 import org.eclipse.sirius.diagram.description.CustomLayoutConfiguration
 import org.eclipse.sirius.diagram.description.DiagramDescription
-import org.eclipse.sirius.diagram.description.DiagramElementMapping
 import org.eclipse.sirius.diagram.description.DoubleLayoutOption
 import org.eclipse.sirius.diagram.description.EnumLayoutOption
 import org.eclipse.sirius.diagram.description.EnumLayoutValue
 import org.eclipse.sirius.diagram.description.EnumSetLayoutOption
 import org.eclipse.sirius.diagram.description.IntegerLayoutOption
-import org.eclipse.sirius.diagram.description.Layer
 import org.eclipse.sirius.diagram.description.LayoutOption
 import org.eclipse.sirius.diagram.description.LayoutOptionTarget
 import org.eclipse.sirius.diagram.description.StringLayoutOption
-import org.eclipse.sirius.diagram.description.filter.FilterKind
-import org.eclipse.sirius.diagram.description.filter.MappingFilter
 
 /**
  * Adaptation of Sirius model into Java and EClass reflections API for Diagrams.
  * 
  * @author nicolas.peransin
  */
-abstract class AbstractDiagram extends AbstractDiagramPart<DiagramDescription> {
+abstract class SiriusDiagram extends AbstractBaseDiagram<DiagramDescription> {
 
-//	/** Namespaces for identification */
-//	enum Ns { // namespace for identication
-//		node, creation, drop, del,
-//		edge, connect, disconnect, reconnect,
-//		operation, section,
-//		menu, mitem,
-//		show // for filter + layer
-//	}
-	
-	protected val Class<? extends EObject> domain
-	
 	/**
 	 * Creates a factory for a diagram description.
 	 * 
@@ -55,13 +40,8 @@ abstract class AbstractDiagram extends AbstractDiagramPart<DiagramDescription> {
 	 * @param descrLabel displayed on representation groups
 	 * @param domain class of diagram
 	 */
-	new(AbstractGroup parent, String descrLabel, Class<? extends EObject> domain) {
-		super(DiagramDescription, parent, descrLabel)
-		
-		this.domain = domain
-		creationTasks.add[
-			domainClass = context.asDomainClass(domain)
-		]
+	new(SiriusVpGroup parent, String descrLabel, Class<? extends EObject> domain) {
+		super(DiagramDescription, parent, descrLabel, domain)
 	}
 		
 	/**
@@ -75,33 +55,14 @@ abstract class AbstractDiagram extends AbstractDiagramPart<DiagramDescription> {
 	 * @param descrLabel displayed on representation groups
 	 * @param domain class of diagram
 	 */
-	new(AbstractGroup parent, String dName, String dLabel, Class<? extends EObject> domain) {
+	new(SiriusVpGroup parent, String dName, String dLabel, Class<? extends EObject> domain) {
 		this(parent, dLabel, domain)
 		Objects.nonNull(dName)
 		creationTasks.add[
 			name = dName
 		]
 	}
-		
-	/**
-	 * Initializes the content of the created diagram.
-	 * 
-	 * @param it to initialize
-	 */
-	override initContent(DiagramDescription it) {
-		defaultLayer = Layer.create[
-			name = "Default"
-			initContent
-		]
-	}
-	
-	/**
-	 * Initializes the content of the created diagram.
-	 * 
-	 * @param it to initialize
-	 */
-	def void initContent(Layer it)
-	
+
 	//
 	// Reflection short-cut
 	// 
@@ -216,37 +177,6 @@ abstract class AbstractDiagram extends AbstractDiagramPart<DiagramDescription> {
 
 	def elkString(String key, String value) {
 		key.elkString(value, NO_TARGET)
-	}
-
-	def filterMapping(FilterKind kind, DiagramElementMapping... dMappings) {
-		MappingFilter.create [
-			filterKind = kind
-			mappings += dMappings
-		]
-	}
-
-	def allHide(DiagramElementMapping... mappings) {
-		FilterKind.HIDE_LITERAL.filterMapping(mappings)
-	}
-
-	def allCollapse(DiagramElementMapping... mappings) {
-		FilterKind.COLLAPSE_LITERAL.filterMapping(mappings)
-	}
-
-	def viewHide(String expression, DiagramElementMapping... mappings) {
-		allHide(mappings).andThen[ viewConditionExpression = expression ]
-	}
-
-	def viewCollapse(String expression, DiagramElementMapping... mappings) {
-		allCollapse(mappings).andThen[ viewConditionExpression = expression ]
-	}
-
-	def elementHide(String expression, DiagramElementMapping... mappings) {
-		allHide(mappings).andThen[ semanticConditionExpression = expression ]
-	}
-
-	def elementCollapse(String expression, DiagramElementMapping... mappings) {
-		allCollapse(mappings).andThen[ semanticConditionExpression = expression ]
 	}
 
 }

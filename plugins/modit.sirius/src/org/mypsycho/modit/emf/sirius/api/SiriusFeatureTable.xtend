@@ -28,7 +28,7 @@ import org.eclipse.xtext.xbase.lib.Procedures.Procedure2
  * 
  * @author nicolas.peransin
  */
-abstract class AbstractEditionTable extends AbstractTable<EditionTableDescription> {
+abstract class SiriusFeatureTable extends AbstractTable<EditionTableDescription> {
 
 	public static val VIRTUAL_FEATURE = "*"
 
@@ -37,7 +37,7 @@ abstract class AbstractEditionTable extends AbstractTable<EditionTableDescriptio
 	 * 
 	 * @param parent of diagram
 	 */
-	new(AbstractGroup parent, String dLabel, Class<? extends EObject> dClass) {
+	new(SiriusVpGroup parent, String dLabel, Class<? extends EObject> dClass) {
 		super(EditionTableDescription, parent, dLabel, dClass)
 	}
 

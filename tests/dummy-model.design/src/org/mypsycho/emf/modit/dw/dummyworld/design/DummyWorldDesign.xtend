@@ -18,7 +18,7 @@ import org.eclipse.sirius.properties.GroupDescription
 import org.eclipse.sirius.viewpoint.description.Group
 import org.eclipse.sirius.viewpoint.description.Viewpoint
 import org.mypsycho.emf.modit.dw.dummyworld.DwPackage
-import org.mypsycho.modit.emf.sirius.api.AbstractGroup
+import org.mypsycho.modit.emf.sirius.api.SiriusVpGroup
 import org.mypsycho.modit.emf.sirius.api.DefaultPropertiesExtension
 import org.mypsycho.modit.emf.sirius.api.FeaturePaging
 import org.eclipse.emf.ecore.EReference
@@ -29,7 +29,7 @@ import org.eclipse.emf.ecore.EReference
  * 
  * @author nperansin
  */
-class DummyWorldDesign extends AbstractGroup {
+class DummyWorldDesign extends SiriusVpGroup {
 	
 	static val PKG = DwPackage.eINSTANCE
 	

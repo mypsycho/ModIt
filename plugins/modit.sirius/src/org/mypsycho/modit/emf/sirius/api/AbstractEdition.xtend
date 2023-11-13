@@ -68,7 +68,7 @@ import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*
 abstract class AbstractEdition {
 
 	/** Main container */
-	protected val extension AbstractGroup context
+	protected val extension SiriusVpGroup context
 	
 	/** Factory of Sirius elements */
 	protected val extension EModIt factory
@@ -87,7 +87,7 @@ abstract class AbstractEdition {
 	 * 
 	 * @param parent of diagram
 	 */
-	new(AbstractGroup parent) {
+	new(SiriusVpGroup parent) {
 		this.context = parent
 		this.factory = parent.factory
 				

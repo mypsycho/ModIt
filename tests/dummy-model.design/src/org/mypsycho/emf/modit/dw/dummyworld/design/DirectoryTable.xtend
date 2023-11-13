@@ -20,8 +20,8 @@ import org.mypsycho.emf.modit.dw.dummyworld.Contact
 import org.mypsycho.emf.modit.dw.dummyworld.Directory
 import org.mypsycho.emf.modit.dw.dummyworld.DwPackage
 import org.mypsycho.emf.modit.dw.dummyworld.Person
-import org.mypsycho.modit.emf.sirius.api.AbstractEditionTable
-import org.mypsycho.modit.emf.sirius.api.AbstractGroup
+import org.mypsycho.modit.emf.sirius.api.SiriusFeatureTable
+import org.mypsycho.modit.emf.sirius.api.SiriusVpGroup
 
 import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*
 
@@ -33,7 +33,7 @@ import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*
  * 
  * @author nperansin
  */
-class DirectoryTable extends AbstractEditionTable {
+class DirectoryTable extends SiriusFeatureTable {
 	
 	static val PKG = DwPackage.eINSTANCE
 
@@ -42,21 +42,22 @@ class DirectoryTable extends AbstractEditionTable {
 		'People' -> Person -> [ PKG.dwFactory.createPerson ]
 	]
 	
-	new(AbstractGroup context) {
+	new(SiriusVpGroup context) {
 		super(context, "Directory", Directory)
 	}
 	
 	override initContent(EditionTableDescription it) {
-		ownedCreateLine += "subDir".createLine(Directory.simpleName + ' at root') [ root, element, container |
+		
+		createLine("subDir", Directory.simpleName + ' at root') [ root, element, container |
 			(root as Directory).directories += PKG.dwFactory.createDirectory
 		]
 		
-		ownedLineMappings += "subDir".line [
+		ownedLine("subDir") [
 			domainClass = Directory
 			semanticCandidates = PKG.directory_Directories
 			headerLabelExpression = context.expression[ (it as Directory).name ] // could be localized
 			
-			create += "subDir".createLine("Sub-" + Directory.simpleName) [ root, element, container |
+			createAddLine("subDir", "Sub-" + Directory.simpleName) [ root, element, container |
 				(element as Directory).directories += PKG.dwFactory.createDirectory
 			]
 			
@@ -70,16 +71,16 @@ class DirectoryTable extends AbstractEditionTable {
 			val type = descr.key.value
 			val doCreate = descr.value
 			
-			ownedLineMappings += (type.simpleName + "Group").line [
+			ownedLine(type.simpleName + "Group") [
 				virtual = title.constant
 				
-				ownedSubLines += type.simpleName.line [
+				ownedLine(type.simpleName) [
 					domainClass = type
 					semanticCandidates = PKG.directory_Contacts
 					headerLabelExpression = context.itemProviderLabel
 				]
 								
-				create += type.simpleName.createLine(type.simpleName) [ root, element, container |
+				createAddLine(type.simpleName, type.simpleName) [ root, element, container |
 					(element as Directory).contacts += doCreate.apply(element)
 				]
 			]
@@ -95,9 +96,8 @@ class DirectoryTable extends AbstractEditionTable {
 		
 		// well-known location
 		"Mail,Phone,Address,Web site".split(",").forEach[ locationId |
-			ownedColumnMappings += locationId.column [
-
-				feature = PKG.contact_Locations // any valid property but is useless in all examples.
+			ownedColumn(locationId, PKG.contact_Locations) [
+				// any valid property but is useless in all examples.
 				headerLabelExpression = locationId
 				labelExpression = cellLabel
 				
