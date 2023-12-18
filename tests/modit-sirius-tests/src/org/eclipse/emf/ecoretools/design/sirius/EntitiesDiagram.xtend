@@ -116,12 +116,15 @@ class EntitiesDiagram extends SiriusDiagram {
 
 	override initContent(DiagramDescription it) {
 		super.initContent(it)
+		metamodel.clear // Disable implicit metamodel import
 		documentation = "<html>\n<head>\n</head>\n<body>\n<p>Provides a class diagram to represent EClasses, EDatatypes, EAttributes and their relationships.</p>\n<br>\n<img src=\"/icons/full/wizban/entities.png\"/>\n</body>\n</html>\n\n\n"
 		endUserDocumentation = "A class diagram to represent EClasses, EDatatypes, EAttributes and their relationships."
 		titleExpression = ''' self.name + ' class diagram' '''.trimAql
 		enablePopupBars = true
 		dropDescriptions += ContainerDropDescription.localRef(Ns.drop, "External EClass from treeview")
 		dropDescriptions += ContainerDropDescription.localRef(Ns.drop, "Drop EClassifier into EPackage")
+		metamodel += EcorePackage.eINSTANCE
+		metamodel += GenModelPackage.eINSTANCE
 		pasteDescriptions += PasteDescription.localRef(Ns.operation, "Paste Anything")
 		filtering("Hide class content") [
 			allHide(

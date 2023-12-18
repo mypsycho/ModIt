@@ -61,9 +61,12 @@ class DependenciesDiagram extends SiriusDiagram {
 
 	override initContent(DiagramDescription it) {
 		super.initContent(it)
+		metamodel.clear // Disable implicit metamodel import
 		documentation = "<html>\n<head>\n</head>\n<body>\n<p>A  diagram used to highligh dependencies in between EPackages.</p>\n<br>\n<img src=\"/icons/full/wizban/packages.png\"/>\n</body>\n</html>\n\n\n"
 		titleExpression = ''' self.name + ' package dependencies' '''.trimAql
 		dropDescriptions += ContainerDropDescription.localRef(Ns.drop, "External EPackageTo Analyze from treeview")
+		metamodel += EcorePackage.eINSTANCE
+		metamodel += GenModelPackage.eINSTANCE
 	}
 
 	override initDefaultStyle(BasicLabelStyleDescription it) {/* No reverse for Default */}

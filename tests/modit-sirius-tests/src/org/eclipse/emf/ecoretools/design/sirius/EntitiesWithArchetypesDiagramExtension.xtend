@@ -40,6 +40,7 @@ class EntitiesWithArchetypesDiagramExtension extends SiriusDiagramExtension {
 		name = "Entities With Archetypes"
 		viewpointURI = "viewpoint:/org.mypsycho.emf.modit.sirius.tests/Design"
 		representationName = "Entities"
+		metamodel.clear // Disable implicit metamodel import
 		metamodel += EcorePackage.eINSTANCE
 		layers += createArchetypesLayer
 	}
