@@ -646,12 +646,10 @@ abstract class AbstractEdition {
 	/** Creates a 'switch' operation. */
 	protected def switchDo(Pair<String, ? extends ModelOperation>... subCases) {
 		Switch.create[
-			cases += subCases.map[
-				val condition = key
-				val operation = value
+			cases += subCases.map[ descr |
 				Case.create [
-					conditionExpression = condition.trimAql
-					subModelOperations += operation
+					conditionExpression = descr.key.trimAql
+					subModelOperations += descr.value
 				]
 			]
 			

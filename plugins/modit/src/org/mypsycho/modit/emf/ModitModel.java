@@ -14,9 +14,12 @@ package org.mypsycho.modit.emf;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
+import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.EList;
+import org.eclipse.emf.common.util.EMap;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EObject;
@@ -24,6 +27,7 @@ import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.util.EcoreEList;
+import org.eclipse.xtext.xbase.lib.Pair;
 import org.mypsycho.modit.emf.EModItProcInfo.PiType;
 
 /** 
@@ -116,6 +120,17 @@ public interface ModitModel {
 	
 	static String xmlId(EObject it) {
 		return (String) EModItProcInfo.unbind(PiType.id, it);
+	}
+	
+	static <K, V> V operator_add(EMap<K, V> map, Pair<? extends K, ? extends V> entry) {
+		return map.put(entry.getKey(), entry.getValue());
+	}
+
+	@SafeVarargs
+	static <V> EList<V> toEList(V... values) {
+		EList<V> result = new BasicEList<>();
+		Collections.addAll(result, values);
+		return result;
 	}
 
 }

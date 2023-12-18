@@ -42,7 +42,6 @@ class DiagramTemplate extends DiagramPartTemplate<DiagramDescription> {
 		DiagramDescription as Class<? extends EObject> -> #{
 			// Diagram
 			SPKG.identifiedElement_Label, 
-			SPKG.representationDescription_Metamodel,
 			DPKG.diagramDescription_DomainClass,
 			DPKG.diagramDescription_DefaultLayer
 		},
@@ -84,8 +83,6 @@ class DiagramTemplate extends DiagramPartTemplate<DiagramDescription> {
 	
 	override templateRepresentation(ClassId it, DiagramDescription content) {
 		
-		val explicitInitContent = content.templateFilteredContent(DiagramDescription)
-		
 '''package «pack»
 
 «templateImports»
@@ -101,16 +98,13 @@ class «name» extends «content.baseApiClass.templateClass» {
 			content.domainClass.classFromDomain.templateClass»)
 	}
 
-«
-IF !explicitInitContent.empty 
-»	override initContent(DiagramDescription it) {
+	override initContent(DiagramDescription it) {
 		super.initContent(it)
-		«explicitInitContent»
+		metamodel.clear // Disable implicit metamodel import
+		«content.templateFilteredContent(DiagramDescription)»
 	}
 
-«
-ENDIF
-»	override initDefaultStyle(BasicLabelStyleDescription it) {/* No reverse for Default */}
+	override initDefaultStyle(BasicLabelStyleDescription it) {/* No reverse for Default */}
 	override initDefaultEdgeStyle(EdgeStyleDescription it) {/* No reverse for Default */}
 
 	override initContent(Layer it) {

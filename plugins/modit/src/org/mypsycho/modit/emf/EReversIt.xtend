@@ -618,7 +618,30 @@ ENDFOR
 
 
 	def String templateInnerCreate(EObject it) {
-		smartTemplateCreate.toString
+		it instanceof Map.Entry
+			? templateMapEntry
+			: smartTemplateCreate
+	}
+	
+	// Xtend
+	def String templateMapEntry(Map.Entry<?, ?> it) {
+		// In Ecore, there is no map with container
+		// Use operator from ModitModel
+'''«key.templateMapEntryValue»
+	-> «
+IF value instanceof EList
+       »toEList(
+		« (value as EList<?>).map[ templateMapEntryValue ].join(LValueSeparator)»
+	)«
+ELSE   »«value.templateMapEntryValue»«
+ENDIF»
+'''
+	}
+	
+	def templateMapEntryValue(Object it) {
+		it instanceof EObject 
+			? templateRef(EObject) // Hack; Maps have the proper signature.
+			: toJava
 	}
 	
 	def smartTemplateCreate(EObject it) { // Default
@@ -847,9 +870,9 @@ ENDFOR
 	}
 	
 	protected def getClassCast(EObject it, Expr path, Class<?> using) {
-		if (!using.isAssignableFrom(path.chain.head)) 
-			eClass 
-		// else null
+		!using.isAssignableFrom(path.chain.head)
+			? eClass
+			: null
 	}
 	
 	protected def dispatch String templateRef(EObject it, AliasExpr root, Expr path, Class<?> using) {
@@ -915,20 +938,10 @@ ENDFOR
 				.templateCast(getClassCast(path, using))
 			: "// headless object" // throw exception or generate invalid statement ?
 	}
-	
-//	@Deprecated
-//	protected def isExplicitBased(Expr it) {
-//		context.explicitExtras.containsKey(src)
-//	}
-	
+		
 	protected def templateExplicitRef(Expr it) {
 		src.templateExtra(context.explicitExtras.get(src))
 	}
-	
-//	@Deprecated
-//	protected def isImplicitBased(Expr it) {
-//		src.eResource !== null
-//	}
 	
 	protected def templateImplicitRef(Expr it) {
 		src.templateExtra(identifyImplicitExtra(src))
@@ -1032,6 +1045,12 @@ ENDFOR
 		many && !EKeys.empty
 	}	
 
+	def findShortcut(EReference feat) {
+		context.shortcuts.findFirst[ 
+			containerClass.isAssignableFrom(feat.EType.instanceClass)
+		]
+	}
+
 	// Xtend
 	def String templateReferenceSegment(EObject it, EReference feat, String source) {
 		if (!feat.many) {
@@ -1040,9 +1059,9 @@ ENDFOR
 		
 		val siblings = eContainer.eGet(feat) as List<EObject> // Ecore only provide Elist
 		val keyed = !feat.EKeys.empty
-		val shortcut = if (!keyed) context.shortcuts.findFirst[ 
-			containerClass.isAssignableFrom(feat.EType.instanceClass)
-		]
+		val shortcut = !keyed
+			? feat.findShortcut
+			: null
 		
 		if (keyed) {// 'at' syntax is specific to Xtend
 			val typePrefix = 
@@ -1092,7 +1111,7 @@ ENDFOR
 		value === null  // is this universal (for any lang) ??
 			? '''// «toXtendProperty.safename» is headless''' // TODO log an error
 			: isMany
-			? '''«toXtendProperty.safename» += «value»'''
+			? '''«toXtendProperty.safename» += «value»''' // Also works with Maps
 			: '''«toXtendProperty.safename» = «value»'''
 	}
 

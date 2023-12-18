@@ -45,6 +45,17 @@ class ESingleReversIt extends EReversIt {
 		}
 	}
 	
+	/**
+	 * Construction of generation context based on content of resources set.
+	 * 
+	 * @param classname of main class
+	 * @param dir folder of generation
+	 * @param res resource to en-code
+	 */
+	new(String classname, Path dir, EObject value) {
+		super(new ClassId(classname), dir, value -> null)
+	}
+	
 		
 	/**
 	 * Construction of generation based on shared context.

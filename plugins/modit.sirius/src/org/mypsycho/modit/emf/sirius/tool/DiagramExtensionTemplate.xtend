@@ -158,6 +158,7 @@ IF extended === null
 		representationName = «content.representationName.toJava»«
 ENDIF										
 »
+		metamodel.clear // Disable implicit metamodel import
 		«content.templateFilteredContent(DiagramExtensionDescription)»
 	}
 

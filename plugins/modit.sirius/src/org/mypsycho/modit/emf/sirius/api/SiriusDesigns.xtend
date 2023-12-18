@@ -24,6 +24,7 @@ import org.eclipse.emf.ecore.util.EcoreEList
 import org.eclipse.emf.edit.provider.IItemLabelProvider
 import org.eclipse.sirius.diagram.ui.provider.DiagramUIPlugin
 import org.eclipse.sirius.properties.ViewExtensionDescription
+import org.eclipse.sirius.viewpoint.description.DocumentedElement
 import org.eclipse.sirius.viewpoint.description.IdentifiedElement
 import org.eclipse.sirius.viewpoint.description.RepresentationDescription
 import org.eclipse.sirius.viewpoint.description.RepresentationExtensionDescription
@@ -284,5 +285,12 @@ class SiriusDesigns {
 			ViewExtensionDescription: name.techName
 		}
 		basename.hungarianSuffix(it)
+	}
+	
+	static def void setI18n(IdentifiedElement it, String key) {
+		label = "%" + key
+		if (it instanceof DocumentedElement) {
+			documentation = label + "?ttip"	
+		}
 	}
 }
