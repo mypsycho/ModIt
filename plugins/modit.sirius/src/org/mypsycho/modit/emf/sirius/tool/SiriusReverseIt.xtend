@@ -1,5 +1,6 @@
 /*******************************************************************************
- * Copyright (c) 2020 Nicolas PERANSIN.
+ * Copyright (c) 2019-2024 OBEO.
+ * 
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -34,6 +35,7 @@ import org.eclipse.xtend.lib.annotations.Accessors
 import org.mypsycho.modit.emf.ClassId
 import org.mypsycho.modit.emf.sirius.api.AbstractPropertySet
 import org.mypsycho.modit.emf.sirius.api.SiriusDesigns
+import org.eclipse.emf.ecore.util.EcoreUtil
 
 /**
  * 
@@ -108,6 +110,7 @@ class SiriusReverseIt {
 		editedPackages = (editeds + usedMetamodels)
 			// Normalize
 			.map[ toEcoreClass ]
+			.filterNull
 			.flatMap[ #[ it ] + eAllContents.toIterable.filter(EPackage) ]
 			.toSet
 			.toList
@@ -137,9 +140,10 @@ class SiriusReverseIt {
 	}
 	
 	def static toEcoreClass(EPackage it) {
+		it.getNsURI();
 		val result = EPackage.Registry.INSTANCE.getEPackage(nsURI)
-		if (result === null) {
-			throw new IllegalStateException("No such Ecore model in Platform: " + nsURI)
+		if (result === null) { // not critical
+			System.err.println('''No such Ecore model in Platform: «EcoreUtil.getURI(it)»''')
 		}
 		result
 	}
@@ -186,6 +190,7 @@ class SiriusReverseIt {
 		source.eAllContents
 			.toIterable
 			.flatMap[ metamodels ]
+			.filterNull
 			.toSet
 //			.toInvertedMap[
 //				// To improve: Sirius stores 2 kinds of Package instances.
