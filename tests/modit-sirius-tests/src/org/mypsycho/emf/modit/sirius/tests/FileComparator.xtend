@@ -116,22 +116,14 @@ class FileComparator extends SimpleFileVisitor<Path> {
 	            	tgtLine	= tgtLine.trimLine(tgtReader)
 	            	
 	            	if (srcLine !== null && tgtLine !== null) {
-	            		if (!srcLine.equals(tgtReader)) { 
-	            			// compare only non empty 
-	            			val srcIndex = srcReader.lineNumber
-	            			val tgtIndex = tgtReader.lineNumber
-	            		
-	            			file.issue(Type.content, 
-	            				if (srcIndex == tgtIndex)
-	            					'''line:«srcIndex»'''
-	            				else '''source:«srcIndex»;target:«tgtIndex»'''
-	            			)
+	            		if (file.isUnexpectedLine(srcLine, tgtLine, 
+	            			srcReader, tgtReader
+	            		)) {
 	            			return FileVisitResult.CONTINUE
             			}
             			srcLine = srcReader.readLine.trimLine(srcReader)
 	            		tgtLine = tgtReader.readLine.trimLine(tgtReader)
 	            	}
-
 	            }
 	        }
 	        
@@ -145,6 +137,22 @@ class FileComparator extends SimpleFileVisitor<Path> {
 	    }
 		
 		FileVisitResult.CONTINUE
+	}
+	
+	def isUnexpectedLine(Path file, String src, String target, LineNumberReader srcReader, LineNumberReader tgtReader) {
+		if (src.equals(target)) {
+			return false
+		}
+		// compare only non empty 
+		val srcIndex = srcReader.lineNumber
+		val tgtIndex = tgtReader.lineNumber
+		
+		file.issue(Type.content, 
+			(srcIndex == tgtIndex)
+				? '''line:«srcIndex»'''
+			  	: '''source:«srcIndex»;target:«tgtIndex»'''
+		)
+		false
 	}
 		
 	def trimLine(String line, LineNumberReader reader) {

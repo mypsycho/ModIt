@@ -35,8 +35,8 @@ class EcoretoolsDesign extends SiriusVpGroup {
 			endUserDocumentation = "<html>\n<head>\n</head>\n<body>\n<p>Provides graphical and tabular representation to design an Ecore model.</p>\n<br>\n<img src=\"/icons/full/wizban/entities.png\"/>\n<img src=\"/icons/full/wizban/classes.png\"/>\n</body>\n</html>\n\n\n"
 			name = "Design"
 			modelFileExtension = "ecore xcore ecorebin"
-			ownedRepresentations += new EntitiesDiagram(this).createContent
-			ownedRepresentations += new ClassesEditionTable(this).createContent
+			owned(EntitiesDiagram)
+			owned(ClassesEditionTable)
 			use(org.eclipse.emf.ecoretools.design.service.DesignServices)
 			use(org.eclipse.sirius.common.tools.api.interpreter.StandardServices)
 			use(org.eclipse.emf.ecoretools.design.service.PropertiesServices)
@@ -46,7 +46,7 @@ class EcoretoolsDesign extends SiriusVpGroup {
 			endUserDocumentation = "Add support for archetypes-based modeling to the Entities modeler."
 			name = "Archetype"
 			modelFileExtension = "ecore xcore ecorebin"
-			ownedRepresentationExtensions += new EntitiesWithArchetypesDiagramExtension(this).createContent
+			owned(EntitiesWithArchetypesDiagramExtension)
 			use(org.eclipse.emf.ecoretools.design.service.ArchetypeServices)
 			use(org.eclipse.emf.ecoretools.design.service.PropertiesServices)
 			use(org.eclipse.emf.ecoretools.design.service.ALEServices)
@@ -55,8 +55,8 @@ class EcoretoolsDesign extends SiriusVpGroup {
 			endUserDocumentation = "Provides representation to document and review Ecore models."
 			name = "Review"
 			modelFileExtension = "ecore xcore ecorebin"
-			ownedRepresentations += new DocumentationCrossTable(this).createContent
-			ownedRepresentations += new DependenciesDiagram(this).createContent
+			owned(DocumentationCrossTable)
+			owned(DependenciesDiagram)
 			use(org.eclipse.emf.ecoretools.design.service.ReviewServices)
 			use(org.eclipse.emf.ecoretools.design.service.PropertiesServices)
 			use(org.eclipse.emf.ecoretools.design.service.ALEServices)
@@ -65,7 +65,7 @@ class EcoretoolsDesign extends SiriusVpGroup {
 			endUserDocumentation = "Adds support for EMF GenModel configuration."
 			name = "Generation"
 			modelFileExtension = "genmodel"
-			ownedRepresentations += new GenPackageAttributesEditionTable(this).createContent
+			owned(GenPackageAttributesEditionTable)
 			use(org.eclipse.emf.ecoretools.design.service.GenerationServices)
 			use(org.eclipse.emf.ecoretools.design.service.PropertiesServices)
 			use(org.eclipse.emf.ecoretools.design.service.ALEServices)

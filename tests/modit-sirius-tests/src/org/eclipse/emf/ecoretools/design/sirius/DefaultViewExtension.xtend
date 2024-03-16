@@ -61,7 +61,7 @@ class DefaultViewExtension extends AbstractPropertySet {
 		super(parent)
 	}
 
-	override initCategory(Category it) {
+	override initDefaultCategory(Category it) {
 		pages += PageDescription.createAs(Ns.page, "ecore_page") [
 			labelExpression = "Ecore"
 			semanticCandidateExpression = "var:self"
@@ -174,6 +174,15 @@ class DefaultViewExtension extends AbstractPropertySet {
 			labelExpression = '''input.emfEditServices(self).getText()'''.trimAql
 			semanticCandidateExpression = '''self.removeSemanticElementsToHide(input.getAllSemanticElements(),input.context().semanticDecorator())'''.trimAql
 			preconditionExpression = ""
+			style = [
+				barStyle = TitleBarStyle.NO_TITLE
+				toggleStyle = ToggleStyle.NONE
+				expandedByDefault = true
+			]
+			styleIf('''self.removeSemanticElementsToHide(input.getAllSemanticElements(),input.context().semanticDecorator())->size() > 1'''.trimAql) [
+				toggleStyle = ToggleStyle.NONE
+				expandedByDefault = true
+			]
 			controls += DynamicMappingForDescription.create("sirius_default_rules_structural_features_for") [
 				iterator = "eStructuralFeature"
 				iterableExpression = '''self.removeFeaturesToHide(input.emfEditServices(self).getEStructuralFeatures())'''.trimAql
@@ -286,31 +295,24 @@ class DefaultViewExtension extends AbstractPropertySet {
 					]
 				]
 			]
-			style [
-				barStyle = TitleBarStyle.NO_TITLE
-				toggleStyle = ToggleStyle.NONE
-				expandedByDefault = true
-			]
-			conditionalStyles += GroupConditionalStyle.create [
-				preconditionExpression = '''self.removeSemanticElementsToHide(input.getAllSemanticElements(),input.context().semanticDecorator())->size() > 1'''.trimAql
-				style = GroupStyle.create [
-					toggleStyle = ToggleStyle.NONE
-					expandedByDefault = true
-				]
-			]
 		]
 		groups += GroupDescription.createAs(Ns.group, "genmodel opposite instance") [
 			labelExpression = '''self.eClass().name'''.trimAql
 			semanticCandidateExpression = '''self.eInverse()->select( g | g.eClass().ePackage.nsURI->includes('http://www.eclipse.org/emf/2002/GenModel'))->asSet()'''.trimAql
 			preconditionExpression = ""
 			extends = GroupDescription.localRef(Ns.group, "default rules")
-			style [
+			style = [
 				expandedByDefault = true
 			]
 		]
 		groups += GroupDescription.createAs(Ns.group, "documentation") [
 			labelExpression = "Documentation"
 			domainClass = "ecore::EModelElement"
+			style = [
+				barStyle = TitleBarStyle.NO_TITLE
+				toggleStyle = ToggleStyle.NONE
+				expandedByDefault = true
+			]
 			controls += ContainerDescription.create("documentation_container") [
 				controls += TextAreaDescription.create("doc_area") [
 					lineCount = 16
@@ -318,14 +320,14 @@ class DefaultViewExtension extends AbstractPropertySet {
 					operation = '''self.setDocAnnotation(newValue)'''.trimAql.toOperation
 				]
 			]
-			style [
+		]
+		groups += GroupDescription.createAs(Ns.group, "generation_navigation") [
+			semanticCandidateExpression = '''self.eInverse()->select( g | g.eClass().ePackage.nsURI->includes('http://www.eclipse.org/emf/2002/GenModel'))->asSet()'''.trimAql
+			style = [
 				barStyle = TitleBarStyle.NO_TITLE
 				toggleStyle = ToggleStyle.NONE
 				expandedByDefault = true
 			]
-		]
-		groups += GroupDescription.createAs(Ns.group, "generation_navigation") [
-			semanticCandidateExpression = '''self.eInverse()->select( g | g.eClass().ePackage.nsURI->includes('http://www.eclipse.org/emf/2002/GenModel'))->asSet()'''.trimAql
 			controls += ContainerDescription.create("generation_navigation_container") [
 				controls += HyperlinkDescription.create("goto sourcecode") [
 					isEnabledExpression = '''self.isJavaFileGenerated()'''.trimAql
@@ -336,16 +338,15 @@ class DefaultViewExtension extends AbstractPropertySet {
 					)
 				]
 			]
-			style [
-				barStyle = TitleBarStyle.NO_TITLE
-				toggleStyle = ToggleStyle.NONE
-				expandedByDefault = true
-			]
 		]
 		groups += GroupDescription.createAs(Ns.group, "genmodel_directories") [
 			labelExpression = "Directories"
 			domainClass = "genmodel.GenModel"
 			semanticCandidateExpression = '''(OrderedSet{self} + self.eInverse()  + self.eInverse().eContainer()- self.eContents()- OrderedSet{self.eContainer()})->select(e | e.eClass().ePackage.nsURI->includes('http://www.eclipse.org/emf/2002/GenModel'))->asSet()'''.trimAql
+			style = [
+				barStyle = TitleBarStyle.SHORT_TITLE_BAR
+				expandedByDefault = true
+			]
 			controls += TextDescription.create("modelDirectory") [
 				labelExpression = "Model"
 				valueExpression = '''self.modelDirectory'''.trimAql
@@ -360,10 +361,6 @@ class DefaultViewExtension extends AbstractPropertySet {
 				labelExpression = "Editor"
 				valueExpression = "feature:editorDirectory"
 				operation = "editorDirectory".setter("var:newValue")
-			]
-			style [
-				barStyle = TitleBarStyle.SHORT_TITLE_BAR
-				expandedByDefault = true
 			]
 		]
 		groups += GroupDescription.createAs(Ns.group, "egeneric supertypes-TBD") [
@@ -411,13 +408,18 @@ class DefaultViewExtension extends AbstractPropertySet {
 			semanticCandidateExpression = '''self->select(e | e.oclIsKindOf(ecore::EPackage)).eInverse()->select( g | g.eClass().ePackage.nsURI->includes('http://www.eclipse.org/emf/2002/GenModel')).eContainer(genmodel::GenModel)->asSet()'''.trimAql
 			preconditionExpression = ""
 			extends = GroupDescription.localRef(Ns.group, "default rules")
-			style [
+			style = [
 				expandedByDefault = true
 			]
 		]
 		groups += GroupDescription.createAs(Ns.group, "execution_body") [
 			labelExpression = '''self.getExecutableName()'''.trimAql
 			semanticCandidateExpression = '''OrderedSet{self}->filter(ecore::EClassifier).getAllExecutables()'''.trimAql
+			style = [
+				barStyle = TitleBarStyle.NO_TITLE
+				toggleStyle = ToggleStyle.NONE
+				expandedByDefault = true
+			]
 			controls += ContainerDescription.create("container_execution_body") [
 				controls += TextAreaDescription.create("executable_body") [
 					lineCount = 14
@@ -437,21 +439,20 @@ class DefaultViewExtension extends AbstractPropertySet {
 					]
 				]
 			]
-			style [
-				barStyle = TitleBarStyle.NO_TITLE
-				toggleStyle = ToggleStyle.NONE
-				expandedByDefault = true
-			]
 		]
 		groups += GroupDescription.createAs(Ns.group, "execution_imports") [
 			labelExpression = "Imports"
 			domainClass = "ecore::EModelElement"
 			semanticCandidateExpression = '''OrderedSet{self}->filter(ecore::EPackage)->select(p | p.getJavaImports()->size() > 0)'''.trimAql
+			style = [
+				expandedByDefault = true
+			]
 			controls += ButtonDescription.create("execution_button_addimport") [
 				buttonLabelExpression = "Add New Import"
 				operation = "var:self".toOperation
 			]
 			controls += ContainerDescription.create("execution_imports_container") [
+				layoutHorizontal
 				controls += DynamicMappingForDescription.create("iterate over imports") [
 					iterator = "jImport"
 					iterableExpression = '''self.getJavaImports()'''.trimAql
@@ -473,19 +474,17 @@ class DefaultViewExtension extends AbstractPropertySet {
 						]
 					]
 				]
-				layout = FillLayoutDescription.create [
-					orientation = FILL_LAYOUT_ORIENTATION.HORIZONTAL
-				]
-			]
-			style [
-				expandedByDefault = true
 			]
 		]
 		groups += GroupDescription.createAs(Ns.group, "eoperation parameters dynamic mapping") [
 			labelExpression = "Parameters"
 			domainClass = "ecore::EOperation"
 			semanticCandidateExpression = "var:self"
+			style = [
+				expandedByDefault = true
+			]
 			controls += ContainerDescription.create("parameters_container") [
+				layoutFreeGrid(5)
 				controls += DynamicMappingForDescription.create("foreach parameter") [
 					iterator = "self"
 					iterableExpression = '''self.eParameters'''.trimAql
@@ -498,7 +497,7 @@ class DefaultViewExtension extends AbstractPropertySet {
 							operation = "var:self".toContext(
 								"name".setter("var:newValue")
 							)
-							style [
+							style = [
 								labelFontSizeExpression = "8"
 								labelFontFormat += FontFormat.ITALIC_LITERAL
 							]
@@ -510,7 +509,7 @@ class DefaultViewExtension extends AbstractPropertySet {
 							labelExpression = "EType: "
 							valueExpression = '''self.eGet('eType')'''.trimAql
 							displayExpression = '''self.eGet('eType').name'''.trimAql
-							style [
+							style = [
 								labelFontSizeExpression = "8"
 								labelFontFormat += FontFormat.ITALIC_LITERAL
 							]
@@ -562,9 +561,6 @@ class DefaultViewExtension extends AbstractPropertySet {
 						]
 					]
 				]
-				layout = GridLayoutDescription.create [
-					numberOfColumns = 5
-				]
 			]
 			controls += DynamicMappingForDescription.create("dummy_workaround_bug515586") [
 				iterator = "d"
@@ -576,9 +572,6 @@ class DefaultViewExtension extends AbstractPropertySet {
 						operation = "var:self".toOperation
 					]
 				]
-			]
-			style [
-				expandedByDefault = true
 			]
 			actions += ToolbarAction.create [
 				tooltipExpression = "Add New Parameter"
@@ -594,6 +587,10 @@ class DefaultViewExtension extends AbstractPropertySet {
 			labelExpression = ''' 'EAnnotation ' + self.source '''.trimAql
 			domainClass = "ecore::EAnnotation"
 			semanticCandidateExpression = '''input.getSemanticElement()->filter(ecore::EModelElement).eAnnotations'''.trimAql
+			style = [
+				toggleStyle = ToggleStyle.TREE_NODE
+				expandedByDefault = true
+			]
 			controls += TextDescription.create("source") [
 				labelExpression = "Source:"
 				helpExpression = '''input.emfEditServices(self).getDescription(self.eClass().getEStructuralFeature('source'))'''.trimAql
@@ -617,6 +614,7 @@ class DefaultViewExtension extends AbstractPropertySet {
 				]
 			]
 			controls += ContainerDescription.create("eannotation_conainer_entries") [
+				layoutFreeGrid(3)
 				controls += DynamicMappingForDescription.create("iterate over entries") [
 					iterator = "self"
 					iterableExpression = '''self.details'''.trimAql
@@ -652,9 +650,6 @@ class DefaultViewExtension extends AbstractPropertySet {
 						]
 					]
 				]
-				layout = GridLayoutDescription.create [
-					numberOfColumns = 3
-				]
 			]
 			controls += DynamicMappingForDescription.create("dummy_workaround_bug515586") [
 				iterator = "d"
@@ -667,10 +662,6 @@ class DefaultViewExtension extends AbstractPropertySet {
 					]
 				]
 			]
-			style [
-				toggleStyle = ToggleStyle.TREE_NODE
-				expandedByDefault = true
-			]
 			actions += ToolbarAction.create [
 				tooltipExpression = "Delete EAnnotation"
 				imageExpression = "/org.eclipse.emf.ecoretools.design/icons/full/etools16/unset.gif"
@@ -680,5 +671,4 @@ class DefaultViewExtension extends AbstractPropertySet {
 			]
 		]
 	}
-
 }

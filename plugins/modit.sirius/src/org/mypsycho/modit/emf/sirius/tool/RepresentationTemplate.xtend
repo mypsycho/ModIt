@@ -1,3 +1,16 @@
+/*******************************************************************************
+ * Copyright (c) 2019-2024 OBEO.
+ * 
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
+ * which accompanies this distribution, and is available at
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ * Contributors:
+ *    Nicolas PERANSIN - initial API and implementation
+ *******************************************************************************/
 package org.mypsycho.modit.emf.sirius.tool
 
 import java.util.Collections
@@ -9,7 +22,12 @@ import org.eclipse.core.runtime.Platform
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EStructuralFeature
 import org.eclipse.sirius.diagram.description.tool.DirectEditLabel
+import org.eclipse.sirius.properties.FillLayoutDescription
+import org.eclipse.sirius.properties.GridLayoutDescription
+import org.eclipse.sirius.properties.LayoutDescription
+import org.eclipse.sirius.properties.PropertiesPackage
 import org.eclipse.sirius.table.metamodel.table.description.TableTool
+import org.eclipse.sirius.tree.description.TreeItemTool
 import org.eclipse.sirius.viewpoint.description.AbstractVariable
 import org.eclipse.sirius.viewpoint.description.DescriptionPackage
 import org.eclipse.sirius.viewpoint.description.IdentifiedElement
@@ -26,12 +44,12 @@ import org.eclipse.sirius.viewpoint.description.tool.PasteDescription
 import org.eclipse.sirius.viewpoint.description.tool.SelectionWizardDescription
 import org.eclipse.sirius.viewpoint.description.tool.SetValue
 import org.eclipse.sirius.viewpoint.description.tool.ToolDescription
+import org.eclipse.sirius.viewpoint.description.tool.ToolPackage
 import org.mypsycho.modit.emf.ClassId
 import org.mypsycho.modit.emf.EReversIt
 import org.mypsycho.modit.emf.sirius.api.SiriusDesigns
 
 import static extension org.mypsycho.modit.emf.sirius.tool.SiriusReverseIt.*
-import org.eclipse.sirius.viewpoint.description.tool.ToolPackage
 
 /** 
  * Common methods for specific reverse for Representation Edition class.
@@ -41,6 +59,7 @@ abstract class RepresentationTemplate<R extends EObject> extends EReversIt {
 	
 	protected static val SPKG = DescriptionPackage.eINSTANCE
 	protected static val TPKG = ToolPackage.eINSTANCE
+	protected static val PPKG = PropertiesPackage.eINSTANCE
 
 	// XTend does not support statefull inner class
 	protected val extension SiriusReverseIt tool
@@ -83,7 +102,12 @@ abstract class RepresentationTemplate<R extends EObject> extends EReversIt {
 		}
 	}
 	
-	def Map<? extends Class<? extends EObject>, ? extends Set<? extends EStructuralFeature>> getInitTemplateds() {
+	/**
+	 * Lists fields where a accelerator replace basic assignment.
+	 */
+	def Map<? extends Class<? extends EObject>, 
+			? extends Set<? extends EStructuralFeature>> 
+			getInitTemplateds() {
 		INIT_TEMPLATED
 	}
 	
@@ -95,7 +119,7 @@ abstract class RepresentationTemplate<R extends EObject> extends EReversIt {
 		templateInnerContent(content)
 	}
  
-	val CONTENT_PROVIDER_FIELDS = #{
+	static val CONTENT_PROVIDER_FIELDS = #{
 		SPKG.identifiedElement_Name,
 		SPKG.abstractVariable_Name
 	}
@@ -121,9 +145,7 @@ ENDIF
 »'''
  	}
  	
-	def dispatch smartTemplateCreate(EditMaskVariables it) {
-		mask.toJava
-	}
+	def dispatch smartTemplateCreate(EditMaskVariables it) { mask.toJava }
  	
  	def dispatch smartTemplateCreate(ChangeContext it) {
 		if (subModelOperations.empty)
@@ -238,7 +260,6 @@ ENDIF                    »«name.toJava») [
 ]'''
 	}
 
-
 	override callPath(EObject it, boolean withExtras) {
 		if (it instanceof IdentifiedElement) {
 			if (withExtras) {
@@ -285,8 +306,10 @@ ENDIF                    »«name.toJava») [
 			? "localRef("
 			: '''ref(«root.declaring.name», '''
 
-'''«eClass.templateClass».«refRoot»Ns.«root.ns.name», «root.source.name.toJava»)«templateAliasPath(path)»'''
+'''«eClass.templateClass».«refRoot»Ns.«root.ns.name», «root.source.aliasPath.toJava»)«templateAliasPath(path)»'''
 	}
+
+	protected def aliasPath(IdentifiedElement it) { name }
 
 	override templateProperty(EObject element, EStructuralFeature it, (Object, Class<?>)=>String encoding) {
 		if (name == "initialOperation") { // No reflection for this.
@@ -308,7 +331,8 @@ ENDIF                    »«name.toJava») [
 			SelectionWizardDescription: initialOperation?.firstModelOperations
 			DirectEditLabel: initialOperation?.firstModelOperations
 			TableTool: firstModelOperation
-			default: throw new UnsupportedOperationException
+			TreeItemTool: firstModelOperation
+			default: throw new UnsupportedOperationException // Caught by fallback
 		}
 	}
 	
@@ -332,4 +356,19 @@ ENDIF                    »«name.toJava») [
 		// «» can be used to escape '
 		'''«"'''"»«expression»«"'''"».trimAql'''
 	}
+	
+	override templatePropertyValue(EStructuralFeature feat, Object value, (Object)=>String encoding) {
+		PPKG.abstractContainerDescription_Layout == feat
+			? (value as LayoutDescription).templatePropertiesLayout(encoding)
+			: super.templatePropertyValue(feat, value, encoding)
+	}
+	
+	def templatePropertiesLayout(LayoutDescription it, (Object)=>String encoding) {
+		it instanceof FillLayoutDescription
+			? '''layout«orientation.getName().toLowerCase.toFirstUpper»'''
+			: it instanceof GridLayoutDescription
+			? '''layout«makeColumnsWithEqualWidth ? "Regular" : "Free"»Grid(«numberOfColumns»)'''
+			: super.templatePropertyValue(PPKG.abstractContainerDescription_Layout, it, encoding)
+	}
+	
 }

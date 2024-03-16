@@ -1,3 +1,16 @@
+/*******************************************************************************
+ * Copyright (c) 2019-2024 OBEO.
+ * 
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
+ * which accompanies this distribution, and is available at
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ * Contributors:
+ *    Nicolas PERANSIN - initial API and implementation
+ *******************************************************************************/
 package org.mypsycho.modit.emf.sirius.tool
 
 import java.nio.file.Path
@@ -32,6 +45,7 @@ class SiriusGroupTemplate extends EReversIt {
 		tool = container
 		delegates += new DiagramTemplate(this)
 		delegates += new TableTemplate(this)
+		delegates += new TreeTemplate(this)
 		delegates += new PropertiesTemplate(this)
 		delegates += new DiagramExtensionTemplate(this)
 	}
@@ -60,6 +74,7 @@ class SiriusGroupTemplate extends EReversIt {
 	
 	// Xtend
 	override templateMain(EObject it, Iterable<Class<?>> packages, ()=>String content) {
+		val templateExtrasContent = templateExtras ?: ""
 '''package «context.mainClass.pack»
 
 «context.mainClass.templateImports»
@@ -84,16 +99,14 @@ ENDFOR
 	}
 
 « // initExtras must be performed AFTER model exploration
-IF !context.implicitExtras.empty || !context.explicitExtras.empty
+IF !templateExtrasContent.blank
 »	override initExtras() {
 		super.initExtras
 		
-		«templateExtras»
+		«templateExtrasContent»
 	}
 
-«
-ENDIF // extras
-»
+« ENDIF »
 	def context() { this }
 
 ««« no templateShorcuts: provided by abstraction
@@ -145,11 +158,19 @@ ENDFOR
 		}
 	}
 	
-	override templatePropertyValue(EStructuralFeature it, Object value, (Object)=>String encoding) {
-		if (it == VP.viewpoint_OwnedJavaExtensions)
-			'''use(«(value as JavaExtension).qualifiedClassName»)'''
-		else
-			templatePropertyValue(encoding.apply(value))
+	override templatePropertyValue(EStructuralFeature feat, Object value, (Object)=>String encoding) {
+		feat == VP.viewpoint_OwnedJavaExtensions
+			? '''use(«(value as JavaExtension).qualifiedClassName»)'''
+			: feat == VP.viewpoint_OwnedRepresentations || feat == VP.viewpoint_OwnedRepresentationExtensions
+			? feat.templateOwned(value, encoding)
+			: super.templatePropertyValue(feat, value, encoding)
+	}
+	
+	def templateOwned(EStructuralFeature feat, Object value, (Object)=>String encoding) {
+		val split = context.splits.get(value)
+		split !== null
+			? '''owned(«split.templateSplitClass»)'''
+			: return super.templatePropertyValue(feat, value, encoding) // unlikely
 	}
 
 	override templateRef(EObject it, Class<?> using) {

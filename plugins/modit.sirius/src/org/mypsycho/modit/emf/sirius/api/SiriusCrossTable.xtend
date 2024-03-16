@@ -1,5 +1,6 @@
 /*******************************************************************************
- * Copyright (c) 2020 Nicolas PERANSIN.
+ * Copyright (c) 2019-2024 OBEO.
+ * 
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -10,7 +11,7 @@
  * Contributors:
  *    Nicolas PERANSIN - initial API and implementation
  *******************************************************************************/
- package org.mypsycho.modit.emf.sirius.api
+package org.mypsycho.modit.emf.sirius.api
 
 import java.util.Objects
 import org.eclipse.emf.ecore.EClass
@@ -223,15 +224,15 @@ abstract class SiriusCrossTable extends AbstractTable<CrossTableDescription> {
 	 * Menu only consider last selected cell to build the menu.
 	 * </p>
 	 */
-	def createAddColumn(CrossTableDescription it, String column, String role, String toolLabel, ModelOperation task) {
-		var result = CreateCrossColumnTool.createAs(Ns.create, column + role) [
+	def createAddColumn(CrossTableDescription owner, String column, String role, String toolLabel, ModelOperation task) {
+		CreateCrossColumnTool.createAs(Ns.create, column + role) [
 			initVariables
 			label = toolLabel
 			mapping = column.columnRef
 			operation = task
+		] => [
+			owner.createColumn += it
 		]
-		createColumn += result
-		result
 	}
 	
 	/**
@@ -241,28 +242,28 @@ abstract class SiriusCrossTable extends AbstractTable<CrossTableDescription> {
 	 * Menu only consider last selected cell to build the menu.
 	 * </p>
 	 */
-	def createAddColumn(ElementColumnMapping it, String role, String toolLabel, ModelOperation task) {
-		var result = CreateColumnTool.createAs(Ns.create, role) [
+	def createAddColumn(ElementColumnMapping owner, String role, String toolLabel, ModelOperation task) {
+		CreateColumnTool.createAs(Ns.create, role) [
 			initVariables
 			label = toolLabel
 			// mapping is opposite
 			operation = task
+		] => [
+			owner.create += it
 		]
-		create += result
-		result
 	}
 	
 	/**
 	 * Add a CreateCell tool using 'arg0' variable.
 	 */
-	def createCell(IntersectionMapping it, ModelOperation task) {
-		create = CreateCellTool.create("Edit cell") [
+	def createCell(IntersectionMapping owner, ModelOperation task) {
+		CreateCellTool.create("Edit cell") [
 			initVariables
 			mask = "{0}"
 			operation = task
+		] => [
+			owner.create = it
 		]
-
-		create
 	}
 	
 		
@@ -322,48 +323,6 @@ abstract class SiriusCrossTable extends AbstractTable<CrossTableDescription> {
 		columnMapping = mapping
 		columnFinderExpression = expr
 	}
-
-	/**
-	 * Creates a Relationship Intersection.
-	 * <p>
-	 * Description must provide expression, edition and mappings using
-	 * {@link 
-	 * VseDataTable#forMappings(IntersectionMapping, ElementColumnMapping, LineMapping...) 
-	 * forMappings}.
-	 * </p>
-	 */
-	@Deprecated
-	def links(CrossTableDescription owner, String mappingName, 
-		String columnExpr, (IntersectionMapping)=>void descr
-	) {
-		Objects.requireNonNull(descr)
-		val result = IntersectionMapping.create(mappingName) [
-			useDomainClass = false
-			// no DomainClass, no semanticCandidatesExpression
-			
-			// self is root
-			columnFinderExpression = columnExpr
-			initCellStyle
-
-			// Required:
-			//   lineMapping,
-			//   columnMapping
-			descr.apply(it)
-		]
-		owner.intersection += result
-		result
-	}
-	
-	/**
-	 * Defines the mappings of RelationShip-based cell.
-	 */
-	@Deprecated
-	def forMappings(IntersectionMapping it, ElementColumnMapping column, LineMapping... lines) {
-		"This method is applicable only to Relation intersection".verify(!useDomainClass)
-		columnMapping = column
-		lineMapping += lines
-	}
-	
 	
 	/**
 	 * Creates a Relationship Intersection.

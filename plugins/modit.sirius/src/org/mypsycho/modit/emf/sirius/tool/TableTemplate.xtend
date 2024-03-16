@@ -1,3 +1,16 @@
+/*******************************************************************************
+ * Copyright (c) 2019-2024 OBEO.
+ * 
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
+ * which accompanies this distribution, and is available at
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ * Contributors:
+ *    Nicolas PERANSIN - initial API and implementation
+ *******************************************************************************/
 package org.mypsycho.modit.emf.sirius.tool
 
 import org.eclipse.emf.ecore.EObject
@@ -65,10 +78,9 @@ class TableTemplate extends RepresentationTemplate<TableDescription> {
 	}
 	
 	def getTableEditor(EObject it) {
-		if (it instanceof CrossTableDescription)
-			SiriusCrossTable
-		else
-			SiriusFeatureTable
+		it instanceof CrossTableDescription
+			? SiriusCrossTable
+			: SiriusFeatureTable
 	}
 	
 	
@@ -144,8 +156,8 @@ class «name» extends «content.tableEditor.templateClass» {
  	def dispatch smartTemplateCreate(TableTool it) {
 '''«templateClass».create«
 IF it instanceof IdentifiedElement
-						»("«name»")«
-ENDIF                             » [
+						»(«name.toJava»)«
+ENDIF                                  » [
 	initVariables
 	«templateFilteredContent(TableTool)»
 	«templateToolOperation»

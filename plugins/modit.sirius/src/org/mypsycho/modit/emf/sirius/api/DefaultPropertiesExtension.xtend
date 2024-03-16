@@ -1,5 +1,6 @@
 /*******************************************************************************
- * Copyright (c) 2020 Nicolas PERANSIN.
+ * Copyright (c) 2019-2024 OBEO.
+ * 
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -71,7 +72,7 @@ class DefaultPropertiesExtension extends AbstractPropertySet {
 		tabNames += tabs
 	}
 	
-	override initCategory(Category it) {
+	override initDefaultCategory(Category it) {
 		val specificGroups = createSpecificGroups()
 		groups += specificGroups.map[ value ]
 		
@@ -175,9 +176,9 @@ class DefaultPropertiesExtension extends AbstractPropertySet {
 		context.expression(params(iValue, iFeat)) [
 			EObject it, EStructuralFeature feat |
 			val result = eGet(feat) as Date
-			if (result === null) "" // text field needs WISIWYG (or think it as conflict)
-			else new SimpleDateFormat(DEFAULT_DATE_FORMAT, Locale.ENGLISH)
-				.format(result)
+			result === null
+				? "" // text field needs WISIWYG (or think it as conflict)
+				: new SimpleDateFormat(DEFAULT_DATE_FORMAT, Locale.ENGLISH).format(result)
 		]
 	}
 	
@@ -244,7 +245,6 @@ class DefaultPropertiesExtension extends AbstractPropertySet {
 		].toMap([ key ]) [
 			value.trimAql.when(createDefaultWidgets(key, iValue, iFeat))
 		]
-
 	}
 
 
@@ -265,7 +265,7 @@ class DefaultPropertiesExtension extends AbstractPropertySet {
 		
 		switch(wcase as WidgetCase) {
 			
-			case line:TextDescription.create [
+			case line: TextDescription.create [
 					initWidget(iFeat)
 					valueExpression = valueGetter
 					operation = valueSetter

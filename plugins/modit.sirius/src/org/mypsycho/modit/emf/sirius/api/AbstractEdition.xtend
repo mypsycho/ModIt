@@ -1,5 +1,6 @@
 /*******************************************************************************
- * Copyright (c) 2020 Nicolas PERANSIN.
+ * Copyright (c) 2019-2024 OBEO.
+ * 
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -10,7 +11,7 @@
  * Contributors:
  *    Nicolas PERANSIN - initial API and implementation
  *******************************************************************************/
- package org.mypsycho.modit.emf.sirius.api
+package org.mypsycho.modit.emf.sirius.api
 
 import java.util.Objects
 import org.eclipse.emf.ecore.EClass
@@ -19,7 +20,55 @@ import org.eclipse.emf.ecore.EReference
 import org.eclipse.emf.ecore.EStructuralFeature
 import org.eclipse.emf.ecore.util.EcoreUtil
 import org.eclipse.sirius.diagram.description.tool.DirectEditLabel
+import org.eclipse.sirius.properties.AbstractButtonDescription
+import org.eclipse.sirius.properties.AbstractCheckboxDescription
+import org.eclipse.sirius.properties.AbstractContainerDescription
+import org.eclipse.sirius.properties.AbstractCustomDescription
+import org.eclipse.sirius.properties.AbstractGroupDescription
+import org.eclipse.sirius.properties.AbstractHyperlinkDescription
+import org.eclipse.sirius.properties.AbstractLabelDescription
+import org.eclipse.sirius.properties.AbstractListDescription
+import org.eclipse.sirius.properties.AbstractRadioDescription
+import org.eclipse.sirius.properties.AbstractSelectDescription
+import org.eclipse.sirius.properties.AbstractTextAreaDescription
+import org.eclipse.sirius.properties.AbstractTextDescription
+import org.eclipse.sirius.properties.ButtonDescription
+import org.eclipse.sirius.properties.ButtonWidgetConditionalStyle
+import org.eclipse.sirius.properties.ButtonWidgetStyle
+import org.eclipse.sirius.properties.CheckboxDescription
+import org.eclipse.sirius.properties.CheckboxWidgetConditionalStyle
+import org.eclipse.sirius.properties.CheckboxWidgetStyle
+import org.eclipse.sirius.properties.CustomWidgetConditionalStyle
+import org.eclipse.sirius.properties.CustomWidgetStyle
 import org.eclipse.sirius.properties.DialogButton
+import org.eclipse.sirius.properties.FILL_LAYOUT_ORIENTATION
+import org.eclipse.sirius.properties.FillLayoutDescription
+import org.eclipse.sirius.properties.GridLayoutDescription
+import org.eclipse.sirius.properties.GroupStyle
+import org.eclipse.sirius.properties.HyperlinkDescription
+import org.eclipse.sirius.properties.HyperlinkWidgetConditionalStyle
+import org.eclipse.sirius.properties.HyperlinkWidgetStyle
+import org.eclipse.sirius.properties.LabelWidgetConditionalStyle
+import org.eclipse.sirius.properties.LabelWidgetStyle
+import org.eclipse.sirius.properties.ListDescription
+import org.eclipse.sirius.properties.ListWidgetConditionalStyle
+import org.eclipse.sirius.properties.ListWidgetStyle
+import org.eclipse.sirius.properties.RadioDescription
+import org.eclipse.sirius.properties.RadioWidgetConditionalStyle
+import org.eclipse.sirius.properties.RadioWidgetStyle
+import org.eclipse.sirius.properties.SelectDescription
+import org.eclipse.sirius.properties.SelectWidgetConditionalStyle
+import org.eclipse.sirius.properties.SelectWidgetStyle
+import org.eclipse.sirius.properties.TextWidgetConditionalStyle
+import org.eclipse.sirius.properties.TextWidgetStyle
+import org.eclipse.sirius.properties.ToolbarAction
+import org.eclipse.sirius.properties.WidgetAction
+import org.eclipse.sirius.properties.WidgetConditionalStyle
+import org.eclipse.sirius.properties.WidgetDescription
+import org.eclipse.sirius.properties.WidgetStyle
+import org.eclipse.sirius.properties.ext.widgets.reference.propertiesextwidgetsreference.AbstractExtReferenceDescription
+import org.eclipse.sirius.properties.ext.widgets.reference.propertiesextwidgetsreference.ExtReferenceWidgetConditionalStyle
+import org.eclipse.sirius.properties.ext.widgets.reference.propertiesextwidgetsreference.ExtReferenceWidgetStyle
 import org.eclipse.sirius.viewpoint.description.IdentifiedElement
 import org.eclipse.sirius.viewpoint.description.JavaExtension
 import org.eclipse.sirius.viewpoint.description.SystemColor
@@ -53,11 +102,13 @@ import org.eclipse.sirius.viewpoint.description.tool.SetValue
 import org.eclipse.sirius.viewpoint.description.tool.Switch
 import org.eclipse.sirius.viewpoint.description.tool.ToolDescription
 import org.eclipse.sirius.viewpoint.description.tool.Unset
-import org.eclipse.xtext.xbase.lib.Functions.Function1
 import org.mypsycho.modit.emf.EModIt
 import org.mypsycho.modit.emf.sirius.SiriusModelProvider
 
 import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*
+import org.eclipse.sirius.properties.GroupConditionalStyle
+import java.util.List
+import java.io.UnsupportedEncodingException
 
 /**
  * Adaptation of Sirius model into Java and EClass reflections API
@@ -157,7 +208,10 @@ abstract class AbstractEdition {
 	 * @param eName name of element
 	 * @param initializer of the given {@link EObject}
 	 */
-	protected def <R extends IdentifiedElement> R createAs(Class<R> type, Enum<?> cat, String eName, (R)=>void init) {
+	protected def <R extends IdentifiedElement> R 
+		createAs(
+			Class<R> type, Enum<?> cat, String eName, (R)=>void init		
+	) {
 		type.createAs(cat.id(eName)) [
 			name = eName
 			init?.apply(it)
@@ -172,7 +226,10 @@ abstract class AbstractEdition {
 	 * @param eName name of element
 	 * @param initializer of the given {@link EObject}
 	 */
-	protected def <R extends IdentifiedElement> R copyAs(R original, Enum<?> cat, String eName, (R)=>void init) {
+	protected def <R extends IdentifiedElement> R 
+		copyAs(
+			R original, Enum<?> cat, String eName, (R)=>void init
+	) {
 		(EcoreUtil.copy(original) as R) => [
 			cat.id(eName).alias(it)
 			name = eName
@@ -223,10 +280,10 @@ abstract class AbstractEdition {
 	 * @param category of identification
 	 * @param name of element
 	 */
-	protected def <R extends IdentifiedElement> R localRef(
-			Class<R> type, 
-			Enum<?> cat, 
-			String name) {
+	protected def <R extends IdentifiedElement> R 
+		localRef(
+			Class<R> type, Enum<?> cat, String name			
+	) {
 		type.ref(contentAlias, cat, name)
 	}
 		/**
@@ -237,9 +294,9 @@ abstract class AbstractEdition {
 	 * @param category of identification
 	 * @param name of element
 	 */
-	protected def <R extends EObject> R localRef(
-			Class<R> type, 
-			Enum<?> cat, 
+	protected def <R extends EObject> R 
+		localRef(
+			Class<R> type, Enum<?> cat, 
 			String name, (IdentifiedElement)=>R path
 	) {
 		type.ref(contentAlias, cat, name, path)
@@ -268,11 +325,11 @@ abstract class AbstractEdition {
 	 * @param category of identification
 	 * @param name of element
 	 */
-	protected def <R extends IdentifiedElement> R ref(
-			Class<R> type, 
-			Class<? extends AbstractEdition> container, 
-			Enum<?> cat, 
-			String name) {
+	protected def <R extends IdentifiedElement> R 
+		ref(
+			Class<R> type, Class<? extends AbstractEdition> container, 
+			Enum<?> cat, String name
+	) {
 		type.ref(context.getContentAlias(container), cat, name)
 	}
 	
@@ -285,11 +342,11 @@ abstract class AbstractEdition {
 	 * @param category of identification
 	 * @param name of element
 	 */
-	protected def <R extends EObject> R ref(
-			Class<R> type, 
-			Class<? extends AbstractEdition> container, 
-			Enum<?> cat, 
-			String name, (IdentifiedElement)=> R path) {
+	protected def <R extends EObject> R 
+		ref(
+			Class<R> type, Class<? extends AbstractEdition> container, 
+			Enum<?> cat, String name, (IdentifiedElement)=> R path
+	) {
 		type.ref(context.getContentAlias(container), cat, name, path)
 	}
 	
@@ -314,9 +371,10 @@ abstract class AbstractEdition {
 	 * @param containerId of element
 	 * @param name of element
 	 */
-	protected def <R extends IdentifiedElement> R ref(
-		Class<R> type, String containerId, 
-		Enum<?> cat, String id
+	protected def <R extends IdentifiedElement> R 
+		ref(
+			Class<R> type, String containerId, 
+			Enum<?> cat, String id
 	) {
 		type.ref(cat.id(containerId, id))
 	}
@@ -330,9 +388,10 @@ abstract class AbstractEdition {
 	 * @param containerId of element
 	 * @param name of element
 	 */
-	protected def <R extends EObject> R ref(
-		Class<R> type, String containerId, 
-		Enum<?> cat, String id, (IdentifiedElement)=>R path
+	protected def <R extends EObject> R 
+		ref(
+			Class<R> type, String containerId, Enum<?> cat, 
+			String id, (IdentifiedElement)=>R path
 	) {
 		type.ref(cat.id(containerId, id)) [ path.apply(it as IdentifiedElement) ]
 	}
@@ -575,7 +634,7 @@ abstract class AbstractEdition {
 	 * @return created Style
 	 */
 	protected def <T extends BasicLabelStyleDescription> T createStyle(Class<T> it) {
-		// explicit it is required to avoid infinite loop
+		// explicit 'it' is required to avoid infinite loop
 		it.createStyle(null)
 	}
 	
@@ -622,13 +681,116 @@ abstract class AbstractEdition {
 	protected def setOperation(AbstractToolDescription it, ModelOperation value) {
 		switch(it) {
 			OperationAction: initialOperation = value.toTool
-			ToolDescription: initialOperation = InitialOperation.create [ firstModelOperations = value ]
+			ToolDescription: initialOperation = value.toTool
 			PasteDescription: initialOperation = value.toTool
 			SelectionWizardDescription: initialOperation = value.toTool
 			DirectEditLabel: initialOperation = value.toTool
-			
 			default: throw new UnsupportedOperationException
 		}
+	}
+	
+	/**
+	 * Sets the operation for provided widget.
+	 * <p>
+	 * Widget may be used in wizard operation of all views.
+	 * </p>
+	 * <p>
+	 * This class unifies the initialOperation declaration of sub-class tool.
+	 * </p>
+	 * @param it tool to set
+	 * @param value operation to perform
+	 */
+	def void setOperation(WidgetDescription it, ModelOperation value) {
+		switch(it) {
+			ButtonDescription: initialOperation = value.toTool
+			CheckboxDescription: initialOperation = value.toTool
+			HyperlinkDescription: initialOperation = value.toTool
+			ListDescription: onClickOperation = value.toTool
+			RadioDescription: initialOperation = value.toTool
+			SelectDescription: initialOperation = value.toTool
+			AbstractTextAreaDescription: initialOperation = value.toTool
+			AbstractTextDescription: initialOperation = value.toTool
+			default: throw new UnsupportedOperationException
+		}
+	}
+
+	/**
+	 * Sets the operation for provided widget.
+	 * <p>
+	 * Widget may be used in wizard operation of all views.
+	 * </p>
+	 * <p>
+	 * This class unifies the initialOperation declaration of sub-class tool.
+	 * </p>
+	 * @param it tool to set
+	 * @param value operation to perform
+	 */
+	def void setOperation(WidgetDescription it, String expression) {
+		operation = expression.toOperation
+	}
+
+	/**
+	 * Sets the operation for provided widget.
+	 * <p>
+	 * Widget may be used in wizard operation of all views.
+	 * </p>
+	 * <p>
+	 * This class unifies the initialOperation declaration of sub-class tool.
+	 * </p>
+	 * @param it tool to set
+	 * @param value operation to perform
+	 */
+	def void setOperation(WidgetAction it, ModelOperation value) {
+		initialOperation = InitialOperation.create [ firstModelOperations = value ]
+	}
+
+	/**
+	 * Sets the operation for provided widget.
+	 * <p>
+	 * Widget may be used in wizard operation of all views.
+	 * </p>
+	 * <p>
+	 * This class unifies the initialOperation declaration of sub-class tool.
+	 * </p>
+	 * @param it tool to set
+	 * @param value operation to perform
+	 */
+	def void setOperation(WidgetAction it, String expression) {
+		operation = expression.toOperation
+	}
+
+	/**
+	 * Sets the operation for provided widget.
+	 * <p>
+	 * Widget may be used in wizard operation of all views.
+	 * </p>
+	 * <p>
+	 * This class unifies the initialOperation declaration of sub-class tool.
+	 * </p>
+	 * @param it tool to set
+	 * @param value operation to perform
+	 */
+	def toolbar(String label, String icon, ModelOperation operation) {
+		ToolbarAction.create [
+			tooltipExpression = label
+			imageExpression = icon
+			initialOperation = InitialOperation.create [ firstModelOperations = operation ]	
+		]
+	}
+
+	/**
+	 * Sets the operation for provided widget.
+	 * <p>
+	 * Widget may be used in wizard operation of all views.
+	 * </p>
+	 * <p>
+	 * This class unifies the initialOperation declaration of sub-class tool.
+	 * </p>
+	 * @param it tool to set
+	 * @param value operation to perform
+	 */
+	def void setOperation(ToolbarAction it, ModelOperation value) {
+		initialOperation = InitialOperation.create [ firstModelOperations = value ]
 	}
 
 	/**
@@ -746,6 +908,200 @@ abstract class AbstractEdition {
 			parameters += params
 				.map[ key.jparam(value) ]
 		]
+	}
+	
+	
+    /** Creates a style for widget. */
+    def setStyle(AbstractButtonDescription it, (ButtonWidgetStyle)=>void init) {
+        style = ButtonWidgetStyle.create(init)
+    }
+    
+    /** Creates a style for widget. */
+    def setStyle(AbstractCheckboxDescription it, (CheckboxWidgetStyle)=>void init) {
+        style = CheckboxWidgetStyle.create(init)
+    }
+
+    /** Creates a style for widget. */
+    def setStyle(AbstractCustomDescription it, (CustomWidgetStyle)=>void init) {
+        style = CustomWidgetStyle.create(init)
+    }
+
+    /** Creates a style for widget. */
+    def setStyle(AbstractExtReferenceDescription it, (ExtReferenceWidgetStyle)=>void init) {
+        style = ExtReferenceWidgetStyle.create(init)
+    }
+
+    /** Creates a style for widget. */
+    def setStyle(AbstractHyperlinkDescription it, (HyperlinkWidgetStyle)=>void init) {
+        style = HyperlinkWidgetStyle.create(init)
+    }
+
+    /** Creates a style for widget. */
+    def setStyle(AbstractLabelDescription it, (LabelWidgetStyle)=>void init) {
+        style = LabelWidgetStyle.create(init)
+    }
+
+    /** Creates a style for widget. */
+    def setStyle(AbstractListDescription it, (ListWidgetStyle)=>void init) {
+        style = ListWidgetStyle.create(init)
+    }
+
+    /** Creates a style for widget. */
+    def setStyle(AbstractRadioDescription it, (RadioWidgetStyle)=>void init) {
+        style = RadioWidgetStyle.create(init)
+    }
+
+    /** Creates a style for widget. */
+    def setStyle(AbstractSelectDescription it, (SelectWidgetStyle)=>void init) {
+        style = SelectWidgetStyle.create(init)
+    }
+
+    /** Creates a style for widget. */
+    def setStyle(AbstractTextAreaDescription it, (TextWidgetStyle)=>void init) {
+        style = TextWidgetStyle.create(init)
+    }
+
+    /** Creates a style for widget. */
+    def setStyle(AbstractTextDescription it, (TextWidgetStyle)=>void init) {
+        style = TextWidgetStyle.create(init)
+    }
+	
+    /** Creates a style for a group. */
+    def setStyle(AbstractGroupDescription it, (GroupStyle)=>void init) {
+        style = GroupStyle.create(init)
+    }
+	
+	/** Creates a conditional style for group on provided condition. */
+	def styleIf(AbstractGroupDescription it, 
+        String condition, (GroupStyle)=>void init
+    ) {
+        GroupConditionalStyle
+        	.styleIf(GroupStyle, conditionalStyles, condition, init)
+    }
+	    
+    /**
+     * Creates a conditional style for node on provided condition.
+     * <p>
+     * Note conditional style are required only when shape is changed. Most of the time,
+     * customization is better solution.
+     * </p>
+     * @param type of style
+     * @param it to add style
+     * @param condition of style application
+     * @param init of created style (after default initialization)
+     */
+    private def <C extends WidgetConditionalStyle, S extends EObject> 
+    	styleIf(
+        	Class<C> conditionType, Class<S> styleType, 
+        	List<C> containment, String condition, (S)=>void init
+    ) {
+    	val style = styleType.create(init)
+        containment += conditionType.create[
+            preconditionExpression = condition
+			eSet(eClass().getEStructuralFeature("style"), style)
+        ]
+        style
+    }
+    
+    
+	/** Creates a conditional style for widget on provided condition. */
+    def void styleIf(AbstractButtonDescription it, String condition, (ButtonWidgetStyle)=>void init) {
+        ButtonWidgetConditionalStyle
+        	.styleIf(ButtonWidgetStyle, conditionalStyles, condition, init) 
+    }
+    
+	/** Creates a conditional style for widget on provided condition. */
+    def styleIf(AbstractCheckboxDescription it, String condition, (CheckboxWidgetStyle)=>void init) {
+    	CheckboxWidgetConditionalStyle
+        	.styleIf(CheckboxWidgetStyle, conditionalStyles, condition, init) 
+    }
+    
+	/** Creates a conditional style for widget on provided condition. */
+    def styleIf(AbstractCustomDescription it, String condition, (CustomWidgetStyle)=>void init) {
+        CustomWidgetConditionalStyle
+        	.styleIf(CustomWidgetStyle, conditionalStyles, condition, init) 
+    }
+    
+	/** Creates a conditional style for widget on provided condition. */
+    def styleIf(AbstractExtReferenceDescription it, String condition, (ExtReferenceWidgetStyle)=>void init) {
+        ExtReferenceWidgetConditionalStyle
+        	.styleIf(ExtReferenceWidgetStyle, conditionalStyles, condition, init) 
+    }
+    
+	/** Creates a conditional style for widget on provided condition. */
+    def styleIf(AbstractHyperlinkDescription it, String condition, (HyperlinkWidgetStyle)=>void init) {
+        HyperlinkWidgetConditionalStyle
+        	.styleIf(HyperlinkWidgetStyle, conditionalStyles, condition, init) 
+    }
+    
+	/** Creates a conditional style for widget on provided condition. */
+    def styleIf(AbstractLabelDescription it, 
+        String condition, (LabelWidgetStyle)=>void init
+    ) {
+        LabelWidgetConditionalStyle
+        	.styleIf(LabelWidgetStyle, conditionalStyles, condition, init) 
+    }
+    
+	/** Creates a conditional style for widget on provided condition. */
+    def styleIf(AbstractListDescription it, String condition, (ListWidgetStyle)=>void init) {
+        ListWidgetConditionalStyle
+        	.styleIf(ListWidgetStyle, conditionalStyles, condition, init) 
+    }
+    
+	/** Creates a conditional style for widget on provided condition. */
+    def styleIf(AbstractRadioDescription it, String condition, (RadioWidgetStyle)=>void init) {
+        RadioWidgetConditionalStyle
+        	.styleIf(RadioWidgetStyle, conditionalStyles, condition, init) 
+    }
+    
+	/** Creates a conditional style for widget on provided condition. */
+    def styleIf(AbstractSelectDescription it, String condition, (SelectWidgetStyle)=>void init) {
+        SelectWidgetConditionalStyle
+        	.styleIf(SelectWidgetStyle, conditionalStyles, condition, init) 
+    }
+    
+	/** Creates a conditional style for widget on provided condition. */
+    def styleIf(AbstractTextAreaDescription it, String condition, (TextWidgetStyle)=>void init) {
+        TextWidgetConditionalStyle
+        	.styleIf(TextWidgetStyle, conditionalStyles, condition, init) 
+    }
+    
+	/** Creates a conditional style for widget on provided condition. */
+    def styleIf(AbstractTextDescription it, String condition, (TextWidgetStyle)=>void init) {
+        TextWidgetConditionalStyle
+        	.styleIf(TextWidgetStyle, conditionalStyles, condition, init) 
+    }
+    
+	/** Horizontal layout for Container. */
+	def layoutHorizontal(AbstractContainerDescription it) {
+		layoutFill(FILL_LAYOUT_ORIENTATION.HORIZONTAL)
+	}
+	
+	/** Vertical layout for Container. */
+	def layoutVertical(AbstractContainerDescription it) {
+		layoutFill(FILL_LAYOUT_ORIENTATION.VERTICAL)
+	}
+	
+	private def layoutFill(AbstractContainerDescription it, FILL_LAYOUT_ORIENTATION value) {
+		layout = FillLayoutDescription.create [
+			orientation = value
+		]
+	}
+	
+	/** Grid layout for Container. */
+	def layoutGrid(AbstractContainerDescription it, int size, boolean equalSize) {
+		layout = GridLayoutDescription.create [
+			numberOfColumns = size
+			makeColumnsWithEqualWidth = equalSize
+		]
+	}
+	
+	def layoutRegularGrid(AbstractContainerDescription it, int size) {
+		layoutGrid(size, true)
+	}
+	
+	def layoutFreeGrid(AbstractContainerDescription it, int size) {
+		layoutGrid(size, false)
 	}
 	
 	/** Built-in color identities. */
