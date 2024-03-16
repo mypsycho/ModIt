@@ -1,5 +1,6 @@
 /*******************************************************************************
- * Copyright (c) 2020 Nicolas PERANSIN.
+ * Copyright (c) 2019-2024 OBEO.
+ * 
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -10,7 +11,7 @@
  * Contributors:
  *    Nicolas PERANSIN - initial API and implementation
  *******************************************************************************/
- package org.mypsycho.modit.emf.sirius.api
+package org.mypsycho.modit.emf.sirius.api
 
 import java.util.Objects
 import org.eclipse.emf.ecore.EClass
@@ -202,7 +203,7 @@ abstract class AbstractTable<T extends TableDescription> extends AbstractTypedEd
 		// For reversing mainly, more precise API exists.
 		firstModelOperation = operation
 	}
-		
+
 	def setOperation(CreateTool it, ModelOperation operation) {
 		// For reversing mainly, more precise API exists.
 		// CreateLineTool is ambiguious with AbstractToolDescription
@@ -475,22 +476,24 @@ abstract class AbstractTable<T extends TableDescription> extends AbstractTypedEd
 	/**
 	 * Set the foreground style for specified condition.
 	 */	
-	def foregroundIf(StyleUpdater it, String condition, (ForegroundStyleDescription)=>void descr) {
+	def foregroundIf(StyleUpdater owner, String condition, (ForegroundStyleDescription)=>void descr) {
 		Objects.requireNonNull(descr)
-		foregroundConditionalStyle += ForegroundConditionalStyle.create[
+		ForegroundConditionalStyle.create[
 			predicateExpression = condition
 			style = ForegroundStyleDescription.create[
 				initForeground
 				descr.apply(it)
 			]
+		] => [
+			owner.foregroundConditionalStyle += it
 		]
 	}
 
 	/**
 	 * Set the background Color.
 	 */
-	def setBackground(StyleUpdater it, ColorDescription color) {
-		defaultBackground = BackgroundStyleDescription.create[
+	def setBackground(StyleUpdater owner, ColorDescription color) {
+		owner.defaultBackground = BackgroundStyleDescription.create[
 			backgroundColor = color
 		]
 	}
@@ -498,12 +501,14 @@ abstract class AbstractTable<T extends TableDescription> extends AbstractTypedEd
 	/**
 	 * Set the background Color for specified condition.
 	 */
-	def backgroundIf(StyleUpdater it, String condition, ColorDescription color) {
-		backgroundConditionalStyle += BackgroundConditionalStyle.create[
+	def backgroundIf(StyleUpdater owner, String condition, ColorDescription color) {
+		BackgroundConditionalStyle.create[
 			predicateExpression = condition
 			style = BackgroundStyleDescription.create[
 				backgroundColor = color
 			]
+		] => [
+			owner.backgroundConditionalStyle += it
 		]
 	}
 	

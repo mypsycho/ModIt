@@ -1,5 +1,6 @@
 /*******************************************************************************
- * Copyright (c) 2020 Nicolas PERANSIN.
+ * Copyright (c) 2019-2024 OBEO.
+ * 
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -10,7 +11,7 @@
  * Contributors:
  *    Nicolas PERANSIN - initial API and implementation
  *******************************************************************************/
- package org.mypsycho.modit.emf.sirius.api
+package org.mypsycho.modit.emf.sirius.api
 
 import java.util.Objects
 import org.eclipse.emf.ecore.EAttribute
@@ -623,10 +624,7 @@ abstract class AbstractDiagramPart<T extends EObject> extends AbstractTypedEditi
 
             edgeMappings += edgeNames.map[ EdgeMapping.ref(it) ]
 
-			sourceVariable = SourceEdgeCreationVariable.create("source")
-			sourceViewVariable = SourceEdgeViewCreationVariable.create("sourceView")
-			targetVariable = TargetEdgeCreationVariable.create("target")
-			targetViewVariable = TargetEdgeViewCreationVariable.create("targetView")
+			initVariables
 
             operation = task
         ]
@@ -668,13 +666,8 @@ abstract class AbstractDiagramPart<T extends EObject> extends AbstractTypedEditi
             
             // mappings += // inverse reference: do NOT add mapping here.
             
-            element = ElementSelectVariable.create[ name = "element" ]
-            edgeView = ElementSelectVariable.create[ name = "edgeView" ]
-            
-            source = SourceEdgeCreationVariable.create[ name = "source" ]
-            sourceView = SourceEdgeViewCreationVariable.create [ name = "sourceView" ]
-            target = TargetEdgeCreationVariable.create [ name = "target" ]
-            targetView = TargetEdgeViewCreationVariable.create [ name = "targetView" ]
+            edgeView = ElementSelectVariable.create("edgeView")         
+            initVariables
             initialOperation = operation.toTool
         ]
     }

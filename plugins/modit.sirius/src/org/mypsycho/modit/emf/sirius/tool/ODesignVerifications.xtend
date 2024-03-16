@@ -1,3 +1,16 @@
+/*******************************************************************************
+ * Copyright (c) 2019-2024 OBEO.
+ * 
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
+ * which accompanies this distribution, and is available at
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ * Contributors:
+ *    Nicolas PERANSIN - initial API and implementation
+ *******************************************************************************/
 package org.mypsycho.modit.emf.sirius.tool
 
 import java.util.ResourceBundle
