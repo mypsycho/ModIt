@@ -61,6 +61,8 @@ import org.eclipse.emf.ecore.EEnum
  */
 class EReversIt {
 
+	public static val HEADLESS_MESSAGE = "// headless object"
+
 	/** Set of classes used in main model by the default implementation  */
 	protected static val MAIN_IMPORTS = #{ 
 		HashMap, Class, // java
@@ -716,9 +718,9 @@ ENDFOR
 	}
 	
 
-	protected def 
-		List<? extends Pair<? extends Class<? extends EObject>, List<EReference>>> 
-			getContainmentOrders() {
+	protected def List<? extends Pair<? extends Class<? extends EObject>, List<EReference>>> 
+			getContainmentOrders(			
+	) {
 		#[]
 		/* Example
 			#[
@@ -896,7 +898,8 @@ ENDFOR
 			switch(it) { // To package class
 				EClassifier: EPackage
 				EStructuralFeature: EContainingClass.EPackage
-				EPackage: it				
+				EPackage: it
+				default: null			
 			}
 		}
 	}
@@ -936,9 +939,9 @@ ENDFOR
 		(root.src.eResource !== null)
 			? path.templateExpr(templateImplicitRef(path))
 				.templateCast(getClassCast(path, using))
-			: "// headless object" // throw exception or generate invalid statement ?
-	}
-		
+			: HEADLESS_MESSAGE // throw exception or generate invalid statement ?
+	}	
+	
 	protected def templateExplicitRef(Expr it) {
 		src.templateExtra(context.explicitExtras.get(src))
 	}
@@ -992,22 +995,37 @@ ENDFOR
 	}
 	
 	
-	def protected callEcorePath(ENamedElement it) {
-		val ePackage = switch(it) {
-			EClass: EPackage
-			EStructuralFeature: EContainingClass.EPackage
-			EPackage: it
-			default: null
-		}
-		
-		val generatedEPackage = ePackage !== null
-			&& ePackage.class.fields.exists[ isEPackageInstanceField ]
+	protected def callEcorePath(ENamedElement it) {
+		val EPackage ePackage = EEcoreExpr.toPackage(it)?.toRegistered		
+		val generated = ePackage?.resolveEcore(it) ?: null
 
-		generatedEPackage
-			? new EEcoreExpr(it)
+		generated !== null
+			? new EEcoreExpr(generated)
 			: null
 	}
 
+	protected def toRegistered(EPackage it) {
+		if (it === null || nsURI === null) { // unresolved
+			null
+		} else if (eResource === null) { // registered
+			it
+		} else {
+			val result = EPackage.Registry.INSTANCE.getEPackage(nsURI)
+			result
+		}
+	}
+
+	protected def <N extends ENamedElement> N resolveEcore(EPackage root, N it) {
+		switch(it) { // To package class
+			EClassifier: root.getEClassifier(name) as N
+			EStructuralFeature: 
+				root.resolveEcore(EContainingClass)
+					?.getEStructuralFeature(name) as N
+			EPackage: root as N
+			default: null			
+		}
+		
+	}
 	
 	protected def Expr complexCallPath(EObject it, boolean withExtras) {
 		
@@ -1108,11 +1126,15 @@ ENDFOR
 	
 	// Xtend
 	protected def templatePropertyValue(EStructuralFeature it, String value) {
+		val assign = isMany 
+			? "+="  // Also works with Maps and FeatureEntry
+			: "="
+		
 		value === null  // is this universal (for any lang) ??
-			? '''// «toXtendProperty.safename» is headless''' // TODO log an error
-			: isMany
-			? '''«toXtendProperty.safename» += «value»''' // Also works with Maps
-			: '''«toXtendProperty.safename» = «value»'''
+			? '''// «toXtendProperty.safename» is headless''' // possible ?
+			: value.startsWith(HEADLESS_MESSAGE)
+			? '''// «toXtendProperty.safename» «assign» «value»'''
+			: '''«toXtendProperty.safename» «assign» «value»'''
 	}
 
 	protected def isPureReference(EReference it) {
