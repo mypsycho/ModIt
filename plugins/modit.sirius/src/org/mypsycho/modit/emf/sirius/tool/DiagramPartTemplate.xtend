@@ -17,21 +17,14 @@ import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EStructuralFeature
 import org.eclipse.sirius.diagram.description.AbstractNodeMapping
 import org.eclipse.sirius.diagram.description.AdditionalLayer
-import org.eclipse.sirius.diagram.description.BooleanLayoutOption
 import org.eclipse.sirius.diagram.description.ConditionalContainerStyleDescription
 import org.eclipse.sirius.diagram.description.ConditionalEdgeStyleDescription
 import org.eclipse.sirius.diagram.description.ConditionalNodeStyleDescription
 import org.eclipse.sirius.diagram.description.ContainerMapping
-import org.eclipse.sirius.diagram.description.CustomLayoutConfiguration
 import org.eclipse.sirius.diagram.description.DescriptionPackage
-import org.eclipse.sirius.diagram.description.DoubleLayoutOption
 import org.eclipse.sirius.diagram.description.EdgeMapping
-import org.eclipse.sirius.diagram.description.EnumLayoutOption
-import org.eclipse.sirius.diagram.description.EnumSetLayoutOption
-import org.eclipse.sirius.diagram.description.IntegerLayoutOption
 import org.eclipse.sirius.diagram.description.Layer
 import org.eclipse.sirius.diagram.description.NodeMapping
-import org.eclipse.sirius.diagram.description.StringLayoutOption
 import org.eclipse.sirius.diagram.description.tool.ContainerCreationDescription
 import org.eclipse.sirius.diagram.description.tool.ContainerDropDescription
 import org.eclipse.sirius.diagram.description.tool.DeleteElementDescription
@@ -154,33 +147,6 @@ abstract class DiagramPartTemplate<R extends EObject> extends RepresentationTemp
 		super.findNs(it)
 	}
 	
-	def isElkLayered(Object it) {
-		it instanceof CustomLayoutConfiguration
-			? id == "org.eclipse.elk.layered"
-			: false
-	}
-	
-	def templateElkLayout(CustomLayoutConfiguration it) {
-'''elkLayout(
-«
-FOR option : layoutOptions
-SEPARATOR LValueSeparator
-»	"«option.id.substring("org.eclipse.elk.".length)»".elk«
-	switch(option) {
-		BooleanLayoutOption: '''Bool(«option.value»'''
-		DoubleLayoutOption: '''Double(«option.value»'''
-		EnumLayoutOption: '''Enum("«option.value.name»"'''
-		IntegerLayoutOption: '''Int(«option.value»'''
-		StringLayoutOption: '''String("«option.value»"'''
-		EnumSetLayoutOption: '''Enums("«option.values.map[ name ].join(",")»"'''
-	}                                                  », «
-	option.targets
-		.map[ "LayoutOptionTarget." + name() ]
-		.join(", ") »)«
-ENDFOR»
-)'''
-	}
-	
 	override getToolModelOperation(EObject it) {
 		switch(it) {
 			ContainerDropDescription: initialOperation.firstModelOperations
@@ -198,9 +164,7 @@ ENDFOR»
 	}
 	
 	override templatePropertyValue(EStructuralFeature feat, Object value, (Object)=>String encoding) {
-		DPKG.diagramDescription_Layout == feat && isElkLayered(value)
-			? (value as CustomLayoutConfiguration).templateElkLayout
-			: DPKG.layer_Customization == feat 
+		DPKG.layer_Customization == feat 
 			? (value as Customization).templateStyleCustomisation
 			: DPKG.nodeMapping_ConditionnalStyles == feat 
 			? (value as ConditionalNodeStyleDescription).templateMappingConditionnalStyle

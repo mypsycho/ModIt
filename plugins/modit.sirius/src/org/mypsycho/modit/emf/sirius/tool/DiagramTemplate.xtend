@@ -16,11 +16,18 @@ package org.mypsycho.modit.emf.sirius.tool
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EStructuralFeature
 import org.eclipse.sirius.diagram.description.AdditionalLayer
+import org.eclipse.sirius.diagram.description.BooleanLayoutOption
+import org.eclipse.sirius.diagram.description.CustomLayoutConfiguration
 import org.eclipse.sirius.diagram.description.DescriptionPackage
 import org.eclipse.sirius.diagram.description.DiagramDescription
 import org.eclipse.sirius.diagram.description.DiagramElementMapping
 import org.eclipse.sirius.diagram.description.DiagramImportDescription
+import org.eclipse.sirius.diagram.description.DoubleLayoutOption
+import org.eclipse.sirius.diagram.description.EnumLayoutOption
+import org.eclipse.sirius.diagram.description.EnumSetLayoutOption
+import org.eclipse.sirius.diagram.description.IntegerLayoutOption
 import org.eclipse.sirius.diagram.description.Layer
+import org.eclipse.sirius.diagram.description.StringLayoutOption
 import org.eclipse.sirius.diagram.description.filter.CompositeFilterDescription
 import org.eclipse.sirius.diagram.description.filter.FilterPackage
 import org.eclipse.sirius.diagram.description.filter.MappingFilter
@@ -156,12 +163,43 @@ ENDFOR  // Additional Layers
 	}
 	
 	override templatePropertyValue(EStructuralFeature feat, Object value, (Object)=>String encoding) {
- 		DPKG.diagramDescription_Filters == feat && value instanceof CompositeFilterDescription
+		DPKG.diagramDescription_Layout == feat && isElkLayered(value)
+			? (value as CustomLayoutConfiguration).templateElkLayout
+ 			: DPKG.diagramDescription_Filters == feat && value instanceof CompositeFilterDescription
 			? (value as CompositeFilterDescription).templateFiltering
 			: FilterPackage.eINSTANCE.compositeFilterDescription_Filters == feat && value instanceof MappingFilter
 			? (value as MappingFilter).templateMappingFilter(encoding)
 			: super.templatePropertyValue(feat, value, encoding)
 	}
+	
+		def isElkLayered(Object it) {
+		it instanceof CustomLayoutConfiguration
+			? id == "org.eclipse.elk.layered"
+			: false
+	}
+	
+	def templateElkLayout(CustomLayoutConfiguration it) {
+		// @see org.mypsycho.modit.emf.sirius.api.SiriusDiagram#elkLayered(DiagramDescription, LayoutOption)
+'''elkLayer(
+«
+FOR option : layoutOptions
+SEPARATOR LValueSeparator
+»	"«option.id.substring("org.eclipse.elk.".length)»".elk«
+	switch(option) {
+		BooleanLayoutOption: '''Bool(«option.value»'''
+		DoubleLayoutOption: '''Double(«option.value»'''
+		EnumLayoutOption: '''Enum("«option.value.name»"'''
+		IntegerLayoutOption: '''Int(«option.value»'''
+		StringLayoutOption: '''String("«option.value»"'''
+		EnumSetLayoutOption: '''Enums("«option.values.map[ name ].join(",")»"'''
+	}                                                  », «
+	option.targets
+		.map[ "LayoutOptionTarget." + name() ]
+		.join(", ") »)«
+ENDFOR»
+)'''
+	}
+	
 	
 	
 	def templateFiltering(CompositeFilterDescription it) {
