@@ -24,18 +24,21 @@ import org.eclipse.emf.ecore.EPackage
 import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.emf.ecore.resource.ResourceSet
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl
+import org.eclipse.emf.ecore.util.EcoreUtil
 import org.eclipse.sirius.properties.ViewExtensionDescription
 import org.eclipse.sirius.viewpoint.description.DescriptionPackage
 import org.eclipse.sirius.viewpoint.description.Group
 import org.eclipse.sirius.viewpoint.description.RepresentationDescription
 import org.eclipse.sirius.viewpoint.description.RepresentationExtensionDescription
-import org.eclipse.sirius.viewpoint.description.SystemColor
 import org.eclipse.sirius.viewpoint.description.Viewpoint
 import org.eclipse.xtend.lib.annotations.Accessors
 import org.mypsycho.modit.emf.ClassId
 import org.mypsycho.modit.emf.sirius.api.AbstractPropertySet
 import org.mypsycho.modit.emf.sirius.api.SiriusDesigns
-import org.eclipse.emf.ecore.util.EcoreUtil
+
+import static extension org.mypsycho.modit.emf.sirius.SiriusModelProvider.*
+import org.mypsycho.modit.emf.sirius.api.SiriusVpGroup
+import org.eclipse.xtend.lib.annotations.AccessorType
 
 /**
  * 
@@ -48,7 +51,6 @@ import org.eclipse.emf.ecore.util.EcoreUtil
  */
 class SiriusReverseIt {
 
-	
 	protected val ResourceSet rs
 	protected val Group source
 	protected val ClassId classId
@@ -60,6 +62,9 @@ class SiriusReverseIt {
 	
 	@Accessors
 	val SiriusGroupTemplate engine
+	
+	@Accessors(#[ AccessorType.PACKAGE_GETTER ])
+	val SiriusVpGroup defaultContent
 	
 	/**
 	 * Construct a reverse of a Odesign.
@@ -104,17 +109,31 @@ class SiriusReverseIt {
 		
 		source = content
 		// use provided resourceset or a default one
-		rs = content.eResource?.resourceSet ?: new ResourceSetImpl
+		rs = content.eResource?.resourceSet 
+			?: new ResourceSetImpl
 		classId = new ClassId(classname)
 		
-		editedPackages = (editeds + usedMetamodels)
-			// Normalize
+		editedPackages = (editeds + usedMetamodels) // Normalize
 			.map[ toEcoreClass ]
 			.filterNull
 			.flatMap[ #[ it ] + eAllContents.toIterable.filter(EPackage) ]
 			.toSet
 			.toList
 			.sortBy[ nsURI ]
+		
+		defaultContent = new SiriusVpGroup {
+			// Hack load to only init extras
+			override loadContent(Resource container) {
+				resource = container
+				initExtras
+				null
+			}
+			
+			override protected initContent(Group it) {
+				throw new UnsupportedOperationException("TODO: auto-generated method stub")
+			}
+		}
+		defaultContent.loadContent(source.eResource)
 		
 		engine = source.eResource.createEngine(classname, dir) => [
 			
@@ -127,16 +146,18 @@ class SiriusReverseIt {
 				split.addDefaultAliases(classId, aliases)
 			]
 			
-			explicitExtras.putAll(source
-				.systemColorsPalette
-				.entries
-				.<SystemColor, String>toInvertedMap[ "color:" + name ]
-			)
-
-			addExplicitExtras(rs, explicitExtras)
+			explicitExtras += rs.environmentExtras
+			rs.addExplicitExtras(explicitExtras)
 
 			shortcuts += DescriptionPackage.eINSTANCE.identifiedElement_Name
 		]
+		
+	}
+	
+	def getEnvironmentExtras(ResourceSet rs) {
+		rs.environment
+			.environmentContent
+			.toInvertedMap[ environmentAlias ]
 	}
 	
 	def static toEcoreClass(EPackage it) {

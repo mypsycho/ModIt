@@ -19,18 +19,17 @@ import java.util.Map
 import java.util.Objects
 import java.util.Set
 import org.eclipse.core.runtime.Platform
+import org.eclipse.emf.ecore.EClass
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EStructuralFeature
-import org.eclipse.sirius.diagram.description.tool.DirectEditLabel
 import org.eclipse.sirius.properties.FillLayoutDescription
 import org.eclipse.sirius.properties.GridLayoutDescription
 import org.eclipse.sirius.properties.LayoutDescription
 import org.eclipse.sirius.properties.PropertiesPackage
-import org.eclipse.sirius.table.metamodel.table.description.TableTool
-import org.eclipse.sirius.tree.description.TreeItemTool
 import org.eclipse.sirius.viewpoint.description.AbstractVariable
 import org.eclipse.sirius.viewpoint.description.DescriptionPackage
 import org.eclipse.sirius.viewpoint.description.IdentifiedElement
+import org.eclipse.sirius.viewpoint.description.tool.AbstractToolDescription
 import org.eclipse.sirius.viewpoint.description.tool.ChangeContext
 import org.eclipse.sirius.viewpoint.description.tool.ContainerModelOperation
 import org.eclipse.sirius.viewpoint.description.tool.CreateInstance
@@ -38,15 +37,20 @@ import org.eclipse.sirius.viewpoint.description.tool.EditMaskVariables
 import org.eclipse.sirius.viewpoint.description.tool.ExternalJavaAction
 import org.eclipse.sirius.viewpoint.description.tool.For
 import org.eclipse.sirius.viewpoint.description.tool.If
+import org.eclipse.sirius.viewpoint.description.tool.InitEdgeCreationOperation
+import org.eclipse.sirius.viewpoint.description.tool.InitialContainerDropOperation
+import org.eclipse.sirius.viewpoint.description.tool.InitialNodeCreationOperation
+import org.eclipse.sirius.viewpoint.description.tool.InitialOperation
 import org.eclipse.sirius.viewpoint.description.tool.Let
-import org.eclipse.sirius.viewpoint.description.tool.OperationAction
-import org.eclipse.sirius.viewpoint.description.tool.PasteDescription
-import org.eclipse.sirius.viewpoint.description.tool.SelectionWizardDescription
+import org.eclipse.sirius.viewpoint.description.tool.ModelOperation
 import org.eclipse.sirius.viewpoint.description.tool.SetValue
-import org.eclipse.sirius.viewpoint.description.tool.ToolDescription
+import org.eclipse.sirius.viewpoint.description.tool.Switch
 import org.eclipse.sirius.viewpoint.description.tool.ToolPackage
+import org.eclipse.sirius.viewpoint.description.tool.Unset
+import org.eclipse.sirius.viewpoint.description.tool.VariableContainer
 import org.mypsycho.modit.emf.ClassId
 import org.mypsycho.modit.emf.EReversIt
+import org.mypsycho.modit.emf.sirius.api.AbstractEdition
 import org.mypsycho.modit.emf.sirius.api.SiriusDesigns
 
 import static extension org.mypsycho.modit.emf.sirius.tool.SiriusReverseIt.*
@@ -57,18 +61,43 @@ import static extension org.mypsycho.modit.emf.sirius.tool.SiriusReverseIt.*
 // Target EObject as DiagramExtensionDescription does not extends Representation.
 abstract class RepresentationTemplate<R extends EObject> extends EReversIt {
 	
-	protected static val SPKG = DescriptionPackage.eINSTANCE
+	protected static val PKG = DescriptionPackage.eINSTANCE
 	protected static val TPKG = ToolPackage.eINSTANCE
 	protected static val PPKG = PropertiesPackage.eINSTANCE
+
+	public static val INIT_TEMPLATED = #{
+		ExternalJavaAction -> #{
+			TPKG.externalJavaAction_Id, 
+			TPKG.externalJavaAction_Parameters,
+			TPKG.containerModelOperation_SubModelOperations
+		}
+	}
+
+	static val CONTENT_PROVIDER_FIELDS = #{
+		PKG.identifiedElement_Name,
+		PKG.abstractVariable_Name
+	}
+	
 
 	// XTend does not support statefull inner class
 	protected val extension SiriusReverseIt tool
 	protected val Class<R> targetClass
 	
+	// May an issue with Diagram sub-kind
+	val AbstractEdition defaultContent
+	protected Map<EClass, EObject> defaultInits = newHashMap
+	
 	new(SiriusGroupTemplate container, Class<R> target) {
 		super(container)
 		tool = container.tool
 		targetClass = Objects.requireNonNull(target)
+		defaultContent = createDefaultContent
+	}
+		
+	def AbstractEdition createDefaultContent() { null }
+	
+	def getDefaultContent() {
+		defaultContent
 	}
 	
 	def List<? extends Pair<? extends Class<? extends EObject>, ? extends Enum<?>>> getNsMapping()
@@ -94,17 +123,7 @@ abstract class RepresentationTemplate<R extends EObject> extends EReversIt {
 			: context.mainClass.name
 	}
 	
-	public static val INIT_TEMPLATED = #{
-		ExternalJavaAction -> #{
-			TPKG.externalJavaAction_Id, 
-			TPKG.externalJavaAction_Parameters,
-			TPKG.containerModelOperation_SubModelOperations
-		}
-	}
-	
-	/**
-	 * Lists fields where a accelerator replace basic assignment.
-	 */
+	/** Lists fields where a accelerator replace basic assignment. */
 	def Map<? extends Class<? extends EObject>, 
 			? extends Set<? extends EStructuralFeature>> 
 			getInitTemplateds() {
@@ -119,11 +138,6 @@ abstract class RepresentationTemplate<R extends EObject> extends EReversIt {
 		templateInnerContent(content)
 	}
  
-	static val CONTENT_PROVIDER_FIELDS = #{
-		SPKG.identifiedElement_Name,
-		SPKG.abstractVariable_Name
-	}
-	
 	override getInnerContent(EObject it) {
 		super.getInnerContent(it)
 			// Following feature are supported by contentProvider
@@ -148,15 +162,12 @@ ENDIF
 	def dispatch smartTemplateCreate(EditMaskVariables it) { mask.toJava }
  	
  	def dispatch smartTemplateCreate(ChangeContext it) {
-		if (subModelOperations.empty)
-'''«browseExpression.toJava».toOperation'''
-		else
-'''«browseExpression.toJava».toContext«
-IF !subModelOperations.empty           »(
+		if (subModelOperations.empty) {
+			return '''«browseExpression.toJava».toOperation'''
+		}
+'''«browseExpression.toJava».toContext(
 	«templateContainerOperations»
-)«
-ENDIF
-»'''
+)'''
 	}
  	
  	def dispatch smartTemplateCreate(If it) {
@@ -170,6 +181,25 @@ ENDIF
 	«templateContainerOperations»
 )'''
 	}
+	
+ 	def dispatch smartTemplateCreate(Switch it) {
+ 		val defaultOps = (^default?.subModelOperations ?: List.of)
+ 		
+ 		if (cases.exists[ subModelOperations.length != 1 ] 
+ 			|| defaultOps.length > 1) {
+			return super.smartTemplateCreate(it)
+		}
+'''switchDo(
+«
+FOR aCase : cases
+SEPARATOR LValueSeparator
+»	«aCase.conditionExpression.toJava»
+		-> «aCase.subModelOperations.head.templateCreate»«
+ENDFOR // section
+»)«
+IF !defaultOps.empty 
+»
+	.setByDefault(«defaultOps.head.templateCreate»)«ENDIF»'''}
 	
  	def dispatch smartTemplateCreate(ExternalJavaAction it) {
  		val details = templateFilteredContent(ExternalJavaAction)
@@ -216,25 +246,30 @@ ENDIF                    »«templateSubOperations»'''
 '''«featureName.toJava».setter(«valueExpression.toJava»)«templateSubOperations»'''
 	}
 
+ 	def dispatch smartTemplateCreate(Unset it) {
+'''«featureName.toJava».unsetter(«elementExpression.toJava»)«templateSubOperations»'''
+	}
+
  	def dispatch smartTemplateCreate(CreateInstance it) {
 '''«referenceName.toJava».creator(«typeName.toJava»)«
-IF variableName != "instance" /* Default */            
-».andThen[ variableName = «variableName.toJava» ]«
+IF variableName != TPKG.createInstance_VariableName.defaultValue /* Default value*/            
+                                  ».andThen[ variableName = «variableName.toJava» ]«
 ENDIF
 »«templateSubOperations»'''
 	}
 
 // Issue combining 2 operations
 // 	def dispatch smartTemplateCreate(RemoveElement it) {
-//'''«featureName.toJava».setter(«valueExpression.toJava»)«templateSubOperations»'''
+//'''«featureName.toJava».remover(«valueExpression.toJava»)«templateSubOperations»'''
 //	}
 
  	def dispatch smartTemplateCreate(Let it) {
-'''«valueExpression.toJava».let(«variableName.toJava»«
-IF !subModelOperations.empty                        »,
-	«templateContainerOperations»
+'''«valueExpression.toJava»
+	.letDo(«variableName.toJava»«
+IF !subModelOperations.empty    »,
+		«templateContainerOperations»
 «
-ENDIF                                               »)'''
+ENDIF                            »)'''
 	}
 
  	def dispatch smartTemplateCreate(IdentifiedElement it) {
@@ -248,6 +283,12 @@ ENDIF                                               »)'''
 	}
 	
 	def String templateIdentifiedCreate(IdentifiedElement it) { // Default
+'''«templateIdentifiedCreateHeader» [
+	«templateInnerContent(innerContent)»
+]'''
+	}
+	
+	def String templateIdentifiedCreateHeader(IdentifiedElement it) { // Default
 		// TODO verification:
 		// We assume names follows the guidelines.
 		// Store aliases to detect conflict.
@@ -255,9 +296,7 @@ ENDIF                                               »)'''
 '''«templateClass».create«
 IF ns !== null          »As(Ns.«ns.name», «
 ELSE                    »(«
-ENDIF                    »«name.toJava») [
-	«templateInnerContent(innerContent)»
-]'''
+ENDIF                    »«name.toJava»)'''
 	}
 
 	override callPath(EObject it, boolean withExtras) {
@@ -311,38 +350,6 @@ ENDIF                    »«name.toJava») [
 
 	protected def aliasPath(IdentifiedElement it) { name }
 
-	override templateProperty(EObject element, EStructuralFeature it, (Object, Class<?>)=>String encoding) {
-		if (name == "initialOperation") { // No reflection for this.
-			try {
-				return element.templateToolOperation
-			} catch (UnsupportedOperationException ex) {
-				System.err.println('''Add operation in «this.class.simpleName»: «element.eClass.name»''')
-			}
-		}
-		super.templateProperty(element, it, encoding)
-	}
-	
-	def getToolModelOperation(EObject it) {
-		switch(it) {
-			// All representation
-			OperationAction: initialOperation?.firstModelOperations
-			ToolDescription: initialOperation?.firstModelOperations
-			PasteDescription: initialOperation?.firstModelOperations
-			SelectionWizardDescription: initialOperation?.firstModelOperations
-			DirectEditLabel: initialOperation?.firstModelOperations
-			TableTool: firstModelOperation
-			TreeItemTool: firstModelOperation
-			default: throw new UnsupportedOperationException // Caught by fallback
-		}
-	}
-	
-	def String templateToolOperation(EObject it) {
-		val operation = toolModelOperation
-		operation !== null
-			? '''operation = «operation.templateInnerCreate»'''
-			: '''// no operation '''
-	}
-	
 	dispatch override toJava(String it) {
 		if (!startsWith(SiriusDesigns.AQL)) {
 			return super._toJava(it)
@@ -356,9 +363,69 @@ ENDIF                    »«name.toJava») [
 		// «» can be used to escape '
 		'''«"'''"»«expression»«"'''"».trimAql'''
 	}
+
+	def dispatch smartTemplateCreate(AbstractToolDescription it) {
+		toolTemplateCreate	
+	}
+
+	def isReferencingSubType(EStructuralFeature it, Class<?> type) {
+		type.isAssignableFrom(EType.instanceClass)
+	}
+
+	def String toolTemplateCreate(EObject it) {
+		var variables = eContents
+			.filter(VariableContainer)
+			.toList
+		
+		val complexVariables = variables.empty
+			|| variables.exists[ !subVariables.empty ]
+		val filteredContent = innerContent
+			.filter[ complexVariables || !key.isReferencingSubType(AbstractVariable) ]
+		val header = it instanceof IdentifiedElement 
+			? templateIdentifiedCreateHeader
+			: '''«templateClass».create'''
+
+'''«header» [
+	«
+IF !complexVariables
+	»initVariables
+	«
+ENDIF
+	»«templateInnerContent(filteredContent)»
+]'''}
+	
+//	def getToolModelOperation(EObject it) {
+//		switch(it) {
+//			// All representations
+//			OperationAction: initialOperation?.firstModelOperations
+//			ToolDescription: initialOperation?.firstModelOperations
+//			PasteDescription: initialOperation?.firstModelOperations
+//			SelectionWizardDescription: initialOperation?.firstModelOperations
+//			DirectEditLabel: initialOperation?.firstModelOperations
+//			DialogButton: initialOperation.firstModelOperations
+//			TextDescription: initialOperation.firstModelOperations
+//			default: throw new UnsupportedOperationException // Caught by fallback
+//		}
+//	}
+	
+	def templateToolOperation(ModelOperation it) {
+		// Not a smartTemplateCreate case.
+		// Applicable only tool property
+		it === null
+			?  '''// no operation '''
+			: '''operation = «templateInnerCreate»'''
+	}
 	
 	override templatePropertyValue(EStructuralFeature feat, Object value, (Object)=>String encoding) {
-		PPKG.abstractContainerDescription_Layout == feat
+		(value instanceof InitialOperation) // only used with tools and initialOperation
+			? value.firstModelOperations.templateToolOperation
+			: (value instanceof InitialContainerDropOperation) // legacy ?
+			? value.firstModelOperations.templateToolOperation
+			: (value instanceof InitialNodeCreationOperation) // legacy ?
+			? value.firstModelOperations.templateToolOperation
+			: (value instanceof InitEdgeCreationOperation) // legacy ?
+			? value.firstModelOperations.templateToolOperation
+			: PPKG.abstractContainerDescription_Layout == feat
 			? (value as LayoutDescription).templatePropertiesLayout(encoding)
 			: super.templatePropertyValue(feat, value, encoding)
 	}
@@ -370,5 +437,6 @@ ENDIF                    »«name.toJava») [
 			? '''layout«makeColumnsWithEqualWidth ? "Regular" : "Free"»Grid(«numberOfColumns»)'''
 			: super.templatePropertyValue(PPKG.abstractContainerDescription_Layout, it, encoding)
 	}
+	
 	
 }

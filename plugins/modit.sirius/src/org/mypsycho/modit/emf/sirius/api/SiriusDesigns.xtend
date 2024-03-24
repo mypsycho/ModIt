@@ -30,6 +30,7 @@ import org.eclipse.sirius.viewpoint.description.IdentifiedElement
 import org.eclipse.sirius.viewpoint.description.RepresentationDescription
 import org.eclipse.sirius.viewpoint.description.RepresentationExtensionDescription
 import org.mypsycho.modit.emf.sirius.SiriusConstantInterpreter
+import org.eclipse.emf.ecore.EClass
 
 /**
  * Convenient methods and constants for Sirius design creation.
@@ -112,16 +113,17 @@ class SiriusDesigns {
         '''«EContainingClass.asAql».getEStructuralFeature('«name»')'''
     }
     
+    /** Converts a enum item  */
     static def String asAql(Enumerator it) {
     	val path = class.package.name
     	val packageClass = path + '.'
     		+ path.substring(path.lastIndexOf('.') + 1, path.length).toFirstUpper
     		+ "Package"
-    	val eName = class.classLoader
+    	val ePackName = class.classLoader
     		.loadClass(packageClass)
     		.getDeclaredField('eNAME')
     	
-    	'''«eName.get(null)»::«class.simpleName»::«name»'''
+    	'''«ePackName.get(null)»::«class.simpleName»::«name»'''
     }
 	
 		
@@ -231,7 +233,8 @@ class SiriusDesigns {
 		result as T
 	}
 	
-	static def boolean isContaining(EObject it, EObject value) {
+	/** Evaluates if a value is contained by it. */
+	static def isContaining(EObject it, EObject value) {
 		for(var current = value; 
 			current !== null; 
 			current = current.eContainer
@@ -243,7 +246,7 @@ class SiriusDesigns {
 		false
 	}
 	
-	
+	/** Aql request to views target */
 	static def final allTargetViews(EClassifier eclass) {
 		// Usefull for OperationAction
 		'''
@@ -253,7 +256,10 @@ class SiriusDesigns {
 		'''.trimAql
 	} 
 	
+	/** Unsupported characters for Java name. */
 	static val NO_TECH = Pattern.compile("[^a-zA-Z0-9 _]")
+	
+	/** Gets a name compatible with Java name. */
 	static def techName(String it) {
 		NO_TECH.matcher(it)
 			.replaceAll("_")
@@ -261,24 +267,24 @@ class SiriusDesigns {
 			.join("")[ toFirstUpper ]
 	}
 	
-	static def getDescriptionSuffix(EObject it) {
-		val className = eClass.name
-		className.endsWith("Description") // trim Sirius Object end.
-			? className.substring(0, className.length - "Description".length) 
-			: className
+	/** Removes "Description" from a class name. */
+	static def trimDescriptionSuffix(EClass it) {
+		name.endsWith("Description") // trim Sirius Object end.
+			? name.substring(0, name.length - "Description".length) 
+			: name
 	}
 	
+	/** Adds a suffix based on the element type. */
 	static def hungarianSuffix(String basename, EObject it) {
-		val end = SiriusDesigns.getDescriptionSuffix(it)
+		// Suffix description is redundant when everything is a description.
+		val end = eClass.trimDescriptionSuffix
 		// avoid duplicated end
 		val applySuffix = !basename.toLowerCase.endsWith(end.toLowerCase)
+		// Add a suffix based on type if needed.
 		basename + (applySuffix ? end : "")
 	}
 	
-	static def String encodeVpUri(String pluginId, String vpName) {
-		'''viewpoint:/«pluginId»/«vpName»'''
-	}
-	
+	/** Converts an object in to class name. */
 	static def toClassname(EObject it) {
 		val basename = switch (it) {
 			RepresentationDescription: name.techName
@@ -288,10 +294,17 @@ class SiriusDesigns {
 		basename.hungarianSuffix(it)
 	}
 	
+	/** Initializes label and documentation based on a Plugin Property key. */
 	static def void setI18n(IdentifiedElement it, String key) {
 		label = "%" + key
 		if (it instanceof DocumentedElement) {
 			documentation = label + "?ttip"	
 		}
 	}
+
+	static def String encodeVpUri(String pluginId, String vpName) {
+		'''viewpoint:/«pluginId»/«vpName»'''
+	}	
+	
+	
 }

@@ -39,30 +39,39 @@ import org.mypsycho.modit.emf.sirius.api.SiriusDiagramExtension
  */
 class DiagramExtensionTemplate extends DiagramPartTemplate<DiagramExtensionDescription> {
 	
+	static val INIT_TEMPLATED = #{
+		DiagramExtensionDescription -> #{
+			// <Constructor>
+			PKG.representationExtensionDescription_RepresentationName, 
+			PKG.representationExtensionDescription_ViewpointURI,
+			// <Template> initContent
+			PKG.representationExtensionDescription_Name
+		},
+		AdditionalLayer -> #{}
+	}
+	
+	/** Set of classes used in sub parts by the default implementation  */
+	static val PART_IMPORTS = (
+		#{ SiriusDiagramExtension, BasicLabelStyleDescription, EdgeStyleDescription }
+			+ INIT_TEMPLATED.keySet
+	).toList
+	
+	
 	var RepresentationDescription extended
 
 	new(SiriusGroupTemplate container) {
 		super(container, DiagramExtensionDescription)
 	}
 	
-	static val INIT_TEMPLATED = #{
-		DiagramExtensionDescription -> #{
-			// <Constructor>
-			SPKG.representationExtensionDescription_RepresentationName, 
-			SPKG.representationExtensionDescription_ViewpointURI,
-			// <Template> initContent
-			SPKG.representationExtensionDescription_Name
-		},
-		AdditionalLayer -> #{}
-	}
-	
-	/** Set of classes used in sub parts by the default implementation  */
-	protected static val PART_IMPORTS = (
-			#{ 
-				SiriusDiagramExtension, BasicLabelStyleDescription, EdgeStyleDescription
+	override createDefaultContent() {
+		new SiriusDiagramExtension(tool.defaultContent) {
+			
+			override initContent(DiagramExtensionDescription it) {
+				throw new UnsupportedOperationException("Must not be built")
 			}
-			+ INIT_TEMPLATED.keySet
-		).toList
+			
+		}
+	}
 	
 	override getPartStaticImports(EObject it) {
 		// no super: EModit and EObject are not used directly
@@ -74,10 +83,10 @@ class DiagramExtensionTemplate extends DiagramPartTemplate<DiagramExtensionDescr
 		INIT_TEMPLATED
 	}
 	
-	static def isMatching(RepresentationDescription descr, DiagramExtensionDescription content) {
+	static def isMatching(RepresentationDescription rep, DiagramExtensionDescription it) {
 		try {
-			content.representationName == descr.name
-				&& content.viewpointURI == SiriusDiagramExtension.getExtraVpUri(descr)
+			representationName == rep.name
+				&& viewpointURI == SiriusDiagramExtension.getExtraVpUri(rep)
 		} catch (IllegalArgumentException iae) {
 			false
 		}
@@ -140,6 +149,8 @@ class DiagramExtensionTemplate extends DiagramPartTemplate<DiagramExtensionDescr
 		}
 	}
 	
+
+	
 	def String mainTemplate(ClassId it, DiagramExtensionDescription content) {
 		val extendedAlias = context.explicitExtras.get(extended)
 		if (extendedAlias === null) {
@@ -160,9 +171,7 @@ IF extendedAlias !== null // 'extension' ensures reference expression works in c
 ENDIF               »)
 	}
 
-	override initDefaultStyle(BasicLabelStyleDescription it) {/* No reverse for Default */}
-	override initDefaultEdgeStyle(EdgeStyleDescription it) {/* No reverse for Default */}
-
+	«defaultStyleTemplate»
 	override initContent(«DiagramExtensionDescription.templateClass» it) {
 		name = «content.name.toJava»«
 IF extended === null						
@@ -219,21 +228,19 @@ ENDFOR // layer
 	}
 	
 	static val List<Pair<EReference, List<EReference>>> DUPLICATED_IMPORT_FIELDS = #[
-		SPKG.representationElementMapping_DetailDescriptions.recopy,
-		SPKG.representationElementMapping_NavigationDescriptions.recopy,
+		PKG.representationElementMapping_DetailDescriptions.recopy,
+		PKG.representationElementMapping_NavigationDescriptions.recopy,
 		DPKG.diagramElementMapping_DeletionDescription.recopy,
 		DPKG.diagramElementMapping_LabelDirectEdit.recopy,
 		DPKG.dragAndDropTargetDescription_DropDescriptions.recopy,
-		DPKG.abstractNodeMapping_ReusedBorderedNodeMappings -> 
-			#[ 
-				DPKG.abstractNodeMapping_ReusedBorderedNodeMappings,
-				DPKG.abstractNodeMapping_BorderedNodeMappings
-			],
-		DPKG.containerMapping_ReusedNodeMappings -> 
-			#[ 
-				DPKG.containerMapping_ReusedNodeMappings,
-				DPKG.containerMapping_SubNodeMappings
-			]
+		DPKG.abstractNodeMapping_ReusedBorderedNodeMappings -> #[ 
+			DPKG.abstractNodeMapping_ReusedBorderedNodeMappings,
+			DPKG.abstractNodeMapping_BorderedNodeMappings
+		],
+		DPKG.containerMapping_ReusedNodeMappings -> #[ 
+			DPKG.containerMapping_ReusedNodeMappings,
+			DPKG.containerMapping_SubNodeMappings
+		]
 		// reusedContainerMappings is altered to target ContainerMappingImport
 	]
 

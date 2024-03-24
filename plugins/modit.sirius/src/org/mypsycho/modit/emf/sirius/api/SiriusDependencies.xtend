@@ -38,6 +38,13 @@ import java.util.Iterator
  */
 class SiriusDependencies {
 	
+	static val EXTRA_TYPES = #[ 
+		AbstractToolDescription, 
+		AbstractNodeMapping,
+		EdgeMapping
+		// Lines of tables ?
+	]
+	
 	/**
 	 * Returns the colors of a group.
 	 * <p>
@@ -81,18 +88,13 @@ class SiriusDependencies {
 		}
 	}
 	
-	static val EXTRA_TYPES = #[ 
-		AbstractToolDescription, 
-		AbstractNodeMapping,
-		EdgeMapping
-	]
-	
+	/** Gets the Sirius Group from plugin path. */
 	static def getDependencyContent(ResourceSet rs, String resourcePath) {
 		rs.getResource(URI.createPlatformPluginURI(resourcePath, false), true)
 			.contents.head as Group
 	}
-	
 
+	/** Iterates on the content of a representation. */
 	static def getDependencyExtras(RepresentationDescription it) {
 		eAllContents
 			.filter(IdentifiedElement)
@@ -102,14 +104,15 @@ class SiriusDependencies {
 			]
 	}
 
-	static def getDependencyExtras(String designId, 
-		ResourceSet rs, String resourcePath
+	static def getDependencyExtras(
+		String designId, ResourceSet rs, String resourcePath
 	) {
 		designId.getDependencyExtras(rs, resourcePath, [ SiriusDesigns.toClassname(it) ])
 	}
 	
-	static def getDependencyExtras(String designId, 
-		ResourceSet rs, String resourcePath, (EObject)=>String toClassname
+	static def getDependencyExtras(
+		String designId, ResourceSet rs, 
+		String resourcePath, (EObject)=>String toClassname
 	) {
 		val vpGroup = rs.getDependencyContent(resourcePath)
 		
@@ -117,20 +120,20 @@ class SiriusDependencies {
 		vpGroup.mapDependencyExtras(aliasBase, toClassname)
 	}
 	
-	static def dispatch Map<EObject, String> mapDependencyExtras(EObject it,
-		String aliasBase, (EObject)=>String toClassname
+	private static def dispatch Map<EObject, String> mapDependencyExtras(
+		EObject it, String aliasBase, (EObject)=>String toClassname
 	) {
 		Collections.emptyMap
 	}
 
-	static def dispatch Map<EObject, String> mapDependencyExtras(IdentifiedElement it,
-		String aliasBase, (EObject)=>String toClassname
+	private static def dispatch Map<EObject, String> mapDependencyExtras(
+		IdentifiedElement it, String aliasBase, (EObject)=>String toClassname
 	) {
 		#{ it -> getExtraAlias(aliasBase, toClassname) }
 	}
 
-	static def dispatch Map<EObject, String> mapDependencyExtras(DiagramDescription it,
-		String aliasBase, (EObject)=>String toClassname
+	private static def dispatch Map<EObject, String> mapDependencyExtras(
+		DiagramDescription it, String aliasBase, (EObject)=>String toClassname
 	) {
 		val result = new HashMap<EObject, String>
 	
@@ -142,11 +145,12 @@ class SiriusDependencies {
 		result
 	}
 
-	static def dispatch Map<EObject, String> mapDependencyExtras(Group it,
-		String aliasBase, (EObject)=>String toClassname
+	private static def dispatch Map<EObject, String> mapDependencyExtras(
+		Group it, String aliasBase, (EObject)=>String toClassname
 	) {
 		val result = new HashMap<EObject, String>
 		result += it -> aliasBase
+		
 		ownedViewpoints
 			.flatMap[ ownedRepresentations + ownedRepresentationExtensions ]
 			.forEach [ result += mapDependencyExtras(aliasBase, toClassname) ]
@@ -160,8 +164,9 @@ class SiriusDependencies {
 		result
 	}
 	
-	static def toDependencyExtras(Iterator<? extends EObject> values,
-		String aliasBase, (EObject)=>String toClassname
+	static def toDependencyExtras(
+		Iterator<? extends EObject> values, String aliasBase, 
+		(EObject)=>String toClassname
 	) {
 		values.toInvertedMap[ getExtraAlias(aliasBase, toClassname) ]
 	}

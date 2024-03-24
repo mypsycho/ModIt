@@ -24,6 +24,8 @@ import org.eclipse.emf.common.util.URI
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EPackage
 import org.eclipse.emf.ecore.resource.Resource
+import org.eclipse.emf.ecore.resource.ResourceSet
+import org.eclipse.sirius.business.api.helper.ViewpointUtil
 import org.eclipse.sirius.properties.PropertiesPackage
 import org.eclipse.sirius.properties.ext.widgets.reference.propertiesextwidgetsreference.PropertiesExtWidgetsReferencePackage
 import org.eclipse.sirius.viewpoint.description.AbstractVariable
@@ -31,7 +33,10 @@ import org.eclipse.sirius.viewpoint.description.DescriptionPackage
 import org.eclipse.sirius.viewpoint.description.Environment
 import org.eclipse.sirius.viewpoint.description.Group
 import org.eclipse.sirius.viewpoint.description.IdentifiedElement
+import org.eclipse.sirius.viewpoint.description.SystemColor
+import org.eclipse.sirius.viewpoint.description.style.LabelBorderStyleDescription
 import org.eclipse.sirius.viewpoint.description.style.StylePackage
+import org.eclipse.sirius.viewpoint.description.tool.ToolEntry
 import org.eclipse.sirius.viewpoint.description.tool.ToolPackage
 import org.eclipse.xtend.lib.annotations.AccessorType
 import org.eclipse.xtend.lib.annotations.Accessors
@@ -86,7 +91,7 @@ abstract class SiriusModelProvider implements ModitModel {
 	// extension must be protected to be used by sub-classes
 	protected val extension EModIt factory
 	
-	@Accessors(#[ AccessorType.PROTECTED_GETTER ])
+	@Accessors(#[ AccessorType.PROTECTED_GETTER, AccessorType.PROTECTED_SETTER ])
 	var Resource resource
 	
 	@Accessors
@@ -188,10 +193,22 @@ abstract class SiriusModelProvider implements ModitModel {
 		// System colors are: blue,chocolate,gray,green,orange,purple,red,yellow
 		// With shade : 'dark_', <default>, 'light_'
 		// And: black,white
-		Environment.eObject("environment:/viewpoint#/")
-			.systemColors.entries
-			.forEach[ extras.put("color:" + name, it) ]
+
+		// ** List border style
+		// Border 0 : labelBorderStyleWithBeveledCorner = Label Border Style With Beveled Corner
+		// Border 1 : labelBorderForContainer = Label Border For Container
+		// Border 2 : nolabelBorderForList = No Label Border For List
+		val envContent = resource.resourceSet.environmentExtras
+		extras += envContent
 	}
+	
+	def getEnvironmentExtras(ResourceSet rs) {
+		rs.environment
+			.environmentContent
+			.toMap[ environmentAlias ]
+	}
+	
+
 	
 	/**
 	 * Get an object from the resource set of resource using it URI.
@@ -329,6 +346,25 @@ abstract class SiriusModelProvider implements ModitModel {
 	static def verify(CharSequence message, boolean condition) {
 		if (!condition) {
 			throw new UnsupportedOperationException(message.toString)
+		}
+	}
+	
+		
+	static def getEnvironment(ResourceSet rs) {
+		rs.getEObject(URI.createURI(ViewpointUtil.VIEWPOINT_ENVIRONMENT_RESOURCE_URI + "#/"), true) as Environment
+	}
+	
+	static def getEnvironmentContent(Environment it) {
+		systemColors.entries
+			+ labelBorderStyles.labelBorderStyleDescriptions
+			+ defaultTools
+	}
+	
+	static def getEnvironmentAlias(EObject it) {
+		switch(it) {
+			SystemColor : "color:" + name
+			LabelBorderStyleDescription: "LabelBorder:" + name
+			ToolEntry: "EnvTool:" + name
 		}
 	}
 }

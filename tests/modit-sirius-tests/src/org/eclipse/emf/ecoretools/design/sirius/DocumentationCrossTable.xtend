@@ -46,16 +46,12 @@ class DocumentationCrossTable extends SiriusCrossTable {
 			domainClass = "ecore.EClassifier"
 			semanticCandidatesExpression = "feature:eClassifiers"
 			headerLabelExpression = '''self.eClass().name + ' : ' + self.name'''.trimAql
-			defaultBackground = BackgroundStyleDescription.create [
-				backgroundColor = SystemColor.extraRef("color:white")
-			]
+			background = SystemColor.extraRef("color:white")
 			ownedLine("Doc EStructural Features") [
 				domainClass = "ecore.EStructuralFeature"
 				semanticCandidatesExpression = "feature:eContents"
 				headerLabelExpression = '''self.eClass().name + ' : ' + self.name'''.trimAql
-				defaultBackground = BackgroundStyleDescription.create [
-					backgroundColor = SystemColor.extraRef("color:white")
-				]
+				background = SystemColor.extraRef("color:white")
 			]
 		]
 		ownedColumn("Doc Root") [
@@ -65,32 +61,24 @@ class DocumentationCrossTable extends SiriusCrossTable {
 			delete = DeleteColumnTool.create("") [
 				initVariables
 				precondition = '''false'''.trimAql
-				// no operation 
 			]
 		]
-		intersection += IntersectionMapping.create("EModelElements to Doc Annotation") [
+		cells("EModelElements to Doc Annotation", "ecore.EStringToStringMapEntry", 
+			'''self.eAllContents(ecore::EAnnotation)->select(a | a.source = 'http://www.eclipse.org/emf/2002/GenModel').details->select(a | a.key = 'documentation')'''.trimAql) [
+			toLines('''self.eContainer(ecore::EAnnotation).eContainer()'''.trimAql,
+					"Doc EClassifiers".lineRef,
+					"Doc EStructural Features".lineRef)
+			toColumn("service:getRootContainer",
+				"Doc Root".columnRef)
+		
+			foreground = null // cancel default initialisation
 			semanticElements = "var:self"
 			labelExpression = '''self.value'''.trimAql
-			useDomainClass = true
-			columnFinderExpression = "service:getRootContainer"
-			lineFinderExpression = '''self.eContainer(ecore::EAnnotation).eContainer()'''.trimAql
-			semanticCandidatesExpression = '''self.eAllContents(ecore::EAnnotation)->select(a | a.source = 'http://www.eclipse.org/emf/2002/GenModel').details->select(a | a.key = 'documentation')'''.trimAql
-			domainClass = "ecore.EStringToStringMapEntry"
-			lineMapping += "Doc EClassifiers".lineRef
-			lineMapping += "Doc EStructural Features".lineRef
-			columnMapping = "Doc Root".columnRef
-			directEdit = LabelEditTool.create [
-				initVariables
-				mask = "{0}"
-				operation = "value".setter("var:arg0")
-			]
-			defaultBackground = BackgroundStyleDescription.create [
-				backgroundColor = UserFixedColor.ref("color:Doc Annotation")
-			]
+			directEdit = "value".setter("var:arg0")
+			background = UserFixedColor.ref("color:Doc Annotation")
 			create = CreateCellTool.create("New Documentation") [
 				initVariables
 				forceRefresh = true
-				mask = "{0}"
 				operation = "var:lineSemantic".toContext(
 					'''lineSemantic.eAnnotations->select(a | a.source = 'http://www.eclipse.org/emf/2002/GenModel')->size() = 0'''.trimAql.ifThenDo(
 						"eAnnotations".creator("ecore.EAnnotation").andThen[ variableName = "newAnnotation" ].chain(
@@ -108,6 +96,7 @@ class DocumentationCrossTable extends SiriusCrossTable {
 						"value".setter("var:arg0")
 					)
 				)
+				mask = "{0}"
 			]
 		]
 	}

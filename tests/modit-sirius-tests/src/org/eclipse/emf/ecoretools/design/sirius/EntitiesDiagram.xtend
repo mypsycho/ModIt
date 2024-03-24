@@ -180,11 +180,9 @@ class EntitiesDiagram extends SiriusDiagram {
 				]
 				fixes += ValidationFix.create [
 					name = "Remove Element"
-					initialOperation = InitialOperation.create [
-						firstModelOperations = "feature:target".toContext(
-							RemoveElement.create
-						)
-					]
+					operation = "feature:target".toContext(
+						RemoveElement.create
+					)
 				]
 			]
 			ownedRules += ViewValidationRule.create("Too many superclasses") [
@@ -196,9 +194,7 @@ class EntitiesDiagram extends SiriusDiagram {
 				]
 			]
 		]
-		diagramInitialisation = InitialOperation.create [
-			firstModelOperations = "service:openClassDiagramContextHelp".toOperation
-		]
+		initialisation = "service:openClassDiagramContextHelp".toOperation
 		additionalLayers += createPackageLayer
 		additionalLayers += createDocumentationLayer
 		additionalLayers += createValidationLayer
@@ -207,25 +203,20 @@ class EntitiesDiagram extends SiriusDiagram {
 		additionalLayers += createIconsPreviewLayer
 	}
 
-	override initDefaultStyle(BasicLabelStyleDescription it) {/* No reverse for Default */}
-	override initDefaultEdgeStyle(EdgeStyleDescription it) {/* No reverse for Default */}
-
 	override initContent(Layer it) {
 		nodeMappings += NodeMapping.createAs(Ns.node, "Empty Diagram") [
 			preconditionExpression = '''containerView.oclAsType(diagram::DDiagram).ownedDiagramElements.target->excluding(containerView.oclAsType(diagram::DSemanticDiagram).target)->size() = 0 and container.eClassifiers->size() > 0'''.trimAql
 			semanticCandidatesExpression = "var:self"
 			domainClass = "ecore.EPackage"
 			deletionDescription = DeleteElementDescription.localRef(Ns.del, "NoOp")
-			style = WorkspaceImageDescription.create [
-				showIcon = false
+			style(WorkspaceImageDescription) [
+				labelSize = 8
 				labelExpression = ""
 				sizeComputationExpression = "-1"
 				labelPosition = LabelPosition.NODE_LITERAL
 				arcWidth = 1
 				arcHeight = 1
 				workspacePath = "/org.eclipse.emf.ecoretools.design/icons/full/back/empty.svg"
-				borderColor = SystemColor.extraRef("color:black")
-				labelColor = SystemColor.extraRef("color:black")
 			]
 		]
 		containerMappings += ContainerMapping.createAs(Ns.node, "EC EClass") [
@@ -236,24 +227,21 @@ class EntitiesDiagram extends SiriusDiagram {
 			labelDirectEdit = DirectEditLabel.localRef(Ns.operation, "Edit Name with CamelCase")
 			dropDescriptions += ContainerDropDescription.localRef(Ns.drop, "Drop attribute")
 			dropDescriptions += ContainerDropDescription.localRef(Ns.drop, "Drop operation")
-			style = FlatContainerStyleDescription.create [
+			style(FlatContainerStyleDescription) [
 				arcWidth = 8
 				arcHeight = 8
-				borderSizeComputationExpression = "1"
+				labelSize = 8
 				tooltipExpression = "service:renderTooltip"
 				roundedCorner = true
 				widthComputationExpression = "12"
 				heightComputationExpression = "10"
 				backgroundStyle = BackgroundStyle.LIQUID_LITERAL
-				borderColor = SystemColor.extraRef("color:black")
-				labelColor = SystemColor.extraRef("color:black")
-				backgroundColor = SystemColor.extraRef("color:white")
 				foregroundColor = UserFixedColor.ref("color:EClass")
 			]
 			styleIf(FlatContainerStyleDescription, "feature:interface") [
 				arcWidth = 8
 				arcHeight = 8
-				borderSizeComputationExpression = "1"
+				labelSize = 8
 				labelFormat += FontFormat.ITALIC_LITERAL
 				iconPath = "/org.eclipse.emf.ecoretools.design/icons/full/obj16/EClass_interface.gif"
 				tooltipExpression = "service:renderTooltip"
@@ -262,14 +250,12 @@ class EntitiesDiagram extends SiriusDiagram {
 				heightComputationExpression = "10"
 				backgroundStyle = BackgroundStyle.LIQUID_LITERAL
 				borderColor = UserFixedColor.ref("color:Dark EClass")
-				labelColor = SystemColor.extraRef("color:black")
-				backgroundColor = SystemColor.extraRef("color:white")
 				foregroundColor = UserFixedColor.ref("color:Abstract EClass")
 			]
 			styleIf(FlatContainerStyleDescription, "feature:abstract") [
 				arcWidth = 8
 				arcHeight = 8
-				borderSizeComputationExpression = "1"
+				labelSize = 8
 				labelFormat += FontFormat.ITALIC_LITERAL
 				iconPath = "/org.eclipse.emf.ecoretools.design/icons/full/obj16/EClass_abstract.gif"
 				tooltipExpression = "service:renderTooltip"
@@ -278,23 +264,20 @@ class EntitiesDiagram extends SiriusDiagram {
 				heightComputationExpression = "10"
 				backgroundStyle = BackgroundStyle.LIQUID_LITERAL
 				borderColor = UserFixedColor.ref("color:Dark EClass")
-				labelColor = SystemColor.extraRef("color:black")
-				backgroundColor = SystemColor.extraRef("color:white")
 				foregroundColor = UserFixedColor.ref("color:Abstract EClass")
 			]
 			borderedNodeMappings += NodeMapping.createAs(Ns.node, "EC ETypeParameter") [
 				semanticCandidatesExpression = "feature:eTypeParameters"
 				domainClass = "ecore.ETypeParameter"
 				labelDirectEdit = DirectEditLabel.localRef(Ns.operation, "Edit Name with CamelCase")
-				style = WorkspaceImageDescription.create [
-					showIcon = false
+				style(WorkspaceImageDescription) [
+					labelSize = 8
+					sizeComputationExpression = "3"
 					labelPosition = LabelPosition.NODE_LITERAL
 					resizeKind = ResizeKind.NSEW_LITERAL
 					arcWidth = 1
 					arcHeight = 1
 					workspacePath = "/org.eclipse.emf.ecoretools.design/icons/full/back/generic.svg"
-					borderColor = SystemColor.extraRef("color:black")
-					labelColor = SystemColor.extraRef("color:black")
 				]
 			]
 			subNodeMappings += NodeMapping.createAs(Ns.node, "EC EAttribute") [
@@ -302,14 +285,13 @@ class EntitiesDiagram extends SiriusDiagram {
 				domainClass = "ecore.EAttribute"
 				labelDirectEdit = DirectEditLabel.localRef(Ns.operation, "Edit EStructuralFeature Name")
 				dropDescriptions += ContainerDropDescription.localRef(Ns.drop, "Drop EStructuralFeature into EClass")
-				style = BundledImageDescription.create [
+				style(BundledImageDescription) [
+					borderSizeComputationExpression = "0"
+					labelSize = 8
 					labelExpression = "service:render"
 					labelAlignment = LabelAlignment.LEFT
 					tooltipExpression = "service:renderTooltip"
 					sizeComputationExpression = "1"
-					borderColor = SystemColor.extraRef("color:black")
-					labelColor = SystemColor.extraRef("color:black")
-					color = SystemColor.extraRef("color:black")
 				]
 			]
 			subNodeMappings += NodeMapping.createAs(Ns.node, "Operation") [
@@ -318,14 +300,12 @@ class EntitiesDiagram extends SiriusDiagram {
 				domainClass = "ecore.EOperation"
 				labelDirectEdit = DirectEditLabel.localRef(Ns.operation, "Operation Name")
 				dropDescriptions += ContainerDropDescription.localRef(Ns.drop, "Drop EStructuralFeature into EClass")
-				style = BundledImageDescription.create [
+				style(BundledImageDescription) [
+					borderSizeComputationExpression = "0"
+					labelSize = 8
 					labelExpression = "service:render"
 					labelAlignment = LabelAlignment.LEFT
 					tooltipExpression = "service:renderEOperationTooltip"
-					sizeComputationExpression = "2"
-					borderColor = SystemColor.extraRef("color:black")
-					labelColor = SystemColor.extraRef("color:black")
-					color = SystemColor.extraRef("color:black")
 				]
 			]
 			subNodeMappings += NodeMapping.createAs(Ns.node, "EC EReferenceNode") [
@@ -333,24 +313,24 @@ class EntitiesDiagram extends SiriusDiagram {
 				domainClass = "ecore.EReference"
 				labelDirectEdit = DirectEditLabel.localRef(Ns.operation, "Edit EStructuralFeature Name")
 				dropDescriptions += ContainerDropDescription.localRef(Ns.drop, "Drop EStructuralFeature into EClass")
-				style = BundledImageDescription.create [
+				style(BundledImageDescription) [
+					borderSizeComputationExpression = "0"
+					labelSize = 8
 					labelExpression = "service:renderAsNode"
 					labelAlignment = LabelAlignment.LEFT
 					tooltipExpression = "service:renderTooltip"
 					sizeComputationExpression = "1"
-					borderColor = SystemColor.extraRef("color:black")
-					labelColor = SystemColor.extraRef("color:black")
 					color = SystemColor.extraRef("color:blue")
 				]
 				styleIf(BundledImageDescription, '''container <> self.eContainer()'''.trimAql) [
+					borderSizeComputationExpression = "0"
+					labelSize = 8
 					labelFormat += FontFormat.ITALIC_LITERAL
 					labelExpression = "service:renderAsNode"
 					labelAlignment = LabelAlignment.LEFT
 					tooltipExpression = "service:renderTooltip"
 					sizeComputationExpression = "1"
-					borderColor = SystemColor.extraRef("color:black")
 					labelColor = UserFixedColor.ref("color:Inherited")
-					color = SystemColor.extraRef("color:black")
 				]
 			]
 		]
@@ -359,30 +339,27 @@ class EntitiesDiagram extends SiriusDiagram {
 			domainClass = "ecore.EEnum"
 			childrenPresentation = ContainerLayout.LIST
 			labelDirectEdit = DirectEditLabel.localRef(Ns.operation, "Edit Name with CamelCase")
-			style = FlatContainerStyleDescription.create [
+			style(FlatContainerStyleDescription) [
 				arcWidth = 1
 				arcHeight = 1
-				borderSizeComputationExpression = "1"
+				labelSize = 8
 				tooltipExpression = "service:renderTooltip"
 				widthComputationExpression = "12"
 				heightComputationExpression = "10"
 				backgroundStyle = BackgroundStyle.LIQUID_LITERAL
 				borderColor = UserFixedColor.ref("color:Dark EEnum")
-				labelColor = SystemColor.extraRef("color:black")
-				backgroundColor = SystemColor.extraRef("color:white")
 				foregroundColor = UserFixedColor.ref("color:EEnum")
 			]
 			subNodeMappings += NodeMapping.createAs(Ns.node, "EC EEnumLiteral") [
 				semanticCandidatesExpression = "feature:eLiterals"
 				domainClass = "ecore.EEnumLiteral"
 				labelDirectEdit = DirectEditLabel.localRef(Ns.operation, "Edit Name no CamelCase")
-				style = BundledImageDescription.create [
+				style(BundledImageDescription) [
+					borderSizeComputationExpression = "0"
+					labelSize = 8
 					labelAlignment = LabelAlignment.LEFT
 					tooltipExpression = "service:renderTooltip"
 					sizeComputationExpression = "1"
-					borderColor = SystemColor.extraRef("color:black")
-					labelColor = SystemColor.extraRef("color:black")
-					color = SystemColor.extraRef("color:black")
 				]
 			]
 		]
@@ -392,32 +369,29 @@ class EntitiesDiagram extends SiriusDiagram {
 			domainClass = "ecore.EDataType"
 			childrenPresentation = ContainerLayout.LIST
 			labelDirectEdit = DirectEditLabel.localRef(Ns.operation, "Edit Name with CamelCase")
-			style = FlatContainerStyleDescription.create [
+			style(FlatContainerStyleDescription) [
 				arcWidth = 1
 				arcHeight = 1
-				borderSizeComputationExpression = "1"
+				labelSize = 8
 				tooltipExpression = "service:renderTooltip"
 				widthComputationExpression = "14"
 				heightComputationExpression = "5"
 				backgroundStyle = BackgroundStyle.LIQUID_LITERAL
 				borderColor = UserFixedColor.ref("color:Dark EDataType")
-				labelColor = SystemColor.extraRef("color:black")
-				backgroundColor = SystemColor.extraRef("color:white")
 				foregroundColor = UserFixedColor.ref("color:EDataType")
 			]
 			subNodeMappings += NodeMapping.createAs(Ns.node, "EC_DataType_InstanceClassName") [
 				semanticCandidatesExpression = "var:self"
 				domainClass = "ecore.EDataType"
 				labelDirectEdit = DirectEditLabel.localRef(Ns.operation, "InstanceClassName")
-				style = BundledImageDescription.create [
+				style(BundledImageDescription) [
+					borderSizeComputationExpression = "0"
+					labelSize = 8
 					labelFormat += FontFormat.ITALIC_LITERAL
 					showIcon = false
 					labelExpression = "feature:instanceClassName"
 					tooltipExpression = "service:renderTooltip"
 					sizeComputationExpression = "1"
-					borderColor = SystemColor.extraRef("color:black")
-					labelColor = SystemColor.extraRef("color:black")
-					color = SystemColor.extraRef("color:black")
 				]
 			]
 		]
@@ -438,15 +412,15 @@ class EntitiesDiagram extends SiriusDiagram {
 			targetMapping += ContainerMapping.localRef(Ns.node, "EC External EClasses")
 			reconnections += ReconnectEdgeDescription.localRef(Ns.reconnect, "ReconnectEReference Source")
 			reconnections += ReconnectEdgeDescription.localRef(Ns.reconnect, "ReconnectEReference Target")
-			style = EdgeStyleDescription.create [
-				routingStyle = EdgeRouting.MANHATTAN_LITERAL
-				strokeColor = SystemColor.extraRef("color:black")
-				centerLabelStyleDescription = CenterLabelStyleDescription.create [
+			style [
+				targetArrow = EdgeArrows.INPUT_ARROW_LITERAL
+				endsCentering = org.eclipse.sirius.diagram.description.CenteringStyle.NONE
+				centerLabel = [
 					showIcon = false
 					labelExpression = "service:render"
 					labelColor = SystemColor.extraRef("color:black")
 				]
-				endLabelStyleDescription = EndLabelStyleDescription.create [
+				targetLabel = [
 					labelSize = 6
 					showIcon = false
 					labelExpression = "service:eKeysLabel"
@@ -466,17 +440,18 @@ class EntitiesDiagram extends SiriusDiagram {
 			targetMapping += ContainerMapping.localRef(Ns.node, "EC External EClasses")
 			reconnections += ReconnectEdgeDescription.localRef(Ns.reconnect, "ReconnectESupertypeSource")
 			reconnections += ReconnectEdgeDescription.localRef(Ns.reconnect, "ReconnectESupertypeTarget")
-			style = EdgeStyleDescription.create [
+			style [
 				targetArrow = EdgeArrows.INPUT_CLOSED_ARROW_LITERAL
 				routingStyle = EdgeRouting.TREE_LITERAL
+				endsCentering = org.eclipse.sirius.diagram.description.CenteringStyle.NONE
 				strokeColor = SystemColor.extraRef("color:gray")
-				beginLabelStyleDescription = BeginLabelStyleDescription.create [
+				sourceLabel = [
 					labelFormat += FontFormat.ITALIC_LITERAL
 					showIcon = false
 					labelExpression = "service:superTypesLabel"
 					labelColor = SystemColor.extraRef("color:black")
 				]
-				centerLabelStyleDescription = CenterLabelStyleDescription.create [
+				centerLabel = [
 					showIcon = false
 					labelColor = SystemColor.extraRef("color:black")
 				]
@@ -485,14 +460,15 @@ class EntitiesDiagram extends SiriusDiagram {
 				lineStyle = LineStyle.DASH_LITERAL
 				targetArrow = EdgeArrows.INPUT_CLOSED_ARROW_LITERAL
 				routingStyle = EdgeRouting.TREE_LITERAL
+				endsCentering = org.eclipse.sirius.diagram.description.CenteringStyle.NONE
 				strokeColor = SystemColor.extraRef("color:gray")
-				beginLabelStyleDescription = BeginLabelStyleDescription.create [
+				sourceLabel = [
 					labelFormat += FontFormat.ITALIC_LITERAL
 					showIcon = false
 					labelExpression = "service:superTypesLabel"
 					labelColor = SystemColor.extraRef("color:black")
 				]
-				centerLabelStyleDescription = CenterLabelStyleDescription.create [
+				centerLabel = [
 					showIcon = false
 					labelColor = SystemColor.extraRef("color:black")
 				]
@@ -501,14 +477,15 @@ class EntitiesDiagram extends SiriusDiagram {
 				lineStyle = LineStyle.DOT_LITERAL
 				targetArrow = EdgeArrows.INPUT_CLOSED_ARROW_LITERAL
 				routingStyle = EdgeRouting.TREE_LITERAL
+				endsCentering = org.eclipse.sirius.diagram.description.CenteringStyle.NONE
 				strokeColor = UserFixedColor.ref("color:Inherited")
-				beginLabelStyleDescription = BeginLabelStyleDescription.create [
+				sourceLabel = [
 					labelFormat += FontFormat.ITALIC_LITERAL
 					showIcon = false
 					labelExpression = "service:superTypesLabel"
 					labelColor = SystemColor.extraRef("color:black")
 				]
-				centerLabelStyleDescription = CenterLabelStyleDescription.create [
+				centerLabel = [
 					showIcon = false
 					labelColor = SystemColor.extraRef("color:black")
 				]
@@ -530,16 +507,16 @@ class EntitiesDiagram extends SiriusDiagram {
 			targetMapping += ContainerMapping.localRef(Ns.node, "EC External EClasses")
 			reconnections += ReconnectEdgeDescription.localRef(Ns.reconnect, "ReconnectBiDirectionnalEReference Target")
 			reconnections += ReconnectEdgeDescription.localRef(Ns.reconnect, "ReconnectBiDirectionnalEReference Source")
-			style = EdgeStyleDescription.create [
+			style [
 				sourceArrow = EdgeArrows.INPUT_ARROW_LITERAL
-				routingStyle = EdgeRouting.MANHATTAN_LITERAL
-				strokeColor = SystemColor.extraRef("color:black")
-				beginLabelStyleDescription = BeginLabelStyleDescription.create [
+				targetArrow = EdgeArrows.INPUT_ARROW_LITERAL
+				endsCentering = org.eclipse.sirius.diagram.description.CenteringStyle.NONE
+				sourceLabel = [
 					showIcon = false
 					labelExpression = "service:renderEOpposite"
 					labelColor = SystemColor.extraRef("color:black")
 				]
-				endLabelStyleDescription = EndLabelStyleDescription.create [
+				targetLabel = [
 					showIcon = false
 					labelExpression = "service:render"
 					labelColor = SystemColor.extraRef("color:black")
@@ -617,45 +594,45 @@ class EntitiesDiagram extends SiriusDiagram {
 		ToolSection.create("Existing Elements") [
 			ownedTools += PopupMenu.createAs(Ns.menu, "Generate") [
 				menuItemDescription += OperationAction.createAs(Ns.operation, " All") [
+					initVariables
 					precondition = '''OrderedSet{views.target}.eInverse().eContainerOrSelf(genmodel::GenModel)->asSet()->size() > 0'''.trimAql
 					icon = "/org.eclipse.emf.ecoretools.design/icons/full/obj16/GenModel.gif"
-					view = ContainerViewVariable.create("views")
 					operation = "org.eclipse.emf.ecoretools.design.action.generateAllID".javaDo("Generate All", 
 						"genmodels" -> '''OrderedSet{views.target}.eInverse().eContainerOrSelf(genmodel::GenModel)->asSet()'''.trimAql,
 						"scope" -> "model, edit, editor, tests"
 					)
 				]
 				menuItemDescription += OperationAction.createAs(Ns.operation, "Model Code") [
+					initVariables
 					precondition = '''OrderedSet{views.target}.eInverse().eContainerOrSelf(genmodel::GenModel)->asSet()->select(m | m.modelDirectory.size() > 0)->size() > 0'''.trimAql
 					icon = "/org.eclipse.emf.ecoretools.design/icons/full/obj16/GenModel.gif"
-					view = ContainerViewVariable.create("views")
 					operation = "org.eclipse.emf.ecoretools.design.action.generateAllID".javaDo("Generate All", 
 						"genmodels" -> '''OrderedSet{views.target}.eInverse().eContainerOrSelf(genmodel::GenModel)->asSet()'''.trimAql,
 						"scope" -> "model"
 					)
 				]
 				menuItemDescription += OperationAction.createAs(Ns.operation, "Edit Code") [
+					initVariables
 					precondition = '''OrderedSet{views.target}.eInverse().eContainerOrSelf(genmodel::GenModel)->asSet()->select(m | m.editDirectory.size() > 0)->size() > 0'''.trimAql
 					icon = "/org.eclipse.emf.ecoretools.design/icons/full/obj16/GenModel.gif"
-					view = ContainerViewVariable.create("views")
 					operation = "org.eclipse.emf.ecoretools.design.action.generateAllID".javaDo("Generate All", 
 						"genmodels" -> '''OrderedSet{views.target}.eInverse().eContainerOrSelf(genmodel::GenModel)->asSet()'''.trimAql,
 						"scope" -> "edit"
 					)
 				]
 				menuItemDescription += OperationAction.createAs(Ns.operation, "Editor Code") [
+					initVariables
 					precondition = '''OrderedSet{views.target}.eInverse().eContainerOrSelf(genmodel::GenModel)->asSet()->select(m | m.editorDirectory.size() > 0)->size() > 0'''.trimAql
 					icon = "/org.eclipse.emf.ecoretools.design/icons/full/obj16/GenModel.gif"
-					view = ContainerViewVariable.create("views")
 					operation = "org.eclipse.emf.ecoretools.design.action.generateAllID".javaDo("Generate All", 
 						"genmodels" -> '''OrderedSet{views.target}.eInverse().eContainerOrSelf(genmodel::GenModel)->asSet()'''.trimAql,
 						"scope" -> "editor"
 					)
 				]
 				menuItemDescription += OperationAction.createAs(Ns.operation, "Tests Code") [
+					initVariables
 					precondition = '''OrderedSet{views.target}.eInverse().eContainerOrSelf(genmodel::GenModel)->asSet()->select(m | m.testsDirectory.size() > 0)->size() > 0'''.trimAql
 					icon = "/org.eclipse.emf.ecoretools.design/icons/full/obj16/GenModel.gif"
-					view = ContainerViewVariable.create("views")
 					operation = "org.eclipse.emf.ecoretools.design.action.generateAllID".javaDo("Generate All", 
 						"genmodels" -> '''OrderedSet{views.target}.eInverse().eContainerOrSelf(genmodel::GenModel)->asSet()'''.trimAql,
 						"scope" -> "tests"
@@ -665,8 +642,8 @@ class EntitiesDiagram extends SiriusDiagram {
 			ownedTools += PopupMenu.createAs(Ns.menu, "CDO Native") [
 				precondition = '''self.hasCDOBundle()'''.trimAql
 				menuItemDescription += OperationAction.createAs(Ns.operation, "Enable support") [
+					initVariables
 					precondition = '''OrderedSet{views.target}.eInverse().eContainerOrSelf(genmodel::GenModel)->asSet()->size() > 0'''.trimAql
-					view = ContainerViewVariable.create("views")
 					operation = "org.eclipse.emf.ecoretools.design.action.openConfirmationDialogID".javaDo("OpenConfirmationDialog", 
 						"message" -> "The selected generator model will be updated:\n\nSet Feature Delegation = Reflective\nSet Root Extends Class = org.eclipse.emf.internal.cdo.CDOObjectImpl\nSet Root Extends Interface = org.eclipse.emf.cdo.CDOObject\nAdded Model Plugin Variables = CDO=org.eclipse.emf.cdo \nCreated CDO.MF marker file\n\nYou need to regenerate the code to make these changes effective. \n",
 						"title" -> "The selected generator model will be updated:\n\nSet Feature Delegation = Reflective\nSet Root Extends Class = org.eclipse.emf.internal.cdo.CDOObjectImpl\nSet Root Extends Interface = org.eclipse.emf.cdo.CDOObject\nAdd Model Plugin Variables = CDO=org.eclipse.emf.cdo \nCreate CDO.MF marker file\n\nYou need to regenerate the code to make these changes effective. "
@@ -675,8 +652,8 @@ class EntitiesDiagram extends SiriusDiagram {
 					)
 				]
 				menuItemDescription += OperationAction.createAs(Ns.operation, "Disable support") [
+					initVariables
 					precondition = '''OrderedSet{views.target}.eInverse().eContainerOrSelf(genmodel::GenModel)->asSet()->size() > 0'''.trimAql
-					view = ContainerViewVariable.create("views")
 					operation = "org.eclipse.emf.ecoretools.design.action.openConfirmationDialogID".javaDo("OpenConfirmationDialog", 
 						"message" -> "The selected generator model will be updated:...",
 						"title" -> "Disable CDO Native support in .genmodel ?"
@@ -686,6 +663,7 @@ class EntitiesDiagram extends SiriusDiagram {
 				]
 			]
 			ownedTools += SelectionWizardDescription.createAs(Ns.operation, "Add") [
+				initVariables
 				precondition = '''container.oclIsKindOf(ecore::EPackage)'''.trimAql
 				forceRefresh = true
 				candidatesExpression = '''self.getValidsForDiagram(containerView)->asSet() - diagram.getDisplayedEClassifiers()'''.trimAql
@@ -695,9 +673,6 @@ class EntitiesDiagram extends SiriusDiagram {
 				childrenExpression = "feature:eContents"
 				iconPath = "/org.eclipse.emf.ecoretools.design/icons/full/etools16/search.gif"
 				windowTitle = "Select element to add in diagram"
-				element = ElementSelectVariable.create("element")
-				containerView = ContainerViewVariable.create("containerView")
-				container = SelectContainerVariable.create("container")
 				operation = "var:element".forDo("i", 
 					"service:markForAutosize".toContext(
 						"service:isEClass".ifThenDo(
@@ -722,22 +697,18 @@ class EntitiesDiagram extends SiriusDiagram {
 				)
 			]
 			ownedTools += ToolDescription.createAs(Ns.operation, "RemoveExistingElements") [
+				initVariables
 				label = "Remove"
 				forceRefresh = true
 				iconPath = "/org.eclipse.emf.ecoretools.design/icons/full/etools16/search.gif"
-				element = ElementVariable.create("element")
-				elementView = ElementViewVariable.create("elementView")
 				operation = "var:elementView".toContext(
 					DeleteView.create
 				)
 			]
 			ownedTools += ContainerDropDescription.createAs(Ns.drop, "External EClass from treeview") [
+				initVariables
 				forceRefresh = true
 				dragSource = DragSource.PROJECT_EXPLORER_LITERAL
-				oldContainer = DropContainerVariable.create("oldSemanticContainer")
-				newContainer = DropContainerVariable.create("newSemanticContainer")
-				element = ElementDropVariable.create("element")
-				newViewContainer = ContainerViewVariable.create("newContainerView")
 				operation = "var:element".toContext(
 					"service:markForAutosize".toContext(
 						"service:isEClass".ifThenDo(
@@ -801,11 +772,8 @@ class EntitiesDiagram extends SiriusDiagram {
 				)
 			]
 			ownedTools += ContainerDropDescription.createAs(Ns.drop, "Drop EStructuralFeature into EClass") [
+				initVariables
 				mappings += ContainerMapping.localRef(Ns.node, "Dropped Package")
-				oldContainer = DropContainerVariable.create("oldSemanticContainer")
-				newContainer = DropContainerVariable.create("newSemanticContainer")
-				element = ElementDropVariable.create("element")
-				newViewContainer = ContainerViewVariable.create("newContainerView")
 				operation = "var:newSemanticContainer".toContext(
 					"service:isEOperation".ifThenDo(
 						"eOperations".setter("var:element")
@@ -816,11 +784,8 @@ class EntitiesDiagram extends SiriusDiagram {
 				)
 			]
 			ownedTools += PasteDescription.createAs(Ns.operation, "Paste Anything") [
+				initVariables
 				forceRefresh = true
-				container = DropContainerVariable.create("container")
-				containerView = ContainerViewVariable.create("containerView")
-				copiedView = ElementViewVariable.create("copiedView")
-				copiedElement = ElementVariable.create("copiedElement")
 				operation = "service:container.paste(copiedElement, copiedView, containerView)".toOperation
 			]
 			ownedTools += DoubleClickDescription.createAs(Ns.operation, "Import Current EClasses") [
@@ -865,12 +830,11 @@ class EntitiesDiagram extends SiriusDiagram {
 		ToolSection.create("Classifier") [
 			ownedTools += ToolGroup.create("Classifier") [
 				tools += ContainerCreationDescription.createAs(Ns.operation, "Class") [
+					initVariables
 					documentation = "M1+Y"
 					precondition = '''(not container.oclIsKindOf(ecore::EClass)) or (container.abstract) or (container.interface)'''.trimAql
 					containerMappings += ContainerMapping.localRef(Ns.node, "EC EClass")
 					extraMappings += ContainerMapping.localRef(Ns.node, "EC EClass")
-					variable = NodeCreationVariable.create("container")
-					viewVariable = ContainerViewVariable.create("containerView")
 					operation = "var:container".toContext(
 						"service:isEPackage".ifThenDo(
 							"eClassifiers".creator("ecore.EClass").chain(
@@ -884,12 +848,11 @@ class EntitiesDiagram extends SiriusDiagram {
 					)
 				]
 				tools += ContainerCreationDescription.createAs(Ns.operation, "Abstract Class") [
+					initVariables
 					precondition = '''(not container.oclIsKindOf(ecore::EClass)) or (not container.abstract)'''.trimAql
 					iconPath = "/org.eclipse.emf.ecoretools.design/icons/full/obj16/EClass_abstract.gif"
 					containerMappings += ContainerMapping.localRef(Ns.node, "EC EClass")
 					extraMappings += ContainerMapping.localRef(Ns.node, "EC EClass")
-					variable = NodeCreationVariable.create("container")
-					viewVariable = ContainerViewVariable.create("containerView")
 					operation = "var:container".toContext(
 						"service:isEPackage".ifThenDo(
 							"eClassifiers".creator("ecore.EClass").chain(
@@ -904,12 +867,11 @@ class EntitiesDiagram extends SiriusDiagram {
 					)
 				]
 				tools += ContainerCreationDescription.createAs(Ns.operation, "Interface") [
+					initVariables
 					precondition = '''(not container.oclIsKindOf(ecore::EClass)) or (not container.interface)'''.trimAql
 					iconPath = "/org.eclipse.emf.ecoretools.design/icons/full/obj16/EClass_interface.gif"
 					containerMappings += ContainerMapping.localRef(Ns.node, "EC EClass")
 					extraMappings += ContainerMapping.localRef(Ns.node, "EC EClass")
-					variable = NodeCreationVariable.create("container")
-					viewVariable = ContainerViewVariable.create("containerView")
 					operation = "var:container".toContext(
 						"service:isEPackage".ifThenDo(
 							"eClassifiers".creator("ecore.EClass").chain(
@@ -926,26 +888,22 @@ class EntitiesDiagram extends SiriusDiagram {
 				]
 			]
 			ownedTools += ContainerCreationDescription.createAs(Ns.operation, "Datatype") [
+				initVariables
 				containerMappings += ContainerMapping.localRef(Ns.node, "EC EDataType")
-				variable = NodeCreationVariable.create("container")
-				viewVariable = ContainerViewVariable.create("containerView")
 				operation = "eClassifiers".creator("ecore.EDataType").chain(
 					"name".setter(''' 'NewDataType' + self.eContainer().eContents(ecore::EDataType)->size() '''.trimAql),
 					"instanceTypeName".setter(''' 'newDataType' + self.eContainer().eContents(ecore::EDataType)->size() '''.trimAql)
 				)
 			]
 			ownedTools += ContainerCreationDescription.createAs(Ns.operation, "Enumeration") [
+				initVariables
 				containerMappings += ContainerMapping.localRef(Ns.node, "EC EEnum")
-				variable = NodeCreationVariable.create("container")
-				viewVariable = ContainerViewVariable.create("containerView")
 				operation = "eClassifiers".creator("ecore.EEnum").chain(
 					"name".setter(''' 'NewEnum' + self.eContainer().eContents(ecore::EEnum)->size() '''.trimAql)
 				)
 			]
 			ownedTools += DeleteElementDescription.createAs(Ns.del, "Delete EClass") [
-				element = ElementDeleteVariable.create("element")
-				elementView = ElementDeleteVariable.create("elementView")
-				containerView = ContainerViewVariable.create("containerView")
+				initVariables
 				operation = "var:self".toContext(
 					"service:getInverseEReferences".forDo("i", 
 						RemoveElement.create
@@ -954,9 +912,8 @@ class EntitiesDiagram extends SiriusDiagram {
 				)
 			]
 			ownedTools += NodeCreationDescription.createAs(Ns.creation, "ETypeParameter") [
+				initVariables
 				nodeMappings += NodeMapping.localRef(Ns.node, "EC ETypeParameter")
-				variable = NodeCreationVariable.create("container")
-				viewVariable = ContainerViewVariable.create("containerView")
 				operation = "var:container".toContext(
 					"eTypeParameters".creator("ecore.ETypeParameter").chain(
 						"name".setter("T")
@@ -964,10 +921,8 @@ class EntitiesDiagram extends SiriusDiagram {
 				)
 			]
 			ownedTools += DeleteElementDescription.createAs(Ns.del, "NoOp") [
+				initVariables
 				precondition = '''false'''.trimAql
-				element = ElementDeleteVariable.create("element")
-				elementView = ElementDeleteVariable.create("elementView")
-				containerView = ContainerViewVariable.create("containerView")
 				operation = "var:self".toOperation
 			]
 		]
@@ -977,47 +932,38 @@ class EntitiesDiagram extends SiriusDiagram {
 	def createFeatureTools() {
 		ToolSection.create("Feature") [
 			ownedTools += NodeCreationDescription.createAs(Ns.creation, "Literal") [
+				initVariables
 				nodeMappings += NodeMapping.localRef(Ns.node, "EC EEnumLiteral")
-				variable = NodeCreationVariable.create("container")
-				viewVariable = ContainerViewVariable.create("containerView")
 				operation = "eLiterals".creator("ecore.EEnumLiteral").chain(
 					"name".setter('''('literal' +( self.eContainer().eContents(ecore::EEnumLiteral)->size() -1)).toUpper()'''.trimAql),
 					"value".setter('''self.eContainer().eContents(ecore::EEnumLiteral)->size()-1'''.trimAql)
 				)
 			]
 			ownedTools += NodeCreationDescription.createAs(Ns.creation, "Operation") [
+				initVariables
 				nodeMappings += NodeMapping.localRef(Ns.node, "Operation")
-				variable = NodeCreationVariable.create("container")
-				viewVariable = ContainerViewVariable.create("containerView")
 				operation = "eOperations".creator("ecore.EOperation").chain(
 					"name".setter(''' 'newOperation' + self.eContainer().eContents(ecore::EOperation)->size() '''.trimAql)
 				)
 			]
 			ownedTools += NodeCreationDescription.createAs(Ns.creation, "Attribute") [
+				initVariables
 				nodeMappings += NodeMapping.localRef(Ns.node, "EC EAttribute")
-				variable = NodeCreationVariable.create("container")
-				viewVariable = ContainerViewVariable.create("containerView")
 				operation = "eStructuralFeatures".creator("ecore.EAttribute").chain(
 					"name".setter("newAttribute")
 				)
 			]
 			ownedTools += ContainerDropDescription.createAs(Ns.drop, "Drop attribute") [
+				initVariables
 				mappings += NodeMapping.localRef(Ns.node, "EC EAttribute")
 				mappings += NodeMapping.localRef(Ns.node, "EC EReferenceNode")
-				oldContainer = DropContainerVariable.create("oldSemanticContainer")
-				newContainer = DropContainerVariable.create("newSemanticContainer")
-				element = ElementDropVariable.create("element")
-				newViewContainer = ContainerViewVariable.create("newContainerView")
 				operation = "var:newSemanticContainer".toContext(
 					"eStructuralFeatures".setter("var:element")
 				)
 			]
 			ownedTools += ContainerDropDescription.createAs(Ns.drop, "Drop operation") [
+				initVariables
 				mappings += NodeMapping.localRef(Ns.node, "Operation")
-				oldContainer = DropContainerVariable.create("oldSemanticContainer")
-				newContainer = DropContainerVariable.create("newSemanticContainer")
-				element = ElementDropVariable.create("element")
-				newViewContainer = ContainerViewVariable.create("newContainerView")
 				operation = "var:newSemanticContainer".toContext(
 					"eOperations".setter("var:element")
 				)
@@ -1029,19 +975,15 @@ class EntitiesDiagram extends SiriusDiagram {
 	def createRelationTools() {
 		ToolSection.create("Relation") [
 			ownedTools += DiagramCreationDescription.createAs(Ns.operation, "New Package Entities") [
+				initVariables
 				titleExpression = ''' self.name + ' package entities' '''.trimAql
 				diagramDescription = DiagramDescription.ref("EntitiesDiagram")
 				operation = "var:self".toOperation
-				containerViewVariable = ContainerViewVariable.create("containerView")
-				representationNameVariable = NameVariable.create("diagramName")
 			]
 			ownedTools += EdgeCreationDescription.createAs(Ns.connect, "SuperType") [
+				initVariables
 				iconPath = "/org.eclipse.emf.ecoretools.design/icons/full/obj16/Inheritance.gif"
 				edgeMappings += EdgeMapping.localRef(Ns.edge, "EC ESupertypes")
-				sourceVariable = SourceEdgeCreationVariable.create("source")
-				targetVariable = TargetEdgeCreationVariable.create("target")
-				sourceViewVariable = SourceEdgeViewCreationVariable.create("sourceView")
-				targetViewVariable = TargetEdgeViewCreationVariable.create("targetView")
 				operation = "var:source".toContext(
 					"eSuperTypes".setter("var:target").chain(
 						"service:createTypeArgumentsIfNeeded(target)".toOperation
@@ -1049,11 +991,8 @@ class EntitiesDiagram extends SiriusDiagram {
 				)
 			]
 			ownedTools += EdgeCreationDescription.createAs(Ns.connect, "Reference") [
+				initVariables
 				edgeMappings += EdgeMapping.localRef(Ns.edge, "EC_EReference")
-				sourceVariable = SourceEdgeCreationVariable.create("source")
-				targetVariable = TargetEdgeCreationVariable.create("target")
-				sourceViewVariable = SourceEdgeViewCreationVariable.create("sourceView")
-				targetViewVariable = TargetEdgeViewCreationVariable.create("targetView")
 				operation = "var:source".toContext(
 					"eStructuralFeatures".creator("ecore.EReference").chain(
 						"name".setter('''target.name.toLower()'''.trimAql),
@@ -1062,11 +1001,8 @@ class EntitiesDiagram extends SiriusDiagram {
 				)
 			]
 			ownedTools += EdgeCreationDescription.createAs(Ns.connect, "Bi-directional Reference") [
+				initVariables
 				edgeMappings += EdgeMapping.localRef(Ns.edge, "Bi-directional EC_EReference ")
-				sourceVariable = SourceEdgeCreationVariable.create("source")
-				targetVariable = TargetEdgeCreationVariable.create("target")
-				sourceViewVariable = SourceEdgeViewCreationVariable.create("sourceView")
-				targetViewVariable = TargetEdgeViewCreationVariable.create("targetView")
 				operation = "var:target".toContext(
 					"eStructuralFeatures".creator("ecore.EReference").andThen[ variableName = "instanceTarget" ].chain(
 						"eType".setter('''source'''.trimAql),
@@ -1088,11 +1024,8 @@ class EntitiesDiagram extends SiriusDiagram {
 				)
 			]
 			ownedTools += EdgeCreationDescription.createAs(Ns.connect, "Composition") [
+				initVariables
 				edgeMappings += EdgeMapping.localRef(Ns.edge, "EC_EReference")
-				sourceVariable = SourceEdgeCreationVariable.create("source")
-				targetVariable = TargetEdgeCreationVariable.create("target")
-				sourceViewVariable = SourceEdgeViewCreationVariable.create("sourceView")
-				targetViewVariable = TargetEdgeViewCreationVariable.create("targetView")
 				operation = "var:source".toContext(
 					"eStructuralFeatures".creator("ecore.EReference").chain(
 						"name".setter('''target.name.toLower()'''.trimAql),
@@ -1103,14 +1036,9 @@ class EntitiesDiagram extends SiriusDiagram {
 				)
 			]
 			ownedTools += DeleteElementDescription.createAs(Ns.del, "Delete ESuperType") [
-				element = ElementDeleteVariable.create("element")
-				elementView = ElementDeleteVariable.create("elementView")
-				containerView = ContainerViewVariable.create("containerView")
+				initVariables
 				operation = "service:getEdgeSourceSemantic(elementView)".toContext(
-					Unset.create [
-						featureName = "eSuperTypes"
-						elementExpression = "service:getEdgeTargetSemantic(elementView)"
-					]
+					"eSuperTypes".unsetter("service:getEdgeTargetSemantic(elementView)")
 				)
 			]
 		]
@@ -1120,58 +1048,34 @@ class EntitiesDiagram extends SiriusDiagram {
 	def createReconnectTools() {
 		ToolSection.create("Reconnect") [
 			ownedTools += ReconnectEdgeDescription.createAs(Ns.reconnect, "ReconnectEReference Source") [
+				initVariables
 				reconnectionKind = ReconnectionKind.RECONNECT_SOURCE_LITERAL
-				source = SourceEdgeCreationVariable.create("source")
-				target = TargetEdgeCreationVariable.create("target")
-				sourceView = SourceEdgeViewCreationVariable.create("sourceView")
-				targetView = TargetEdgeViewCreationVariable.create("targetView")
-				element = ElementSelectVariable.create("element")
 				operation = "var:element".toContext(
 					"service:reconnectEReferenceSource(target)".toOperation
 				)
-				edgeView = ElementSelectVariable.create("edgeView")
 			]
 			ownedTools += ReconnectEdgeDescription.createAs(Ns.reconnect, "ReconnectEReference Target") [
-				source = SourceEdgeCreationVariable.create("source")
-				target = TargetEdgeCreationVariable.create("target")
-				sourceView = SourceEdgeViewCreationVariable.create("sourceView")
-				targetView = TargetEdgeViewCreationVariable.create("targetView")
-				element = ElementSelectVariable.create("element")
+				initVariables
 				operation = "var:element".toContext(
 					"service:reconnectEReferenceTarget(target)".toOperation
 				)
-				edgeView = ElementSelectVariable.create("edgeView")
 			]
 			ownedTools += ReconnectEdgeDescription.createAs(Ns.reconnect, "ReconnectESupertypeSource") [
+				initVariables
 				reconnectionKind = ReconnectionKind.RECONNECT_SOURCE_LITERAL
-				source = SourceEdgeCreationVariable.create("source")
-				target = TargetEdgeCreationVariable.create("target")
-				sourceView = SourceEdgeViewCreationVariable.create("sourceView")
-				targetView = TargetEdgeViewCreationVariable.create("targetView")
-				element = ElementSelectVariable.create("element")
 				operation = "var:element".toContext(
 					'''self.reconnectESuperTypeSource(target,source,otherEnd,edgeView,sourceView)'''.trimAql.toOperation
 				)
-				edgeView = ElementSelectVariable.create("edgeView")
 			]
 			ownedTools += ReconnectEdgeDescription.createAs(Ns.reconnect, "ReconnectESupertypeTarget") [
-				source = SourceEdgeCreationVariable.create("source")
-				target = TargetEdgeCreationVariable.create("target")
-				sourceView = SourceEdgeViewCreationVariable.create("sourceView")
-				targetView = TargetEdgeViewCreationVariable.create("targetView")
-				element = ElementSelectVariable.create("element")
+				initVariables
 				operation = "var:element".toContext(
 					'''self.reconnectESuperTypeTarget(target,source,otherEnd,edgeView,sourceView)'''.trimAql.toOperation
 				)
-				edgeView = ElementSelectVariable.create("edgeView")
 			]
 			ownedTools += ReconnectEdgeDescription.createAs(Ns.reconnect, "ReconnectBiDirectionnalEReference Source") [
+				initVariables
 				reconnectionKind = ReconnectionKind.RECONNECT_SOURCE_LITERAL
-				source = SourceEdgeCreationVariable.create("source")
-				target = TargetEdgeCreationVariable.create("target")
-				sourceView = SourceEdgeViewCreationVariable.create("sourceView")
-				targetView = TargetEdgeViewCreationVariable.create("targetView")
-				element = ElementSelectVariable.create("element")
 				operation = "var:target".toContext(
 					"eStructuralFeatures".creator("ecore.EReference").andThen[ variableName = "newSource" ].chain(
 						"name".setter('''element.name'''.trimAql),
@@ -1186,14 +1090,9 @@ class EntitiesDiagram extends SiriusDiagram {
 						RemoveElement.create
 					)
 				)
-				edgeView = ElementSelectVariable.create("edgeView")
 			]
 			ownedTools += ReconnectEdgeDescription.createAs(Ns.reconnect, "ReconnectBiDirectionnalEReference Target") [
-				source = SourceEdgeCreationVariable.create("source")
-				target = TargetEdgeCreationVariable.create("target")
-				sourceView = SourceEdgeViewCreationVariable.create("sourceView")
-				targetView = TargetEdgeViewCreationVariable.create("targetView")
-				element = ElementSelectVariable.create("element")
+				initVariables
 				operation = "var:target".toContext(
 					"eStructuralFeatures".creator("ecore.EReference").andThen[ variableName = "newTarget" ].chain(
 						"name".setter('''element.eOpposite.name'''.trimAql),
@@ -1208,7 +1107,6 @@ class EntitiesDiagram extends SiriusDiagram {
 						"eOpposite".setter("var:newTarget")
 					)
 				)
-				edgeView = ElementSelectVariable.create("edgeView")
 			]
 		]
 	}
@@ -1235,6 +1133,7 @@ class EntitiesDiagram extends SiriusDiagram {
 				operation = "service:performEdit(arg0)".toOperation
 			]
 			ownedTools += DoubleClickDescription.createAs(Ns.operation, "ShowPropertiesView") [
+				initVariables
 				mappings += ContainerMapping.localRef(Ns.node, "EC EClass")
 				mappings += NodeMapping.localRef(Ns.node, "EC EAttribute")
 				mappings += NodeMapping.localRef(Ns.node, "Operation")
@@ -1243,8 +1142,6 @@ class EntitiesDiagram extends SiriusDiagram {
 				mappings += NodeMapping.localRef(Ns.node, "EC EEnumLiteral")
 				mappings += NodeMapping.localRef(Ns.node, "EC EReferenceNode")
 				mappings += ContainerMapping.localRef(Ns.node, "Dropped Package")
-				element = ElementDoubleClickVariable.create("element")
-				elementView = ElementDoubleClickVariable.create("elementView")
 				operation = "var:element".toContext(
 					DialogModelOperation.create [
 						titleExpression = ''' 'Properties for '  + input.emfEditServices(self).getText() '''.trimAql
@@ -1290,8 +1187,8 @@ class EntitiesDiagram extends SiriusDiagram {
 		ToolSection.create("Help") [
 			label = "Help"
 			ownedTools += OperationAction.createAs(Ns.operation, "Open Entities User Guide") [
+				initVariables
 				label = "Open User Guide"
-				view = ContainerViewVariable.create("views")
 				operation = "org.eclipse.sirius.ui.business.api.action.openHelpSection".javaDo("Open Entities User Guide Action", 
 					"href" -> "/org.eclipse.emf.ecoretools.doc/doc/EcoreTools User Manual.html#EntitiesDiagramEditor"
 				)
@@ -1303,10 +1200,9 @@ class EntitiesDiagram extends SiriusDiagram {
 	def createDynamicTools() {
 		ToolSection.create("Dynamic") [
 			ownedTools += ToolDescription.createAs(Ns.operation, "Dynamic instance") [
+				initVariables
 				precondition = "service:isEClass"
 				iconPath = "/org.eclipse.emf.ecoretools.design/icons/full/obj16/DynamicInstance.gif"
-				element = ElementVariable.create("element")
-				elementView = ElementViewVariable.create("elementView")
 				operation = "org.eclipse.emf.ecoretools.design.action.createDynamicInstanceActionID".javaDo("Create dynamic instance of a specified EClass", 
 					"eClass" -> "var:element"
 				)
@@ -1329,20 +1225,18 @@ class EntitiesDiagram extends SiriusDiagram {
 				reusedContainerMappings += ContainerMapping.localRef(Ns.node, "EC EClass")
 				reusedContainerMappings += ContainerMapping.localRef(Ns.node, "EC EDataType")
 				reusedContainerMappings += ContainerMapping.localRef(Ns.node, "EC EEnum")
-				style = FlatContainerStyleDescription.create [
+				style(FlatContainerStyleDescription) [
 					arcWidth = 1
 					arcHeight = 1
-					borderSizeComputationExpression = "1"
+					labelSize = 8
 					labelExpression = '''self.name'''.trimAql
 					labelAlignment = LabelAlignment.LEFT
 					widthComputationExpression = "24"
 					heightComputationExpression = "16"
 					backgroundStyle = BackgroundStyle.LIQUID_LITERAL
 					borderColor = UserFixedColor.ref("color:Dark EPackage")
-					labelColor = SystemColor.extraRef("color:black")
-					backgroundColor = SystemColor.extraRef("color:white")
 					foregroundColor = UserFixedColor.ref("color:EPackage")
-					labelBorderStyle = Environment.extraRef("$0").labelBorderStyles.labelBorderStyleDescriptions.get(0)
+					labelBorderStyle = LabelBorderStyleDescription.extraRef("LabelBorder:Label Border Style With Beveled Corner")
 				]
 			]
 			toolSections += createPackageTools
@@ -1352,9 +1246,8 @@ class EntitiesDiagram extends SiriusDiagram {
 	def createPackageTools() {
 		ToolSection.create("Package") [
 			ownedTools += ContainerCreationDescription.createAs(Ns.operation, "Package") [
+				initVariables
 				containerMappings += ContainerMapping.localRef(Ns.node, "Dropped Package")
-				variable = NodeCreationVariable.create("container")
-				viewVariable = ContainerViewVariable.create("containerView")
 				operation = "eSubpackages".creator("ecore.EPackage").andThen[ variableName = "newPackage" ].chain(
 					"var:newPackage".toContext(
 						"name".setter(''' 'newPackage' + self.eContainer().eContents(ecore::EPackage)->size() '''.trimAql)
@@ -1362,25 +1255,19 @@ class EntitiesDiagram extends SiriusDiagram {
 				)
 			]
 			ownedTools += ContainerDropDescription.createAs(Ns.drop, "Drop EClassifier into EPackage") [
+				initVariables
 				mappings += ContainerMapping.localRef(Ns.node, "EC EClass")
 				mappings += ContainerMapping.localRef(Ns.node, "EC EDataType")
 				mappings += ContainerMapping.localRef(Ns.node, "EC EEnum")
 				mappings += ContainerMapping.localRef(Ns.node, "EC External EClasses")
-				oldContainer = DropContainerVariable.create("oldSemanticContainer")
-				newContainer = DropContainerVariable.create("newSemanticContainer")
-				element = ElementDropVariable.create("element")
-				newViewContainer = ContainerViewVariable.create("newContainerView")
 				operation = "var:newSemanticContainer".toContext(
 					"eClassifiers".setter("var:element")
 				)
 			]
 			ownedTools += ContainerDropDescription.createAs(Ns.drop, "Drop EPackage into EPackage") [
+				initVariables
 				dragSource = DragSource.BOTH_LITERAL
 				mappings += ContainerMapping.localRef(Ns.node, "Dropped Package")
-				oldContainer = DropContainerVariable.create("oldSemanticContainer")
-				newContainer = DropContainerVariable.create("newSemanticContainer")
-				element = ElementDropVariable.create("element")
-				newViewContainer = ContainerViewVariable.create("newContainerView")
 				operation = "var:newSemanticContainer".toContext(
 					"eSubpackages".setter("var:element").chain(
 						CreateView.create [
@@ -1400,8 +1287,8 @@ class EntitiesDiagram extends SiriusDiagram {
 				semanticCandidatesExpression = "service:getVisibleDocAnnotations(diagram)"
 				domainClass = "ecore.EStringToStringMapEntry"
 				labelDirectEdit = DirectEditLabel.localRef(Ns.operation, "Edit Detail")
-				style = SquareDescription.create [
-					borderSizeComputationExpression = "1"
+				style(SquareDescription) [
+					labelSize = 8
 					showIcon = false
 					labelExpression = "feature:value"
 					labelAlignment = LabelAlignment.LEFT
@@ -1411,7 +1298,6 @@ class EntitiesDiagram extends SiriusDiagram {
 					width = 12
 					height = 10
 					borderColor = SystemColor.extraRef("color:gray")
-					labelColor = SystemColor.extraRef("color:black")
 					color = UserFixedColor.ref("color:Doc Annotation")
 				]
 			]
@@ -1425,10 +1311,12 @@ class EntitiesDiagram extends SiriusDiagram {
 				targetMapping += ContainerMapping.localRef(Ns.node, "Dropped Package")
 				targetMapping += ContainerMapping.localRef(Ns.node, "EC EDataType")
 				targetMapping += ContainerMapping.localRef(Ns.node, "EC EEnum")
-				style = EdgeStyleDescription.create [
+				style [
 					lineStyle = LineStyle.DOT_LITERAL
-					strokeColor = SystemColor.extraRef("color:black")
-					centerLabelStyleDescription = CenterLabelStyleDescription.create [
+					targetArrow = EdgeArrows.INPUT_ARROW_LITERAL
+					routingStyle = EdgeRouting.STRAIGHT_LITERAL
+					endsCentering = org.eclipse.sirius.diagram.description.CenteringStyle.NONE
+					centerLabel = [
 						showIcon = false
 						labelColor = SystemColor.extraRef("color:black")
 					]
@@ -1460,14 +1348,13 @@ class EntitiesDiagram extends SiriusDiagram {
 	def createDocumentationTools() {
 		ToolSection.create("Documentation") [
 			ownedTools += NodeCreationDescription.createAs(Ns.creation, "Doc Annotation") [
+				initVariables
 				iconPath = "/org.eclipse.emf.ecoretools.design/icons/full/obj16/EAnnotation_24.gif"
 				nodeMappings += NodeMapping.localRef(Ns.node, "EC Doc Annotation")
 				extraMappings += ContainerMapping.localRef(Ns.node, "EC EClass")
 				extraMappings += ContainerMapping.localRef(Ns.node, "EC EDataType")
 				extraMappings += ContainerMapping.localRef(Ns.node, "EC EEnum")
 				extraMappings += ContainerMapping.localRef(Ns.node, "Dropped Package")
-				variable = NodeCreationVariable.create("container")
-				viewVariable = ContainerViewVariable.create("containerView")
 				operation = "var:container".toContext(
 					'''self.eAnnotations->select(a | a.source = 'http://www.eclipse.org/emf/2002/GenModel')->size() = 0'''.trimAql.ifThenDo(
 						"eAnnotations".creator("ecore.EAnnotation").chain(
@@ -1491,13 +1378,10 @@ class EntitiesDiagram extends SiriusDiagram {
 				operation = "value".setter("var:arg0")
 			]
 			ownedTools += EdgeCreationDescription.createAs(Ns.connect, "Doc Assignment") [
+				initVariables
 				forceRefresh = true
 				iconPath = "/org.eclipse.emf.ecoretools.design/icons/full/obj16/AnnotationLink.gif"
 				edgeMappings += EdgeMapping.localRef(Ns.edge, "EC Doc Assignment")
-				sourceVariable = SourceEdgeCreationVariable.create("source")
-				targetVariable = TargetEdgeCreationVariable.create("target")
-				sourceViewVariable = SourceEdgeViewCreationVariable.create("sourceView")
-				targetViewVariable = TargetEdgeViewCreationVariable.create("targetView")
 				operation = '''source.eContainer(ecore::EAnnotation)'''.trimAql.toContext(
 					MoveElement.create [
 						newContainerExpression = "var:target"
@@ -1547,8 +1431,8 @@ class EntitiesDiagram extends SiriusDiagram {
 				semanticCandidatesExpression = "service:getVisibleConstraintsAnnotations(diagram)"
 				domainClass = "ecore.EStringToStringMapEntry"
 				labelDirectEdit = DirectEditLabel.localRef(Ns.operation, "Edit Detail")
-				style = SquareDescription.create [
-					borderSizeComputationExpression = "1"
+				style(SquareDescription) [
+					labelSize = 8
 					showIcon = false
 					labelExpression = "feature:value"
 					sizeComputationExpression = "1"
@@ -1568,10 +1452,13 @@ class EntitiesDiagram extends SiriusDiagram {
 				targetMapping += ContainerMapping.localRef(Ns.node, "EC EClass")
 				targetMapping += ContainerMapping.localRef(Ns.node, "EC EDataType")
 				targetMapping += ContainerMapping.localRef(Ns.node, "EC EEnum")
-				style = EdgeStyleDescription.create [
+				style [
 					lineStyle = LineStyle.DOT_LITERAL
+					targetArrow = EdgeArrows.INPUT_ARROW_LITERAL
+					routingStyle = EdgeRouting.STRAIGHT_LITERAL
+					endsCentering = org.eclipse.sirius.diagram.description.CenteringStyle.NONE
 					strokeColor = SystemColor.extraRef("color:dark_blue")
-					centerLabelStyleDescription = CenterLabelStyleDescription.create [
+					centerLabel = [
 						showIcon = false
 						labelColor = SystemColor.extraRef("color:black")
 					]
@@ -1584,14 +1471,13 @@ class EntitiesDiagram extends SiriusDiagram {
 	def createConstraintsTools() {
 		ToolSection.create("Constraints") [
 			ownedTools += NodeCreationDescription.createAs(Ns.creation, "Constraint") [
+				initVariables
 				iconPath = "/org.eclipse.emf.ecoretools.design/icons/full/obj16/EAnnotation_24.gif"
 				nodeMappings += NodeMapping.localRef(Ns.node, "EC Constraint Annotation")
 				extraMappings += ContainerMapping.localRef(Ns.node, "EC EClass")
 				extraMappings += ContainerMapping.localRef(Ns.node, "EC EDataType")
 				extraMappings += ContainerMapping.localRef(Ns.node, "EC EEnum")
 				extraMappings += ContainerMapping.localRef(Ns.node, "Dropped Package")
-				variable = NodeCreationVariable.create("container")
-				viewVariable = ContainerViewVariable.create("containerView")
 				operation = "var:container".toContext(
 					'''self.eAnnotations->select(a | a.source = 'http://www.eclipse.org/emf/2002/Ecore')->size() = 0'''.trimAql.ifThenDo(
 						"eAnnotations".creator("ecore.EAnnotation").chain(
@@ -1611,13 +1497,10 @@ class EntitiesDiagram extends SiriusDiagram {
 				)
 			]
 			ownedTools += EdgeCreationDescription.createAs(Ns.connect, "Constraint Assignment") [
+				initVariables
 				forceRefresh = true
 				iconPath = "/org.eclipse.emf.ecoretools.design/icons/full/obj16/AnnotationLink.gif"
 				edgeMappings += EdgeMapping.localRef(Ns.edge, "EC Constraint Assignment")
-				sourceVariable = SourceEdgeCreationVariable.create("source")
-				targetVariable = TargetEdgeCreationVariable.create("target")
-				sourceViewVariable = SourceEdgeViewCreationVariable.create("sourceView")
-				targetViewVariable = TargetEdgeViewCreationVariable.create("targetView")
 				operation = '''source.eContainer(ecore::EAnnotation)'''.trimAql.toContext(
 					MoveElement.create [
 						newContainerExpression = "var:target"
@@ -1642,44 +1525,37 @@ class EntitiesDiagram extends SiriusDiagram {
 				dropDescriptions += ContainerDropDescription.localRef(Ns.drop, "Drop operation")
 				reusedNodeMappings += NodeMapping.localRef(Ns.node, "EC EAttribute")
 				reusedNodeMappings += NodeMapping.localRef(Ns.node, "Operation")
-				style = FlatContainerStyleDescription.create [
+				style(FlatContainerStyleDescription) [
 					arcWidth = 8
 					arcHeight = 8
-					borderSizeComputationExpression = "1"
+					labelSize = 8
 					tooltipExpression = "service:renderTooltip"
 					roundedCorner = true
 					backgroundStyle = BackgroundStyle.LIQUID_LITERAL
-					borderColor = SystemColor.extraRef("color:black")
-					labelColor = SystemColor.extraRef("color:black")
-					backgroundColor = SystemColor.extraRef("color:white")
 					foregroundColor = UserFixedColor.ref("color:EClass")
 				]
 				styleIf(FlatContainerStyleDescription, "feature:interface") [
 					arcWidth = 8
 					arcHeight = 8
-					borderSizeComputationExpression = "1"
+					labelSize = 8
 					labelFormat += FontFormat.ITALIC_LITERAL
 					iconPath = "/org.eclipse.emf.ecoretools.design/icons/full/obj16/EClass_interface.gif"
 					tooltipExpression = "service:renderTooltip"
 					roundedCorner = true
 					backgroundStyle = BackgroundStyle.LIQUID_LITERAL
 					borderColor = UserFixedColor.ref("color:Dark EClass")
-					labelColor = SystemColor.extraRef("color:black")
-					backgroundColor = SystemColor.extraRef("color:white")
 					foregroundColor = UserFixedColor.ref("color:Abstract EClass")
 				]
 				styleIf(FlatContainerStyleDescription, "feature:abstract") [
 					arcWidth = 8
 					arcHeight = 8
-					borderSizeComputationExpression = "1"
+					labelSize = 8
 					labelFormat += FontFormat.ITALIC_LITERAL
 					iconPath = "/org.eclipse.emf.ecoretools.design/icons/full/obj16/EClass_abstract.gif"
 					tooltipExpression = "service:renderTooltip"
 					roundedCorner = true
 					backgroundStyle = BackgroundStyle.LIQUID_LITERAL
 					borderColor = UserFixedColor.ref("color:Dark EClass")
-					labelColor = SystemColor.extraRef("color:black")
-					backgroundColor = SystemColor.extraRef("color:white")
 					foregroundColor = UserFixedColor.ref("color:Abstract EClass")
 				]
 			]

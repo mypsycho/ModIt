@@ -28,6 +28,7 @@ import org.mypsycho.modit.emf.EModIt
 import org.mypsycho.modit.emf.EReversIt
 import org.mypsycho.modit.emf.ModitModel
 import org.mypsycho.modit.emf.sirius.api.SiriusVpGroup
+import org.eclipse.sirius.business.api.helper.ViewpointUtil
 
 /** 
  * Specific reverse for AbstractGroup class.
@@ -63,11 +64,10 @@ class SiriusGroupTemplate extends EReversIt {
 	}
 	
 	override protected prepareContext() {
-		context.aliases += 
-			tool.source
-				.userColorsPalettes
-				.flatMap[ entries ]
-				.toMap([ it ]) [ '''color:«name»''' ]
+		context.aliases +=  tool.source
+			.userColorsPalettes
+			.flatMap[ entries ]
+			.toMap([ it ]) [ '''color:«name»''' ]
 		
 		super.prepareContext()
 	}
@@ -113,25 +113,16 @@ IF !templateExtrasContent.blank
 }
 '''
 	}
-
-	// Xtend
-	override templateExplicitExtras() {
-		val colors = tool.source.systemColorsPalette.entries
-		if (context.explicitExtras.keySet.equals(colors.toSet)) {
-			return "" // no named element
-		}
-'''extras.putAll(#{ // Named elements
-«
-FOR ext : context.explicitExtras.entrySet
-		// ignore SystemColors as they are already provided in template.
-	.filter[ !colors.contains(key) ]
-	.toList.sortBy[ value ]
-SEPARATOR LValueSeparator // cannot include comma in template: improper for last value.
-»	«ext.value.toJava» -> «ext.key.templateAlias»«
-ENDFOR
-»
-})
-'''
+	
+	def isEnvironment(EObject it) {
+		ViewpointUtil.ENVIRONMENT_URI_SCHEME == eResource?.URI?.scheme
+	} 
+	
+	override getRecordedExplicitExtras() {
+		val result = context.explicitExtras
+			// environment is in 'initExtras'
+			.filter[ key, value | !key.isEnvironment ]
+			result
 	}
 
 	override templateExplicitAlias(EObject it) {
@@ -147,8 +138,7 @@ FOR c : innerContent SEPARATOR statementSeparator
 »«templateProperty(c.key, c.value)»«
 ENDFOR
 »
-'''
-	}
+'''}
 
 	override templateInnerCreate(EObject it) {
 		switch (it) {
@@ -170,7 +160,7 @@ ENDFOR
 		val split = context.splits.get(value)
 		split !== null
 			? '''owned(«split.templateSplitClass»)'''
-			: return super.templatePropertyValue(feat, value, encoding) // unlikely
+			: super.templatePropertyValue(feat, value, encoding) // unlikely
 	}
 
 	override templateRef(EObject it, Class<?> using) {

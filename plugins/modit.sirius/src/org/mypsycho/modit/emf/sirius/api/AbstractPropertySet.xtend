@@ -47,8 +47,9 @@ import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*
  * @author nperansin
  *
  */
-class AbstractPropertySet extends AbstractEdition {
+abstract class AbstractPropertySet extends AbstractEdition {
 	
+	/** Default name for category. */
 	public static val DEFAULT_NAME = "Default"
 	
 	enum Ns { view, category, page, group, foreach, then }
@@ -85,6 +86,7 @@ class AbstractPropertySet extends AbstractEdition {
 		domainClass = value.asDomainClass
 	}
 	
+	/** Creates the content of Property Description. */
 	def ViewExtensionDescription createContent() {
 		ViewExtensionDescription.createAs(Ns.view.id(extensionName)) [
 			name = extensionName
@@ -93,6 +95,7 @@ class AbstractPropertySet extends AbstractEdition {
 		]
 	}
 	
+	/** Creates a category. */
 	protected def category(ViewExtensionDescription it, String catName, (Category)=> void init) {
 		categories += Category.createAs(Ns.category.id(catName)) [
 			name = catName
@@ -100,12 +103,15 @@ class AbstractPropertySet extends AbstractEdition {
 		]
 	}
 	
+	/** Creates categories. (Basically only a default one) */
 	protected def void initCategories(ViewExtensionDescription it) {
 		category("Default") [ initDefaultCategory ]
 	}
 	
+	/** Initializes the default category. */
 	protected def void initDefaultCategory(Category it) {}
 
+	/** Initializes a widget with edited feature. */
 	def <T extends AbstractWidgetDescription> T initWidget(T it, EStructuralFeature feature) {
 		// TODO replace by a call to the default adapter factory
 		initWidget("self".featureAql(feature))
@@ -113,6 +119,7 @@ class AbstractPropertySet extends AbstractEdition {
 		it
 	}
 	
+	/** Initializes a widget with edited feature expression. */
 	def <T extends AbstractWidgetDescription> initWidget(T it, String featureExpr) {
 		name = eClass.name + ":" + contentAlias  + featureExpr
 		
@@ -144,15 +151,16 @@ class AbstractPropertySet extends AbstractEdition {
 		it
 	}
 	
+	
     def getRequiredFieldExpression(String featExpression) {
         '''«featExpression».lowerBound > 0'''.trimAql
     }
     
+    /** Format a style  */
     def void formatRequiredField(WidgetStyle it) {
         // Lambda
         labelFontFormat += FontFormat.BOLD_LITERAL
     }
-
     
 	def String featureAql(String valueVar, EStructuralFeature feat) {
 		'''«valueVar».eClass().getEStructuralFeature('«feat.name»')'''

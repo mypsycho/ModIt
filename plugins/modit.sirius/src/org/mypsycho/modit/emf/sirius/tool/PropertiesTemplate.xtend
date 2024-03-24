@@ -15,29 +15,19 @@ package org.mypsycho.modit.emf.sirius.tool
 
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EStructuralFeature
-import org.eclipse.sirius.properties.ButtonDescription
 import org.eclipse.sirius.properties.Category
-import org.eclipse.sirius.properties.CheckboxDescription
 import org.eclipse.sirius.properties.ContainerDescription
 import org.eclipse.sirius.properties.GroupConditionalStyle
 import org.eclipse.sirius.properties.GroupDescription
 import org.eclipse.sirius.properties.GroupStyle
-import org.eclipse.sirius.properties.HyperlinkDescription
 import org.eclipse.sirius.properties.PageDescription
-import org.eclipse.sirius.properties.RadioDescription
-import org.eclipse.sirius.properties.SelectDescription
-import org.eclipse.sirius.properties.TextAreaDescription
-import org.eclipse.sirius.properties.TextDescription
-import org.eclipse.sirius.properties.ToolbarAction
 import org.eclipse.sirius.properties.ViewExtensionDescription
-import org.eclipse.sirius.properties.WidgetAction
 import org.eclipse.sirius.properties.WidgetConditionalStyle
 import org.eclipse.sirius.properties.WidgetStyle
 import org.mypsycho.modit.emf.ClassId
 import org.mypsycho.modit.emf.sirius.api.AbstractPropertySet
 
 import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*
-
 
 class PropertiesTemplate extends RepresentationTemplate<ViewExtensionDescription> {
 	
@@ -53,7 +43,7 @@ class PropertiesTemplate extends RepresentationTemplate<ViewExtensionDescription
 		GroupDescription -> AbstractPropertySet.Ns.group
 	]
 	
-	protected val static CONTAINMENT_ORDER = #[
+	static val CONTAINMENT_ORDER = #[
 		ContainerDescription -> #[
 			PPKG.abstractContainerDescription_Extends,
 			PPKG.abstractContainerDescription_Layout
@@ -76,6 +66,8 @@ class PropertiesTemplate extends RepresentationTemplate<ViewExtensionDescription
 		
 		PART_IMPORTS + multiCat
 	}
+	
+	override isPartTemplate(EObject it) { super.isPartTemplate(it) }
 	
 	protected override getContainmentOrders() { CONTAINMENT_ORDER }
 	
@@ -134,21 +126,6 @@ ENDIF
 			? '''init«name.techName»'''
 			: '''init«name.techName»Category'''
 	}
-	
-	override getToolModelOperation(EObject it) {
-		switch(it) {
-			TextDescription: initialOperation?.firstModelOperations
-			WidgetAction: initialOperation?.firstModelOperations
-			HyperlinkDescription: initialOperation?.firstModelOperations
-			TextAreaDescription: initialOperation?.firstModelOperations
-			SelectDescription: initialOperation?.firstModelOperations
-			CheckboxDescription: initialOperation?.firstModelOperations
-			RadioDescription: initialOperation?.firstModelOperations
-			ToolbarAction: initialOperation?.firstModelOperations
-			ButtonDescription: initialOperation?.firstModelOperations
-			default: super.getToolModelOperation(it)
-		}
-	}
 
 	override templatePropertyValue(EStructuralFeature feat, Object value, (Object)=>String encoding) {
 		feat.name == "style" && value instanceof WidgetStyle
@@ -165,15 +142,13 @@ ENDIF
 	def templateStyle(EObject it) {
 '''style = [
 	«templateInnerContent(innerContent)»
-]'''
-	}
+]'''}
 		
 	def templateConditionalStyle(WidgetConditionalStyle it) {
 		val style = eGet(eClass.getEStructuralFeature("style")) as EObject
 '''styleIf(«preconditionExpression.toJava») [
 	«style.templateInnerContent(style.innerContent)»
-]'''
-	}
+]'''}
 		
 	
 }

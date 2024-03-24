@@ -178,7 +178,7 @@ class ModIt<T> {
 	 * @param path from source to target
 	 * @throw IllegalArgumentException if type is not handled by the factory.
 	 */
-	def <R extends T, S extends T> R refFrom(Class<R> type, Class<S> srcType, String id, (S)=>R path) {
+	def <R extends T, S extends T> R refFrom(Class<R> type, String id, Class<S> srcType, (S)=>R path) {
 		type.ref(id) [ path.apply(it as S) ]
 	}
 

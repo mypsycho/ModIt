@@ -9,6 +9,7 @@ import org.eclipse.sirius.table.metamodel.table.description.EditionTableDescript
 import org.eclipse.sirius.table.metamodel.table.description.FeatureColumnMapping
 import org.eclipse.sirius.table.metamodel.table.description.ForegroundConditionalStyle
 import org.eclipse.sirius.table.metamodel.table.description.ForegroundStyleDescription
+import org.eclipse.sirius.table.metamodel.table.description.IntersectionMapping
 import org.eclipse.sirius.table.metamodel.table.description.LineMapping
 import org.eclipse.sirius.table.metamodel.table.description.TableDescription
 import org.eclipse.sirius.table.metamodel.table.description.TableTool
@@ -42,14 +43,11 @@ class ClassesEditionTable extends SiriusFeatureTable {
 			domainClass = "ecore.EClass"
 			semanticCandidatesExpression = "feature:eContents"
 			reusedInMappings += "Package".lineRef
-			foregroundConditionalStyle += ForegroundConditionalStyle.create [
-				predicateExpression = "feature:abstract"
-				style = ForegroundStyleDescription.create [
-					labelSize = 10
-					labelFormat += FontFormat.ITALIC_LITERAL
-					foreGroundColor = SystemColor.extraRef("color:black")
-				]
+			foregroundIf("feature:abstract") [
+				labelSize = 10
+				labelFormat += FontFormat.ITALIC_LITERAL
 			]
+			
 			ownedLine("Feature") [
 				domainClass = "ecore.EStructuralFeature"
 			]
@@ -57,11 +55,9 @@ class ClassesEditionTable extends SiriusFeatureTable {
 		ownedLine("Package") [
 			domainClass = "ecore.EPackage"
 			headerLabelExpression = "feature:name"
-			defaultBackground = BackgroundStyleDescription.create [
-				backgroundColor = SystemColor.extraRef("color:light_yellow")
-			]
+			background = SystemColor.extraRef("color:light_yellow")
 		]
-		ownedCreateLine += CreateLineTool.create("Create Class") [
+		ownedCreateLine += CreateLineTool.createAs(Ns.create, "Create Class") [
 			initVariables
 			forceRefresh = true
 			elementsToSelect = "service:stdEmptyCollection"

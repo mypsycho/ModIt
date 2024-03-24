@@ -13,12 +13,12 @@
  *******************************************************************************/
 package org.mypsycho.modit.emf.sirius.api
 
-import java.util.Objects
-import org.eclipse.emf.ecore.EClass
+import java.util.List
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EReference
 import org.eclipse.emf.ecore.EStructuralFeature
-import org.eclipse.emf.ecore.util.EcoreUtil
+import org.eclipse.sirius.diagram.description.tool.DiagramCreationDescription
+import org.eclipse.sirius.diagram.description.tool.DiagramNavigationDescription
 import org.eclipse.sirius.diagram.description.tool.DirectEditLabel
 import org.eclipse.sirius.properties.AbstractButtonDescription
 import org.eclipse.sirius.properties.AbstractCheckboxDescription
@@ -44,6 +44,7 @@ import org.eclipse.sirius.properties.DialogButton
 import org.eclipse.sirius.properties.FILL_LAYOUT_ORIENTATION
 import org.eclipse.sirius.properties.FillLayoutDescription
 import org.eclipse.sirius.properties.GridLayoutDescription
+import org.eclipse.sirius.properties.GroupConditionalStyle
 import org.eclipse.sirius.properties.GroupStyle
 import org.eclipse.sirius.properties.HyperlinkDescription
 import org.eclipse.sirius.properties.HyperlinkWidgetConditionalStyle
@@ -65,11 +66,13 @@ import org.eclipse.sirius.properties.ToolbarAction
 import org.eclipse.sirius.properties.WidgetAction
 import org.eclipse.sirius.properties.WidgetConditionalStyle
 import org.eclipse.sirius.properties.WidgetDescription
-import org.eclipse.sirius.properties.WidgetStyle
 import org.eclipse.sirius.properties.ext.widgets.reference.propertiesextwidgetsreference.AbstractExtReferenceDescription
 import org.eclipse.sirius.properties.ext.widgets.reference.propertiesextwidgetsreference.ExtReferenceWidgetConditionalStyle
 import org.eclipse.sirius.properties.ext.widgets.reference.propertiesextwidgetsreference.ExtReferenceWidgetStyle
-import org.eclipse.sirius.viewpoint.description.IdentifiedElement
+import org.eclipse.sirius.table.metamodel.table.description.TableCreationDescription
+import org.eclipse.sirius.table.metamodel.table.description.TableNavigationDescription
+import org.eclipse.sirius.tree.description.TreeCreationDescription
+import org.eclipse.sirius.tree.description.TreeNavigationDescription
 import org.eclipse.sirius.viewpoint.description.JavaExtension
 import org.eclipse.sirius.viewpoint.description.SystemColor
 import org.eclipse.sirius.viewpoint.description.Viewpoint
@@ -81,6 +84,7 @@ import org.eclipse.sirius.viewpoint.description.tool.ContainerModelOperation
 import org.eclipse.sirius.viewpoint.description.tool.ContainerViewVariable
 import org.eclipse.sirius.viewpoint.description.tool.CreateInstance
 import org.eclipse.sirius.viewpoint.description.tool.Default
+import org.eclipse.sirius.viewpoint.description.tool.DropContainerVariable
 import org.eclipse.sirius.viewpoint.description.tool.ElementSelectVariable
 import org.eclipse.sirius.viewpoint.description.tool.ElementVariable
 import org.eclipse.sirius.viewpoint.description.tool.ElementViewVariable
@@ -102,13 +106,10 @@ import org.eclipse.sirius.viewpoint.description.tool.SetValue
 import org.eclipse.sirius.viewpoint.description.tool.Switch
 import org.eclipse.sirius.viewpoint.description.tool.ToolDescription
 import org.eclipse.sirius.viewpoint.description.tool.Unset
-import org.mypsycho.modit.emf.EModIt
+import org.eclipse.sirius.viewpoint.description.validation.ValidationFix
 import org.mypsycho.modit.emf.sirius.SiriusModelProvider
 
 import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*
-import org.eclipse.sirius.properties.GroupConditionalStyle
-import java.util.List
-import java.io.UnsupportedEncodingException
 
 /**
  * Adaptation of Sirius model into Java and EClass reflections API
@@ -116,22 +117,7 @@ import java.io.UnsupportedEncodingException
  * 
  * @author nicolas.peransin
  */
-abstract class AbstractEdition {
-
-	/** Main container */
-	protected val extension SiriusVpGroup context
-	
-	/** Factory of Sirius elements */
-	protected val extension EModIt factory
-	
-
-	/**
-	 * Alias root for the identified elements.
-	 * <p>
-	 * Default implementation is based on class name.
-	 * </p>
-	 */
-	protected var String contentAlias
+abstract class AbstractEdition extends AbstractIdentifiableElement {
 
 	/**
 	 * Create a factory for a diagram description
@@ -139,263 +125,9 @@ abstract class AbstractEdition {
 	 * @param parent of diagram
 	 */
 	new(SiriusVpGroup parent) {
-		this.context = parent
-		this.factory = parent.factory
-				
-		contentAlias = parent.getContentAlias(class)
+		super(parent)
 	}
 
-	/**
-	 * Returns a reference from extra elements.
-	 * 
-	 * @param type of referenced element (strict, no inheritance)
-	 * @param key of reference
-	 * @return element
-	 */
-	def <T> T extraRef(Class<T> type, String key) {
-		Objects.requireNonNull(context.extraRef(type, key))
-	}
-	
-	//
-	// Identification
-	//
-	
-	/**
-	 * Creates an identification with provided category.
-	 * <p>
-	 * This method has no side-effect, no id is reserved.
-	 * </p>
-	 * 
-	 * @param cat of identification
-	 * @param path 
-	 */
-	protected def String id(EClass cat, String path) {
-		cat.name.id(path)
-	}
-	
-		
-	/**
-	 * Creates an identification with provided category.
-	 * <p>
-	 * This method has no side-effect, no id is reserved.
-	 * </p>
-	 * 
-	 * @param cat of identification
-	 * @param path 
-	 */
-	protected def String id(Enum<?> cat, String path) {
-		cat.name.id(path)
-	}
-	
-	/**
-	 * Builds an identification with provided category for local element.
-	 * <p>
-	 * This method has no side-effect, no id is reserved.
-	 * </p>
-	 * 
-	 * @param cat of identification
-	 * @param path 
-	 */
-	protected def String id(String category, String path) {
-		category.id(contentAlias, path)
-	}
-	
-	/**
-	 * Creates an {@link IdentifiedElement} and initializes it.
-	 * 
-	 * @param type of IdentifiedElement to instantiate
-	 * @param cat category of element
-	 * @param eName name of element
-	 * @param initializer of the given {@link EObject}
-	 */
-	protected def <R extends IdentifiedElement> R 
-		createAs(
-			Class<R> type, Enum<?> cat, String eName, (R)=>void init		
-	) {
-		type.createAs(cat.id(eName)) [
-			name = eName
-			init?.apply(it)
-		]
-	}
-	
-	/**
-	 * Copies an {@link IdentifiedElement} and initializes it.
-	 * 
-	 * @param type of IdentifiedElement to instantiate
-	 * @param cat category of element
-	 * @param eName name of element
-	 * @param initializer of the given {@link EObject}
-	 */
-	protected def <R extends IdentifiedElement> R 
-		copyAs(
-			R original, Enum<?> cat, String eName, (R)=>void init
-	) {
-		(EcoreUtil.copy(original) as R) => [
-			cat.id(eName).alias(it)
-			name = eName
-			init?.apply(it)
-		]
-	}
-	
-
-	/**
-	 * Builds an identification with provided category for local element.
-	 * <p>
-	 * This method has no side-effect, no id is reserved.
-	 * </p>
-	 * <p>
-	 * Not deprecated but you should consider 'createAs' or 'ref' method.
-	 * </p>
-	 * 
-	 * @param cat of identification
-	 * @param context of element
-	 * @param path of element
-	 */
-	protected def String id(Enum<?> cat, String root, String path) {
-		cat.name.id(root, path)
-	}
-	
-	/**
-	 * Builds an identification with provided category for local element.
-	 * <p>
-	 * This method has no side-effect, no id is reserved.
-	 * </p>
-	 * <p>
-	 * Not deprecated by you should consider 'createAs' or 'ref' method.
-	 * </p>
-	 * 
-	 * @param category of identification
-	 * @param root of element
-	 * @param path of element
-	 */
-	protected def String id(String category, String root, String path) {
-		context.createId(category, root, path)
-	}
-		
-	/**
-	 * Builds a proxy to be resolved on 'loadContent' for a local element.
-	 * 
-	 * @param <R> Type of created proxy
-	 * @param type of created proxy
-	 * @param category of identification
-	 * @param name of element
-	 */
-	protected def <R extends IdentifiedElement> R 
-		localRef(
-			Class<R> type, Enum<?> cat, String name			
-	) {
-		type.ref(contentAlias, cat, name)
-	}
-		/**
-	 * Builds a proxy to be resolved on 'loadContent' for a local element.
-	 * 
-	 * @param <R> Type of created proxy
-	 * @param type of created proxy
-	 * @param category of identification
-	 * @param name of element
-	 */
-	protected def <R extends EObject> R 
-		localRef(
-			Class<R> type, Enum<?> cat, 
-			String name, (IdentifiedElement)=>R path
-	) {
-		type.ref(contentAlias, cat, name, path)
-	}
-	
-	
-			
-	/**
-	 * Builds an id for proxy for a local element.
-	 * 
-	 * @param <R> Type of created proxy
-	 * @param type of created proxy
-	 * @param category of identification
-	 * @param name of element
-	 */
-	protected def localId(Enum<?> cat, String name) {
-		cat.id(contentAlias, name)
-	}
-	
-	/**
-	 * Builds a proxy to be resolved on 'loadContent' for an element defined in provided container.
-	 * 
-	 * @param <R> Type of created proxy
-	 * @param type of created proxy
-	 * @param container of element
-	 * @param category of identification
-	 * @param name of element
-	 */
-	protected def <R extends IdentifiedElement> R 
-		ref(
-			Class<R> type, Class<? extends AbstractEdition> container, 
-			Enum<?> cat, String name
-	) {
-		type.ref(context.getContentAlias(container), cat, name)
-	}
-	
-	/**
-	 * Builds a proxy to be resolved on 'loadContent' for an element defined in provided container.
-	 * 
-	 * @param <R> Type of created proxy
-	 * @param type of created proxy
-	 * @param container of element
-	 * @param category of identification
-	 * @param name of element
-	 */
-	protected def <R extends EObject> R 
-		ref(
-			Class<R> type, Class<? extends AbstractEdition> container, 
-			Enum<?> cat, String name, (IdentifiedElement)=> R path
-	) {
-		type.ref(context.getContentAlias(container), cat, name, path)
-	}
-	
-		
-	/**
-	 * Builds a proxy to be resolved on 'loadContent' for an element defined in provided container.
-	 * 
-	 * @param container of element
-	 * @param category of identification
-	 * @param name of element
-	 */
-	protected def refId(Class<? extends AbstractEdition> container, Enum<?> cat, String name) {
-		cat.id(context.getContentAlias(container), name)
-	}
-	
-	/**
-	 * Builds a proxy to be resolved on 'loadContent' for an element defined in provided container.
-	 * 
-	 * @param <R> Type of created proxy
-	 * @param type of created proxy
-	 * @param category of identification
-	 * @param containerId of element
-	 * @param name of element
-	 */
-	protected def <R extends IdentifiedElement> R 
-		ref(
-			Class<R> type, String containerId, 
-			Enum<?> cat, String id
-	) {
-		type.ref(cat.id(containerId, id))
-	}
-    
-	/**
-	 * Builds a proxy to be resolved on 'loadContent' for an element defined in provided container.
-	 * 
-	 * @param <R> Type of created proxy
-	 * @param type of created proxy
-	 * @param category of identification
-	 * @param containerId of element
-	 * @param name of element
-	 */
-	protected def <R extends EObject> R 
-		ref(
-			Class<R> type, String containerId, Enum<?> cat, 
-			String id, (IdentifiedElement)=>R path
-	) {
-		type.ref(cat.id(containerId, id)) [ path.apply(it as IdentifiedElement) ]
-	}
-    
 	
 	//
 	// Expressions
@@ -421,27 +153,6 @@ abstract class AbstractEdition {
 		params.join(SiriusModelProvider.PARAM_SEP)
 	}
 	
-		
-	/**
-	 * Provides AQL expression for a class.
-	 * <p>
-	 * The must be contain in business Packages of the context.
-	 * </p>
-	 * 
-	 * @param type to convert
-	 * @return aql expression
-	 */
-	def asAql(Class<? extends EObject> type) {
-		context.asEClass(type).asAql
-	}
-	
-	def String isInstanceAql(Class<? extends EObject> type) {
-		'''.oclIsKindOf(«type.asAql»)'''
-	}
-	
-	def String castAql(Class<? extends EObject> type) {
-		'''.oclAsType(«type.asAql»)'''
-	}
 	
 	//
 	// Operations
@@ -486,7 +197,6 @@ abstract class AbstractEdition {
         ]
     }
     
-    
     /**
      * Creates a Set operation for provided feature.
      * 
@@ -494,7 +204,7 @@ abstract class AbstractEdition {
      * @param expression of value
      * @return a new SetValue
      */
-    def setter(String featureExpr, String value) {
+    protected def setter(String featureExpr, String value) {
         SetValue.create[
             featureName = featureExpr
             valueExpression = value
@@ -557,7 +267,6 @@ abstract class AbstractEdition {
 		]
     }
 
-
     /**
      * Creates a remove element operation for provided feature.
      * 
@@ -567,7 +276,6 @@ abstract class AbstractEdition {
     protected def remover(String expression) {
         expression.toOperation.chain(RemoveElement.create)
     }
-    
         
     /**
      * Creates a unset value operation for provided feature.
@@ -576,7 +284,7 @@ abstract class AbstractEdition {
      * @param expression of element
      * @return a new Unset
      */
-    protected def unsetter(String expression, String feature) {
+    protected def unsetter(String feature, String expression) {
 		Unset.create [
 			featureName = feature
 			elementExpression = expression
@@ -590,10 +298,9 @@ abstract class AbstractEdition {
      * @param expression of element
      * @return a new Unset
      */
-    protected def unsetter(String expression, EStructuralFeature feature) {
+    protected def unsetter(EStructuralFeature feature, String expression) {
     	expression.unsetter(feature.name)
     }
-    
 	
     /**
      * Creates a Let operation for provided feature.
@@ -602,7 +309,7 @@ abstract class AbstractEdition {
      * @param expression of element
      * @return a new Unset
      */
-    protected def let(String expression, String varName, ModelOperation... operations) {
+    protected def letDo(String expression, String varName, ModelOperation... operations) {
 		Let.create [
 			variableName = varName
 			valueExpression = expression
@@ -610,201 +317,12 @@ abstract class AbstractEdition {
 		]
     }
     
-    
-    /**
-	 * Creates a Style with common default values.
-	 * 
-	 * @param <T> type of style
-	 * @param it type of Style
-	 * @param init custom initialization of style
-	 * @return created Style
-	 */
-	protected def <T extends BasicLabelStyleDescription> T createStyle(Class<T> it, (T)=>void init) {
-		create[
-			initDefaultStyle
-			init?.apply(it)
-		]
-	}
-	
-	/**
-	 * Creates a Style with common default values.
-	 * 
-	 * @param <T> type of style
-	 * @param type of Style
-	 * @return created Style
-	 */
-	protected def <T extends BasicLabelStyleDescription> T createStyle(Class<T> it) {
-		// explicit 'it' is required to avoid infinite loop
-		it.createStyle(null)
-	}
-	
-	/**
-	 * Initializes a Style with common default values.
-	 * 
-	 * @param <T> type of style
-	 * @param type of Style
-	 * @param init custom initialization of style
-	 * @return created Style
-	 */
-	protected def void initDefaultStyle(BasicLabelStyleDescription it) {
-		labelSize = 10 // ODesign is provide 12, but eclipse default is Segoe:9
-		labelColor = SystemColor.extraRef("color:black")
-		
-		labelExpression = context.itemProviderLabel
-	}
-	
-		
-	def initVariables(RepresentationNavigationDescription it) {
-		representationNameVariable = NameVariable.create("name")
-		containerVariable = ElementSelectVariable.create("copiedElement")
-		containerViewVariable = ContainerViewVariable.create("containerView")
-	}
-	
-	def initVariables(RepresentationCreationDescription it) {
-		representationNameVariable = NameVariable.create("name")
-		containerViewVariable = ContainerViewVariable.create("containerView")
-	}
-	
-	def initVariables(ToolDescription it) {
-		element = ElementVariable.create("element")
-		elementView = ElementViewVariable.create("elementView")
-	}
-	
-	/**
-	 * Sets the operation for provided tool.
-	 * <p>
-	 * This class unifies the initialOperation declaration of sub-class tool.
-	 * </p>
-	 * @param it tool to set
-	 * @param value operation to perform
-	 */
-	protected def setOperation(AbstractToolDescription it, ModelOperation value) {
-		switch(it) {
-			OperationAction: initialOperation = value.toTool
-			ToolDescription: initialOperation = value.toTool
-			PasteDescription: initialOperation = value.toTool
-			SelectionWizardDescription: initialOperation = value.toTool
-			DirectEditLabel: initialOperation = value.toTool
-			default: throw new UnsupportedOperationException
-		}
-	}
-	
-	/**
-	 * Sets the operation for provided widget.
-	 * <p>
-	 * Widget may be used in wizard operation of all views.
-	 * </p>
-	 * <p>
-	 * This class unifies the initialOperation declaration of sub-class tool.
-	 * </p>
-	 * @param it tool to set
-	 * @param value operation to perform
-	 */
-	def void setOperation(WidgetDescription it, ModelOperation value) {
-		switch(it) {
-			ButtonDescription: initialOperation = value.toTool
-			CheckboxDescription: initialOperation = value.toTool
-			HyperlinkDescription: initialOperation = value.toTool
-			ListDescription: onClickOperation = value.toTool
-			RadioDescription: initialOperation = value.toTool
-			SelectDescription: initialOperation = value.toTool
-			AbstractTextAreaDescription: initialOperation = value.toTool
-			AbstractTextDescription: initialOperation = value.toTool
-			default: throw new UnsupportedOperationException
-		}
+    /** - Use letDo instead - */
+    @Deprecated
+    protected def let(String expression, String varName, ModelOperation... operations) {
+		expression.letDo(varName, operations)
 	}
 
-	/**
-	 * Sets the operation for provided widget.
-	 * <p>
-	 * Widget may be used in wizard operation of all views.
-	 * </p>
-	 * <p>
-	 * This class unifies the initialOperation declaration of sub-class tool.
-	 * </p>
-	 * @param it tool to set
-	 * @param value operation to perform
-	 */
-	def void setOperation(WidgetDescription it, String expression) {
-		operation = expression.toOperation
-	}
-
-	/**
-	 * Sets the operation for provided widget.
-	 * <p>
-	 * Widget may be used in wizard operation of all views.
-	 * </p>
-	 * <p>
-	 * This class unifies the initialOperation declaration of sub-class tool.
-	 * </p>
-	 * @param it tool to set
-	 * @param value operation to perform
-	 */
-	def void setOperation(WidgetAction it, ModelOperation value) {
-		initialOperation = InitialOperation.create [ firstModelOperations = value ]
-	}
-
-	/**
-	 * Sets the operation for provided widget.
-	 * <p>
-	 * Widget may be used in wizard operation of all views.
-	 * </p>
-	 * <p>
-	 * This class unifies the initialOperation declaration of sub-class tool.
-	 * </p>
-	 * @param it tool to set
-	 * @param value operation to perform
-	 */
-	def void setOperation(WidgetAction it, String expression) {
-		operation = expression.toOperation
-	}
-
-	/**
-	 * Sets the operation for provided widget.
-	 * <p>
-	 * Widget may be used in wizard operation of all views.
-	 * </p>
-	 * <p>
-	 * This class unifies the initialOperation declaration of sub-class tool.
-	 * </p>
-	 * @param it tool to set
-	 * @param value operation to perform
-	 */
-	def toolbar(String label, String icon, ModelOperation operation) {
-		ToolbarAction.create [
-			tooltipExpression = label
-			imageExpression = icon
-			initialOperation = InitialOperation.create [ firstModelOperations = operation ]	
-		]
-	}
-
-	/**
-	 * Sets the operation for provided widget.
-	 * <p>
-	 * Widget may be used in wizard operation of all views.
-	 * </p>
-	 * <p>
-	 * This class unifies the initialOperation declaration of sub-class tool.
-	 * </p>
-	 * @param it tool to set
-	 * @param value operation to perform
-	 */
-	def void setOperation(ToolbarAction it, ModelOperation value) {
-		initialOperation = InitialOperation.create [ firstModelOperations = value ]
-	}
-
-	/**
-	 * Sets the operation for provided tool.
-	 * <p>
-	 * This class unifies the initialOperation declaration of sub-class tool.
-	 * </p>
-	 * @param it tool to set
-	 * @param value operation to perform
-	 */
-	protected def setOperation(DialogButton it, ModelOperation value) {
-		initialOperation = value.toTool
-	}
-	
 	/** Creates a 'switch' operation. */
 	protected def switchDo(Pair<String, ? extends ModelOperation>... subCases) {
 		Switch.create[
@@ -886,9 +404,7 @@ abstract class AbstractEdition {
 
 	/** Adds sub-operation to an operation container. */
 	protected def <O extends ContainerModelOperation> O chain(O it, ModelOperation... operations) {
-		andThen[
-			subModelOperations += operations
-		]
+		andThen[ subModelOperations += operations ]
 	}
 	
 	def jparam(String pName, String pValue) {
@@ -905,9 +421,254 @@ abstract class AbstractEdition {
 	def javaDo(String actionId, String name, Pair<String, String>... params) {
 		ExternalJavaAction.create(name) [
 			id = actionId
-			parameters += params
-				.map[ key.jparam(value) ]
+			parameters += params.map[ key.jparam(value) ]
 		]
+	}
+
+	/**
+	 * Sets the operation for provided widget.
+	 * <p>
+	 * Widget may be used in wizard operation of all views.
+	 * </p>
+	 * <p>
+	 * This class unifies the initialOperation declaration of sub-class tool.
+	 * </p>
+	 * @param it tool to set
+	 * @param value operation to perform
+	 */
+	def toolbar(String label, String icon, ModelOperation operation) {
+		ToolbarAction.create [
+			tooltipExpression = label
+			imageExpression = icon
+			initialOperation = InitialOperation.create [ firstModelOperations = operation ]	
+		]
+	}
+
+	/**
+	 * Sets the operation for provided tool.
+	 * <p>
+	 * This class unifies the initialOperation declaration of sub-class tool.
+	 * </p>
+	 * @param it tool to set
+	 * @param value operation to perform
+	 */
+	def setOperation(AbstractToolDescription it, ModelOperation value) {
+		switch(it) {
+			OperationAction: initialOperation = value.toTool
+			ToolDescription: initialOperation = value.toTool
+			PasteDescription: initialOperation = value.toTool
+			SelectionWizardDescription: initialOperation = value.toTool
+			DirectEditLabel: initialOperation = value.toTool
+			default: throw new UnsupportedOperationException
+		}
+	}
+		
+	/**
+	 * Sets the operation for provided widget.
+	 * <p>
+	 * Widget may be used in wizard operation of all views.
+	 * </p>
+	 * <p>
+	 * This class unifies the initialOperation declaration of sub-class tool.
+	 * </p>
+	 * @param it tool to set
+	 * @param value operation to perform
+	 */
+	def void setOperation(WidgetDescription it, ModelOperation value) {
+		switch(it) {
+			ButtonDescription: initialOperation = value.toTool
+			CheckboxDescription: initialOperation = value.toTool
+			HyperlinkDescription: initialOperation = value.toTool
+			ListDescription: onClickOperation = value.toTool
+			RadioDescription: initialOperation = value.toTool
+			SelectDescription: initialOperation = value.toTool
+			AbstractTextAreaDescription: initialOperation = value.toTool
+			AbstractTextDescription: initialOperation = value.toTool
+			default: throw new UnsupportedOperationException
+		}
+	}
+
+	/**
+	 * Sets the operation for provided widget.
+	 * <p>
+	 * Widget may be used in wizard operation of all views.
+	 * </p>
+	 * <p>
+	 * This class unifies the initialOperation declaration of sub-class tool.
+	 * </p>
+	 * @param it tool to set
+	 * @param value operation to perform
+	 */
+	def void setOperation(WidgetDescription it, String expression) {
+		operation = expression.toOperation
+	}
+
+	/**
+	 * Sets the operation for provided widget.
+	 * <p>
+	 * Widget may be used in wizard operation of all views.
+	 * </p>
+	 * <p>
+	 * This class unifies the initialOperation declaration of sub-class tool.
+	 * </p>
+	 * @param it tool to set
+	 * @param value operation to perform
+	 */
+	def void setOperation(WidgetAction it, ModelOperation value) {
+		initialOperation = InitialOperation.create [ firstModelOperations = value ]
+	}
+
+	/**
+	 * Sets the operation for provided widget.
+	 * <p>
+	 * Widget may be used in wizard operation of all views.
+	 * </p>
+	 * <p>
+	 * This class unifies the initialOperation declaration of sub-class tool.
+	 * </p>
+	 * @param it tool to set
+	 * @param value operation to perform
+	 */
+	def void setOperation(WidgetAction it, String expression) {
+		operation = expression.toOperation
+	}
+
+	/**
+	 * Sets the operation for provided widget.
+	 * <p>
+	 * Widget may be used in wizard operation of all views.
+	 * </p>
+	 * <p>
+	 * This class unifies the initialOperation declaration of sub-class tool.
+	 * </p>
+	 * @param it tool to set
+	 * @param value operation to perform
+	 */
+	def void setOperation(DialogButton it, ModelOperation value) {
+		initialOperation = InitialOperation.create [ firstModelOperations = value ]
+	}
+
+	/**
+	 * Sets the operation for provided widget.
+	 * <p>
+	 * Widget may be used in wizard operation of all views.
+	 * </p>
+	 * <p>
+	 * This class unifies the initialOperation declaration of sub-class tool.
+	 * </p>
+	 * @param it tool to set
+	 * @param value operation to perform
+	 */
+	def void setOperation(DialogButton it, String expression) {
+		operation = expression.toOperation
+	}
+
+	/**
+	 * Sets the operation for provided widget.
+	 * <p>
+	 * Widget may be used in wizard operation of all views.
+	 * </p>
+	 * <p>
+	 * This class unifies the initialOperation declaration of sub-class tool.
+	 * </p>
+	 * @param it tool to set
+	 * @param value operation to perform
+	 */
+	def void setOperation(ToolbarAction it, ModelOperation value) {
+		initialOperation = InitialOperation.create [ firstModelOperations = value ]
+	}
+
+	/**
+	 * Sets the operation for provided widget.
+	 * <p>
+	 * Widget may be used in wizard operation of all views.
+	 * </p>
+	 * <p>
+	 * This class unifies the initialOperation declaration of sub-class tool.
+	 * </p>
+	 * @param it tool to set
+	 * @param value operation to perform
+	 */
+	def void setOperation(ToolbarAction it, String expression) {
+		operation = expression.toOperation
+	}
+	
+	/** Sets operation for validation fix. */
+	def setOperation(ValidationFix it, ModelOperation value) {
+		initialOperation = value.toTool
+	}
+
+	/** Initializes a Style with common default values. */
+	def void initDefaultStyle(BasicLabelStyleDescription it) {
+		labelSize = 10 // ODesign is provide 12, but eclipse default is Segoe:9
+		labelColor = SystemColor.extraRef("color:black")
+		
+		labelExpression = context.itemProviderLabel
+	}
+	
+	/** Initializes variables of the tool. */
+	def initVariables(AbstractToolDescription it) {
+		switch(it) {
+			RepresentationNavigationDescription: {
+				representationNameVariable = NameVariable.create(switch(it) {
+					DiagramNavigationDescription: "diagramName"
+					TableNavigationDescription: "tableName"
+					TreeNavigationDescription: "treeName"
+					default : "name"
+				})
+				containerVariable = ElementSelectVariable.create("copiedElement")
+				containerViewVariable = ContainerViewVariable.create("containerView")
+			}
+			RepresentationCreationDescription: {
+				representationNameVariable = NameVariable.create(switch(it) {
+					DiagramCreationDescription: "diagramName"
+					TableCreationDescription: "tableName"
+					TreeCreationDescription: "treeName"
+					default : "name"
+				})
+				containerViewVariable = ContainerViewVariable.create("containerView")
+			}
+			ToolDescription: {
+				element = ElementVariable.create("element")
+				elementView = ElementViewVariable.create("elementView")
+			}
+			OperationAction: {
+				view = ContainerViewVariable.create("views")
+			}
+			PasteDescription: {
+				copiedElement = ElementVariable.create("copiedElement")
+				copiedView = ElementViewVariable.create("copiedView")
+				containerView = ContainerViewVariable.create("containerView")
+				container = DropContainerVariable.create("container")
+			}
+		}
+	}
+	
+
+	/**
+	 * Creates a Style with common default values.
+	 * 
+	 * @param <T> type of style
+	 * @param it type of Style
+	 * @param init custom initialization of style
+	 * @return created Style
+	 */
+	def <T extends BasicLabelStyleDescription> T createStyle(Class<T> it, (T)=>void init) {
+		create[
+			initDefaultStyle
+			init?.apply(it)
+		]
+	}
+	
+	/**
+	 * Creates a Style with common default values.
+	 * 
+	 * @param <T> type of style
+	 * @param type of Style
+	 * @return created Style
+	 */
+	def <T extends BasicLabelStyleDescription> T createStyle(Class<T> it) {
+		createStyle(null as (T)=>void) // using only null for 'init' creates a ambiguity and an infinite loop.
 	}
 	
 	
@@ -972,9 +733,7 @@ abstract class AbstractEdition {
     }
 	
 	/** Creates a conditional style for group on provided condition. */
-	def styleIf(AbstractGroupDescription it, 
-        String condition, (GroupStyle)=>void init
-    ) {
+	def styleIf(AbstractGroupDescription it, String condition, (GroupStyle)=>void init) {
         GroupConditionalStyle
         	.styleIf(GroupStyle, conditionalStyles, condition, init)
     }
@@ -1096,10 +855,12 @@ abstract class AbstractEdition {
 		]
 	}
 	
+	/** Grid layout for Container with same size columns */
 	def layoutRegularGrid(AbstractContainerDescription it, int size) {
 		layoutGrid(size, true)
 	}
 	
+	/** Grid layout for Container with adaptable size columns */
 	def layoutFreeGrid(AbstractContainerDescription it, int size) {
 		layoutGrid(size, false)
 	}
@@ -1109,24 +870,17 @@ abstract class AbstractEdition {
 		blue, chocolate, gray, green, orange, purple, red, yellow, black, white
 	}
 	
-	/**
-	 * Retrieves the build-it in color.
-	 * 
-	 * @param it color 
-	 * @return SystemColor
-	 */
+	/** Retrieves the build-it in color. */
 	def getRegular(DColor it) {
 		getSystemColor("")
 	}
 	
-	/**
-	 * Retrieves the build-it in color but in light mode. */
+	/** Retrieves the build-it in color but in light mode. */
 	def getLight(DColor it) {
 		getSystemColor("light_")
 	}
 	
-	/**
-	 * Retrieves the build-it in color but in dark mode. */
+	/** Retrieves the build-it in color but in dark mode. */
 	def getDark(DColor it) {
 		getSystemColor("dark_")
 	}
@@ -1137,13 +891,5 @@ abstract class AbstractEdition {
 			 : "" // invariant
 		SystemColor.extraRef("color:" + mod + name)
 	}
-	
-	/**
-	 * Raises an exception if the condition is not met.
-	 */
-	static def verify(CharSequence message, boolean condition) {
-		if (!condition) {
-			throw new UnsupportedOperationException(message.toString)
-		}
-	}
+
 }

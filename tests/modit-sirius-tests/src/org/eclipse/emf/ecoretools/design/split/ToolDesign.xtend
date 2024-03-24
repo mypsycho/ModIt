@@ -192,7 +192,7 @@ class ToolDesign extends EModel<Group> {
 	}
 
 	override initExtras(ResourceSet it) {
-		extras.putAll(#{ // anonymous resources
+		extras.putAll(#{ // Anonymous resources
 			"$0" -> eObject(org.eclipse.sirius.viewpoint.description.Environment, "environment:/viewpoint#/")
 		})
 	}

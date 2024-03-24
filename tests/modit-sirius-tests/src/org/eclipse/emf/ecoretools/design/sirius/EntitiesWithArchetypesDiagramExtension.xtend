@@ -33,9 +33,6 @@ class EntitiesWithArchetypesDiagramExtension extends SiriusDiagramExtension {
 		super(parent)
 	}
 
-	override initDefaultStyle(BasicLabelStyleDescription it) {/* No reverse for Default */}
-	override initDefaultEdgeStyle(EdgeStyleDescription it) {/* No reverse for Default */}
-
 	override initContent(DiagramExtensionDescription it) {
 		name = "Entities With Archetypes"
 		viewpointURI = "viewpoint:/org.mypsycho.emf.modit.sirius.tests/Design"
@@ -83,13 +80,12 @@ class EntitiesWithArchetypesDiagramExtension extends SiriusDiagramExtension {
 	def createArchetypesArchetypeTools() {
 		ToolSection.create("Archetype") [
 			ownedTools += ContainerCreationDescription.createAs(Ns.operation, "MomentInterval") [
+				initVariables
 				documentation = "Does the class represent a moment or interval of time that we need to track for business or legal reasons? "
 				forceRefresh = true
 				iconPath = "/org.eclipse.emf.ecoretools.design/icons/full/obj16/MomentInterval.gif"
 				containerMappings += ContainerMapping.ref(EntitiesDiagram, Ns.node, "EC EClass")
 				extraMappings += ContainerMapping.ref(EntitiesDiagram, Ns.node, "EC EClass")
-				variable = NodeCreationVariable.create("container")
-				viewVariable = ContainerViewVariable.create("containerView")
 				operation = "var:container".toContext(
 					"service:isEPackage".ifThenDo(
 						"eClassifiers".creator("ecore.EClass").chain(
@@ -104,13 +100,12 @@ class EntitiesWithArchetypesDiagramExtension extends SiriusDiagramExtension {
 				)
 			]
 			ownedTools += ContainerCreationDescription.createAs(Ns.operation, "Description") [
+				initVariables
 				documentation = "Does the class represent a catalog-entry like description? "
 				forceRefresh = true
 				iconPath = "/org.eclipse.emf.ecoretools.design/icons/full/obj16/Description.gif"
 				containerMappings += ContainerMapping.ref(EntitiesDiagram, Ns.node, "EC EClass")
 				extraMappings += ContainerMapping.ref(EntitiesDiagram, Ns.node, "EC EClass")
-				variable = NodeCreationVariable.create("container")
-				viewVariable = ContainerViewVariable.create("containerView")
 				operation = "var:container".toContext(
 					'''container.oclIsTypeOf(ecore::EPackage)'''.trimAql.ifThenDo(
 						"eClassifiers".creator("ecore.EClass").chain(
@@ -125,13 +120,12 @@ class EntitiesWithArchetypesDiagramExtension extends SiriusDiagramExtension {
 				)
 			]
 			ownedTools += ContainerCreationDescription.createAs(Ns.operation, "Role") [
+				initVariables
 				documentation = "Does the class represent a role being played by a party (person or organization), place or thing? "
 				forceRefresh = true
 				iconPath = "/org.eclipse.emf.ecoretools.design/icons/full/obj16/Role.gif"
 				containerMappings += ContainerMapping.ref(EntitiesDiagram, Ns.node, "EC EClass")
 				extraMappings += ContainerMapping.ref(EntitiesDiagram, Ns.node, "EC EClass")
-				variable = NodeCreationVariable.create("container")
-				viewVariable = ContainerViewVariable.create("containerView")
 				operation = "var:container".toContext(
 					'''container.oclIsTypeOf(ecore::EPackage)'''.trimAql.ifThenDo(
 						"eClassifiers".creator("ecore.EClass").chain(
@@ -146,12 +140,11 @@ class EntitiesWithArchetypesDiagramExtension extends SiriusDiagramExtension {
 				)
 			]
 			ownedTools += ContainerCreationDescription.createAs(Ns.operation, "Place/Thing") [
+				initVariables
 				forceRefresh = true
 				iconPath = "/org.eclipse.emf.ecoretools.design/icons/full/obj16/Thing.gif"
 				containerMappings += ContainerMapping.ref(EntitiesDiagram, Ns.node, "EC EClass")
 				extraMappings += ContainerMapping.ref(EntitiesDiagram, Ns.node, "EC EClass")
-				variable = NodeCreationVariable.create("container")
-				viewVariable = ContainerViewVariable.create("containerView")
 				operation = "var:container".toContext(
 					'''container.oclIsTypeOf(ecore::EPackage)'''.trimAql.ifThenDo(
 						"eClassifiers".creator("ecore.EClass").chain(

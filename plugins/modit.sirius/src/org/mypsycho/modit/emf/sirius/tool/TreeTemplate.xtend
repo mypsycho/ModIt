@@ -46,7 +46,7 @@ class TreeTemplate extends RepresentationTemplate<TreeDescription> {
 	]
 	static val INIT_TEMPLATED = #{
 		TreeDescription -> #{
-			SPKG.identifiedElement_Label,
+			PKG.identifiedElement_Label,
 			TPKG.treeDescription_DomainClass
 		},
 		TreeItemTool -> #{
@@ -60,7 +60,7 @@ class TreeTemplate extends RepresentationTemplate<TreeDescription> {
 			TPKG.treeItemTool_FirstModelOperation
 		},
 		TreeItemMapping -> #{
-			SPKG.identifiedElement_Name,
+			PKG.identifiedElement_Name,
 			TPKG.treeItemMapping_DomainClass
 		}
 	}
@@ -117,6 +117,7 @@ class «name» extends «SiriusTree.templateClass» {
 }''' // end-of-class
 	}
 	
+
 	override templatePropertyValue(EStructuralFeature feat, Object value, (Object)=>String encoding) {
 		feat == TPKG.styleUpdater_DefaultStyle
 			? (value as TreeItemStyleDescription).templateMappingStyle
@@ -176,7 +177,7 @@ class «name» extends «SiriusTree.templateClass» {
 		}
 '''«method»(«name.toJava») [
 	«templateFilteredContent(TreeItemTool)»
-	«templateToolOperation»
+	«firstModelOperation.templateToolOperation»
 ]'''
 	}
 
@@ -185,6 +186,5 @@ class «name» extends «SiriusTree.templateClass» {
 			? SiriusTree.treePath(it)
 			: super.aliasPath(it)
 	}
-
 
 }

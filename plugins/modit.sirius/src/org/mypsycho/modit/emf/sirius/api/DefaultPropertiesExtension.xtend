@@ -40,7 +40,10 @@ import org.eclipse.sirius.properties.ext.widgets.reference.propertiesextwidgetsr
 import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*
 
 /**
- * Abstract class to edit properties of a model.
+ * PropertiesExtension with default behavior.
+ * <p>
+ * It can be used directly but requires dynamic invocation.
+ * </p>
  * 
  * @author nperansin
  */
@@ -92,6 +95,7 @@ class DefaultPropertiesExtension extends AbstractPropertySet {
 		#[]
 	}
 	
+	/** Creates default page. */
 	def createDefaultPage(Object pageId) {
 		PageDescription.createAs(Ns.page.id(pageId.toString)) [
 			name = pageId.toString
@@ -114,14 +118,12 @@ class DefaultPropertiesExtension extends AbstractPropertySet {
 	def isPageApplicableExpression(Object pageId) {
 		context.expression[ isPageApplicable(pageId) ]
 	}
-
+	
 	def isPageApplicable(EObject it, Object pageId) {
 		pageId == tabNames.head // should be overridden
 	}
 
-	/**
-	 * Requires overriding for static page.
-	 */
+	/** Requires overriding for static page. */
 	def getApplicableFeaturesExpression(Object pageId) {
 		context.expression[ value |
 			value.eClass.EAllStructuralFeatures
@@ -169,9 +171,7 @@ class DefaultPropertiesExtension extends AbstractPropertySet {
 		]
 	}
 	
-	/**
-	 * Requires overriding for static page.
-	 */
+	/** Requires overriding for static page. */
 	def getDateExpression(String iValue, String iFeat) {
 		context.expression(params(iValue, iFeat)) [
 			EObject it, EStructuralFeature feat |

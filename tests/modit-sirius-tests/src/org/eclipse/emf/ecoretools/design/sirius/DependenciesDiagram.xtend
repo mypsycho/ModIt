@@ -69,40 +69,35 @@ class DependenciesDiagram extends SiriusDiagram {
 		metamodel += GenModelPackage.eINSTANCE
 	}
 
-	override initDefaultStyle(BasicLabelStyleDescription it) {/* No reverse for Default */}
-	override initDefaultEdgeStyle(EdgeStyleDescription it) {/* No reverse for Default */}
-
 	override initContent(Layer it) {
 		containerMappings += ContainerMapping.createAs(Ns.node, "Analyzed Package") [
 			createElements = false
 			domainClass = "ecore.EPackage"
 			childrenPresentation = ContainerLayout.LIST
 			labelDirectEdit = DirectEditLabel.ref(EntitiesDiagram, Ns.operation, "Edit Name no CamelCase")
-			style = FlatContainerStyleDescription.create [
+			style(FlatContainerStyleDescription) [
 				arcWidth = 1
 				arcHeight = 1
-				borderSizeComputationExpression = "1"
+				labelSize = 8
 				labelExpression = "feature:nsURI"
 				labelAlignment = LabelAlignment.LEFT
 				backgroundStyle = BackgroundStyle.LIQUID_LITERAL
 				borderColor = UserFixedColor.ref("color:Dark EPackage")
-				labelColor = SystemColor.extraRef("color:black")
-				backgroundColor = SystemColor.extraRef("color:white")
 				foregroundColor = UserFixedColor.ref("color:EPackage")
-				labelBorderStyle = Environment.extraRef("$0").labelBorderStyles.labelBorderStyleDescriptions.get(0)
+				labelBorderStyle = LabelBorderStyleDescription.extraRef("LabelBorder:Label Border Style With Beveled Corner")
 			]
 			subNodeMappings += NodeMapping.createAs(Ns.node, "EClassfierIntroducingDependency") [
 				semanticCandidatesExpression = "service:getElementsIntroducingDependencies(diagram)"
 				domainClass = "ecore.EClassifier"
-				style = BundledImageDescription.create [
+				style(BundledImageDescription) [
+					borderSizeComputationExpression = "0"
+					labelSize = 8
 					labelExpression = "service:getDependenciesLabel"
 					labelAlignment = LabelAlignment.LEFT
 					tooltipExpression = "service:getDependenciesTooltip(view)"
+					sizeComputationExpression = "3"
 					labelPosition = LabelPosition.NODE_LITERAL
 					resizeKind = ResizeKind.NSEW_LITERAL
-					borderColor = SystemColor.extraRef("color:black")
-					labelColor = SystemColor.extraRef("color:black")
-					color = SystemColor.extraRef("color:black")
 				]
 			]
 		]
@@ -112,11 +107,14 @@ class DependenciesDiagram extends SiriusDiagram {
 			domainClass = "ecore.EPackage"
 			sourceMapping += ContainerMapping.localRef(Ns.node, "Analyzed Package")
 			targetMapping += ContainerMapping.localRef(Ns.node, "Analyzed Package")
-			style = EdgeStyleDescription.create [
+			style [
 				lineStyle = LineStyle.DASH_LITERAL
+				targetArrow = org.eclipse.sirius.diagram.EdgeArrows.INPUT_ARROW_LITERAL
 				sizeComputationExpression = "service:getDependenciesAmount()"
+				routingStyle = org.eclipse.sirius.diagram.EdgeRouting.STRAIGHT_LITERAL
+				endsCentering = org.eclipse.sirius.diagram.description.CenteringStyle.NONE
 				strokeColor = SystemColor.extraRef("color:red")
-				centerLabelStyleDescription = CenterLabelStyleDescription.create [
+				centerLabel = [
 					labelColor = SystemColor.extraRef("color:black")
 				]
 			]
@@ -129,8 +127,8 @@ class DependenciesDiagram extends SiriusDiagram {
 		ToolSection.create("Help") [
 			label = "Help"
 			ownedTools += OperationAction.createAs(Ns.operation, "Open Dependencies User Guide") [
+				initVariables
 				label = "Open User Guide"
-				view = ContainerViewVariable.create("views")
 				operation = "org.eclipse.sirius.ui.business.api.action.openHelpSection".javaDo("Open Dependencies User Guide Action", 
 					"href" -> "/org.eclipse.emf.ecoretools.design/doc/user-guide.html#quality.dependencies"
 				)
@@ -142,6 +140,7 @@ class DependenciesDiagram extends SiriusDiagram {
 	def createExistingElementsTools() {
 		ToolSection.create("Existing Elements") [
 			ownedTools += SelectionWizardDescription.createAs(Ns.operation, "Add") [
+				initVariables
 				precondition = "service:isEPackage"
 				forceRefresh = true
 				candidatesExpression = "service:getValidsForDiagram(containerView)"
@@ -151,9 +150,6 @@ class DependenciesDiagram extends SiriusDiagram {
 				childrenExpression = "feature:eContents"
 				iconPath = "/org.eclipse.emf.ecoretools.design/icons/full/etools16/search.gif"
 				windowTitle = "Select element to add in diagram"
-				element = ElementSelectVariable.create("element")
-				containerView = ContainerViewVariable.create("containerView")
-				container = SelectContainerVariable.create("container")
 				operation = "var:element".forDo("i", 
 					"service:isEPackage".ifThenDo(
 						CreateView.create [
@@ -164,23 +160,19 @@ class DependenciesDiagram extends SiriusDiagram {
 				)
 			]
 			ownedTools += ToolDescription.createAs(Ns.operation, "RemoveExistingElements") [
+				initVariables
 				label = "Remove"
 				precondition = '''containerView.oclIsKindOf(diagram::DDiagram)'''.trimAql
 				forceRefresh = true
 				iconPath = "/org.eclipse.emf.ecoretools.design/icons/full/etools16/search.gif"
-				element = ElementVariable.create("element")
-				elementView = ElementViewVariable.create("elementView")
 				operation = "var:elementView".toContext(
 					DeleteView.create
 				)
 			]
 			ownedTools += ContainerDropDescription.createAs(Ns.drop, "External EPackageTo Analyze from treeview") [
+				initVariables
 				forceRefresh = true
 				dragSource = DragSource.PROJECT_EXPLORER_LITERAL
-				oldContainer = DropContainerVariable.create("oldSemanticContainer")
-				newContainer = DropContainerVariable.create("newSemanticContainer")
-				element = ElementDropVariable.create("element")
-				newViewContainer = ContainerViewVariable.create("newContainerView")
 				operation = "var:element".toContext(
 					"service:isEPackage".ifThenDo(
 						CreateView.create [

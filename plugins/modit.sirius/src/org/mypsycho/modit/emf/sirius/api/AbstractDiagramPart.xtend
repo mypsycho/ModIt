@@ -33,11 +33,14 @@ import org.eclipse.sirius.diagram.description.EdgeMapping
 import org.eclipse.sirius.diagram.description.Layer
 import org.eclipse.sirius.diagram.description.NodeMapping
 import org.eclipse.sirius.diagram.description.NodeMappingImport
+import org.eclipse.sirius.diagram.description.style.BeginLabelStyleDescription
 import org.eclipse.sirius.diagram.description.style.BorderedStyleDescription
 import org.eclipse.sirius.diagram.description.style.BundledImageDescription
+import org.eclipse.sirius.diagram.description.style.CenterLabelStyleDescription
 import org.eclipse.sirius.diagram.description.style.ContainerStyleDescription
 import org.eclipse.sirius.diagram.description.style.CustomStyleDescription
 import org.eclipse.sirius.diagram.description.style.EdgeStyleDescription
+import org.eclipse.sirius.diagram.description.style.EndLabelStyleDescription
 import org.eclipse.sirius.diagram.description.style.FlatContainerStyleDescription
 import org.eclipse.sirius.diagram.description.style.NodeStyleDescription
 import org.eclipse.sirius.diagram.description.style.WorkspaceImageDescription
@@ -49,6 +52,7 @@ import org.eclipse.sirius.diagram.description.tool.DiagramCreationDescription
 import org.eclipse.sirius.diagram.description.tool.DirectEditLabel
 import org.eclipse.sirius.diagram.description.tool.DoubleClickDescription
 import org.eclipse.sirius.diagram.description.tool.EdgeCreationDescription
+import org.eclipse.sirius.diagram.description.tool.ElementDoubleClickVariable
 import org.eclipse.sirius.diagram.description.tool.NodeCreationDescription
 import org.eclipse.sirius.diagram.description.tool.NodeCreationVariable
 import org.eclipse.sirius.diagram.description.tool.ReconnectEdgeDescription
@@ -61,10 +65,12 @@ import org.eclipse.sirius.viewpoint.description.Customization
 import org.eclipse.sirius.viewpoint.description.EAttributeCustomization
 import org.eclipse.sirius.viewpoint.description.EReferenceCustomization
 import org.eclipse.sirius.viewpoint.description.EStructuralFeatureCustomization
+import org.eclipse.sirius.viewpoint.description.IVSMElementCustomization
 import org.eclipse.sirius.viewpoint.description.SystemColor
 import org.eclipse.sirius.viewpoint.description.VSMElementCustomization
 import org.eclipse.sirius.viewpoint.description.style.BasicLabelStyleDescription
 import org.eclipse.sirius.viewpoint.description.style.StyleDescription
+import org.eclipse.sirius.viewpoint.description.style.StylePackage
 import org.eclipse.sirius.viewpoint.description.tool.AbstractToolDescription
 import org.eclipse.sirius.viewpoint.description.tool.ContainerViewVariable
 import org.eclipse.sirius.viewpoint.description.tool.DragSource
@@ -73,18 +79,12 @@ import org.eclipse.sirius.viewpoint.description.tool.EditMaskVariables
 import org.eclipse.sirius.viewpoint.description.tool.ElementDeleteVariable
 import org.eclipse.sirius.viewpoint.description.tool.ElementDropVariable
 import org.eclipse.sirius.viewpoint.description.tool.ElementSelectVariable
-import org.eclipse.sirius.viewpoint.description.tool.ElementVariable
-import org.eclipse.sirius.viewpoint.description.tool.ElementViewVariable
 import org.eclipse.sirius.viewpoint.description.tool.InitEdgeCreationOperation
 import org.eclipse.sirius.viewpoint.description.tool.InitialContainerDropOperation
 import org.eclipse.sirius.viewpoint.description.tool.InitialNodeCreationOperation
 import org.eclipse.sirius.viewpoint.description.tool.ModelOperation
-import org.eclipse.sirius.viewpoint.description.tool.PasteDescription
 
 import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*
-import static extension java.util.Objects.requireNonNull
-import org.eclipse.sirius.viewpoint.description.IVSMElementCustomization
-import org.eclipse.sirius.viewpoint.description.style.StylePackage
 
 /**
  * Adaptation of Sirius model into Java and EClass reflections API
@@ -188,10 +188,10 @@ abstract class AbstractDiagramPart<T extends EObject> extends AbstractTypedEditi
 	/**
 	 * Sets the candidates expression using a reference.
 	 * <p>
-	 * If name is not set, a derived value is provided
+	 * If name is not set, a derived value is provided.
 	 * </p>
 	 * <p>
-     * If domain class and/or name is not set, a derived value is provided
+     * If domain class and/or name is not set, a derived value is provided.
      * </p>
 	 * 
 	 * @param it description to define
@@ -244,10 +244,39 @@ abstract class AbstractDiagramPart<T extends EObject> extends AbstractTypedEditi
 		}
 
 		if (it instanceof BundledImageDescription) {
-			color = (extras.get("color:black") as SystemColor)
+			color = SystemColor.extraRef("color:black")
 		}
 	}
 
+	/**
+	 * Sets the style of mapping.
+	 * <p>
+	 * APIs for Node and edge mapping style are different as node mappings have
+	 * different style types.
+	 * </p>
+	 * @param it mapping to set
+	 * @param init initialization of the style
+	 */
+	def <T extends ContainerStyleDescription> 
+		style(ContainerMapping it, Class<T> type, (T)=>void init			
+	) {
+        style = type.createStyle(init)
+	}
+	
+	/**
+	 * Sets the style of mapping.
+	 * <p>
+	 * APIs for Node and edge mapping style are different as node mappings have
+	 * different style types.
+	 * </p>
+	 * @param it mapping to set
+	 * @param init initialization of the style
+	 */
+	def <T extends NodeStyleDescription> 
+		style(NodeMapping it, Class<T> type, (T)=>void init
+	) {
+        style = type.createStyle(init)
+	}
 	
 	/**
 	 * Creates a conditional style for a container on provided condition.
@@ -256,21 +285,22 @@ abstract class AbstractDiagramPart<T extends EObject> extends AbstractTypedEditi
 	 * customization is better solution.
 	 * </p>
 	 * @param type of style
-	 * @param it to add style
+	 * @param owner to add style
 	 * @param condition of style application
 	 * @param init of created style (after default initialization)
 	 */
-	def <T extends ContainerStyleDescription> styleIf(ContainerMapping it, 
-	    Class<T> type, String condition, (T)=>void init
+	def <T extends ContainerStyleDescription> 
+		styleIf(ContainerMapping owner, Class<T> type, String condition, (T)=>void init
 	) {
         // Init is required as default styling make not sense
         Objects.requireNonNull(init, "Conditional Style cannot have default properties")
-        val result = type.createStyle(init)
-		conditionnalStyles += ConditionalContainerStyleDescription.create[
-			predicateExpression = condition
-			style = result
-		]
-		result
+        type.createStyle(init) => [ targetStyle |
+			owner.conditionnalStyles += ConditionalContainerStyleDescription.create [
+				predicateExpression = condition
+				style = targetStyle
+			]
+        ]
+
 	}
 	
 	/**
@@ -280,21 +310,21 @@ abstract class AbstractDiagramPart<T extends EObject> extends AbstractTypedEditi
 	 * customization is better solution.
 	 * </p>
 	 * @param type of style
-	 * @param it to add style
+	 * @param owner to add style
 	 * @param condition of style application
 	 * @param init of created style (after default initialization)
 	 */
-	def <T extends NodeStyleDescription> styleIf(NodeMapping it, 
-	    Class<T> type, String condition, (T)=>void init
+	def <T extends NodeStyleDescription> 
+		styleIf(NodeMapping owner, Class<T> type, String condition, (T)=>void init
 	) {
 	    // Init is required as default styling make not sense
         Objects.requireNonNull(init, "Conditional Style cannot have default properties")
-        val result = type.createStyle(init)
-		conditionnalStyles += ConditionalNodeStyleDescription.create[
-			predicateExpression = condition
-			style = result
-		]
-		result
+        type.createStyle(init) => [ targetStyle |
+			owner.conditionnalStyles += ConditionalNodeStyleDescription.create[
+				predicateExpression = condition
+				style = targetStyle
+			]
+        ]
 	}
 	
 		
@@ -308,35 +338,55 @@ abstract class AbstractDiagramPart<T extends EObject> extends AbstractTypedEditi
 	 * @param condition of style application
 	 * @param init of created style (after default initialization)
 	 */
-	def styleIf(EdgeMapping it,  String condition, (EdgeStyleDescription)=>void init) {
+	def styleIf(EdgeMapping owner,  String condition, (EdgeStyleDescription)=>void init) {
 	    // Init is required as default styling make not sense
         Objects.requireNonNull(init, "Conditional Style cannot have default properties")
-        val result = EdgeStyleDescription.create [
-        	initDefaultEdgeStyle
+        EdgeStyleDescription.create [
+        	initDefaultStyle
             init?.apply(it)
+        ] => [ targetStyle |
+			owner.conditionnalStyles += ConditionalEdgeStyleDescription.create [
+				predicateExpression = condition
+				style = targetStyle
+			]
         ]
-		conditionnalStyles += ConditionalEdgeStyleDescription.create[
-			predicateExpression = condition
-			style = result
-		]
-		result
 	}
 	
 	/**
 	 * Sets the style of mapping.
 	 * <p>
-	 * APIs for Node and edge mapping style are different as node mappings have different style types.
+	 * APIs for Node and edge mapping style are different as node mappings have
+	 * different style types.
+	 * </p>
+	 * @param it mapping to set
+	 * @param init initialization of the style
+	 */
+	def style(EdgeMapping it, (EdgeStyleDescription)=>void init) {
+        style = init
+	}
+	
+	/**
+	 * Sets the style of mapping.
+	 * <p>
+	 * APIs for Node and edge mapping style are different as node mappings have
+	 * different style types.
 	 * </p>
 	 * @param it mapping to set
 	 * @param init initialization of the style
 	 */
 	def setStyle(EdgeMapping it, (EdgeStyleDescription)=>void init) {
         style = EdgeStyleDescription.create [
-        	initDefaultEdgeStyle
+        	initDefaultStyle
             init?.apply(it)
         ]
 	}
 	
+	/** Initializes default values of edge style. */
+	def initDefaultStyle(EdgeStyleDescription it) {
+		initDefaultEdgeStyle
+	}
+	
+	@Deprecated
 	def initDefaultEdgeStyle(EdgeStyleDescription it) {
         // centerLabelStyleDescription = null <=> no label
         endsCentering = CenteringStyle.BOTH
@@ -346,6 +396,24 @@ abstract class AbstractDiagramPart<T extends EObject> extends AbstractTypedEditi
         targetArrow = EdgeArrows.NO_DECORATION_LITERAL
         strokeColor = SystemColor.extraRef("color:black")
         sizeComputationExpression = "1"
+	}
+	
+	/** Set the center label of Edge. */
+	def setCenterLabel(EdgeStyleDescription it, (CenterLabelStyleDescription)=>void init) {
+		centerLabelStyleDescription = init !== null 
+			? CenterLabelStyleDescription.create(init)
+	}
+	
+	/** Set the begin label of Edge. */
+	def setSourceLabel(EdgeStyleDescription it, (BeginLabelStyleDescription)=>void init) {
+		beginLabelStyleDescription = init !== null 
+			? BeginLabelStyleDescription.create(init)
+	}
+	
+	/** Set the end label of Edge. */
+	def setTargetLabel(EdgeStyleDescription it, (EndLabelStyleDescription)=>void init) {
+		endLabelStyleDescription = init !== null 
+			? EndLabelStyleDescription.create(init)
 	}
 	
 	/**
@@ -427,8 +495,10 @@ abstract class AbstractDiagramPart<T extends EObject> extends AbstractTypedEditi
 	 * @param customValue to apply
 	 * @throws IllegalArgumentException when 'reference' is not a valid feature name
 	 */
-	def <T extends StyleDescription> customizeRef(T it, 
-		String condition, String siriusReference, EObject customValue
+	def <T extends StyleDescription> 
+		customizeRef(
+			T it, String condition, 
+			String siriusReference, EObject customValue
 	) {
 		doCustomize(condition, siriusReference, EReference, 
 			EReferenceCustomization.create[
@@ -449,8 +519,10 @@ abstract class AbstractDiagramPart<T extends EObject> extends AbstractTypedEditi
 	 * @param customValue to apply
 	 * @throws IllegalArgumentException when 'siriusAttribute' is not a valid feature name
 	 */
-	def <T extends StyleDescription> customize(T it, 
-		String condition, String siriusAttribute, String customExpression
+	def <T extends StyleDescription> 
+		customize(
+			T it, String condition, 
+			String siriusAttribute, String customExpression
 	) {
 		doCustomize(condition, siriusAttribute, EAttribute, 
 			EAttributeCustomization.create[
@@ -471,8 +543,10 @@ abstract class AbstractDiagramPart<T extends EObject> extends AbstractTypedEditi
 	 * @param customValue to apply
 	 * @throws IllegalArgumentException when 'reference' is not a valid feature name
 	 */
-	def <T extends StyleDescription> customize(T it, 
-		String condition, EReference siriusReference, EObject customValue
+	def <T extends StyleDescription> 
+		customize(
+			T it, String condition, 
+			EReference siriusReference, EObject customValue
 	) {
 		customizeRef(condition, siriusReference.name, customValue)
 	}
@@ -489,14 +563,19 @@ abstract class AbstractDiagramPart<T extends EObject> extends AbstractTypedEditi
 	 * @param customValue to apply
 	 * @throws IllegalArgumentException when 'siriusAttribute' is not a valid feature name
 	 */
-	def <T extends StyleDescription> customize(T it, 
-		String condition, EAttribute siriusAttribute, String customExpression
+	def <T extends StyleDescription> 
+		customize(
+			T it, String condition, 
+			EAttribute siriusAttribute, String customExpression
 	) {
 		customize(condition, siriusAttribute.name, customExpression)
 	}
 
-	private def <T extends StyleDescription> T doCustomize(T target, String condition, String feature, 
-		Class<? extends EStructuralFeature> type, EStructuralFeatureCustomization custo
+	private def <T extends StyleDescription> T 
+		doCustomize(
+			T target, String condition, String feature, 
+			Class<? extends EStructuralFeature> type, 
+			EStructuralFeatureCustomization custo
 	) {
 		'''«target?.eClass» has no «type.simpleName» «feature»'''
 			.verify(type.isInstance(target.eClass.getEStructuralFeature(feature)))
@@ -507,14 +586,17 @@ abstract class AbstractDiagramPart<T extends EObject> extends AbstractTypedEditi
 	}
 
 	// Compatible with Iterable.
+	/** Customizes an style attribute using reflection. */
 	def customization(EAttribute feature, String valueExpression, EObject... customizeds) {
 		feature.name.attCustomization(valueExpression, customizeds)
 	}
 
+	/** Customizes an style reference using reflection. */
 	def customization(EReference feature, EObject newValue, EObject... customizeds) {
 		feature.name.refCustomization(newValue, customizeds)
 	}
 
+	/** Customizes an style attribute. */
 	def attCustomization(String feature, String valueExpression, EObject... customizeds) {
 		EAttributeCustomization.create [
 			attributeName = feature
@@ -523,6 +605,7 @@ abstract class AbstractDiagramPart<T extends EObject> extends AbstractTypedEditi
 		]
 	}
 
+	/** Customizes an style reference. */
 	def refCustomization(String feature, EObject newValue, EObject... customizeds) {
 		EReferenceCustomization.create [
 			referenceName = feature
@@ -530,6 +613,25 @@ abstract class AbstractDiagramPart<T extends EObject> extends AbstractTypedEditi
 			appliedOn += customizeds
 		]
 	}
+	
+	/** Iterates on all styles of a mapping. */
+	static def allStyles(DiagramElementMapping it) {
+		switch(it) {
+			EdgeMapping: 
+				#[ style ] + conditionnalStyles.map[ style ]
+			ContainerMapping: 
+				#[ style ] + conditionnalStyles.map[ style ]
+			NodeMapping: 
+				#[ style ] + conditionnalStyles.map[ style ]
+			default: #[] as Iterable<? extends StyleDescription> 
+		}.filterNull
+	}
+	
+	/** Iterates on all specific styles of a mapping. */
+	static def <T extends EObject> allStyles(DiagramElementMapping it, Class<T> type) {
+		allStyles.filter(type)
+	}	
+	
 
 	//
 	// Tool section
@@ -545,12 +647,10 @@ abstract class AbstractDiagramPart<T extends EObject> extends AbstractTypedEditi
     protected def createNodeCreate(String toolname, 
             ModelOperation task, String... nodeNames) {
         NodeCreationDescription.createAs(Ns.creation, toolname) [
+        	initVariables
             forceRefresh = true // simpler by default
             
             nodeMappings += nodeNames.map[ NodeMapping.ref(it) ]
-            
-            variable = NodeCreationVariable.create [ name = "container" ]
-            viewVariable = ContainerViewVariable.create [ name = "containerView" ]
             
             operation = task
         ]
@@ -567,13 +667,10 @@ abstract class AbstractDiagramPart<T extends EObject> extends AbstractTypedEditi
    protected def createContainerCreate(String toolname, 
             ModelOperation task, String... nodeNames) {
         ContainerCreationDescription.createAs(Ns.creation, toolname) [
+        	initVariables
             forceRefresh = true // simpler by default
             
             containerMappings += nodeNames.map[ ContainerMapping.ref(it) ]
-            
-            variable = NodeCreationVariable.create [ name = "container" ]
-            viewVariable = ContainerViewVariable.create [ name = "containerView" ]
-            
             operation = task
         ]
     }
@@ -595,17 +692,14 @@ abstract class AbstractDiagramPart<T extends EObject> extends AbstractTypedEditi
     	toolName.createElementDelete(Ns.del, operation)
     }
     
-    protected def createElementDelete(String toolName, Enum<?> namespace, ModelOperation operation) {
-        Objects.requireNonNull(operation)
+    /** Creates a delete description. */
+    protected def createElementDelete(String toolName, Enum<?> namespace, ModelOperation task) {
+        Objects.requireNonNull(task)
         // Alias is required as mapping declare drops
         DeleteElementDescription.createAs(namespace, toolName) [
+        	initVariables
             forceRefresh = true // simpler by default
-
-            element = ElementDeleteVariable.create[ name = "element" ]
-            elementView = ElementDeleteVariable.create[ name = "elementView" ]
-            containerView = ContainerViewVariable.create[ name = "containerView" ]
-
-            initialOperation = operation.toTool
+            operation = task
         ]
     }
     
@@ -620,12 +714,10 @@ abstract class AbstractDiagramPart<T extends EObject> extends AbstractTypedEditi
     def createEdgeConnect(String toolname, ModelOperation task, String... edgeNames) {
         Objects.requireNonNull(task)
         EdgeCreationDescription.createAs(Ns.connect, toolname) [
+			initVariables
             forceRefresh = true // simpler by default
 
             edgeMappings += edgeNames.map[ EdgeMapping.ref(it) ]
-
-			initVariables
-
             operation = task
         ]
     }
@@ -657,19 +749,30 @@ abstract class AbstractDiagramPart<T extends EObject> extends AbstractTypedEditi
      * @param operation to perform
      * @return a ReconnectEdgeDescription
      */
-    def createEdgeReconnect(String toolName, ModelOperation operation) {
-        Objects.requireNonNull(operation)
+    def createEdgeReconnect(String toolName, ReconnectionKind kind, ModelOperation task) {
+        Objects.requireNonNull(task)
         // Alias is required as mapping association is made on mapping
         ReconnectEdgeDescription.createAs(Ns.reconnect, toolName) [
-            forceRefresh = true // simpler by default
-            reconnectionKind = ReconnectionKind.RECONNECT_BOTH_LITERAL
-            
-            // mappings += // inverse reference: do NOT add mapping here.
-            
-            edgeView = ElementSelectVariable.create("edgeView")         
             initVariables
-            initialOperation = operation.toTool
+            forceRefresh = true // simpler by default
+            reconnectionKind = kind
+            
+            operation = task
         ]
+    }
+    
+    /**
+     * Creates a reconnection tool for edge.
+     * <p>
+     * Aliased by 'Ns.reconnect.id(toolName)', used in edge mapping.
+     * </p>
+     * 
+     * @param toolname suffix of name
+     * @param operation to perform
+     * @return a ReconnectEdgeDescription
+     */
+    def createBothEdgesReconnect(String toolName, ModelOperation operation) {
+        toolName.createEdgeReconnect(ReconnectionKind.RECONNECT_BOTH_LITERAL, operation)
     }
 
     /**
@@ -683,9 +786,7 @@ abstract class AbstractDiagramPart<T extends EObject> extends AbstractTypedEditi
      * @return a ReconnectEdgeDescription
      */
     def createSourceEdgeReconnect(String toolName, ModelOperation operation) {
-        toolName.createEdgeReconnect(operation).andThen[
-            reconnectionKind = ReconnectionKind.RECONNECT_SOURCE_LITERAL
-        ]
+    	toolName.createEdgeReconnect(ReconnectionKind.RECONNECT_SOURCE_LITERAL, operation)
     }
 
     /**
@@ -699,9 +800,7 @@ abstract class AbstractDiagramPart<T extends EObject> extends AbstractTypedEditi
      * @return a ReconnectEdgeDescription
      */
     def createTargetEdgeReconnect(String toolName, ModelOperation operation) {
-        toolName.createEdgeReconnect(operation).andThen[
-            reconnectionKind = ReconnectionKind.RECONNECT_TARGET_LITERAL
-        ]
+    	toolName.createEdgeReconnect(ReconnectionKind.RECONNECT_TARGET_LITERAL, operation)
     }
     
     /**
@@ -718,12 +817,8 @@ abstract class AbstractDiagramPart<T extends EObject> extends AbstractTypedEditi
     def createContainerDrop(String toolName, DragSource mode, ModelOperation init) {
        // Alias is required as mapping declare drops
        ContainerDropDescription.createAs(Ns.drop, toolName) [
+       		initVariables
             dragSource = mode
-            
-            oldContainer = DropContainerVariable.create [ name = "oldSemanticContainer" ]
-            newContainer = DropContainerVariable.create [ name = "newSemanticContainer" ]
-            element = ElementDropVariable.create [ name = "element" ]
-            newViewContainer = ContainerViewVariable.create [ name = "newContainerView" ]
             operation = init
         ]
     }
@@ -776,11 +871,19 @@ abstract class AbstractDiagramPart<T extends EObject> extends AbstractTypedEditi
      */
 	override setOperation(AbstractToolDescription it, ModelOperation value) {
 		switch(it) {
-			ContainerDropDescription: initialOperation = InitialContainerDropOperation.create [ firstModelOperations = value ]
+			ContainerDropDescription: 
+				initialOperation = InitialContainerDropOperation
+					.create [ firstModelOperations = value ]
+			NodeCreationDescription: 
+				initialOperation = InitialNodeCreationOperation
+					.create [ firstModelOperations = value ]
+			ContainerCreationDescription:
+				initialOperation = InitialNodeCreationOperation
+					.create [ firstModelOperations = value ]
+			EdgeCreationDescription:
+				initialOperation = InitEdgeCreationOperation
+					.create [ firstModelOperations = value ]
 			ReconnectEdgeDescription: initialOperation = value.toTool
-			NodeCreationDescription: initialOperation = InitialNodeCreationOperation.create [ firstModelOperations = value ]
-			ContainerCreationDescription: initialOperation = InitialNodeCreationOperation.create [ firstModelOperations = value ]
-			EdgeCreationDescription: initialOperation = InitEdgeCreationOperation.create [ firstModelOperations = value ]
 			DeleteElementDescription: initialOperation = value.toTool
 			DoubleClickDescription: initialOperation = value.toTool
 			DiagramCreationDescription: initialOperation = value.toTool
@@ -823,8 +926,8 @@ abstract class AbstractDiagramPart<T extends EObject> extends AbstractTypedEditi
 	 * @param mode 
 	 */
 	def setSynch(DiagramElementMapping it, Boolean mode) {
-		// See org.eclipse.sirius.diagram.editor.properties.section.description.diagramelementmapping
-		// #DiagramElementMappingSynchronizationPropertySection.
+		// See org.eclipse.sirius.diagram.editor.properties.section.description
+		//     .diagramelementmapping.DiagramElementMappingSynchronizationPropertySection .
 		if (mode === null) {
 			createElements = true
 			synchronizationLock = false
@@ -886,7 +989,6 @@ abstract class AbstractDiagramPart<T extends EObject> extends AbstractTypedEditi
 	 * @param imported mapping
 	 */
 	def copyMappingImport(AbstractNodeMapping it, AbstractNodeMapping imported) {
-
 		domainClass = imported.domainClass
 		// inherited ?
 		preconditionExpression = imported.preconditionExpression // required ?
@@ -909,58 +1011,56 @@ abstract class AbstractDiagramPart<T extends EObject> extends AbstractTypedEditi
 
 	}
 
-	def initVariables(ContainerDropDescription it) {
-		oldContainer = DropContainerVariable.create("oldSemanticContainer")
-		newContainer = DropContainerVariable.create("newSemanticContainer")
-		element = ElementDropVariable.create("element")
-		newViewContainer = ContainerViewVariable.create("newContainerView")
+	override initVariables(AbstractToolDescription it) {
+		switch(it) {
+			ContainerCreationDescription: {
+				variable = NodeCreationVariable.create("container")
+				viewVariable = ContainerViewVariable.create("containerView")
+			}
+			ContainerDropDescription: {
+				oldContainer = DropContainerVariable.create("oldSemanticContainer")
+				newContainer = DropContainerVariable.create("newSemanticContainer")
+				element = ElementDropVariable.create("element")
+				newViewContainer = ContainerViewVariable.create("newContainerView")
+			}
+			DeleteElementDescription: {
+				element = ElementDeleteVariable.create("element")
+				elementView = ElementDeleteVariable.create("elementView")
+				containerView = ContainerViewVariable.create("containerView")
+			}
+			DoubleClickDescription: {
+				element = ElementDoubleClickVariable.create("element")
+				elementView = ElementDoubleClickVariable.create("elementView")
+			}
+			EdgeCreationDescription: {
+				sourceVariable = SourceEdgeCreationVariable.create("source")
+				targetVariable = TargetEdgeCreationVariable.create("target")
+				sourceViewVariable = SourceEdgeViewCreationVariable.create("sourceView")
+				targetViewVariable = TargetEdgeViewCreationVariable.create("targetView")
+			}
+			NodeCreationDescription: {
+				variable = NodeCreationVariable.create("container")
+				viewVariable = ContainerViewVariable.create("containerView")
+			}
+			ReconnectEdgeDescription: {
+				source = SourceEdgeCreationVariable.create("source")
+				target = TargetEdgeCreationVariable.create("target")
+				sourceView = SourceEdgeViewCreationVariable.create("sourceView")
+				targetView = TargetEdgeViewCreationVariable.create("targetView")
+				element = ElementSelectVariable.create("element")
+				edgeView = ElementSelectVariable.create("edgeView")
+			}
+			default:
+				super.initVariables(it)
+		}
 	}
 
-	def initVariables(DeleteElementDescription it) {
-		element = ElementDeleteVariable.create("element")
-		elementView = ElementDeleteVariable.create("view")
-		containerView = ContainerViewVariable.create("containerView")
-	}
-
-	def initVariables(ContainerCreationDescription it) {
-		variable = NodeCreationVariable.create("container")
-		viewVariable = ContainerViewVariable.create("containerView")
-	}
-
-	def initVariables(NodeCreationDescription it) {
-		variable = NodeCreationVariable.create("container")
-		viewVariable = ContainerViewVariable.create("containerView")
-	}
-
-	def initVariables(EdgeCreationDescription it) {
-		sourceVariable = SourceEdgeCreationVariable.create("source")
-		targetVariable = TargetEdgeCreationVariable.create("target")
-		sourceViewVariable = SourceEdgeViewCreationVariable.create("sourceView")
-		targetViewVariable = TargetEdgeViewCreationVariable.create("targetView")
-	}
-	
-	def initVariables(PasteDescription it) {
-		copiedElement = ElementVariable.create("copiedElement")
-		copiedView = ElementViewVariable.create("copiedView")
-		containerView = ContainerViewVariable.create("containerView")
-		container = DropContainerVariable .create("container")
-	}
-	
-	def initVariables(ReconnectEdgeDescription it) {
-		source = SourceEdgeCreationVariable.create("source")
-		target = TargetEdgeCreationVariable.create("target")
-		sourceView = SourceEdgeViewCreationVariable.create("sourceView")
-		targetView = TargetEdgeViewCreationVariable.create("targetView")
-		element = ElementSelectVariable.create("element")
-	}
-
-	/**
-	 * Creates a CreateView instance for this mapping in a ToolDescription.
-	 */
+	/** Creates a CreateView instance for this mapping in a ToolDescription. */
 	def viewDo(DiagramElementMapping viewMapping) {
 		viewMapping.viewDo('''elementView''')
 	}
 		
+	/** Creates a CreateView instance for this mapping in a ToolDescription. */
 	def viewDo(DiagramElementMapping viewMapping, String containerView) {
 		CreateView.create [
 			containerViewExpression = containerView.trimAql
@@ -968,25 +1068,4 @@ abstract class AbstractDiagramPart<T extends EObject> extends AbstractTypedEditi
 		]
 	}
 	
-	
-	
-	
-	/**
-	 * Iterates on all styles of a mapping.
-	 */
-	static def allStyles(DiagramElementMapping it) {
-		switch(it) {
-			EdgeMapping: #[ style.requireNonNull ] + conditionnalStyles.map[ style ]
-			ContainerMapping: #[ style.requireNonNull ] + conditionnalStyles.map[ style ]
-			NodeMapping: #[ style.requireNonNull ] + conditionnalStyles.map[ style ]
-			default: #[] as Iterable<? extends EObject> 
-		}
-	}
-	
-	/**
-	 * Iterates on all specific styles of a mapping.
-	 */
-	static def <T extends EObject> allStyles(DiagramElementMapping it, Class<T> type) {
-		allStyles.filter(type)
-	}	
 }

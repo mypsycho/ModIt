@@ -7,6 +7,7 @@ import org.eclipse.sirius.table.metamodel.table.description.BackgroundConditiona
 import org.eclipse.sirius.table.metamodel.table.description.BackgroundStyleDescription
 import org.eclipse.sirius.table.metamodel.table.description.EditionTableDescription
 import org.eclipse.sirius.table.metamodel.table.description.FeatureColumnMapping
+import org.eclipse.sirius.table.metamodel.table.description.IntersectionMapping
 import org.eclipse.sirius.table.metamodel.table.description.LineMapping
 import org.eclipse.sirius.table.metamodel.table.description.TableDescription
 import org.eclipse.sirius.table.metamodel.table.description.TableTool
@@ -37,12 +38,8 @@ class GenPackageAttributesEditionTable extends SiriusFeatureTable {
 				domainClass = "genmodel.GenFeature"
 				semanticCandidatesExpression = '''self.eAllContents(genmodel::GenFeature)->select(a | a.ecoreFeature.oclIsTypeOf(ecore::EAttribute) or a.ecoreFeature.oclIsTypeOf(ecore::EReference) and not(a.ecoreFeature.oclAsType(ecore::EReference).containment) and not(a.ecoreFeature.oclAsType(ecore::EReference).derived))'''.trimAql
 				headerLabelExpression = '''self.ecoreFeature.name'''.trimAql
-				backgroundConditionalStyle += BackgroundConditionalStyle.create [
-					predicateExpression = ''' self.propertyCategory = '' '''.trimAql
-					style = BackgroundStyleDescription.create [
-						backgroundColor = SystemColor.extraRef("color:light_yellow")
-					]
-				]
+				backgroundIf(''' self.propertyCategory = '' '''.trimAql,
+					SystemColor.extraRef("color:light_yellow"))
 			]
 		]
 		ownedColumn("Category", "propertyCategory") [

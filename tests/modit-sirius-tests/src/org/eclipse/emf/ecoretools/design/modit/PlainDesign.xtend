@@ -4515,7 +4515,7 @@ class PlainDesign implements ModitModel {
 	}
 
 	protected def void initExtras(ResourceSet it) {
-		extras.putAll(#{ // anonymous resources
+		extras.putAll(#{ // Anonymous resources
 			"$0" -> eObject(Environment, "environment:/viewpoint#/")
 		})
 	}

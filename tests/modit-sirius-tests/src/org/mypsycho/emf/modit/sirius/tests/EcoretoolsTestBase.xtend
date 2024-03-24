@@ -16,13 +16,7 @@ import java.nio.file.Paths
 import org.eclipse.emf.common.util.URI
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl
 import org.eclipse.emf.ecore.xmi.XMIResource
-import org.eclipse.emf.ecoretools.design.modit.PlainDesign
-import org.eclipse.emf.ecoretools.design.sirius.EcoretoolsDesign
-import org.junit.Test
-import org.mypsycho.modit.emf.EReversIt
 import org.mypsycho.modit.emf.ModitModel
-import org.mypsycho.modit.emf.sirius.tool.SiriusReverseIt
-import org.mypsycho.emf.modit.sirius.tests.Activator
 
 /**
  * Test model generation and reverse.

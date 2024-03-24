@@ -187,10 +187,11 @@ class FileComparator extends SimpleFileVisitor<Path> {
 	static def void assertIdentical(Path expected, Path value) {
 		val rootPath = ROOT.toAbsolutePath
 		
-		assertEquals('''Files are different {«
-				rootPath.relativize(expected)», «
-				rootPath.relativize(value)
-			»}''', 
+		assertEquals('''
+			Files are different:
+				«rootPath.relativize(expected)»
+				«rootPath.relativize(value)»
+			''', 
 			Collections.emptyMap, new FileComparator(expected, value).exec
 		)
 	}

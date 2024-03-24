@@ -19,8 +19,6 @@ import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EReference
 import org.eclipse.sirius.table.metamodel.table.description.BackgroundConditionalStyle
 import org.eclipse.sirius.table.metamodel.table.description.BackgroundStyleDescription
-import org.eclipse.sirius.table.metamodel.table.description.CellEditorTool
-import org.eclipse.sirius.table.metamodel.table.description.CreateCellTool
 import org.eclipse.sirius.table.metamodel.table.description.CreateLineTool
 import org.eclipse.sirius.table.metamodel.table.description.CreateTool
 import org.eclipse.sirius.table.metamodel.table.description.DeleteLineTool
@@ -35,6 +33,7 @@ import org.eclipse.sirius.table.metamodel.table.description.TableTool
 import org.eclipse.sirius.table.metamodel.table.description.TableVariable
 import org.eclipse.sirius.table.tools.api.interpreter.IInterpreterSiriusTableVariables
 import org.eclipse.sirius.viewpoint.description.ColorDescription
+import org.eclipse.sirius.viewpoint.description.tool.AbstractToolDescription
 import org.eclipse.sirius.viewpoint.description.tool.EditMaskVariables
 import org.eclipse.sirius.viewpoint.description.tool.ModelOperation
 import org.eclipse.xtext.xbase.lib.Procedures.Procedure2
@@ -46,7 +45,7 @@ import org.eclipse.xtext.xbase.lib.Procedures.Procedure3
  * 
  * @author nicolas.peransin
  */
-abstract class AbstractTable<T extends TableDescription> extends AbstractTypedEdition<T>{
+abstract class AbstractTable<T extends TableDescription> extends AbstractTypedEdition<T> {
 
 	/** Namespaces for identification */
 	enum Ns { // namespace for identication
@@ -63,8 +62,6 @@ abstract class AbstractTable<T extends TableDescription> extends AbstractTypedEd
 		/** semantic target of the current DTable. */root,
 		container
 	}
-	
-	
 	
 	static val LINE_DELETE_ARGS = #[ 
 	     EditArg.element -> null, // line semantic
@@ -102,8 +99,7 @@ abstract class AbstractTable<T extends TableDescription> extends AbstractTypedEd
 	def void setDomainClass(LineMapping it, Class<? extends EObject> type) {
 		domainClass = context.asDomainClass(type)
 	}
-	
-	   
+
     /**
      * Sets the domain class of a description.
      * <p>
@@ -142,6 +138,7 @@ abstract class AbstractTable<T extends TableDescription> extends AbstractTypedEd
 		]
 	}
 	
+	/** Initializes line as virtual: semantic = container and custom label  */
 	def void setVirtual(LineMapping it, String headerExpression) {
 		val owner = eContainer
 		
@@ -157,14 +154,16 @@ abstract class AbstractTable<T extends TableDescription> extends AbstractTypedEd
 		headerLabelExpression = headerExpression // could be localized
 	}
 
+	/** Initializes the line style. */
 	protected def initDefaultLineStyle(LineMapping it) {
 		// Default background is grey.
 		// (Sirius 6x ot more) There is a bug in header column
 		// Always grey !!
-		background = AbstractEdition.DColor.white.regular
+		background = DColor.white.regular
 		foreground = []
 	}
 
+	/** Creates a line. */
 	def line(String id, (LineMapping)=>void initializer) {
 		Objects.requireNonNull(initializer)
 		LineMapping.createAs(Ns.line, id) [
@@ -183,20 +182,28 @@ abstract class AbstractTable<T extends TableDescription> extends AbstractTypedEd
 		ownedLine(id, initializer)
 	}
 
+	/** Adds a line description. */
 	def ownedLine(TableDescription owner, String id, (LineMapping)=>void initializer) {
 		id.line(initializer) => [
 			owner.ownedLineMappings += it
 		]
 	}
 
+	/** Adds a line description. */
 	def ownedLine(LineMapping owner, String id, (LineMapping)=>void initializer) {
 		id.line(initializer) => [
 			owner.ownedSubLines += it
 		]
 	}
 
+	/** Reference of a local line */
 	def lineRef(String id) {
 		LineMapping.ref(Ns.line.id(id))
+	}
+
+	/** Reference of a local line */
+	def lineRef(String owner, String id) {
+		LineMapping.ref(Ns.line.id(owner, id))
 	}
 
 	def setOperation(TableTool it, ModelOperation operation) {
@@ -210,30 +217,32 @@ abstract class AbstractTable<T extends TableDescription> extends AbstractTypedEd
 		firstModelOperation = operation
 	}
 	
-	def createLabelEdit(ModelOperation operation) {
+	/** Creates a label edit.  */
+	protected def createLabelEdit(ModelOperation task) {
 		 LabelEditTool.create [
 			// Built-in variables, 
 			// required to handle scope in interpreter
 			// (seems like a dirty hack)
 			initVariables
 			mask = "{0}"
-			firstModelOperation = operation
+			operation = task
 		]
 	}
 	
+	/** Sets the mask pattern. */
 	def setMask(LabelEditTool it, String value) {
 		mask = EditMaskVariables.create[ mask = value ]
 	}
 	
-	@SuppressWarnings("restriction")
-	def initVariables(TableTool it) {
+	/** Initializes variable in a tool. */
+	def void initTableVariables(TableTool it) {
 		// Inspired from TableToolVariables but is refactored between 6/7.
-		variables += switch(it) {
-			CreateCellTool: #[
-				IInterpreterSiriusTableVariables.LINE_SEMANTIC,
-				IInterpreterSiriusTableVariables.COLUMN_SEMANTIC,
-				IInterpreterSiriusTableVariables.ROOT
-			]
+		variables += tableVariableNames
+			.map[ vName | TableVariable.create[ name = vName ] ]
+	}
+	
+	def getTableVariableNames(TableTool it) {
+		switch(it) {
 			CreateTool: #[ // column, crosscolumn, line
 				IInterpreterSiriusTableVariables.ELEMENT,
 				IInterpreterSiriusTableVariables.CONTAINER,
@@ -247,21 +256,27 @@ abstract class AbstractTable<T extends TableDescription> extends AbstractTypedEd
 				IInterpreterSiriusTableVariables.COLUMN_SEMANTIC,
 				IInterpreterSiriusTableVariables.ROOT
 			]
-			CellEditorTool: #[
-				IInterpreterSiriusTableVariables.ELEMENT,
-				IInterpreterSiriusTableVariables.TABLE,
-				IInterpreterSiriusTableVariables.LINE,
-				IInterpreterSiriusTableVariables.LINE_SEMANTIC,
-				IInterpreterSiriusTableVariables.COLUMN_SEMANTIC,
-				IInterpreterSiriusTableVariables.ROOT,
-				IInterpreterSiriusTableVariables.CELL_EDITOR_RESULT
-			]
 			DeleteTool: #[ // line, column
 				IInterpreterSiriusTableVariables.ELEMENT,
 				IInterpreterSiriusTableVariables.ROOT
 			]
 			default: #[]
-		}.map[ vName | TableVariable.create[ name = vName ] ]
+		 }
+	}
+	
+	/** Initializes variable in a tool. */
+	def initVariables(LabelEditTool it) {
+		// Disjunction of AbstractToolDescription and TableTool
+		initTableVariables 
+	}
+	
+	/** Initializes variable in a tool. */
+	override initVariables(AbstractToolDescription it) {
+		if (it instanceof TableTool) {
+			initTableVariables
+		} else {
+			super.initVariables(it)
+		}
 	}
 	
     /**
@@ -388,7 +403,6 @@ abstract class AbstractTable<T extends TableDescription> extends AbstractTypedEd
 		line.createLine(toolLabel, role, context.expression(CREATE_LINE_PARAMS, action).toOperation)
 	}
 	
-	
     /**
      * Creates a creation tool for a line.
      * 
@@ -420,7 +434,8 @@ abstract class AbstractTable<T extends TableDescription> extends AbstractTypedEd
     def createAddLine(TableDescription owner, String line, String role, String toolLabel, 
     	Procedure3<EObject, EObject, EObject> action
 	) {
-		line.createLine(toolLabel, role, context.expression(CREATE_LINE_PARAMS, action).toOperation) => [
+		val op = context.expression(CREATE_LINE_PARAMS, action).toOperation
+		line.createLine(toolLabel, role, op) => [
 			owner.ownedCreateLine += it
 		]
 	}
@@ -456,26 +471,23 @@ abstract class AbstractTable<T extends TableDescription> extends AbstractTypedEd
     def createAddLine(LineMapping owner, String line, String role, String toolLabel, 
     	Procedure3<EObject, EObject, EObject> action
 	) {
-		line.createLine(toolLabel, role, context.expression(CREATE_LINE_PARAMS, action).toOperation) => [
+		val op = context.expression(CREATE_LINE_PARAMS, action).toOperation
+		line.createLine(toolLabel, role, op) => [
 			owner.create += it
 		]
 	}
 	
 	
-	/**
-	 * Set the foreground style.
-	 */
+	/** Sets the foreground style. */
 	def setForeground(StyleUpdater it, (ForegroundStyleDescription)=>void descr) {
-		Objects.requireNonNull(descr)
-		defaultForeground = ForegroundStyleDescription.create[
-			initForeground
-			descr.apply(it)
-		]
+		defaultForeground = descr !== null
+			? ForegroundStyleDescription.create[
+				initForeground
+				descr.apply(it)
+			]
 	}
 	
-	/**
-	 * Set the foreground style for specified condition.
-	 */	
+	/** Sets the foreground style for specified condition. */
 	def foregroundIf(StyleUpdater owner, String condition, (ForegroundStyleDescription)=>void descr) {
 		Objects.requireNonNull(descr)
 		ForegroundConditionalStyle.create[
@@ -489,18 +501,14 @@ abstract class AbstractTable<T extends TableDescription> extends AbstractTypedEd
 		]
 	}
 
-	/**
-	 * Set the background Color.
-	 */
+	/** Sets the background Color. */
 	def setBackground(StyleUpdater owner, ColorDescription color) {
 		owner.defaultBackground = BackgroundStyleDescription.create[
 			backgroundColor = color
 		]
 	}
 	
-	/**
-	 * Set the background Color for specified condition.
-	 */
+	/** Set the background Color for specified condition. */
 	def backgroundIf(StyleUpdater owner, String condition, ColorDescription color) {
 		BackgroundConditionalStyle.create[
 			predicateExpression = condition
@@ -520,9 +528,9 @@ abstract class AbstractTable<T extends TableDescription> extends AbstractTypedEd
 	 * @param init custom initialization of style
 	 * @return created Style
 	 */
-	protected def void initForeground(ForegroundStyleDescription it) {
+	def void initForeground(ForegroundStyleDescription it) {
 		labelSize = 9 // ODesign is provide 12, but eclipse default is Segoe:9
-		foreGroundColor = AbstractEdition.DColor.black.regular
+		foreGroundColor = DColor.black.regular
 	}
 	
 }

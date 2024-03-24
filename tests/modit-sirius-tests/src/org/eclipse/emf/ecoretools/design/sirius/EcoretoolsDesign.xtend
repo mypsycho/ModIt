@@ -15,6 +15,8 @@ import org.eclipse.sirius.viewpoint.description.SytemColorsPalette
 import org.eclipse.sirius.viewpoint.description.UserColorsPalette
 import org.eclipse.sirius.viewpoint.description.UserFixedColor
 import org.eclipse.sirius.viewpoint.description.Viewpoint
+import org.eclipse.sirius.viewpoint.description.style.LabelBorderStyleDescription
+import org.eclipse.sirius.viewpoint.description.style.LabelBorderStyles
 import org.mypsycho.modit.emf.sirius.api.SiriusVpGroup
 
 import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*
@@ -96,14 +98,6 @@ class EcoretoolsDesign extends SiriusVpGroup {
 			entries += "Inherited".color(125, 125, 125)
 		]
 		extensions += new DefaultViewExtension(this).createContent
-	}
-
-	override initExtras() {
-		super.initExtras
-		
-		extras.putAll(#{ // anonymous resources
-			"$0" -> eObject(Environment, "environment:/viewpoint#/")
-		})
 	}
 
 	def context() { this }

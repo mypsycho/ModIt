@@ -37,6 +37,7 @@ import org.eclipse.sirius.diagram.description.tool.DeleteElementDescription
 import org.eclipse.sirius.diagram.description.tool.ContainerDropDescription
 
 class ODesignVerifications {
+	
 	static val IDENT = "  "
 	
 	static val IMPLICIT_CLASSES = #{
@@ -45,7 +46,6 @@ class ODesignVerifications {
 		// diagram
 		DoubleClickDescription, ReconnectEdgeDescription, DeleteElementDescription,
 		ContainerDropDescription
-
 	}
 	
 	static val DISPLAYED_CLASSES = #{
@@ -97,8 +97,9 @@ class ODesignVerifications {
         val diagnostician = new Diagnostician()
         val result = new BasicDiagnostic(EObjectValidator.DIAGNOSTIC_SOURCE, 0,
         	modelName + " diagnostic", 
-        	res.contents);
-    	val context = diagnostician.createDefaultContext();
+        	res.contents)
+    	val context = diagnostician.createDefaultContext()
+    	
         res.contents.forEach[
         	diagnostician.validate(it, result, context);
         	context.remove(EObjectValidator.ROOT_OBJECT);

@@ -32,7 +32,6 @@ import org.mypsycho.modit.emf.sirius.tool.SiriusReverseIt
 // Plugin-test: Sirius needs a lot of dependencies to load odesign.
 class EcoretoolsReverseTest extends EcoretoolsTestBase {
 
-
 	@Test
 	def void reverseSiriusModel() {
 		new SiriusReverseIt(
@@ -57,7 +56,6 @@ class EcoretoolsReverseTest extends EcoretoolsTestBase {
 			rs.getResource(uri, true)
 		).perform
 		
-		// TODO fixme
 		assertSamePackage(TEST_BUNDLE + ".modit")
 	}
 
@@ -74,15 +72,12 @@ class EcoretoolsReverseTest extends EcoretoolsTestBase {
 			res
 		)
 		
-		
 		splits += (res.contents.head as Group)
 			.findSplitGroupParts
 			.toInvertedMap[ toClassId(pack) ]
 		
-		
 		perform
 		
-		// TODO fixme
 		assertSamePackage(TEST_BUNDLE + ".split")
 	}
 

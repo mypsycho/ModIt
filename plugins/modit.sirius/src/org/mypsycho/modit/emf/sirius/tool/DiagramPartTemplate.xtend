@@ -13,8 +13,11 @@
  *******************************************************************************/
 package org.mypsycho.modit.emf.sirius.tool
 
+import org.eclipse.emf.ecore.EAttribute
 import org.eclipse.emf.ecore.EObject
+import org.eclipse.emf.ecore.EReference
 import org.eclipse.emf.ecore.EStructuralFeature
+import org.eclipse.emf.ecore.util.EcoreUtil
 import org.eclipse.sirius.diagram.description.AbstractNodeMapping
 import org.eclipse.sirius.diagram.description.AdditionalLayer
 import org.eclipse.sirius.diagram.description.ConditionalContainerStyleDescription
@@ -25,23 +28,26 @@ import org.eclipse.sirius.diagram.description.DescriptionPackage
 import org.eclipse.sirius.diagram.description.EdgeMapping
 import org.eclipse.sirius.diagram.description.Layer
 import org.eclipse.sirius.diagram.description.NodeMapping
-import org.eclipse.sirius.diagram.description.tool.ContainerCreationDescription
+import org.eclipse.sirius.diagram.description.style.BeginLabelStyleDescription
+import org.eclipse.sirius.diagram.description.style.CenterLabelStyleDescription
+import org.eclipse.sirius.diagram.description.style.EdgeStyleDescription
+import org.eclipse.sirius.diagram.description.style.EndLabelStyleDescription
+import org.eclipse.sirius.diagram.description.style.StylePackage
 import org.eclipse.sirius.diagram.description.tool.ContainerDropDescription
 import org.eclipse.sirius.diagram.description.tool.DeleteElementDescription
-import org.eclipse.sirius.diagram.description.tool.DiagramCreationDescription
-import org.eclipse.sirius.diagram.description.tool.DoubleClickDescription
 import org.eclipse.sirius.diagram.description.tool.EdgeCreationDescription
 import org.eclipse.sirius.diagram.description.tool.NodeCreationDescription
 import org.eclipse.sirius.diagram.description.tool.ReconnectEdgeDescription
 import org.eclipse.sirius.diagram.description.tool.ToolSection
-import org.eclipse.sirius.properties.DialogButton
-import org.eclipse.sirius.properties.TextDescription
+import org.eclipse.sirius.viewpoint.description.ConditionalStyleDescription
 import org.eclipse.sirius.viewpoint.description.Customization
 import org.eclipse.sirius.viewpoint.description.EAttributeCustomization
 import org.eclipse.sirius.viewpoint.description.EReferenceCustomization
 import org.eclipse.sirius.viewpoint.description.EStructuralFeatureCustomization
 import org.eclipse.sirius.viewpoint.description.IdentifiedElement
 import org.eclipse.sirius.viewpoint.description.VSMElementCustomization
+import org.eclipse.sirius.viewpoint.description.style.BasicLabelStyleDescription
+import org.eclipse.sirius.viewpoint.description.style.LabelStyleDescription
 import org.eclipse.sirius.viewpoint.description.style.StyleDescription
 import org.eclipse.sirius.viewpoint.description.tool.AbstractToolDescription
 import org.eclipse.sirius.viewpoint.description.tool.ContainerModelOperation
@@ -57,12 +63,25 @@ import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*
  */
 abstract class DiagramPartTemplate<R extends EObject> extends RepresentationTemplate<R> {
 	
+	protected static val SPKG = StylePackage.eINSTANCE
 	protected static val DPKG = DescriptionPackage.eINSTANCE
 	
-	new(SiriusGroupTemplate container, Class<R> targetClass) {
-		super(container, targetClass)
-	}
 	
+	static val NS_MAPPING = #[
+		AbstractNodeMapping -> AbstractDiagramPart.Ns.node,
+		EdgeMapping -> AbstractDiagramPart.Ns.edge,
+		DeleteElementDescription -> AbstractDiagramPart.Ns.del,
+		EdgeCreationDescription -> AbstractDiagramPart.Ns.connect,
+		ReconnectEdgeDescription -> AbstractDiagramPart.Ns.reconnect,
+		
+		NodeCreationDescription -> AbstractDiagramPart.Ns.creation,
+		ContainerDropDescription -> AbstractDiagramPart.Ns.drop,
+		
+		// representation level
+		PopupMenu -> AbstractDiagramPart.Ns.menu,
+		AbstractToolDescription -> AbstractDiagramPart.Ns.operation
+	]
+
 	protected val static CONTAINMENT_ORDER = #[
 		Layer -> #[
 			DPKG.layer_NodeMappings,
@@ -86,14 +105,67 @@ abstract class DiagramPartTemplate<R extends EObject> extends RepresentationTemp
 		]
 	]
 	
+	
+	new(SiriusGroupTemplate container, Class<R> targetClass) {
+		super(container, targetClass)
+	}
+	
+	override getNsMapping() { NS_MAPPING }
+	
 	override getContainmentOrders() { CONTAINMENT_ORDER }
- 
+	
+	override AbstractDiagramPart<R> getDefaultContent() {
+		super.defaultContent
+			as AbstractDiagramPart<R>
+	}
 
+	def getDefaultStyleValues(StyleDescription src) {
+		defaultInits.computeIfAbsent(src.eClass) [
+			EcoreUtil.create(it) as StyleDescription => [
+				switch(it) {
+					// Avoid edge labels
+					LabelStyleDescription: defaultContent.initDefaultStyle(it)
+					EdgeStyleDescription: defaultContent.initDefaultStyle(it)
+				}
+			]
+		]
+	}
+	
+	override isAttributeReversed(EObject it, EAttribute f) {
+		it instanceof StyleDescription
+			? isStyleFeatureSet(f)
+			: super.isAttributeReversed(it, f)
+	}
+		
+	override isPureReferenceReversed(EObject it, EReference f) {
+		it instanceof StyleDescription
+			? isStyleFeatureSet(f)
+			: super.isPureReferenceReversed(it, f)
+	}
+
+	def boolean isStyleFeatureSet(StyleDescription it, EStructuralFeature feat) {
+		eGet(feat) != defaultStyleValues.eGet(feat)
+	}
+
+	def defaultStyleTemplate() { "" }
+
+	override findNs(IdentifiedElement it) {
+		// Some issue with internal operation.
+		it instanceof ExternalJavaAction 
+				&& (eContainer instanceof InitialOperation 
+				|| eContainer instanceof ContainerModelOperation)
+			? null
+			: super.findNs(it)
+	}
+		
+	//
+	// Class templates
+	// 
+	
 	def dispatch smartTemplateCreate(AdditionalLayer it) {
 		val label = name.techName
-		label.endsWith("Layer")
-			? '''create«name.techName»'''
-			: '''create«name.techName»Layer'''
+		
+		'''create«label»«!label.endsWith("Layer") ? "Layer" : "" »'''
 	}
 
 	def dispatch smartTemplateCreate(ToolSection it) {
@@ -111,89 +183,104 @@ abstract class DiagramPartTemplate<R extends EObject> extends RepresentationTemp
 			: ""
 		
 		// 
-		val suffix = !techName.toLowerCase.endsWith("tools")
+		val suffix = 
+			!techName.toLowerCase.endsWith("tools")
 				&& !techName.toLowerCase.endsWith("toolsection")
-				? "Tools"
-				: ""
+			? "Tools"
+			: ""
 		
 		'''create«qualif»«techName»«suffix»'''
 	}
-
-	static val NS_MAPPING = #[
-		AbstractNodeMapping -> AbstractDiagramPart.Ns.node,
-		EdgeMapping -> AbstractDiagramPart.Ns.edge,
-		DeleteElementDescription -> AbstractDiagramPart.Ns.del,
-		EdgeCreationDescription -> AbstractDiagramPart.Ns.connect,
-		ReconnectEdgeDescription -> AbstractDiagramPart.Ns.reconnect,
+	
+	def dispatch smartTemplateCreate(VSMElementCustomization it) {
+'''«predicateExpression.toJava».thenStyle(
+	«featureCustomizations.map[ templateCreate ].join(LValueSeparator)»
+)'''}
+	
+	def dispatch smartTemplateCreate(EStructuralFeatureCustomization it) {
+		val header = switch(it) {
+			EReferenceCustomization: '''«referenceName.toJava».refCustomization(«value.templateRef(EObject)»'''
+			EAttributeCustomization: '''«attributeName.toJava».attCustomization(«value.toJava»'''
+		}
 		
-		NodeCreationDescription -> AbstractDiagramPart.Ns.creation,
-		ContainerDropDescription -> AbstractDiagramPart.Ns.drop,
-		
-		// representation level
-		PopupMenu -> AbstractDiagramPart.Ns.menu,
-		AbstractToolDescription -> AbstractDiagramPart.Ns.operation
+'''«header»«
+IF !appliedOn.empty
+»,
+	«appliedOn.map[ templateRef(EObject) ].join(LValueSeparator)»
+«
+ENDIF
+»)«
+IF applyOnAll
+».andThen[ applyOnAll = true]«
+ENDIF
+»'''}
+	
+	//
+	// Property templates
+	// 
+	static val EDGE_LABEL_FEATS = #[
+		SPKG.edgeStyleDescription_BeginLabelStyleDescription,
+		SPKG.edgeStyleDescription_CenterLabelStyleDescription,
+		SPKG.edgeStyleDescription_EndLabelStyleDescription
 	]
-	
-	override getNsMapping() { NS_MAPPING }
-	
-	override findNs(IdentifiedElement it) {
-		// Some issue with internal operation.
-		if (it instanceof ExternalJavaAction 
-			&& (eContainer instanceof InitialOperation 
-				|| eContainer instanceof ContainerModelOperation)
-		) {
-			return null
-		}
-		super.findNs(it)
-	}
-	
-	override getToolModelOperation(EObject it) {
-		switch(it) {
-			ContainerDropDescription: initialOperation.firstModelOperations
-			ReconnectEdgeDescription: initialOperation.firstModelOperations
-			NodeCreationDescription: initialOperation.firstModelOperations
-			ContainerCreationDescription: initialOperation.firstModelOperations
-			EdgeCreationDescription: initialOperation.firstModelOperations
-			DeleteElementDescription: initialOperation.firstModelOperations
-			DoubleClickDescription: initialOperation.firstModelOperations
-			DiagramCreationDescription: initialOperation.firstModelOperations
-			DialogButton: initialOperation.firstModelOperations
-			TextDescription: initialOperation.firstModelOperations
-			default: super.getToolModelOperation(it)
-		}
-	}
+	static val STYLES_FEATS = #[
+		DPKG.nodeMapping_Style,
+		DPKG.containerMapping_Style,
+		DPKG.edgeMapping_Style
+	]
+	static val CONDITIONAL_STYLES_FEATS = #[
+		DPKG.nodeMapping_ConditionnalStyles,
+		DPKG.containerMapping_ConditionnalStyles,
+		DPKG.edgeMapping_ConditionnalStyles
+	]	
 	
 	override templatePropertyValue(EStructuralFeature feat, Object value, (Object)=>String encoding) {
 		DPKG.layer_Customization == feat 
 			? (value as Customization).templateStyleCustomisation
-			: DPKG.nodeMapping_ConditionnalStyles == feat 
-			? (value as ConditionalNodeStyleDescription).templateMappingConditionnalStyle
-			: DPKG.containerMapping_ConditionnalStyles == feat 
-			? (value as ConditionalContainerStyleDescription).templateMappingConditionnalStyle
-			: DPKG.edgeMapping_ConditionnalStyles == feat 
-			? (value as ConditionalEdgeStyleDescription).templateMappingConditionnalStyle
+			: EDGE_LABEL_FEATS.contains(feat)
+			? (value as BasicLabelStyleDescription).templateEdgeLabel
+			: STYLES_FEATS.contains(feat)
+			? (value as StyleDescription).templateMappingStyle
+			: CONDITIONAL_STYLES_FEATS.contains(feat)
+			? (value as ConditionalStyleDescription).templateMappingConditionnalStyle
 			: super.templatePropertyValue(feat, value, encoding)
 	}
 	
-	def templateMappingConditionnalStyle(ConditionalContainerStyleDescription it) {
-		predicateExpression.templateMappingConditionnalStyle(style, true)
-	}
+	def templateEdgeLabel(BasicLabelStyleDescription it) {
+		val pseudoProperty = switch(it) {
+			BeginLabelStyleDescription: "sourceLabel"
+			CenterLabelStyleDescription: "centerLabel"
+			EndLabelStyleDescription: "targetLabel"
+		}
+		
+'''«pseudoProperty» = [
+	«templateInnerContent(innerContent) ?: ""»
+]'''}	
+
+	def templateMappingStyle(StyleDescription it) {
+		val typed = !(it instanceof EdgeStyleDescription)
+
+		// TODO Rework EReversIt#getInnerContent to get default style
+'''style«
+IF typed »(«eClass.instanceClass.templateClass»)«
+ENDIF    » [
+	«templateInnerContent(innerContent) ?: ""»
+]'''}
 	
-	def templateMappingConditionnalStyle(ConditionalNodeStyleDescription it) {
-		predicateExpression.templateMappingConditionnalStyle(style, true)
-	}
 	
-	def templateMappingConditionnalStyle(ConditionalEdgeStyleDescription it) {
-		predicateExpression.templateMappingConditionnalStyle(style, false)
-	}
-	
-	def templateMappingConditionnalStyle(String condition, StyleDescription style, boolean typed) {
+	def templateMappingConditionnalStyle(ConditionalStyleDescription it) {
+		val contentStyle = switch(it) {
+			ConditionalContainerStyleDescription : style
+			ConditionalNodeStyleDescription : style
+			ConditionalEdgeStyleDescription : style
+		}
+		val typed = !(contentStyle instanceof EdgeStyleDescription)
+
 '''styleIf(«
-IF typed  »«style?.eClass?.instanceClass?.templateClass ?: ""», «
-ENDIF     »«condition.toJava») [
-	«style?.templateInnerContent(style?.innerContent) ?: ""»
-]'''
-	}
+IF typed  »«contentStyle?.eClass?.instanceClass?.templateClass ?: ""», «
+ENDIF     »«predicateExpression.toJava») [
+	«contentStyle?.templateInnerContent(contentStyle?.innerContent) ?: ""»
+]'''}
 	
 	
 	def templateStyleCustomisation(Customization it) {
@@ -205,36 +292,7 @@ FOR custo : vsmElementCustomizations
 SEPARATOR statementSeparator
 »styleCustomisations += «custo.smartTemplateCreate»«
 ENDFOR
-»'''
-	}
+»'''}
 	
-	def dispatch smartTemplateCreate(VSMElementCustomization it) {
-'''«predicateExpression.toJava».thenStyle(
-	«featureCustomizations.map[ templateCreate ].join(LValueSeparator)»
-)'''
-	}
-	
-	def dispatch smartTemplateCreate(EReferenceCustomization it) {
-		// TODO better, cast is not necessary; it should not appear.
-'''«referenceName.toJava».refCustomization(«value.templateRef(EObject)»«endCustomization»'''
-	}
-	
-	def dispatch smartTemplateCreate(EAttributeCustomization it) {
-'''«attributeName.toJava».attCustomization(«value.toJava»«endCustomization»'''
-	}
-	
-	def endCustomization(EStructuralFeatureCustomization it) {
-'''«
-IF !appliedOn.empty
-»,
-	«appliedOn.map[ templateRef(EObject) ].join(LValueSeparator)»
-«
-ENDIF
-»)«
-IF applyOnAll
-».andThen[ applyOnAll = true]«
-ENDIF
-»'''
-	}
 	
 }

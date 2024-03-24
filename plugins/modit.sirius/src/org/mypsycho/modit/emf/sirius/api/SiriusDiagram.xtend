@@ -26,6 +26,7 @@ import org.eclipse.sirius.diagram.description.IntegerLayoutOption
 import org.eclipse.sirius.diagram.description.LayoutOption
 import org.eclipse.sirius.diagram.description.LayoutOptionTarget
 import org.eclipse.sirius.diagram.description.StringLayoutOption
+import org.eclipse.sirius.viewpoint.description.tool.ModelOperation
 
 /**
  * Adaptation of Sirius model into Java and EClass reflections API for Diagrams.
@@ -64,8 +65,13 @@ abstract class SiriusDiagram extends AbstractBaseDiagram<DiagramDescription> {
 		]
 	}
 
+    def setInitialisation(DiagramDescription it, ModelOperation value) {
+    	setDiagramInitialisation = value.toTool
+    }
+    
+
 	//
-	// Reflection short-cut
+	// Layout
 	// 
 
     def customLayout(DiagramDescription it, String cfgId, String cfgTitle, LayoutOption... options) {
@@ -74,6 +80,7 @@ abstract class SiriusDiagram extends AbstractBaseDiagram<DiagramDescription> {
 			label = cfgTitle
 			layoutOptions += options
 		]
+
 	}
     
 	/**

@@ -81,11 +81,7 @@ abstract class AbstractTypedEdition<T extends EObject> extends AbstractEdition {
 		factory.ref(type, contentAlias) [ path.apply(it as T) ]
 	}
 	
-	/**
-	 * Creates a representation description
-	 * 
-	 * @return new description
-	 */
+	/** Creates a representation description. */
 	def T createContent() {
 		contentType.createAs(contentAlias) [
 			creationTasks.forEach[task | task.apply(it) ]
@@ -93,11 +89,7 @@ abstract class AbstractTypedEdition<T extends EObject> extends AbstractEdition {
 		]
 	}
 	
-	/**
-	 * Initializes the content of the created representation.
-	 * 
-	 * @param it to initialize
-	 */
+	/** Initializes the content of the created representation. */
 	def void initContent(T it)
 	
 }

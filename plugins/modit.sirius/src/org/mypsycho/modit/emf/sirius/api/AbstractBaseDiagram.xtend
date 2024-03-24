@@ -85,8 +85,7 @@ abstract class AbstractBaseDiagram<T extends DiagramDescription> extends Abstrac
 	 * @param it to initialize
 	 */
 	override initContent(DiagramDescription it) {
-		defaultLayer = Layer.create[
-			name = "Default"
+		defaultLayer = Layer.create("Default") [
 			initContent
 		]
 	}
@@ -102,41 +101,48 @@ abstract class AbstractBaseDiagram<T extends DiagramDescription> extends Abstrac
 	// Reflection short-cut
 	// 
 
-	def filterMapping(FilterKind kind, DiagramElementMapping... dMappings) {
+	private def filterMapping(FilterKind kind, DiagramElementMapping... dMappings) {
 		MappingFilter.create [
 			filterKind = kind
 			mappings += dMappings
 		]
 	}
 
+	/** Adds hide filter to provided mappings for all elements. */
 	def allHide(CompositeFilterDescription owner, DiagramElementMapping... mappings) {
 		FilterKind.HIDE_LITERAL.filterMapping(mappings) => [
 			owner.filters += it
 		]
 	}
 
+	/** Adds collapse filter to provided mappings for all elements. */
 	def allCollapse(CompositeFilterDescription owner, DiagramElementMapping... mappings) {
 		FilterKind.COLLAPSE_LITERAL.filterMapping(mappings) => [
 			owner.filters += it
 		]
 	}
 
+	/** Adds hide filter to provided mappings based on view expression. */
 	def viewHide(CompositeFilterDescription it, String expression, DiagramElementMapping... mappings) {
 		allHide(mappings).andThen[ viewConditionExpression = expression ]
 	}
 
+	/** Adds collapse filter to provided mappings based on view expression. */
 	def viewCollapse(CompositeFilterDescription it, String expression, DiagramElementMapping... mappings) {
 		allCollapse(mappings).andThen[ viewConditionExpression = expression ]
 	}
 
+	/** Adds hide filter to provided mappings based on element expression. */
 	def elementHide(CompositeFilterDescription it, String expression, DiagramElementMapping... mappings) {
 		allHide(mappings).andThen[ semanticConditionExpression = expression ]
 	}
 
+	/** Adds collapse filter to provided mappings based on element expression. */
 	def elementCollapse(CompositeFilterDescription it, String expression, DiagramElementMapping... mappings) {
 		allCollapse(mappings).andThen[ semanticConditionExpression = expression ]
 	}
 	
+	/** Adds filters group. */
 	def filtering(DiagramDescription owner, String name, (CompositeFilterDescription)=> void init) {
 		Objects.requireNonNull(init)
 		CompositeFilterDescription.create(name) [
@@ -144,8 +150,6 @@ abstract class AbstractBaseDiagram<T extends DiagramDescription> extends Abstrac
 		] => [ // Must be reachable (out of init phase)
 			owner.filters += it
 		]
-	} 
-
-
+	}
 
 }

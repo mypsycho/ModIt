@@ -23,6 +23,9 @@ import org.eclipse.emf.ecore.EStructuralFeature
 
 /**
  * Groups the Eclasses concerned by keys of features->id.
+ * <p>
+ * This Page should be used in a Service called by a DefaultPropertiesExtension instance.
+ * </p>
  * 
  * @author nperansin
  */
@@ -52,14 +55,16 @@ class FeaturePaging<T> {
 			}
 		]
 	}
-
-			
+	
+	/** Evaluates if a page is applicable. */
 	def boolean isApplicable(EObject value, Object pageId) {
 		val classes = groupClasses.get(pageId)
-		if (classes === null) pageId === defaultGroup
-		else classes.exists[ isInstance(value) ]
+		classes === null 
+			? pageId === defaultGroup
+			: classes.exists[ isInstance(value) ]
 	}
-			
+	
+	/**  */
 	def isApplicable(EObject value, EStructuralFeature feature, Object pageId) {
 		featureGroups.getOrDefault(feature, defaultGroup) == pageId
 	}

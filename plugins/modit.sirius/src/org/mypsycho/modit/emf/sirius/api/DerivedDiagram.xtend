@@ -96,9 +96,6 @@ abstract class DerivedDiagram extends SiriusDiagram {
 	def void overrideContent(DiagramDescription it)
 	
 	
-
-	
-	
 	// Substitute Dispatch 
 	def void substitute(EObject it, NodeMapping oldIt, ContainerMapping newIt) {
 		switch(it) {

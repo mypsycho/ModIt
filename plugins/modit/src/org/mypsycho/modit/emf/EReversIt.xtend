@@ -406,8 +406,7 @@ FOR value : values SEPARATOR LValueSeparator
 »new «value.qName»(this).createContent«
 ENDFOR
 »
-].assemble'''
-	}
+].assemble'''}
 
 	/** Set of classes used in sub parts by the default implementation  */
 	protected static val PART_IMPORTS = #{ EModIt }
@@ -417,10 +416,10 @@ ENDFOR
 
 
 	protected def getApplicableTemplate(EObject content) {
-		(delegates.reverseView + #[ this /* default implementation */ ])
+		delegates.reverseView
 			// Delegate to applicable case.
-			.filter[ isPartTemplate(content) ]
-			.head
+			.findFirst[ isPartTemplate(content) ]
+			?: this // default implementation
 	}
 	protected def templatePart(ClassId it, EObject content) {
 		content.applicableTemplate.performTemplatePart(it, content)
@@ -479,8 +478,7 @@ class «name» {
 	}
 
 }
-'''
-	}
+'''}
 
 
 	// Xtend
@@ -534,23 +532,31 @@ ENDFOR
 
 «templateShortcuts»}
 
-'''
+'''}
+
+	protected def String templateExtras() {
+		templateImplicitExtras 
+			+ templateExplicitExtras
 	}
 
-	// xtend
-	protected def String templateExtras() {
-		(!context.implicitExtras.empty ? templateImplicitExtras : "")
-		+ 
-		(!context.explicitExtras.empty ? templateExplicitExtras : "")	
+	protected def getRecordedImplicitExtras() {
+		context.implicitExtras
+	}
+
+	protected def getRecordedExplicitExtras() {
+		context.explicitExtras
 	}
 
 	// xtend
 	protected def String templateImplicitExtras() {
-'''extras.putAll(#{ // anonymous resources
+		val map = recordedImplicitExtras
+		if (map.empty) {
+			return ""
+		}
+
+'''extras.putAll(#{ // Anonymous resources
 «
-FOR ext : context
-	.implicitExtras
-	.entrySet
+FOR ext : map.entrySet
 	.map[ value -> key ]
 	.toList
 	.sortBy[ key ]
@@ -559,16 +565,18 @@ SEPARATOR LValueSeparator // cannot include comma in template: improper for last
 ENDFOR
 »
 })
-'''
-	}
+'''}
 
 	// xtend
 	protected def String templateExplicitExtras() {
+		val map = recordedExplicitExtras
+		if (map.empty) {
+			return ""
+		}
+
 '''extras.putAll(#{ // Named elements
 «
-FOR ext : context
-	.explicitExtras
-	.entrySet
+FOR ext : map.entrySet
 	.toList
 	.sortBy[ value ]
 SEPARATOR LValueSeparator // cannot include comma in template: improper for last value
@@ -576,8 +584,7 @@ SEPARATOR LValueSeparator // cannot include comma in template: improper for last
 ENDFOR
 »
 })
-'''
-	}
+'''}
 
 	// xtend
 	protected def String templateShortcuts() {
@@ -592,8 +599,7 @@ FOR shortcut : context.shortcuts
 «
 ENDFOR
 »
-'''
-	}
+'''}
 
 	protected def templateCreate(EObject it) {
 		if (it === null) {
@@ -637,8 +643,7 @@ IF value instanceof EList
 	)«
 ELSE   »«value.templateMapEntryValue»«
 ENDIF»
-'''
-	}
+'''}
 	
 	def templateMapEntryValue(Object it) {
 		it instanceof EObject 
@@ -693,8 +698,7 @@ FOR prop : content
 SEPARATOR statementSeparator 
 	»«templateProperty(prop.key, prop.value)»«
 ENDFOR
-»'''
-	}
+»'''}
 	
 	
 	protected def getInnerContent(EObject it) {
@@ -703,12 +707,11 @@ ENDFOR
 		#[
 			eClass.EAllAttributes.filter[ a | !a.derived && isAttributeReversed(a) ]
 				-> [ Object it, Class<?> using | toJava ],
-			eClass.EAllReferences.filter[ r | eIsSet(r) && r.pureReference ]
+			eClass.EAllReferences.filter[ r | r.pureReference && isPureReferenceReversed(r) ]
 				-> [ Object it, Class<?> using | (it as EObject).templateRef(using) ],
 			orderContainment(eClass.EAllReferences.filter[ r | eIsSet(r) && r.isContainment ])
 				-> [ Object it, Class<?> using | (it as EObject).templateCreate ]
-		]
-		.flatMap[ 
+		].flatMap[ 
 			(key as Iterable<EStructuralFeature>).map[ f | f -> value ]
 		]
 	}
@@ -717,6 +720,9 @@ ENDFOR
 		eIsSet(a) && a.defaultValue != eGet(a)
 	}
 	
+	protected def isPureReferenceReversed(EObject it, EReference a) {
+		eIsSet(a)
+	}
 
 	protected def List<? extends Pair<? extends Class<? extends EObject>, List<EReference>>> 
 			getContainmentOrders(			
@@ -853,17 +859,18 @@ ENDFOR
 	
 	// Xtend
 	protected def String templateExtra(EObject it, String key) {
-'''«templateClass».extraRef("«key»")'''	
+		'''«templateClass».extraRef("«key»")'''	
 	}
 	
 	// Xtend
 	protected def String templateExplicitAlias(EObject it) {
-'''eObject(«templateClass», «toUri.toJava »)'''	
+		'''eObject(«templateClass», «toUri.toJava »)'''	
 	}	
 	
 	protected def toUri(EObject it) {
-		if (it instanceof EPackage) nsURI + '#'
-		else EcoreUtil.getURI(it).toString
+		it instanceof EPackage 
+			? nsURI + '#'
+			: EcoreUtil.getURI(it).toString
 	}
 	
 	protected def String templateRef(EObject it, Class<?> using) {
@@ -878,16 +885,14 @@ ENDFOR
 	}
 	
 	protected def dispatch String templateRef(EObject it, AliasExpr root, Expr path, Class<?> using) {
-'''«templateClass».ref(«root.name.toJava»)«templateAliasPath(path)»'''
-	}
+'''«templateClass».ref(«root.name.toJava»)«templateAliasPath(path)»'''}
 	
 	protected def String templateAliasPath(EObject it, Expr path) {
 		if (path.empty) {
 			return ""
 		}
 		val cast = getClassCast(path, eClass.instanceClass)
-''' [ «path.templateExpr("it".templateCast(path.src.eClass)).templateSimpleCast(cast)» ]'''
-	}
+''' [ «path.templateExpr("it".templateCast(path.src.eClass)).templateSimpleCast(cast)» ]'''}
 
 	protected static class EEcoreExpr extends Expr {
 		new(ENamedElement src) {
@@ -922,13 +927,11 @@ ENDFOR
 		}
 	}
 
-
 	protected static def toDeclaringClass(EPackage it) {
 		class.fields
 			.findFirst[ isEPackageInstanceField ]
 			.declaringClass
 	}
-	
 	
 	protected def dispatch String templateRef(EObject it, ExplicitExpr root, Expr path, Class<?> using) {
 		path.templateExpr(templateExplicitRef(path))
@@ -940,7 +943,7 @@ ENDFOR
 			? path.templateExpr(templateImplicitRef(path))
 				.templateCast(getClassCast(path, using))
 			: HEADLESS_MESSAGE // throw exception or generate invalid statement ?
-	}	
+	}
 	
 	protected def templateExplicitRef(Expr it) {
 		src.templateExtra(context.explicitExtras.get(src))
@@ -948,16 +951,13 @@ ENDFOR
 	
 	protected def templateImplicitRef(Expr it) {
 		src.templateExtra(identifyImplicitExtra(src))
-	}	
-	
+	}
 
 	protected static def isEPackageInstanceField(Field it) {
 		Modifier.isStatic(modifiers)
 			&& Modifier.isPublic(modifiers)
 			&& name == "eINSTANCE"
 	}
-
-
 
 	protected def identifyImplicitExtra(EObject it) {
 		context.implicitExtras.computeIfAbsent(it) [ "$" + context.implicitExtras.size ]
@@ -1005,14 +1005,9 @@ ENDFOR
 	}
 
 	protected def toRegistered(EPackage it) {
-		if (it === null || nsURI === null) { // unresolved
-			null
-		} else if (eResource === null) { // registered
-			it
-		} else {
-			val result = EPackage.Registry.INSTANCE.getEPackage(nsURI)
-			result
-		}
+		it === null || nsURI === null ? null// unresolved
+			: eResource === null ? it// registered
+			: EPackage.Registry.INSTANCE.getEPackage(nsURI)
 	}
 
 	protected def <N extends ENamedElement> N resolveEcore(EPackage root, N it) {
@@ -1024,7 +1019,6 @@ ENDFOR
 			EPackage: root as N
 			default: null			
 		}
-		
 	}
 	
 	protected def Expr complexCallPath(EObject it, boolean withExtras) {
@@ -1138,21 +1132,17 @@ ENDFOR
 	}
 
 	protected def isPureReference(EReference it) {
-		if (containment || derived || transient || !changeable) false
-		else if (EOpposite === null) true
-		else if (EOpposite.derived) true // is it possible ?
-		else if (EOpposite.containment) false
-		else if (many != EOpposite.many) many
-		else name < EOpposite.name // a bit irrational
+		(containment || derived || transient || !changeable) ? false
+			: (EOpposite === null) ? true
+			: (EOpposite.derived) ? true // is it possible ?
+			: (EOpposite.containment) ? false
+			: (many != EOpposite.many) ? many
+			: name < EOpposite.name // a bit irrational
 	}
 
-	protected def templateClass(EObject it) {
-		eClass.templateClass
-	}
+	protected def templateClass(EObject it) { eClass.templateClass }
 	
-	protected def templateClass(EClass it) {
-		instanceClass.templateClass
-	}
+	protected def templateClass(EClass it) { instanceClass.templateClass }
 
 	protected def templateClass(Class<?> it) {
 		(currentImports.get(it) ?: Boolean.FALSE)
@@ -1174,9 +1164,11 @@ ENDFOR
 	}
 
 	protected def findExtrasReferencedClasses() {
-		context.explicitExtras.keySet.map[
-			callPath(false).chain.tail
-		].flatten.toSet
+		context.explicitExtras
+			.keySet
+			.map[ callPath(false).chain.tail ]
+			.flatten
+			.toSet
 	}
 
 	protected def void registerImports(EObject root, Iterable<? extends Class<?>> staticImports) {
@@ -1201,7 +1193,7 @@ ENDFOR
 		usedClasses
 			.sortBy[ name ] // sort to always have the same import
 			// a optimal code would count but homonyms of Classes are not common in a model
-			.forEach [ registerImport ]
+			.forEach[ registerImport ]
 	}
 	
 	protected def getReferencedClasses(EObject it) {	
@@ -1263,8 +1255,7 @@ FOR c : currentImports.entrySet
 SEPARATOR statementSeparator
 »«c.templateImport»«
 ENDFOR
-»'''
-	}
+»'''}
 		
 	// XTend
 	protected def templateImport(Class<?> it) { '''import «name»''' }
@@ -1312,8 +1303,7 @@ ENDFOR
 IF it instanceof Enum   »«name()»«
 ELSE                    »getByName("«name»")«
 ENDIF
-»'''
-	}
+»'''}
 	
 	// Xtend (generic)
 	def getStatementSeparator() { "\n" }

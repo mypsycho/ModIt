@@ -38,7 +38,6 @@ import org.eclipse.sirius.viewpoint.description.tool.ContainerViewVariable
 import org.eclipse.sirius.viewpoint.description.tool.DropContainerVariable
 import org.eclipse.sirius.viewpoint.description.tool.ElementDropVariable
 import org.eclipse.sirius.viewpoint.description.tool.ModelOperation
-import org.eclipse.sirius.viewpoint.description.style.LabelStyleDescription
 
 /**
  * Class adapting Sirius model into Java and EClass reflection s

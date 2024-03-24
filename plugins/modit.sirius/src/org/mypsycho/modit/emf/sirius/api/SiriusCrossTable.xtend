@@ -16,6 +16,7 @@ package org.mypsycho.modit.emf.sirius.api
 import java.util.Objects
 import org.eclipse.emf.ecore.EClass
 import org.eclipse.emf.ecore.EObject
+import org.eclipse.sirius.table.metamodel.table.description.CellEditorTool
 import org.eclipse.sirius.table.metamodel.table.description.CreateCellTool
 import org.eclipse.sirius.table.metamodel.table.description.CreateColumnTool
 import org.eclipse.sirius.table.metamodel.table.description.CreateCrossColumnTool
@@ -24,6 +25,8 @@ import org.eclipse.sirius.table.metamodel.table.description.DeleteColumnTool
 import org.eclipse.sirius.table.metamodel.table.description.ElementColumnMapping
 import org.eclipse.sirius.table.metamodel.table.description.IntersectionMapping
 import org.eclipse.sirius.table.metamodel.table.description.LineMapping
+import org.eclipse.sirius.table.metamodel.table.description.TableTool
+import org.eclipse.sirius.table.tools.api.interpreter.IInterpreterSiriusTableVariables
 import org.eclipse.sirius.viewpoint.description.tool.EditMaskVariables
 import org.eclipse.sirius.viewpoint.description.tool.ModelOperation
 import org.eclipse.xtext.xbase.lib.Procedures.Procedure3
@@ -106,6 +109,33 @@ abstract class SiriusCrossTable extends AbstractTable<CrossTableDescription> {
     def void setDomainClass(IntersectionMapping it, EClass type) {
         domainClass = SiriusDesigns.encode(type)
     }
+	
+	override getTableVariableNames(TableTool it) {
+		// Inspired from TableToolVariables but is refactored between 6/7.
+		switch(it) {
+			CreateCellTool: #[
+				IInterpreterSiriusTableVariables.LINE_SEMANTIC,
+				IInterpreterSiriusTableVariables.COLUMN_SEMANTIC,
+				IInterpreterSiriusTableVariables.ROOT
+			]
+			CellEditorTool: #[
+				IInterpreterSiriusTableVariables.ELEMENT,
+				IInterpreterSiriusTableVariables.TABLE,
+				IInterpreterSiriusTableVariables.LINE,
+				IInterpreterSiriusTableVariables.LINE_SEMANTIC,
+				IInterpreterSiriusTableVariables.COLUMN_SEMANTIC,
+				IInterpreterSiriusTableVariables.ROOT,
+				IInterpreterSiriusTableVariables.CELL_EDITOR_RESULT
+			]
+			
+			default: super.getTableVariableNames(it)
+		 }
+	}
+	
+	def initVariables(CellEditorTool it) {
+		// Disjunction of AbstractToolDescription and TableTool
+		initTableVariables 
+	}
 	
 	/**
 	 * Sets edit operation for provided mapping.
@@ -193,7 +223,7 @@ abstract class SiriusCrossTable extends AbstractTable<CrossTableDescription> {
 		result
 	}
 	
-	protected def columnRef(String id) {
+	def columnRef(String id) {
 		ElementColumnMapping.ref(Ns.column.id(id))
 	}
     
@@ -202,15 +232,12 @@ abstract class SiriusCrossTable extends AbstractTable<CrossTableDescription> {
             precondition = SiriusDesigns.NEVER
         ]
     }
-    
     	
 	def setOperation(CreateCellTool it, ModelOperation operation) {
 		// For reversing mainly, more precise API exists.
 		// CreateLineTool is ambiguious with AbstractToolDescription
 		firstModelOperation = operation
 	}
-
-
 	
 	def setMask(CreateCellTool it, String value) {
 		mask = EditMaskVariables.create[ mask = value ]
@@ -224,7 +251,10 @@ abstract class SiriusCrossTable extends AbstractTable<CrossTableDescription> {
 	 * Menu only consider last selected cell to build the menu.
 	 * </p>
 	 */
-	def createAddColumn(CrossTableDescription owner, String column, String role, String toolLabel, ModelOperation task) {
+	def createAddColumn(
+		CrossTableDescription owner, String column, 
+		String role, String toolLabel, ModelOperation task
+	) {
 		CreateCrossColumnTool.createAs(Ns.create, column + role) [
 			initVariables
 			label = toolLabel
@@ -242,7 +272,9 @@ abstract class SiriusCrossTable extends AbstractTable<CrossTableDescription> {
 	 * Menu only consider last selected cell to build the menu.
 	 * </p>
 	 */
-	def createAddColumn(ElementColumnMapping owner, String role, String toolLabel, ModelOperation task) {
+	def createAddColumn(
+		ElementColumnMapping owner, String role, String toolLabel, ModelOperation task
+	) {
 		CreateColumnTool.createAs(Ns.create, role) [
 			initVariables
 			label = toolLabel
@@ -253,9 +285,7 @@ abstract class SiriusCrossTable extends AbstractTable<CrossTableDescription> {
 		]
 	}
 	
-	/**
-	 * Add a CreateCell tool using 'arg0' variable.
-	 */
+	/** Add a CreateCell tool using 'arg0' variable. */
 	def createCell(IntersectionMapping owner, ModelOperation task) {
 		CreateCellTool.create("Edit cell") [
 			initVariables
@@ -271,23 +301,20 @@ abstract class SiriusCrossTable extends AbstractTable<CrossTableDescription> {
 		foreground = []
 	}
 	
-		
+	
 	/**
 	 * Creates an Element Intersection.
 	 * <p>
-	 * Description must provide expression, edition and mappings using
-	 * {@link 
-	 * VseDataTable#toLines(IntersectionMapping, String, LineMapping...) 
-	 * toLines} and {@link 
-	 * VseDataTable#toColumn(IntersectionMapping, String, ElementColumnMapping) 
-	 * toColumn}.
+	 * For reverse, use Class-base method.
 	 * </p>
 	 */
-	def cells(CrossTableDescription owner, String mappingName, Class<? extends EObject> domain, 
+	def cells(
+		CrossTableDescription owner, String mappingName, 
+		String domain, 
 		String candidatesExpr, (IntersectionMapping)=>void descr
 	) {
 		Objects.requireNonNull(descr)
-		val result = IntersectionMapping.create(mappingName) [
+		IntersectionMapping.create(mappingName) [
 			useDomainClass = true
 			domainClass = domain
 			
@@ -301,23 +328,38 @@ abstract class SiriusCrossTable extends AbstractTable<CrossTableDescription> {
 			//   lineFinderExpression,
 			//   columnFinderExpression,
 			descr.apply(it)
+		] => [
+			owner.intersection += it
 		]
-		owner.intersection += result
-		result
+	}
+	
+	/**
+	 * Creates an Element Intersection.
+	 * <p>
+	 * Description must provide expression, edition and mappings using
+	 * {@link 
+	 * VseDataTable#toLines(IntersectionMapping, String, LineMapping...) 
+	 * toLines} and {@link 
+	 * VseDataTable#toColumn(IntersectionMapping, String, ElementColumnMapping) 
+	 * toColumn}.
+	 * </p>
+	 */
+	def cells(
+		CrossTableDescription owner, String mappingName, 
+		Class<? extends EObject> domain, 
+		String candidatesExpr, (IntersectionMapping)=>void descr
+	) {
+		owner.cells(mappingName, context.asDomainClass(domain), candidatesExpr, descr)
 	}
 
-	/**
-	 * Defines the lines of Element-based cell.
-	 */
+	/** Defines the lines of Element-based cell. */
 	def toLines(IntersectionMapping it, String expr, LineMapping... mappings) {
 		"This method is applicable only to Domain intersection".verify(useDomainClass)
 		lineMapping += mappings
 		lineFinderExpression = expr
 	}
 
-	/**
-	 * Defines the column of Element-based cell.
-	 */
+	/** Defines the column of Element-based cell. */
 	def toColumn(IntersectionMapping it, String expr, ElementColumnMapping mapping) {
 		"This method is applicable only to Domain intersection".verify(useDomainClass)
 		columnMapping = mapping
@@ -333,11 +375,12 @@ abstract class SiriusCrossTable extends AbstractTable<CrossTableDescription> {
 	 * forMappings}.
 	 * </p>
 	 */
-	def linkColumns(CrossTableDescription owner, String mappingName, 
+	def linkColumn(
+		CrossTableDescription owner, String mappingName, 
 		ElementColumnMapping column, (IntersectionMapping)=>void descr
 	) {
 		Objects.requireNonNull(descr)
-		val result = IntersectionMapping.create(mappingName) [
+		IntersectionMapping.create(mappingName) [
 			useDomainClass = false
 			// no DomainClass, no semanticCandidatesExpression
 			
@@ -349,9 +392,9 @@ abstract class SiriusCrossTable extends AbstractTable<CrossTableDescription> {
 			//   lineMapping,
 			//   columnMapping
 			descr.apply(it)
+		] => [
+			owner.intersection += it
 		]
-		owner.intersection += result
-		result
 	}
 	
 	/**

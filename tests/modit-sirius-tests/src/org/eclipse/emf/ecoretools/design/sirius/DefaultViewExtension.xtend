@@ -194,15 +194,10 @@ class DefaultViewExtension extends AbstractPropertySet {
 						isEnabledExpression = '''eStructuralFeature.changeable'''.trimAql
 						valueExpression = '''if eStructuralFeature.name = 'upperBound' and self.oclIsKindOf(ecore::ETypedElement) then self.upperBoundDisplay() else self.eGet(eStructuralFeature.name) endif'''.trimAql
 						operation = "var:self".toContext(
-							Switch.create [
-								cases += Case.create [
-									conditionExpression = '''eStructuralFeature.name = 'upperBound' and self.oclIsKindOf(ecore::ETypedElement)'''.trimAql
-									subModelOperations += '''self.setUpperBound(newValue)'''.trimAql.toOperation
-								]
-								^default = Default.create [
-									subModelOperations += '''input.emfEditServices(self).setValue(eStructuralFeature, newValue)'''.trimAql.toOperation
-								]
-							]
+							switchDo(
+								'''eStructuralFeature.name = 'upperBound' and self.oclIsKindOf(ecore::ETypedElement)'''.trimAql
+									-> '''self.setUpperBound(newValue)'''.trimAql.toOperation)
+							.setByDefault('''input.emfEditServices(self).setValue(eStructuralFeature, newValue)'''.trimAql.toOperation)
 						)
 						styleIf('''eStructuralFeature.lowerBound==1'''.trimAql) [
 							labelFontFormat += FontFormat.BOLD_LITERAL
@@ -374,14 +369,15 @@ class DefaultViewExtension extends AbstractPropertySet {
 				displayExpression = '''self.eTypeArguments->first().eTypeParameter.name'''.trimAql
 				actions += WidgetAction.create [
 					labelExpression = "..."
-					operation = '''self.eClass().getEStructuralFeature('eTypeParameter')'''.trimAql.let("eStructuralFeature",
-						"org.eclipse.emf.ecoretools.design.action.openSelectModelElementID".javaDo("open select etype dialog", 
-							"message" -> ''' 'Select an ' + eStructuralFeature.eType.name +  ' for the ' + eStructuralFeature.name +  ' reference.' '''.trimAql,
-							"title" -> ''' 'Select ' + eStructuralFeature.eType.name '''.trimAql,
-							"candidates" -> '''input.emfEditServices(self).getChoiceOfValues(eStructuralFeature)'''.trimAql,
-							"feature" -> "var:eStructuralFeature",
-							"host" -> "var:self"
-						)
+					operation = '''self.eClass().getEStructuralFeature('eTypeParameter')'''.trimAql
+						.letDo("eStructuralFeature",
+							"org.eclipse.emf.ecoretools.design.action.openSelectModelElementID".javaDo("open select etype dialog", 
+								"message" -> ''' 'Select an ' + eStructuralFeature.eType.name +  ' for the ' + eStructuralFeature.name +  ' reference.' '''.trimAql,
+								"title" -> ''' 'Select ' + eStructuralFeature.eType.name '''.trimAql,
+								"candidates" -> '''input.emfEditServices(self).getChoiceOfValues(eStructuralFeature)'''.trimAql,
+								"feature" -> "var:eStructuralFeature",
+								"host" -> "var:self"
+							)
 					)
 				]
 			]
@@ -391,14 +387,15 @@ class DefaultViewExtension extends AbstractPropertySet {
 				displayExpression = '''self.eTypeArguments->at(2).eClassifier.name'''.trimAql
 				actions += WidgetAction.create [
 					labelExpression = "..."
-					operation = '''self.eClass().getEStructuralFeature('eClassifier')'''.trimAql.let("eStructuralFeature",
-						"org.eclipse.emf.ecoretools.design.action.openSelectModelElementID".javaDo("open select etype dialog", 
-							"message" -> ''' 'Select an ' + eStructuralFeature.eType.name +  ' for the ' + eStructuralFeature.name +  ' reference.' '''.trimAql,
-							"title" -> ''' 'Select ' + eStructuralFeature.eType.name '''.trimAql,
-							"candidates" -> '''input.emfEditServices(self).getChoiceOfValues(eStructuralFeature)'''.trimAql,
-							"feature" -> "var:eStructuralFeature",
-							"host" -> "var:self"
-						)
+					operation = '''self.eClass().getEStructuralFeature('eClassifier')'''.trimAql
+						.letDo("eStructuralFeature",
+							"org.eclipse.emf.ecoretools.design.action.openSelectModelElementID".javaDo("open select etype dialog", 
+								"message" -> ''' 'Select an ' + eStructuralFeature.eType.name +  ' for the ' + eStructuralFeature.name +  ' reference.' '''.trimAql,
+								"title" -> ''' 'Select ' + eStructuralFeature.eType.name '''.trimAql,
+								"candidates" -> '''input.emfEditServices(self).getChoiceOfValues(eStructuralFeature)'''.trimAql,
+								"feature" -> "var:eStructuralFeature",
+								"host" -> "var:self"
+							)
 					)
 				]
 			]

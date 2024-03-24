@@ -22,7 +22,6 @@ import org.eclipse.emf.ecore.EPackage
 import org.eclipse.sirius.diagram.DiagramPackage
 import org.eclipse.sirius.table.metamodel.table.TablePackage
 import org.eclipse.sirius.viewpoint.ViewpointPackage
-import org.eclipse.sirius.viewpoint.description.Environment
 import org.eclipse.sirius.viewpoint.description.IdentifiedElement
 import org.eclipse.sirius.viewpoint.description.JavaExtension
 import org.eclipse.sirius.viewpoint.description.RepresentationDescription
@@ -71,7 +70,7 @@ abstract class SiriusVpGroup extends SiriusModelProvider {
 	 */
 	new() { /* required by other constructor existence */ }
 	
-	var String iplExpression
+	var String iplExpression = "feature:name" // built-in default
 	def getItemProviderLabel() {
 		if (enableRtExpression && iplExpression === null) {
 			iplExpression = expression[ EObject it | 
@@ -80,27 +79,6 @@ abstract class SiriusVpGroup extends SiriusModelProvider {
 		}
 		iplExpression
 	}
-	
-	override initExtras() {
-		super.initExtras()
-		
-		val siriusStyles = Environment.eObject("environment:/viewpoint#/")
-            .labelBorderStyles
-            
-		// ** List border style
-		// Border 0 : labelBorderStyleWithBeveledCorner = Label Border Style With Beveled Corner
-		// Border 1 : labelBorderForContainer = Label Border For Container
-		// Border 2 : nolabelBorderForList = No Label Border For List
-		
-		// println("** List border style")
-		// val count = new AtomicInteger
-        siriusStyles.labelBorderStyleDescriptions
-            .forEach[ 
-            	// println('''Border «count.andIncrement» : «id» = «name»''')
-            	extras.put("labelBorder:" + id, it)
-            ]
-	}
-	
 	
 	/**
 	 * Returns packages used in the design.

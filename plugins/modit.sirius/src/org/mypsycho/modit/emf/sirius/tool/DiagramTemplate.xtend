@@ -34,6 +34,7 @@ import org.eclipse.sirius.diagram.description.filter.MappingFilter
 import org.eclipse.sirius.diagram.description.style.EdgeStyleDescription
 import org.eclipse.sirius.diagram.sequence.description.SequenceDiagramDescription
 import org.eclipse.sirius.viewpoint.description.style.BasicLabelStyleDescription
+import org.eclipse.sirius.viewpoint.description.tool.ModelOperation
 import org.mypsycho.modit.emf.ClassId
 import org.mypsycho.modit.emf.sirius.api.SiriusDiagram
 import org.mypsycho.modit.emf.sirius.api.SiriusSequenceDiagram
@@ -43,11 +44,6 @@ class DiagramTemplate extends DiagramPartTemplate<DiagramDescription> {
 	
 	static val DPKG = DescriptionPackage.eINSTANCE
 
-	new(SiriusGroupTemplate container) {
-		super(container, DiagramDescription)
-	}
-
-	
 	val static CONTAINMENT_ORDER = 
 		(#[ 
 			DiagramDescription -> #[
@@ -61,17 +57,31 @@ class DiagramTemplate extends DiagramPartTemplate<DiagramDescription> {
 	static val INIT_TEMPLATED = #{
 		DiagramDescription as Class<? extends EObject> -> #{
 			// Diagram
-			SPKG.identifiedElement_Label, 
+			PKG.identifiedElement_Label, 
 			DPKG.diagramDescription_DomainClass,
 			DPKG.diagramDescription_DefaultLayer
 		},
 		Layer -> #{
-			SPKG.identifiedElement_Name
+			PKG.identifiedElement_Name
 		},
-		AdditionalLayer -> #{}
+		AdditionalLayer -> #{} // for imports
 	} + RepresentationTemplate.INIT_TEMPLATED
 	
-		
+	
+	new(SiriusGroupTemplate container) {
+		super(container, DiagramDescription)
+	}
+
+	override createDefaultContent() {
+		new SiriusDiagram(tool.defaultContent, "", EObject) {
+			
+			override initContent(Layer it) {
+				throw new UnsupportedOperationException("Must not be built")
+			}
+			
+		}
+	}
+
 	override getContainmentOrders() { CONTAINMENT_ORDER }
 	
 	/** Set of classes used in sub-parts by the default implementation  */
@@ -120,9 +130,7 @@ class «name» extends «content.baseApiClass.templateClass» {
 		«content.templateFilteredContent(DiagramDescription)»
 	}
 
-	override initDefaultStyle(BasicLabelStyleDescription it) {/* No reverse for Default */}
-	override initDefaultEdgeStyle(EdgeStyleDescription it) {/* No reverse for Default */}
-
+	«defaultStyleTemplate»
 	override initContent(Layer it) {
 		«content.defaultLayer.templateFilteredContent(Layer)»
 	}
@@ -162,6 +170,19 @@ ENDFOR  // Additional Layers
 		it !== null && !blank
 	}
 	
+	override templateToolOperation(ModelOperation it) {
+		// Not a smartTemplateCreate case.
+		// Applicable only tool property
+		val caller = eContainer/* InitialOperation */
+			.eContainer
+		
+		caller instanceof DiagramDescription
+			? '''initialisation = «templateInnerCreate»'''
+			: super.templateToolOperation(it)
+	}
+	
+	
+	
 	override templatePropertyValue(EStructuralFeature feat, Object value, (Object)=>String encoding) {
 		DPKG.diagramDescription_Layout == feat && isElkLayered(value)
 			? (value as CustomLayoutConfiguration).templateElkLayout
@@ -172,7 +193,7 @@ ENDFOR  // Additional Layers
 			: super.templatePropertyValue(feat, value, encoding)
 	}
 	
-		def isElkLayered(Object it) {
+	def isElkLayered(Object it) {
 		it instanceof CustomLayoutConfiguration
 			? id == "org.eclipse.elk.layered"
 			: false
@@ -180,7 +201,7 @@ ENDFOR  // Additional Layers
 	
 	def templateElkLayout(CustomLayoutConfiguration it) {
 		// @see org.mypsycho.modit.emf.sirius.api.SiriusDiagram#elkLayered(DiagramDescription, LayoutOption)
-'''elkLayer(
+'''elkLayered(
 «
 FOR option : layoutOptions
 SEPARATOR LValueSeparator
@@ -237,5 +258,6 @@ ENDFOR»
 	«mappings.map[ templateRef(DiagramElementMapping) ].join(LValueSeparator)»
 )'''
 	}
+
 	
 }

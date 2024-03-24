@@ -30,7 +30,7 @@ import org.eclipse.emf.ecore.resource.ResourceSet
  * </p>
  */
 class ESingleReversIt extends EReversIt {
-	
+
 	/**
 	 * Construction of generation context based on content of resources set.
 	 * 
@@ -44,7 +44,7 @@ class ESingleReversIt extends EReversIt {
 			throw new IllegalArgumentException("Only 1 element is expected")
 		}
 	}
-	
+
 	/**
 	 * Construction of generation context based on content of resources set.
 	 * 
@@ -55,8 +55,7 @@ class ESingleReversIt extends EReversIt {
 	new(String classname, Path dir, EObject value) {
 		super(new ClassId(classname), dir, value -> null)
 	}
-	
-		
+
 	/**
 	 * Construction of generation based on shared context.
 	 * 
@@ -65,11 +64,12 @@ class ESingleReversIt extends EReversIt {
 	protected new(EReversIt parent) {
 		super(parent)
 	}
-	
+
 	override getMainStaticImports() { #[ EModel, ResourceSet ] }
-	
+
 	// Xtend
 	override templateMain(EObject it, Iterable<Class<?>> packages, ()=>String content) {
+		val templateExtrasContent = templateExtras ?: ""
 '''package «context.mainClass.pack»
 
 «context.mainClass.templateImports»
@@ -89,22 +89,20 @@ ENDFOR                       »)
 		«templateInnerContent(innerContent)»
 	}
 
-«
-IF !context.implicitExtras.empty || !context.explicitExtras.empty
+« // initExtras must be performed AFTER model exploration
+IF !templateExtrasContent.blank
 »	override initExtras(ResourceSet it) {
-		«templateExtras /* extras must happen AFTER model exploration */ »
+		«templateExtrasContent»
 	}
 
-«
+« 
 ENDIF
-»
-«templateShortcuts»}
+»«templateShortcuts»}
 
-'''
-	}
-	
+'''}
+
 	override getPartStaticImports(EObject it) { #{ EModel } }
-		
+
 	// Xtend
 	override templatePartBody(ClassId it, EObject content) {
 		val parentTemplate = parentPart
@@ -126,8 +124,7 @@ class «name» extends EModel.Part<«content.templateClass»> {
 	}
 
 }
-'''
-	}
-	
-	
+'''}
+
+
 }
