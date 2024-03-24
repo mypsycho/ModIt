@@ -523,8 +523,11 @@ ENDFOR
 '''}
 
 	protected def String templateExtras() {
-		templateImplicitExtras 
-			+ templateExplicitExtras
+		'''
+		«templateImplicitExtras»
+		
+		«templateExplicitExtras»
+		'''
 	}
 
 	protected def getRecordedImplicitExtras() {

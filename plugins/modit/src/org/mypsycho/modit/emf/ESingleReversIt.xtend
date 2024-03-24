@@ -67,7 +67,7 @@ class ESingleReversIt extends EReversIt {
 
 	// Xtend
 	override templateMain(EObject it, Iterable<Class<?>> packages, ()=>String content) {
-		val templateExtrasContent = templateExtras ?: ""
+		val templateExtrasContent = templateExtras.trim ?: ""
 '''«context.filerHeader»package «context.mainClass.pack»
 
 «context.mainClass.templateImports»
@@ -88,7 +88,7 @@ ENDFOR                       »)
 	}
 
 « // initExtras must be performed AFTER model exploration
-IF !templateExtrasContent.blank
+IF !templateExtrasContent.empty
 »	override initExtras(«ResourceSet.templateClass» it) {
 		«templateExtrasContent»
 	}
