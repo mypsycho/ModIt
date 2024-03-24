@@ -136,17 +136,6 @@ class TableTemplate extends RepresentationTemplate<TableDescription> {
 	
 	override getInitTemplateds() { INIT_TEMPLATED }
 	
-	override getPartStaticImports(EObject it) {
-		// no super: EModit and EObject are not used directly
-		INIT_TEMPLATED.keySet 
-			+ #[ 
-				tableEditor,
-				LineMapping,
-				eClass.instanceClass,
-				(it as TableDescription).domainClass.classFromDomain
-			]
-	}
-	
 	def getTableEditor(EObject it) {
 		it instanceof CrossTableDescription
 			? SiriusCrossTable
@@ -160,12 +149,17 @@ class TableTemplate extends RepresentationTemplate<TableDescription> {
 			? context.mainClass.qName 
 			: context.mainClass.name
 		
-'''package «pack»
+'''«context.filerHeader»package «pack»
 
 «templateImports»
 
 import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*
 
+/**
+ * Table '«content.name»'.
+ * 
+ * @generated
+ */
 class «name» extends «content.tableEditor.templateClass» {
 
 	new(«parentName» parent) {

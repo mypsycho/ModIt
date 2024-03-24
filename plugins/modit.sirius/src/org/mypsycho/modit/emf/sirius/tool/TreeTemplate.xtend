@@ -15,7 +15,6 @@ package org.mypsycho.modit.emf.sirius.tool
 
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EStructuralFeature
-import org.eclipse.sirius.diagram.description.style.EdgeStyleDescription
 import org.eclipse.sirius.tree.description.ConditionalTreeItemStyleDescription
 import org.eclipse.sirius.tree.description.DescriptionPackage
 import org.eclipse.sirius.tree.description.TreeDescription
@@ -27,10 +26,9 @@ import org.eclipse.sirius.tree.description.TreeItemMapping
 import org.eclipse.sirius.tree.description.TreeItemStyleDescription
 import org.eclipse.sirius.tree.description.TreeItemTool
 import org.eclipse.sirius.viewpoint.description.IdentifiedElement
-import org.eclipse.sirius.viewpoint.description.style.BasicLabelStyleDescription
+import org.eclipse.sirius.viewpoint.description.style.StylePackage
 import org.mypsycho.modit.emf.ClassId
 import org.mypsycho.modit.emf.sirius.api.SiriusTree
-import org.eclipse.sirius.viewpoint.description.style.StylePackage
 
 /** Override of default reverse for SiriusModelProvider class. */
 class TreeTemplate extends RepresentationTemplate<TreeDescription> {
@@ -81,13 +79,6 @@ class TreeTemplate extends RepresentationTemplate<TreeDescription> {
 		
 	override getContainmentOrders() { CONTAINMENT_ORDER }
 	
-	/** Set of classes used in sub-parts by the default implementation  */
-	override getPartStaticImports(EObject it) {
-		#{ SiriusTree, BasicLabelStyleDescription, EdgeStyleDescription } 
-			+ INIT_TEMPLATED.keySet
-			// + !!! requires metamodel !!!
-	}
-	
 	override getInitTemplateds() { INIT_TEMPLATED }
 
 	override isApplicableTemplate(TreeDescription it) {
@@ -95,7 +86,7 @@ class TreeTemplate extends RepresentationTemplate<TreeDescription> {
 	}
 	
 	override templateRepresentation(ClassId it, TreeDescription content) {
-'''package «pack»
+'''«context.filerHeader»package «pack»
 
 «templateImports»
 

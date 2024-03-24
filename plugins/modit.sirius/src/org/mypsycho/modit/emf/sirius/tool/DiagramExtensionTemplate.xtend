@@ -26,12 +26,9 @@ import org.eclipse.sirius.diagram.description.AdditionalLayer
 import org.eclipse.sirius.diagram.description.ContainerMappingImport
 import org.eclipse.sirius.diagram.description.DiagramDescription
 import org.eclipse.sirius.diagram.description.DiagramExtensionDescription
-import org.eclipse.sirius.diagram.description.style.EdgeStyleDescription
 import org.eclipse.sirius.viewpoint.description.Group
 import org.eclipse.sirius.viewpoint.description.RepresentationDescription
-import org.eclipse.sirius.viewpoint.description.style.BasicLabelStyleDescription
 import org.mypsycho.modit.emf.ClassId
-import org.mypsycho.modit.emf.sirius.api.SiriusDesigns
 import org.mypsycho.modit.emf.sirius.api.SiriusDiagramExtension
 
 /** 
@@ -50,13 +47,6 @@ class DiagramExtensionTemplate extends DiagramPartTemplate<DiagramExtensionDescr
 		AdditionalLayer -> #{}
 	}
 	
-	/** Set of classes used in sub parts by the default implementation  */
-	static val PART_IMPORTS = (
-		#{ SiriusDiagramExtension, BasicLabelStyleDescription, EdgeStyleDescription }
-			+ INIT_TEMPLATED.keySet
-	).toList
-	
-	
 	var RepresentationDescription extended
 
 	new(SiriusGroupTemplate container) {
@@ -71,12 +61,6 @@ class DiagramExtensionTemplate extends DiagramPartTemplate<DiagramExtensionDescr
 			}
 			
 		}
-	}
-	
-	override getPartStaticImports(EObject it) {
-		// no super: EModit and EObject are not used directly
-		PART_IMPORTS
-			// + !!! requires metamodel !!!
 	}
 	
 	override getInitTemplateds() {
@@ -115,16 +99,6 @@ class DiagramExtensionTemplate extends DiagramPartTemplate<DiagramExtensionDescr
 			&& content.viewpointURI.startsWith("viewpoint:/" + tool.pluginId)
 	}
 	
-	@Deprecated
-	def findDiagramFromLocal(DiagramExtensionDescription content) {
-		SiriusDesigns.eContainer(content, Group)
-			.ownedViewpoints
-			.filter[ content.viewpointURI.endsWith("/" + name) ]
-			.flatMap[ ownedRepresentations ]
-			.filter(DiagramDescription)
-			.findFirst[ content.representationName == name  ]
-	}
-	
 	def identifyExtended(DiagramExtensionDescription content) {
 		if (content.extendedLocal) {
 			// if extended diagram is part of context,
@@ -156,12 +130,17 @@ class DiagramExtensionTemplate extends DiagramPartTemplate<DiagramExtensionDescr
 		if (extendedAlias === null) {
 			extended = null
 		}
-'''package «pack»
+'''«context.filerHeader»package «pack»
 
 «templateImports»
 
 import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*
 
+/**
+ * Diagram extension '«content.name»'.
+ * 
+ * @generated
+ */
 class «name» extends «SiriusDiagramExtension.templateClass» {
 
 	new(«parentClassName» parent) {

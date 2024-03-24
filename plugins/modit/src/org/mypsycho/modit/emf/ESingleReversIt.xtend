@@ -65,12 +65,10 @@ class ESingleReversIt extends EReversIt {
 		super(parent)
 	}
 
-	override getMainStaticImports() { #[ EModel, ResourceSet ] }
-
 	// Xtend
 	override templateMain(EObject it, Iterable<Class<?>> packages, ()=>String content) {
 		val templateExtrasContent = templateExtras ?: ""
-'''package «context.mainClass.pack»
+'''«context.filerHeader»package «context.mainClass.pack»
 
 «context.mainClass.templateImports»
 
@@ -100,13 +98,11 @@ ENDIF
 »«templateShortcuts»}
 '''}
 
-	override getPartStaticImports(EObject it) { #{ EModel } }
-
 	// Xtend
 	override templatePartBody(ClassId it, EObject content) {
 		val parentTemplate = parentPart
 		
-'''package «pack»
+'''«context.filerHeader»package «pack»
 
 «parentTemplate.value»«templateImports(it)»
 import static extension «

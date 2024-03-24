@@ -14,22 +14,17 @@
 package org.mypsycho.modit.emf.sirius.tool
 
 import java.nio.file.Path
-import java.util.HashMap
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EStructuralFeature
 import org.eclipse.emf.ecore.resource.Resource
-import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl
+import org.eclipse.sirius.business.api.helper.ViewpointUtil
 import org.eclipse.sirius.viewpoint.description.DescriptionPackage
-import org.eclipse.sirius.viewpoint.description.Environment
+import org.eclipse.sirius.viewpoint.description.Group
 import org.eclipse.sirius.viewpoint.description.JavaExtension
 import org.eclipse.sirius.viewpoint.description.UserFixedColor
 import org.eclipse.xtend.lib.annotations.Accessors
-import org.mypsycho.modit.emf.EModIt
 import org.mypsycho.modit.emf.EReversIt
-import org.mypsycho.modit.emf.ModitModel
 import org.mypsycho.modit.emf.sirius.api.SiriusVpGroup
-import org.eclipse.sirius.business.api.helper.ViewpointUtil
-import org.eclipse.sirius.viewpoint.description.Group
 
 /** 
  * Specific reverse for AbstractGroup class.
@@ -51,20 +46,7 @@ class SiriusGroupTemplate extends EReversIt {
 		delegates += new PropertiesTemplate(this)
 		delegates += new DiagramExtensionTemplate(this)
 	}
-	
-	// Only used in SiriusModelProvider class.
-	static val UNUSED_MAIN_IMPORTS = #[ 
-		HashMap, ResourceSetImpl, Accessors, EModIt, ModitModel, EObject
-	]
-	static val EXTRA_MAIN_IMPORTS = #[ SiriusVpGroup, Environment ]
-	
-	@Deprecated
-	override getMainStaticImports() {
-		super.mainStaticImports
-			.filter[ !UNUSED_MAIN_IMPORTS.contains(it) ]
-			+ EXTRA_MAIN_IMPORTS
-	}
-	
+		
 	override protected prepareContext() {
 		context.aliases +=  tool.source
 			.userColorsPalettes
@@ -77,23 +59,28 @@ class SiriusGroupTemplate extends EReversIt {
 	// Xtend
 	override templateMain(EObject it, Iterable<Class<?>> packages, ()=>String content) {
 		val templateExtrasContent = templateExtras ?: ""
-'''package «context.mainClass.pack»
+'''«context.filerHeader»package «context.mainClass.pack»
 
 «context.mainClass.templateImports»
 
 import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*
 
+/**
+ * Sirius viewpoints group.
+ * 
+ * @generated
+ */
 class «context.mainClass.name» extends «SiriusVpGroup.templateClass» {
 	
 	new () {
-        businessPackages += #[
+		businessPackages += #[
 «
 FOR pkg : tool.editedPackages
 SEPARATOR LValueSeparator // cannot include comma in template: improper for last value.
-»			«pkg.class.interfaces.head.name».eINSTANCE«
+»			«pkg.class.interfaces.head.templateClass».eINSTANCE«
 ENDFOR
 »
-        ]
+		]
 	}
 
 	override initContent(«Group.templateClass» it) {

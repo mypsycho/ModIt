@@ -1,3 +1,4 @@
+// Testing
 package org.eclipse.emf.ecoretools.design.sirius
 
 import org.eclipse.emf.ecore.EcorePackage
@@ -12,6 +13,11 @@ import org.mypsycho.modit.emf.sirius.api.SiriusDiagramExtension
 
 import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*
 
+/**
+ * Diagram extension 'Entities With Archetypes'.
+ * 
+ * @generated
+ */
 class EntitiesWithArchetypesDiagramExtension extends SiriusDiagramExtension {
 
 	new(EcoretoolsDesign parent) {

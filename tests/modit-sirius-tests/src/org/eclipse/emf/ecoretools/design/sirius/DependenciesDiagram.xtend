@@ -1,3 +1,4 @@
+// Testing
 package org.eclipse.emf.ecoretools.design.sirius
 
 import org.eclipse.emf.codegen.ecore.genmodel.GenModelPackage
@@ -37,6 +38,11 @@ import org.mypsycho.modit.emf.sirius.api.SiriusDiagram
 
 import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*
 
+/**
+ * Diagram 'Dependencies'.
+ * 
+ * @generated
+ */
 class DependenciesDiagram extends SiriusDiagram {
 
 	new(EcoretoolsDesign parent) {

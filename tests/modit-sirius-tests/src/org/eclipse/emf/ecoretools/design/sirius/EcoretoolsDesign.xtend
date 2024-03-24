@@ -1,5 +1,8 @@
+// Testing
 package org.eclipse.emf.ecoretools.design.sirius
 
+import org.eclipse.emf.codegen.ecore.genmodel.GenModelPackage
+import org.eclipse.emf.ecore.EcorePackage
 import org.eclipse.sirius.viewpoint.description.Group
 import org.eclipse.sirius.viewpoint.description.InterpolatedColor
 import org.eclipse.sirius.viewpoint.description.UserColorsPalette
@@ -8,13 +11,18 @@ import org.mypsycho.modit.emf.sirius.api.SiriusVpGroup
 
 import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*
 
+/**
+ * Sirius viewpoints group.
+ * 
+ * @generated
+ */
 class EcoretoolsDesign extends SiriusVpGroup {
 	
 	new () {
-        businessPackages += #[
-			org.eclipse.emf.ecore.EcorePackage.eINSTANCE,
-			org.eclipse.emf.codegen.ecore.genmodel.GenModelPackage.eINSTANCE
-        ]
+		businessPackages += #[
+			EcorePackage.eINSTANCE,
+			GenModelPackage.eINSTANCE
+		]
 	}
 
 	override initContent(Group it) {

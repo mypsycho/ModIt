@@ -1,3 +1,4 @@
+// Testing
 package org.eclipse.emf.ecoretools.design.split
 
 import org.eclipse.emf.codegen.ecore.genmodel.GenModelPackage

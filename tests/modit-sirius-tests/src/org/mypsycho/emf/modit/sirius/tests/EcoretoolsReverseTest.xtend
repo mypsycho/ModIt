@@ -34,17 +34,21 @@ class EcoretoolsReverseTest extends EcoretoolsTestBase {
 
 	@Test
 	def void reverseSiriusModel() {
-		new SiriusReverseIt(
+		val it = new SiriusReverseIt(
 			REFMODEL_PATH + "ecoretools_sirius.odesign",
 			testSrcPath,
 			TEST_BUNDLE + ".sirius.EcoretoolsDesign"
-		) =>[
-			pluginId = PLUGIN_ID
-			perform
-		]
+		)
+			
+		fileHeader = "// Testing
+"
+		pluginId = PLUGIN_ID
+		perform
+		
 
 		assertSamePackage(TEST_BUNDLE + ".sirius")
 	}
+
 	
 	@Test
 	def void reverseModel() {
@@ -71,6 +75,9 @@ class EcoretoolsReverseTest extends EcoretoolsTestBase {
 			testSrcPath,
 			res
 		)
+		
+		fileHeader = "// Testing
+"
 		
 		splits += (res.contents.head as Group)
 			.findSplitGroupParts

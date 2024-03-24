@@ -31,9 +31,7 @@ import org.eclipse.sirius.diagram.description.StringLayoutOption
 import org.eclipse.sirius.diagram.description.filter.CompositeFilterDescription
 import org.eclipse.sirius.diagram.description.filter.FilterPackage
 import org.eclipse.sirius.diagram.description.filter.MappingFilter
-import org.eclipse.sirius.diagram.description.style.EdgeStyleDescription
 import org.eclipse.sirius.diagram.sequence.description.SequenceDiagramDescription
-import org.eclipse.sirius.viewpoint.description.style.BasicLabelStyleDescription
 import org.eclipse.sirius.viewpoint.description.tool.ModelOperation
 import org.mypsycho.modit.emf.ClassId
 import org.mypsycho.modit.emf.sirius.api.SiriusDiagram
@@ -84,12 +82,6 @@ class DiagramTemplate extends DiagramPartTemplate<DiagramDescription> {
 
 	override getContainmentOrders() { CONTAINMENT_ORDER }
 	
-	/** Set of classes used in sub-parts by the default implementation  */
-	override getPartStaticImports(EObject it) {
-		#{ baseApiClass, BasicLabelStyleDescription, EdgeStyleDescription } + INIT_TEMPLATED.keySet
-			// + !!! requires metamodel !!!
-	}
-	
 	def getBaseApiClass(EObject it) {
 		switch(it) {
 			SequenceDiagramDescription: SiriusSequenceDiagram
@@ -109,12 +101,17 @@ class DiagramTemplate extends DiagramPartTemplate<DiagramDescription> {
 	
 	override templateRepresentation(ClassId it, DiagramDescription content) {
 		
-'''package «pack»
+'''«context.filerHeader»package «pack»
 
 «templateImports»
 
 import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*
 
+/**
+ * Diagram '«content.name»'.
+ * 
+ * @generated
+ */
 class «name» extends «content.baseApiClass.templateClass» {
 
 	new(«parentClassName» parent) {

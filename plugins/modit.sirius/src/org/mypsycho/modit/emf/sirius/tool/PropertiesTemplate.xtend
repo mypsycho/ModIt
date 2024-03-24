@@ -31,11 +31,6 @@ import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*
 
 class PropertiesTemplate extends RepresentationTemplate<ViewExtensionDescription> {
 	
-	/** Set of classes used in sub parts by the default implementation  */
-	static val PART_IMPORTS = #{  
-		AbstractPropertySet, Category
-	}
-	
 	static val NS_MAPPING = #[
 		Category -> AbstractPropertySet.Ns.category,
 		PageDescription -> AbstractPropertySet.Ns.page,
@@ -58,15 +53,6 @@ class PropertiesTemplate extends RepresentationTemplate<ViewExtensionDescription
 		super(container, ViewExtensionDescription)
 	}
 	
-	override getPartStaticImports(EObject it) {
-		// no super: EModit and EObject are not used directly
-		val multiCat = (it instanceof ViewExtensionDescription 
-			? categories.size != 1 ? #[ ViewExtensionDescription ]) 
-			?: #[]
-		
-		PART_IMPORTS + multiCat
-	}
-	
 	override isPartTemplate(EObject it) { super.isPartTemplate(it) }
 	
 	protected override getContainmentOrders() { CONTAINMENT_ORDER }
@@ -80,12 +66,17 @@ class PropertiesTemplate extends RepresentationTemplate<ViewExtensionDescription
 			? context.mainClass.qName
 			: context.mainClass.name
 		
-'''package «pack»
+'''«context.filerHeader»package «pack»
 
 «templateImports»
 
 import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*
 
+/**
+ * Property editor '«content.name»'.
+ * 
+ * @generated
+ */
 class «name» extends «AbstractPropertySet.templateClass» {
 
 	new(«parentName» parent) {

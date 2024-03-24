@@ -154,6 +154,10 @@ class SiriusReverseIt {
 		
 	}
 	
+	def setFileHeader(String text) {
+		engine.fileHeader = text
+	}
+	
 	def getEnvironmentExtras(ResourceSet rs) {
 		rs.environment
 			.environmentContent

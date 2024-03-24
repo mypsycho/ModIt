@@ -63,20 +63,14 @@ class EReversIt {
 
 	public static val HEADLESS_MESSAGE = "// headless object"
 
-	/** Set of classes used in main model by the default implementation  */
-	@Deprecated
-	protected static val MAIN_IMPORTS = #{ 
-		HashMap, Class, // java
-		Accessors, // xtend.lib
-		EObject, EList, EReference, Resource, ResourceSet, ResourceSetImpl, // emf
-		// EcoreEList, URI ??
-		EModIt, ModitModel
-	}
 	
 	// 
 	// Constructor context
 	//
 	static class Context {
+		
+		@Accessors(PUBLIC_GETTER)
+		var filerHeader = ""
 		
 		/** Id of main class */
 		@Accessors
@@ -209,6 +203,10 @@ class EReversIt {
 	def setWithXmlId(boolean enable) { context.xmlId = enable }
 
 	def isPartTemplate(EObject it) { true }
+
+	def setFileHeader(String text) {
+		context.filerHeader = text ?: ""
+	}
 
 	/**
 	 * Ensures root, aliases, splits and extras are consistent and valuates
@@ -353,10 +351,6 @@ class EReversIt {
 		context.target.resolve(toPath)
 	}
 
-	// XTend
-	@Deprecated
-	def Iterable<?extends Class<?>> getMainStaticImports() { MAIN_IMPORTS }
-	
 	def withCurrent(ClassId id, EObject content, ()=>String task) {
 		currentClass = id
 		currentContent = content
@@ -376,11 +370,6 @@ class EReversIt {
 
 	protected def templateSimpleMain(EObject it) {
 		context.mainClass.withCurrent(it) [
-//			registerImports(
-//				mainStaticImports 
-//				+ findExtrasReferencedClasses 
-//				+ findShortcutsClasses
-//			)
 			templateMain(#[ it ].usedPackages) [ templateSimpleContent ]
 		]
 	}
@@ -393,11 +382,6 @@ class EReversIt {
 		
 	protected def templateComposedMain() {
 		context.mainClass.withCurrent(null) [
-//			null.registerImports(
-//				mainStaticImports 
-//				+ findExtrasReferencedClasses 
-//				+ findShortcutsClasses
-//			)
 			
 			null.templateMain(context.orderedRoots.usedPackages) [ 
 				context
@@ -418,14 +402,6 @@ FOR value : values SEPARATOR LValueSeparator
 ENDFOR
 »
 ].assemble'''}
-
-	/** Set of classes used in sub parts by the default implementation  */
-	@Deprecated
-	protected static val PART_IMPORTS = #{ EModIt }
-
-	// XTend
-	@Deprecated
-	def Iterable<?extends Class<?>> getPartStaticImports(EObject it) { PART_IMPORTS }
 
 
 	protected def getApplicableTemplate(EObject content) {
@@ -468,7 +444,7 @@ ENDFOR
 	protected def templatePartBody(ClassId it, EObject content) {
 		val parentTemplate = parentPart
 		
-'''package «pack»
+'''«context.filerHeader»package «pack»
 
 «parentTemplate.value»«templateImports(it)»
 import static extension «context.mainClass.qName».*

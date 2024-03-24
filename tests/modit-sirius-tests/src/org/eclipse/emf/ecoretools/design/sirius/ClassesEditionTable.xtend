@@ -1,3 +1,4 @@
+// Testing
 package org.eclipse.emf.ecoretools.design.sirius
 
 import org.eclipse.emf.ecore.EPackage
@@ -10,6 +11,11 @@ import org.mypsycho.modit.emf.sirius.api.SiriusFeatureTable
 
 import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*
 
+/**
+ * Table 'Classes'.
+ * 
+ * @generated
+ */
 class ClassesEditionTable extends SiriusFeatureTable {
 
 	new(EcoretoolsDesign parent) {

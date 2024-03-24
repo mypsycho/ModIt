@@ -1,3 +1,4 @@
+// Testing
 package org.eclipse.emf.ecoretools.design.sirius
 
 import org.eclipse.emf.codegen.ecore.genmodel.GenPackage
@@ -8,6 +9,11 @@ import org.mypsycho.modit.emf.sirius.api.SiriusFeatureTable
 
 import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*
 
+/**
+ * Table 'GenPackage Attributes'.
+ * 
+ * @generated
+ */
 class GenPackageAttributesEditionTable extends SiriusFeatureTable {
 
 	new(EcoretoolsDesign parent) {

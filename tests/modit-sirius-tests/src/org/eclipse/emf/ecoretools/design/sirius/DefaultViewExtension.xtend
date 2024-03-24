@@ -1,3 +1,4 @@
+// Testing
 package org.eclipse.emf.ecoretools.design.sirius
 
 import org.eclipse.sirius.properties.ButtonDescription
@@ -30,6 +31,11 @@ import org.mypsycho.modit.emf.sirius.api.AbstractPropertySet
 
 import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*
 
+/**
+ * Property editor 'Default'.
+ * 
+ * @generated
+ */
 class DefaultViewExtension extends AbstractPropertySet {
 
 	new(EcoretoolsDesign parent) {
