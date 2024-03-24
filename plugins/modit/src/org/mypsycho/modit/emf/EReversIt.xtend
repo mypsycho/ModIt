@@ -64,6 +64,7 @@ class EReversIt {
 	public static val HEADLESS_MESSAGE = "// headless object"
 
 	/** Set of classes used in main model by the default implementation  */
+	@Deprecated
 	protected static val MAIN_IMPORTS = #{ 
 		HashMap, Class, // java
 		Accessors, // xtend.lib
@@ -144,6 +145,7 @@ class EReversIt {
 	
 	/** Imported Classes for the generated class */
 	protected val Map<Class<?>, Boolean> currentImports = new HashMap
+	protected var boolean saveImport = false
 
 	/** Current generated Class */
 	protected var ClassId currentClass
@@ -352,24 +354,33 @@ class EReversIt {
 	}
 
 	// XTend
+	@Deprecated
 	def Iterable<?extends Class<?>> getMainStaticImports() { MAIN_IMPORTS }
 	
 	def withCurrent(ClassId id, EObject content, ()=>String task) {
 		currentClass = id
 		currentContent = content
-		var result = task.apply
-		currentClass = null
-		currentContent = null
-		result
+		try {
+			saveImport = true
+			currentImports.clear
+			
+			task.apply // Blank run for imports
+			saveImport = false
+			
+			task.apply
+		} finally {
+			currentClass = null
+			currentContent = null
+		}
 	} 
 
 	protected def templateSimpleMain(EObject it) {
 		context.mainClass.withCurrent(it) [
-			registerImports(
-				mainStaticImports 
-				+ findExtrasReferencedClasses 
-				+ findShortcutsClasses
-			)
+//			registerImports(
+//				mainStaticImports 
+//				+ findExtrasReferencedClasses 
+//				+ findShortcutsClasses
+//			)
 			templateMain(#[ it ].usedPackages) [ templateSimpleContent ]
 		]
 	}
@@ -382,11 +393,11 @@ class EReversIt {
 		
 	protected def templateComposedMain() {
 		context.mainClass.withCurrent(null) [
-			null.registerImports(
-				mainStaticImports 
-				+ findExtrasReferencedClasses 
-				+ findShortcutsClasses
-			)
+//			null.registerImports(
+//				mainStaticImports 
+//				+ findExtrasReferencedClasses 
+//				+ findShortcutsClasses
+//			)
 			
 			null.templateMain(context.orderedRoots.usedPackages) [ 
 				context
@@ -409,9 +420,11 @@ ENDFOR
 ].assemble'''}
 
 	/** Set of classes used in sub parts by the default implementation  */
+	@Deprecated
 	protected static val PART_IMPORTS = #{ EModIt }
 
 	// XTend
+	@Deprecated
 	def Iterable<?extends Class<?>> getPartStaticImports(EObject it) { PART_IMPORTS }
 
 
@@ -427,9 +440,7 @@ ENDFOR
 	
 	protected def performTemplatePart(ClassId it, EObject content) {
 		withCurrent(content) [
-			currentContent = content
-			content.registerImports(content.partStaticImports)
-				
+			// content.registerImports(content.partStaticImports)
 			templatePartBody(content).toString
 		]
 	}
@@ -445,7 +456,9 @@ ENDFOR
 			if (conflict) {
 				parentName = context.mainClass.qName 
 			} else {
-				parentImport = "import " + context.mainClass.qName + "\n"
+				parentImport = // qualified name
+					'''import «context.mainClass.qName»
+					'''
 			}	
 		}
 		parentName -> parentImport
@@ -487,32 +500,32 @@ class «name» {
 
 «templateImports(context.mainClass)»
 
-class «context.mainClass.name» implements ModitModel {
+class «context.mainClass.name» implements «ModitModel.templateClass» {
 
-	@Accessors
-	val extras = new HashMap<String, EObject> 
+	@«Accessors.templateClass»
+	val extras = new «HashMap.templateClass»<String, «EObject.templateClass»> 
 
-	@Accessors
-	protected val extension EModIt factory = EModIt.using(
+	@«Accessors.templateClass»
+	protected val extension «EModIt.templateClass» factory = «EModIt.templateClass».using(
 «
 FOR p : packages 
 SEPARATOR LValueSeparator
-»		«p.name».eINSTANCE«
+»		«p.templateClass».eINSTANCE«
 ENDFOR
 »
 	)
 
-	override loadContent(Resource it) {
+	override loadContent(«Resource.templateClass» it) {
 		val values = resourceSet.buildModel.roots
 		contents += values
 		values
 	}
 
 	def buildModel() {
-		buildModel(new ResourceSetImpl())
+		buildModel(new «ResourceSetImpl.templateClass»())
 	}
 
-	def buildModel(ResourceSet rs) {
+	def buildModel(«ResourceSet.templateClass» rs) {
 		rs.initExtras()
 		createContent
 	}
@@ -522,7 +535,7 @@ ENDFOR
 		«content.apply»
 	}
 
-	protected def void initExtras(ResourceSet it) {
+	protected def void initExtras(«ResourceSet.templateClass» it) {
 		«templateExtras /* extras must happen AFTER model exploration */ »
 	}
 
@@ -531,7 +544,6 @@ ENDFOR
 	}
 
 «templateShortcuts»}
-
 '''}
 
 	protected def String templateExtras() {
@@ -592,7 +604,7 @@ ENDFOR
 FOR shortcut : context.shortcuts 
 »	static def <T extends «shortcut.EContainingClass.templateClass
 		»> at«shortcut.EContainingClass.instanceClass.simpleName
-		»(Iterable<T> values, Object key) {
+		»(«Iterable.templateClass»<T> values, Object key) {
 		values.findFirst[ «shortcut.name» == key ]
 	}
 
@@ -1144,11 +1156,6 @@ ENDFOR
 	
 	protected def templateClass(EClass it) { instanceClass.templateClass }
 
-	protected def templateClass(Class<?> it) {
-		(currentImports.get(it) ?: Boolean.FALSE)
-			? simpleName
-			: name
-	}
 
 	protected def usedPackages(Iterable<? extends EObject> values) {
 		values.map[ #[ it ] + eAllContents.toIterable ]
@@ -1171,6 +1178,18 @@ ENDFOR
 			.toSet
 	}
 
+
+	protected def templateClass(Class<?> it) {
+		if (saveImport) {
+			registerImport
+			return simpleName // result does not matter
+		}
+		(currentImports.get(it) ?: Boolean.FALSE)
+			? simpleName
+			: name
+	}
+
+	@Deprecated
 	protected def void registerImports(EObject root, Iterable<? extends Class<?>> staticImports) {
 		currentImports.clear
 		staticImports.forEach[ registerImport ]
@@ -1196,6 +1215,7 @@ ENDFOR
 			.forEach[ registerImport ]
 	}
 	
+	@Deprecated
 	protected def getReferencedClasses(EObject it) {	
 		// we want the interface for EModIt
 		#[ eClass.instanceClass ]
@@ -1233,19 +1253,18 @@ ENDFOR
 			.flatten
 	}
 
-	protected def void registerImport(Class<?> it) {
-		if (!currentImports.containsKey(it)) {
-			// Simple name already found
-			val exist = currentClass.name !== simpleName
-				&& currentImports
+	protected def registerImport(Class<?> it) {
+		currentImports.computeIfAbsent(it) [
+			currentClass.name === simpleName // Should test package ??
+				|| !currentImports
 					.keySet
 					.map[ simpleName ]
 					.exists[n| n.equals(simpleName) ]
-			currentImports.put(it, Boolean.valueOf(!exist))
-		}	
+		]
 	}
 	
 	protected def templateImports(ClassId container) {
+		saveImport ? "" : // skip when evaluating import 
 '''«
 FOR c : currentImports.entrySet
 	.filter[ value && key.package.name != container.pack ]
@@ -1339,7 +1358,8 @@ ENDIF
 		values.filter[ value | it == value ].size <= 1
 	}
 
-	static def validate(boolean precondition, ()=>String message) {
+
+	static def validate(boolean precondition, ()=>String message) {
 		if (!precondition) {
 			throw new IllegalArgumentException(message.apply)
 		}

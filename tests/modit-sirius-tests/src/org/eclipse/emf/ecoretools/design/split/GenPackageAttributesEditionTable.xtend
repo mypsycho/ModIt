@@ -8,10 +8,8 @@ import org.eclipse.sirius.table.metamodel.table.description.EditionTableDescript
 import org.eclipse.sirius.table.metamodel.table.description.FeatureColumnMapping
 import org.eclipse.sirius.table.metamodel.table.description.LineMapping
 import org.eclipse.sirius.viewpoint.description.Environment
-import org.eclipse.sirius.viewpoint.description.SystemColor
-import org.eclipse.sirius.viewpoint.description.SytemColorsPalette
 import org.mypsycho.modit.emf.EModel
-import static extension org.eclipse.emf.ecoretools.design.split.ToolDesign.*
+import static extension org.mypsycho.modit.emf.ModitModel.*
 
 class GenPackageAttributesEditionTable extends EModel.Part<EditionTableDescription> {
 

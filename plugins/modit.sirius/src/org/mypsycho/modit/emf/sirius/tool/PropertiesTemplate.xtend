@@ -96,12 +96,12 @@ ENDIF				»)
 
 « 
 IF content.categories.size == 1
-»	override initDefaultCategory(Category it) {
+»	override initDefaultCategory(«Category.templateClass» it) {
 		«content.categories.head.templateFilteredContent(Category)»
 	}
 « 
 ELSE 
-»	override initCategories(ViewExtensionDescription it) {
+»	override initCategories(«ViewExtensionDescription.templateClass» it) {
 		«FOR category : content.categories »
 		category(«category.name.toJava») [ «category.initMethod» ]
 		«ENDFOR»
@@ -109,7 +109,7 @@ ELSE
 
 «
 	FOR category : content.categories 
-»	protected def void «category.initMethod»(Category it) {
+»	protected def void «category.initMethod»(«Category.templateClass» it) {
 		«category.templateFilteredContent(Category)»
 	}
 «

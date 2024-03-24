@@ -1,11 +1,8 @@
 package org.eclipse.emf.ecoretools.design.modit
 
-import java.lang.Class
 import java.util.HashMap
 import org.eclipse.emf.codegen.ecore.genmodel.GenModelPackage
-import org.eclipse.emf.common.util.EList
 import org.eclipse.emf.ecore.EObject
-import org.eclipse.emf.ecore.EReference
 import org.eclipse.emf.ecore.EcorePackage
 import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.emf.ecore.resource.ResourceSet
@@ -22,12 +19,14 @@ import org.eclipse.sirius.diagram.description.ConditionalContainerStyleDescripti
 import org.eclipse.sirius.diagram.description.ConditionalEdgeStyleDescription
 import org.eclipse.sirius.diagram.description.ConditionalNodeStyleDescription
 import org.eclipse.sirius.diagram.description.ContainerMapping
+import org.eclipse.sirius.diagram.description.DescriptionPackage
 import org.eclipse.sirius.diagram.description.DiagramDescription
 import org.eclipse.sirius.diagram.description.DiagramExtensionDescription
 import org.eclipse.sirius.diagram.description.EdgeMapping
 import org.eclipse.sirius.diagram.description.Layer
 import org.eclipse.sirius.diagram.description.NodeMapping
 import org.eclipse.sirius.diagram.description.filter.CompositeFilterDescription
+import org.eclipse.sirius.diagram.description.filter.FilterPackage
 import org.eclipse.sirius.diagram.description.filter.MappingFilter
 import org.eclipse.sirius.diagram.description.style.BeginLabelStyleDescription
 import org.eclipse.sirius.diagram.description.style.BundledImageDescription
@@ -36,6 +35,7 @@ import org.eclipse.sirius.diagram.description.style.EdgeStyleDescription
 import org.eclipse.sirius.diagram.description.style.EndLabelStyleDescription
 import org.eclipse.sirius.diagram.description.style.FlatContainerStyleDescription
 import org.eclipse.sirius.diagram.description.style.SquareDescription
+import org.eclipse.sirius.diagram.description.style.StylePackage
 import org.eclipse.sirius.diagram.description.style.WorkspaceImageDescription
 import org.eclipse.sirius.diagram.description.tool.ContainerCreationDescription
 import org.eclipse.sirius.diagram.description.tool.ContainerDropDescription
@@ -55,6 +55,7 @@ import org.eclipse.sirius.diagram.description.tool.SourceEdgeViewCreationVariabl
 import org.eclipse.sirius.diagram.description.tool.TargetEdgeCreationVariable
 import org.eclipse.sirius.diagram.description.tool.TargetEdgeViewCreationVariable
 import org.eclipse.sirius.diagram.description.tool.ToolGroup
+import org.eclipse.sirius.diagram.description.tool.ToolPackage
 import org.eclipse.sirius.diagram.description.tool.ToolSection
 import org.eclipse.sirius.properties.ButtonDescription
 import org.eclipse.sirius.properties.Category
@@ -79,6 +80,7 @@ import org.eclipse.sirius.properties.LabelWidgetStyle
 import org.eclipse.sirius.properties.ListDescription
 import org.eclipse.sirius.properties.PageDescription
 import org.eclipse.sirius.properties.PageValidationSetDescription
+import org.eclipse.sirius.properties.PropertiesPackage
 import org.eclipse.sirius.properties.RadioDescription
 import org.eclipse.sirius.properties.RadioWidgetConditionalStyle
 import org.eclipse.sirius.properties.RadioWidgetStyle
@@ -92,6 +94,7 @@ import org.eclipse.sirius.properties.ToolbarAction
 import org.eclipse.sirius.properties.ViewExtensionDescription
 import org.eclipse.sirius.properties.WidgetAction
 import org.eclipse.sirius.properties.ext.widgets.reference.propertiesextwidgetsreference.ExtReferenceDescription
+import org.eclipse.sirius.properties.ext.widgets.reference.propertiesextwidgetsreference.PropertiesExtWidgetsReferencePackage
 import org.eclipse.sirius.table.metamodel.table.description.BackgroundConditionalStyle
 import org.eclipse.sirius.table.metamodel.table.description.BackgroundStyleDescription
 import org.eclipse.sirius.table.metamodel.table.description.CreateCellTool
@@ -119,14 +122,10 @@ import org.eclipse.sirius.viewpoint.description.InterpolatedColor
 import org.eclipse.sirius.viewpoint.description.JavaExtension
 import org.eclipse.sirius.viewpoint.description.Position
 import org.eclipse.sirius.viewpoint.description.SemanticBasedDecoration
-import org.eclipse.sirius.viewpoint.description.SystemColor
-import org.eclipse.sirius.viewpoint.description.SytemColorsPalette
 import org.eclipse.sirius.viewpoint.description.UserColorsPalette
 import org.eclipse.sirius.viewpoint.description.UserFixedColor
 import org.eclipse.sirius.viewpoint.description.VSMElementCustomization
 import org.eclipse.sirius.viewpoint.description.Viewpoint
-import org.eclipse.sirius.viewpoint.description.style.LabelBorderStyleDescription
-import org.eclipse.sirius.viewpoint.description.style.LabelBorderStyles
 import org.eclipse.sirius.viewpoint.description.tool.AcceleoVariable
 import org.eclipse.sirius.viewpoint.description.tool.Case
 import org.eclipse.sirius.viewpoint.description.tool.ChangeContext
@@ -168,6 +167,7 @@ import org.eclipse.sirius.viewpoint.description.validation.ERROR_LEVEL
 import org.eclipse.sirius.viewpoint.description.validation.RuleAudit
 import org.eclipse.sirius.viewpoint.description.validation.SemanticValidationRule
 import org.eclipse.sirius.viewpoint.description.validation.ValidationFix
+import org.eclipse.sirius.viewpoint.description.validation.ValidationPackage
 import org.eclipse.sirius.viewpoint.description.validation.ValidationSet
 import org.eclipse.sirius.viewpoint.description.validation.ViewValidationRule
 import org.eclipse.xtend.lib.annotations.Accessors
@@ -181,16 +181,16 @@ class PlainDesign implements ModitModel {
 
 	@Accessors
 	protected val extension EModIt factory = EModIt.using(
-		org.eclipse.sirius.diagram.description.DescriptionPackage.eINSTANCE,
-		org.eclipse.sirius.diagram.description.filter.FilterPackage.eINSTANCE,
-		org.eclipse.sirius.diagram.description.style.StylePackage.eINSTANCE,
-		org.eclipse.sirius.diagram.description.tool.ToolPackage.eINSTANCE,
-		org.eclipse.sirius.properties.PropertiesPackage.eINSTANCE,
-		org.eclipse.sirius.properties.ext.widgets.reference.propertiesextwidgetsreference.PropertiesExtWidgetsReferencePackage.eINSTANCE,
+		DescriptionPackage.eINSTANCE,
+		FilterPackage.eINSTANCE,
+		StylePackage.eINSTANCE,
+		ToolPackage.eINSTANCE,
+		PropertiesPackage.eINSTANCE,
+		PropertiesExtWidgetsReferencePackage.eINSTANCE,
 		org.eclipse.sirius.table.metamodel.table.description.DescriptionPackage.eINSTANCE,
 		org.eclipse.sirius.viewpoint.description.DescriptionPackage.eINSTANCE,
 		org.eclipse.sirius.viewpoint.description.tool.ToolPackage.eINSTANCE,
-		org.eclipse.sirius.viewpoint.description.validation.ValidationPackage.eINSTANCE
+		ValidationPackage.eINSTANCE
 	)
 
 	override loadContent(Resource it) {
@@ -4525,4 +4525,3 @@ class PlainDesign implements ModitModel {
 	}
 
 }
-

@@ -1,30 +1,12 @@
 package org.eclipse.emf.ecoretools.design.sirius
 
-import org.eclipse.emf.codegen.ecore.genmodel.GenModelPackage
 import org.eclipse.emf.ecore.EPackage
-import org.eclipse.emf.ecore.EcorePackage
-import org.eclipse.sirius.table.metamodel.table.description.BackgroundStyleDescription
 import org.eclipse.sirius.table.metamodel.table.description.CreateCellTool
 import org.eclipse.sirius.table.metamodel.table.description.CrossTableDescription
 import org.eclipse.sirius.table.metamodel.table.description.DeleteColumnTool
-import org.eclipse.sirius.table.metamodel.table.description.ElementColumnMapping
-import org.eclipse.sirius.table.metamodel.table.description.FeatureColumnMapping
-import org.eclipse.sirius.table.metamodel.table.description.IntersectionMapping
-import org.eclipse.sirius.table.metamodel.table.description.LabelEditTool
 import org.eclipse.sirius.table.metamodel.table.description.LineMapping
-import org.eclipse.sirius.table.metamodel.table.description.TableDescription
-import org.eclipse.sirius.table.metamodel.table.description.TableTool
-import org.eclipse.sirius.table.metamodel.table.description.TableVariable
-import org.eclipse.sirius.viewpoint.description.Environment
 import org.eclipse.sirius.viewpoint.description.SystemColor
-import org.eclipse.sirius.viewpoint.description.SytemColorsPalette
 import org.eclipse.sirius.viewpoint.description.UserFixedColor
-import org.eclipse.sirius.viewpoint.description.tool.ChangeContext
-import org.eclipse.sirius.viewpoint.description.tool.CreateInstance
-import org.eclipse.sirius.viewpoint.description.tool.EditMaskVariables
-import org.eclipse.sirius.viewpoint.description.tool.ExternalJavaAction
-import org.eclipse.sirius.viewpoint.description.tool.If
-import org.eclipse.sirius.viewpoint.description.tool.SetValue
 import org.mypsycho.modit.emf.sirius.api.SiriusCrossTable
 
 import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*

@@ -12,13 +12,11 @@ import org.eclipse.sirius.table.metamodel.table.description.LineMapping
 import org.eclipse.sirius.table.metamodel.table.description.TableVariable
 import org.eclipse.sirius.viewpoint.FontFormat
 import org.eclipse.sirius.viewpoint.description.Environment
-import org.eclipse.sirius.viewpoint.description.SystemColor
-import org.eclipse.sirius.viewpoint.description.SytemColorsPalette
 import org.eclipse.sirius.viewpoint.description.tool.ChangeContext
 import org.eclipse.sirius.viewpoint.description.tool.CreateInstance
 import org.eclipse.sirius.viewpoint.description.tool.SetValue
 import org.mypsycho.modit.emf.EModel
-import static extension org.eclipse.emf.ecoretools.design.split.ToolDesign.*
+import static extension org.mypsycho.modit.emf.ModitModel.*
 
 class ClassesEditionTable extends EModel.Part<EditionTableDescription> {
 

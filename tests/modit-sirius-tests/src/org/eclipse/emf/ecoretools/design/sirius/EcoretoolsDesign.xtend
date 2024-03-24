@@ -1,22 +1,9 @@
 package org.eclipse.emf.ecoretools.design.sirius
 
-import java.lang.Class
-import org.eclipse.emf.common.util.EList
-import org.eclipse.emf.ecore.EReference
-import org.eclipse.emf.ecore.resource.Resource
-import org.eclipse.emf.ecore.resource.ResourceSet
-import org.eclipse.sirius.viewpoint.description.Environment
 import org.eclipse.sirius.viewpoint.description.Group
-import org.eclipse.sirius.viewpoint.description.IdentifiedElement
 import org.eclipse.sirius.viewpoint.description.InterpolatedColor
-import org.eclipse.sirius.viewpoint.description.JavaExtension
-import org.eclipse.sirius.viewpoint.description.SystemColor
-import org.eclipse.sirius.viewpoint.description.SytemColorsPalette
 import org.eclipse.sirius.viewpoint.description.UserColorsPalette
-import org.eclipse.sirius.viewpoint.description.UserFixedColor
 import org.eclipse.sirius.viewpoint.description.Viewpoint
-import org.eclipse.sirius.viewpoint.description.style.LabelBorderStyleDescription
-import org.eclipse.sirius.viewpoint.description.style.LabelBorderStyles
 import org.mypsycho.modit.emf.sirius.api.SiriusVpGroup
 
 import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*
@@ -100,6 +87,5 @@ class EcoretoolsDesign extends SiriusVpGroup {
 		extensions += new DefaultViewExtension(this).createContent
 	}
 
-	def context() { this }
 
 }

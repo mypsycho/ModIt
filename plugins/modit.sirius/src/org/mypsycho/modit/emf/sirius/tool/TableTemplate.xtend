@@ -172,7 +172,7 @@ class «name» extends «content.tableEditor.templateClass» {
 		super(parent, "«content.label»", «content.domainClass.classFromDomain.templateClass»)
 	}
 
-	override initDefaultLineStyle(LineMapping it) {}
+	override initDefaultLineStyle(«LineMapping.templateClass» it) {}
 
 	override initContent(«content.eClass.instanceClass.templateClass» it) {
 		name = «content.name.toJava»

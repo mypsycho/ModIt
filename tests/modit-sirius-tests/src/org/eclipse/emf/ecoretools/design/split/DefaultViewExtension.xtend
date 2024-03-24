@@ -52,7 +52,7 @@ import org.eclipse.sirius.viewpoint.description.validation.ERROR_LEVEL
 import org.eclipse.sirius.viewpoint.description.validation.RuleAudit
 import org.eclipse.sirius.viewpoint.description.validation.SemanticValidationRule
 import org.mypsycho.modit.emf.EModel
-import static extension org.eclipse.emf.ecoretools.design.split.ToolDesign.*
+import static extension org.mypsycho.modit.emf.ModitModel.*
 
 class DefaultViewExtension extends EModel.Part<ViewExtensionDescription> {
 

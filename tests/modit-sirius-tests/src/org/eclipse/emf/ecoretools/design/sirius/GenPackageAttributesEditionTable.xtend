@@ -1,20 +1,9 @@
 package org.eclipse.emf.ecoretools.design.sirius
 
-import org.eclipse.emf.codegen.ecore.genmodel.GenModelPackage
 import org.eclipse.emf.codegen.ecore.genmodel.GenPackage
-import org.eclipse.emf.ecore.EcorePackage
-import org.eclipse.sirius.table.metamodel.table.description.BackgroundConditionalStyle
-import org.eclipse.sirius.table.metamodel.table.description.BackgroundStyleDescription
 import org.eclipse.sirius.table.metamodel.table.description.EditionTableDescription
-import org.eclipse.sirius.table.metamodel.table.description.FeatureColumnMapping
-import org.eclipse.sirius.table.metamodel.table.description.IntersectionMapping
 import org.eclipse.sirius.table.metamodel.table.description.LineMapping
-import org.eclipse.sirius.table.metamodel.table.description.TableDescription
-import org.eclipse.sirius.table.metamodel.table.description.TableTool
-import org.eclipse.sirius.viewpoint.description.Environment
 import org.eclipse.sirius.viewpoint.description.SystemColor
-import org.eclipse.sirius.viewpoint.description.SytemColorsPalette
-import org.eclipse.sirius.viewpoint.description.tool.ExternalJavaAction
 import org.mypsycho.modit.emf.sirius.api.SiriusFeatureTable
 
 import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*

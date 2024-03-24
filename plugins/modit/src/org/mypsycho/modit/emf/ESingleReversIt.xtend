@@ -74,7 +74,7 @@ class ESingleReversIt extends EReversIt {
 
 «context.mainClass.templateImports»
 
-class «context.mainClass.name» extends EModel<«templateClass»> {
+class «context.mainClass.name» extends «EModel.templateClass»<«templateClass»> {
 
 	new() {
 		super(«templateClass»,
@@ -91,14 +91,13 @@ ENDFOR                       »)
 
 « // initExtras must be performed AFTER model exploration
 IF !templateExtrasContent.blank
-»	override initExtras(ResourceSet it) {
+»	override initExtras(«ResourceSet.templateClass» it) {
 		«templateExtrasContent»
 	}
 
 « 
 ENDIF
 »«templateShortcuts»}
-
 '''}
 
 	override getPartStaticImports(EObject it) { #{ EModel } }
@@ -110,9 +109,13 @@ ENDIF
 '''package «pack»
 
 «parentTemplate.value»«templateImports(it)»
-import static extension «context.mainClass.qName».*
+import static extension «
+IF !context
+	.shortcuts.empty    »«context.mainClass.qName»«
+ELSE                    »«ModitModel.name»«
+ENDIF                                             ».*
 
-class «name» extends EModel.Part<«content.templateClass»> {
+class «name» extends «EModel.templateClass».Part<«content.templateClass»> {
 
 	new(«parentTemplate.key» parent) {
 		super(«content.templateClass», parent)

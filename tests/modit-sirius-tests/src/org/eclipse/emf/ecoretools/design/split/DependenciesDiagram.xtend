@@ -23,12 +23,7 @@ import org.eclipse.sirius.diagram.description.tool.ToolSection
 import org.eclipse.sirius.viewpoint.LabelAlignment
 import org.eclipse.sirius.viewpoint.description.Environment
 import org.eclipse.sirius.viewpoint.description.Group
-import org.eclipse.sirius.viewpoint.description.SystemColor
-import org.eclipse.sirius.viewpoint.description.SytemColorsPalette
-import org.eclipse.sirius.viewpoint.description.UserColorsPalette
 import org.eclipse.sirius.viewpoint.description.UserFixedColor
-import org.eclipse.sirius.viewpoint.description.style.LabelBorderStyleDescription
-import org.eclipse.sirius.viewpoint.description.style.LabelBorderStyles
 import org.eclipse.sirius.viewpoint.description.tool.ChangeContext
 import org.eclipse.sirius.viewpoint.description.tool.ContainerViewVariable
 import org.eclipse.sirius.viewpoint.description.tool.DeleteView
@@ -50,7 +45,7 @@ import org.eclipse.sirius.viewpoint.description.tool.SelectModelElementVariable
 import org.eclipse.sirius.viewpoint.description.tool.SelectionWizardDescription
 import org.eclipse.sirius.viewpoint.description.tool.ToolDescription
 import org.mypsycho.modit.emf.EModel
-import static extension org.eclipse.emf.ecoretools.design.split.ToolDesign.*
+import static extension org.mypsycho.modit.emf.ModitModel.*
 
 class DependenciesDiagram extends EModel.Part<DiagramDescription> {
 

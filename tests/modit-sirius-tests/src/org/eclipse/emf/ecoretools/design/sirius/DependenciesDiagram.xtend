@@ -1,51 +1,35 @@
 package org.eclipse.emf.ecoretools.design.sirius
 
 import org.eclipse.emf.codegen.ecore.genmodel.GenModelPackage
+import org.eclipse.emf.ecore.EPackage
 import org.eclipse.emf.ecore.EcorePackage
 import org.eclipse.sirius.diagram.BackgroundStyle
 import org.eclipse.sirius.diagram.ContainerLayout
+import org.eclipse.sirius.diagram.EdgeArrows
+import org.eclipse.sirius.diagram.EdgeRouting
 import org.eclipse.sirius.diagram.LabelPosition
 import org.eclipse.sirius.diagram.LineStyle
 import org.eclipse.sirius.diagram.ResizeKind
-import org.eclipse.sirius.diagram.description.AdditionalLayer
+import org.eclipse.sirius.diagram.description.CenteringStyle
 import org.eclipse.sirius.diagram.description.ContainerMapping
 import org.eclipse.sirius.diagram.description.DiagramDescription
 import org.eclipse.sirius.diagram.description.EdgeMapping
 import org.eclipse.sirius.diagram.description.Layer
 import org.eclipse.sirius.diagram.description.NodeMapping
 import org.eclipse.sirius.diagram.description.style.BundledImageDescription
-import org.eclipse.sirius.diagram.description.style.CenterLabelStyleDescription
-import org.eclipse.sirius.diagram.description.style.EdgeStyleDescription
 import org.eclipse.sirius.diagram.description.style.FlatContainerStyleDescription
 import org.eclipse.sirius.diagram.description.tool.ContainerDropDescription
 import org.eclipse.sirius.diagram.description.tool.CreateView
 import org.eclipse.sirius.diagram.description.tool.DirectEditLabel
 import org.eclipse.sirius.diagram.description.tool.ToolSection
 import org.eclipse.sirius.viewpoint.LabelAlignment
-import org.eclipse.sirius.viewpoint.description.Environment
 import org.eclipse.sirius.viewpoint.description.SystemColor
-import org.eclipse.sirius.viewpoint.description.SytemColorsPalette
 import org.eclipse.sirius.viewpoint.description.UserFixedColor
-import org.eclipse.sirius.viewpoint.description.style.BasicLabelStyleDescription
 import org.eclipse.sirius.viewpoint.description.style.LabelBorderStyleDescription
-import org.eclipse.sirius.viewpoint.description.style.LabelBorderStyles
-import org.eclipse.sirius.viewpoint.description.tool.ChangeContext
 import org.eclipse.sirius.viewpoint.description.tool.ContainerViewVariable
 import org.eclipse.sirius.viewpoint.description.tool.DeleteView
 import org.eclipse.sirius.viewpoint.description.tool.DragSource
-import org.eclipse.sirius.viewpoint.description.tool.DropContainerVariable
-import org.eclipse.sirius.viewpoint.description.tool.ElementDropVariable
-import org.eclipse.sirius.viewpoint.description.tool.ElementSelectVariable
-import org.eclipse.sirius.viewpoint.description.tool.ElementVariable
-import org.eclipse.sirius.viewpoint.description.tool.ElementViewVariable
-import org.eclipse.sirius.viewpoint.description.tool.ExternalJavaAction
-import org.eclipse.sirius.viewpoint.description.tool.ExternalJavaActionParameter
-import org.eclipse.sirius.viewpoint.description.tool.For
-import org.eclipse.sirius.viewpoint.description.tool.If
-import org.eclipse.sirius.viewpoint.description.tool.InitialContainerDropOperation
-import org.eclipse.sirius.viewpoint.description.tool.InitialOperation
 import org.eclipse.sirius.viewpoint.description.tool.OperationAction
-import org.eclipse.sirius.viewpoint.description.tool.SelectContainerVariable
 import org.eclipse.sirius.viewpoint.description.tool.SelectModelElementVariable
 import org.eclipse.sirius.viewpoint.description.tool.SelectionWizardDescription
 import org.eclipse.sirius.viewpoint.description.tool.ToolDescription
@@ -56,7 +40,7 @@ import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*
 class DependenciesDiagram extends SiriusDiagram {
 
 	new(EcoretoolsDesign parent) {
-		super(parent, "Dependencies", "Package dependencies diagram", org.eclipse.emf.ecore.EPackage)
+		super(parent, "Dependencies", "Package dependencies diagram", EPackage)
 	}
 
 	override initContent(DiagramDescription it) {
@@ -109,10 +93,10 @@ class DependenciesDiagram extends SiriusDiagram {
 			targetMapping += ContainerMapping.localRef(Ns.node, "Analyzed Package")
 			style [
 				lineStyle = LineStyle.DASH_LITERAL
-				targetArrow = org.eclipse.sirius.diagram.EdgeArrows.INPUT_ARROW_LITERAL
+				targetArrow = EdgeArrows.INPUT_ARROW_LITERAL
 				sizeComputationExpression = "service:getDependenciesAmount()"
-				routingStyle = org.eclipse.sirius.diagram.EdgeRouting.STRAIGHT_LITERAL
-				endsCentering = org.eclipse.sirius.diagram.description.CenteringStyle.NONE
+				routingStyle = EdgeRouting.STRAIGHT_LITERAL
+				endsCentering = CenteringStyle.NONE
 				strokeColor = SystemColor.extraRef("color:red")
 				centerLabel = [
 					labelColor = SystemColor.extraRef("color:black")

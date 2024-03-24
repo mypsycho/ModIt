@@ -29,6 +29,7 @@ import org.mypsycho.modit.emf.EReversIt
 import org.mypsycho.modit.emf.ModitModel
 import org.mypsycho.modit.emf.sirius.api.SiriusVpGroup
 import org.eclipse.sirius.business.api.helper.ViewpointUtil
+import org.eclipse.sirius.viewpoint.description.Group
 
 /** 
  * Specific reverse for AbstractGroup class.
@@ -57,6 +58,7 @@ class SiriusGroupTemplate extends EReversIt {
 	]
 	static val EXTRA_MAIN_IMPORTS = #[ SiriusVpGroup, Environment ]
 	
+	@Deprecated
 	override getMainStaticImports() {
 		super.mainStaticImports
 			.filter[ !UNUSED_MAIN_IMPORTS.contains(it) ]
@@ -94,7 +96,7 @@ ENDFOR
         ]
 	}
 
-	override initContent(Group it) {
+	override initContent(«Group.templateClass» it) {
 		«content.apply»
 	}
 
@@ -107,9 +109,7 @@ IF !templateExtrasContent.blank
 	}
 
 « ENDIF »
-	def context() { this }
 
-««« no templateShorcuts: provided by abstraction
 }
 '''
 	}

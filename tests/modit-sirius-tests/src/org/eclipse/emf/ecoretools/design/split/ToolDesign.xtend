@@ -1,6 +1,7 @@
 package org.eclipse.emf.ecoretools.design.split
 
 import org.eclipse.emf.ecore.resource.ResourceSet
+import org.eclipse.sirius.viewpoint.description.Environment
 import org.eclipse.sirius.viewpoint.description.Group
 import org.eclipse.sirius.viewpoint.description.InterpolatedColor
 import org.eclipse.sirius.viewpoint.description.JavaExtension
@@ -193,9 +194,8 @@ class ToolDesign extends EModel<Group> {
 
 	override initExtras(ResourceSet it) {
 		extras.putAll(#{ // Anonymous resources
-			"$0" -> eObject(org.eclipse.sirius.viewpoint.description.Environment, "environment:/viewpoint#/")
+			"$0" -> eObject(Environment, "environment:/viewpoint#/")
 		})
 	}
 
 }
-

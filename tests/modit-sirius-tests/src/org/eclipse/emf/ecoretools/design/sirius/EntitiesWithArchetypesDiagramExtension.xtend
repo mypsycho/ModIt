@@ -2,27 +2,12 @@ package org.eclipse.emf.ecoretools.design.sirius
 
 import org.eclipse.emf.ecore.EcorePackage
 import org.eclipse.sirius.diagram.description.AdditionalLayer
-import org.eclipse.sirius.diagram.description.ConditionalContainerStyleDescription
 import org.eclipse.sirius.diagram.description.ContainerMapping
-import org.eclipse.sirius.diagram.description.DiagramDescription
 import org.eclipse.sirius.diagram.description.DiagramExtensionDescription
-import org.eclipse.sirius.diagram.description.Layer
-import org.eclipse.sirius.diagram.description.style.EdgeStyleDescription
 import org.eclipse.sirius.diagram.description.style.FlatContainerStyleDescription
 import org.eclipse.sirius.diagram.description.tool.ContainerCreationDescription
-import org.eclipse.sirius.diagram.description.tool.NodeCreationVariable
 import org.eclipse.sirius.diagram.description.tool.ToolSection
-import org.eclipse.sirius.viewpoint.description.Customization
-import org.eclipse.sirius.viewpoint.description.EReferenceCustomization
 import org.eclipse.sirius.viewpoint.description.UserFixedColor
-import org.eclipse.sirius.viewpoint.description.VSMElementCustomization
-import org.eclipse.sirius.viewpoint.description.style.BasicLabelStyleDescription
-import org.eclipse.sirius.viewpoint.description.tool.ChangeContext
-import org.eclipse.sirius.viewpoint.description.tool.ContainerViewVariable
-import org.eclipse.sirius.viewpoint.description.tool.CreateInstance
-import org.eclipse.sirius.viewpoint.description.tool.If
-import org.eclipse.sirius.viewpoint.description.tool.InitialNodeCreationOperation
-import org.eclipse.sirius.viewpoint.description.tool.SetValue
 import org.mypsycho.modit.emf.sirius.api.SiriusDiagramExtension
 
 import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*

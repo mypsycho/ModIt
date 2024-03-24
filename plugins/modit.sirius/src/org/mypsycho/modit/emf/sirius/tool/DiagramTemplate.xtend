@@ -124,14 +124,14 @@ class «name» extends «content.baseApiClass.templateClass» {
 			content.domainClass.classFromDomain.templateClass»)
 	}
 
-	override initContent(DiagramDescription it) {
+	override initContent(«DiagramDescription.templateClass» it) {
 		super.initContent(it)
 		metamodel.clear // Disable implicit metamodel import
 		«content.templateFilteredContent(DiagramDescription)»
 	}
 
 	«defaultStyleTemplate»
-	override initContent(Layer it) {
+	override initContent(«Layer.templateClass» it) {
 		«content.defaultLayer.templateFilteredContent(Layer)»
 	}
 

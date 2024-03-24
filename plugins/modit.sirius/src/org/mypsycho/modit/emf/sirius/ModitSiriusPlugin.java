@@ -37,7 +37,6 @@ import org.osgi.framework.BundleContext;
  */
 public class ModitSiriusPlugin extends Plugin {
 
-	
 	@SuppressWarnings("restriction") // discourage with Sirius
 	static final IConverter DEFAULT_CONVERTER = 
 			new org.eclipse.sirius.common.tools.internal.interpreter.DefaultConverter();

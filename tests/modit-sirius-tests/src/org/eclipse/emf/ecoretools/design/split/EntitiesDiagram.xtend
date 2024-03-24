@@ -47,7 +47,6 @@ import org.eclipse.sirius.diagram.description.tool.TargetEdgeCreationVariable
 import org.eclipse.sirius.diagram.description.tool.TargetEdgeViewCreationVariable
 import org.eclipse.sirius.diagram.description.tool.ToolGroup
 import org.eclipse.sirius.diagram.description.tool.ToolSection
-import org.eclipse.sirius.properties.Category
 import org.eclipse.sirius.properties.DialogButton
 import org.eclipse.sirius.properties.DialogModelOperation
 import org.eclipse.sirius.properties.PageDescription
@@ -62,13 +61,8 @@ import org.eclipse.sirius.viewpoint.description.Environment
 import org.eclipse.sirius.viewpoint.description.Group
 import org.eclipse.sirius.viewpoint.description.Position
 import org.eclipse.sirius.viewpoint.description.SemanticBasedDecoration
-import org.eclipse.sirius.viewpoint.description.SystemColor
-import org.eclipse.sirius.viewpoint.description.SytemColorsPalette
-import org.eclipse.sirius.viewpoint.description.UserColorsPalette
 import org.eclipse.sirius.viewpoint.description.UserFixedColor
 import org.eclipse.sirius.viewpoint.description.VSMElementCustomization
-import org.eclipse.sirius.viewpoint.description.style.LabelBorderStyleDescription
-import org.eclipse.sirius.viewpoint.description.style.LabelBorderStyles
 import org.eclipse.sirius.viewpoint.description.tool.AcceleoVariable
 import org.eclipse.sirius.viewpoint.description.tool.ChangeContext
 import org.eclipse.sirius.viewpoint.description.tool.ContainerViewVariable
@@ -108,7 +102,7 @@ import org.eclipse.sirius.viewpoint.description.validation.ValidationFix
 import org.eclipse.sirius.viewpoint.description.validation.ValidationSet
 import org.eclipse.sirius.viewpoint.description.validation.ViewValidationRule
 import org.mypsycho.modit.emf.EModel
-import static extension org.eclipse.emf.ecoretools.design.split.ToolDesign.*
+import static extension org.mypsycho.modit.emf.ModitModel.*
 
 class EntitiesDiagram extends EModel.Part<DiagramDescription> {
 

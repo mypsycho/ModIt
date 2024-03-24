@@ -110,7 +110,7 @@ class «name» extends «SiriusTree.templateClass» {
 			content.domainClass.classFromDomain.templateClass»)
 	}
 
-	override initContent(TreeDescription it) {
+	override initContent(«TreeDescription.templateClass» it) {
 		«content.templateFilteredContent(TreeDescription)»
 	}
 
