@@ -512,7 +512,10 @@ ENDFOR
 	}
 
 	protected def void initExtras(«ResourceSet.templateClass» it) {
-		«templateExtras /* extras must happen AFTER model exploration */ »
+		«templateExtras.trim 
+		// Extras must happen AFTER model exploration:
+		// Implicit reference must be evaluated.
+		»
 	}
 
 	def <T> T extraRef(Class<T> type, String key) {

@@ -181,9 +181,9 @@ class SiriusDesigns {
 				+ keyValues.size + " instead of " + attKeys.size
 			)	
 		}
-		values.filter(type).findFirst[ r|
-			attKeys.map[ r.eGet(it) ] == keyValues
-		] as R
+		values
+			.filter(type)
+			.findFirst[ r| attKeys.map[ r.eGet(it) ] == keyValues ]
 	}
 	
 	
