@@ -616,7 +616,7 @@ abstract class AbstractEdition extends AbstractIdentifiableElement {
 					TreeNavigationDescription: "treeName"
 					default : "name"
 				})
-				containerVariable = ElementSelectVariable.create("copiedElement")
+				containerVariable = ElementSelectVariable.create("container")
 				containerViewVariable = ContainerViewVariable.create("containerView")
 			}
 			RepresentationCreationDescription: {

@@ -170,8 +170,10 @@ ENDFOR  // Additional Layers
 	override templateToolOperation(ModelOperation it) {
 		// Not a smartTemplateCreate case.
 		// Applicable only tool property
-		val caller = eContainer/* InitialOperation */
-			.eContainer
+		
+		// null for InitialOperation.firstModelOperations = null
+		val caller = it?.eContainer/* InitialOperation */
+			?.eContainer
 		
 		caller instanceof DiagramDescription
 			? '''initialisation = «templateInnerCreate»'''

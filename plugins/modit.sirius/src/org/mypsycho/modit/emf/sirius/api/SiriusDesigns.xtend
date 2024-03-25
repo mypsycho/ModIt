@@ -156,7 +156,7 @@ class SiriusDesigns {
 	 * @param text but '\n' is 'space'
 	 */
 	static def String trimAql(CharSequence text) {
-		val result = text.toString.trim.replaceAll("\\R", " ") // 
+		val result = text.toString.trim.replaceAll("\\s*\\R\\s*", " ") // 
 		if (result.startsWith(AQL)) result else AQL + result
 	}
 
