@@ -10,7 +10,6 @@ import org.eclipse.sirius.properties.GroupValidationSetDescription
 import org.eclipse.sirius.properties.HyperlinkDescription
 import org.eclipse.sirius.properties.LabelDescription
 import org.eclipse.sirius.properties.ListDescription
-import org.eclipse.sirius.properties.PageDescription
 import org.eclipse.sirius.properties.PageValidationSetDescription
 import org.eclipse.sirius.properties.RadioDescription
 import org.eclipse.sirius.properties.TextAreaDescription
@@ -39,11 +38,10 @@ class DefaultViewExtension extends AbstractPropertySet {
 	}
 
 	override initDefaultCategory(Category it) {
-		pages += PageDescription.createAs(Ns.page, "ecore_page") [
+		page("ecore_page", null) [
 			labelExpression = "Ecore"
-			semanticCandidateExpression = "var:self"
-			groups += GroupDescription.localRef(Ns.group, "default rules")
-			groups += GroupDescription.localRef(Ns.group, "egeneric supertypes-TBD")
+			groups("default rules")
+			groups("egeneric supertypes-TBD")
 			validationSet = PageValidationSetDescription.create [
 				semanticValidationRules += SemanticValidationRule.create("NoNameOrInvalid") [
 					level = ERROR_LEVEL.ERROR_LITERAL
@@ -55,12 +53,10 @@ class DefaultViewExtension extends AbstractPropertySet {
 				]
 			]
 		]
-		pages += PageDescription.createAs(Ns.page, "parameters_page") [
+		page("parameters_page", "ecore::EOperation") [
 			labelExpression = "Parameters"
-			domainClass = "ecore::EOperation"
-			semanticCandidateExpression = "var:self"
 			indented = true
-			groups += GroupDescription.localRef(Ns.group, "eoperation parameters dynamic mapping")
+			groups("eoperation parameters dynamic mapping")
 			validationSet = PageValidationSetDescription.create [
 				semanticValidationRules += SemanticValidationRule.create("NoNameOrInvalid") [
 					level = ERROR_LEVEL.ERROR_LITERAL
@@ -72,31 +68,29 @@ class DefaultViewExtension extends AbstractPropertySet {
 				]
 			]
 		]
-		pages += PageDescription.createAs(Ns.page, "documentation_page") [
+		page("documentation_page", null) [
 			labelExpression = "Documentation"
-			semanticCandidateExpression = "var:self"
 			indented = true
-			groups += GroupDescription.localRef(Ns.group, "documentation")
+			groups("documentation")
 		]
-		pages += PageDescription.createAs(Ns.page, "annotation_page") [
+		page("annotation_page", null) [
 			labelExpression = "Annotation"
-			semanticCandidateExpression = "var:self"
 			indented = true
-			groups += GroupDescription.localRef(Ns.group, "eannotation dynamic")
+			groups("eannotation dynamic")
 			action("Add EAnnotation", "/org.eclipse.emf.ecore.edit/icons/full/ctool16/CreateEModelElement_eAnnotations_EAnnotation.gif",
 				"var:self".toContext(
 					"eAnnotations".creator("ecore::EAnnotation")
 				)
 			)
 		]
-		pages += PageDescription.createAs(Ns.page, "generation_page") [
-			labelExpression = "Generation"
+		page("generation_page", null) [
 			semanticCandidateExpression = '''self'''.trimAql
+			labelExpression = "Generation"
 			preconditionExpression = '''self.eInverse()->select( g | g.eClass().ePackage.nsURI->includes('http://www.eclipse.org/emf/2002/GenModel'))->asSet()->size() > 0'''.trimAql
-			groups += GroupDescription.localRef(Ns.group, "genmodel_directories")
-			groups += GroupDescription.localRef(Ns.group, "genmodel opposite instance")
-			groups += GroupDescription.localRef(Ns.group, "generation_navigation")
-			groups += GroupDescription.localRef(Ns.group, "genmodel root")
+			groups("genmodel_directories")
+			groups("genmodel opposite instance")
+			groups("generation_navigation")
+			groups("genmodel root")
 			action("Generate Model", "/org.eclipse.emf.ecoretools.design/icons/full/etools16/generate_single.gif",
 				"var:self".toContext(
 					"org.eclipse.emf.ecoretools.design.action.generateAllID".javaDo("Generate Model Properties", 
@@ -130,16 +124,15 @@ class DefaultViewExtension extends AbstractPropertySet {
 				)
 			)
 		]
-		pages += PageDescription.createAs(Ns.page, "execution_page") [
+		page("execution_page", null) [
 			labelExpression = "Execution"
-			semanticCandidateExpression = "var:self"
 			preconditionExpression = '''self.eContainerOrSelf(ecore::EPackage).isConfiguredForALE()'''.trimAql
-			groups += GroupDescription.localRef(Ns.group, "execution_body")
-			groups += GroupDescription.localRef(Ns.group, "execution_imports")
+			groups("execution_body")
+			groups("execution_imports")
 		]
-		groups += GroupDescription.createAs(Ns.group, "default rules") [
-			labelExpression = '''input.emfEditServices(self).getText()'''.trimAql
+		group("default rules", null) [
 			semanticCandidateExpression = '''self.removeSemanticElementsToHide(input.getAllSemanticElements(),input.context().semanticDecorator())'''.trimAql
+			labelExpression = '''input.emfEditServices(self).getText()'''.trimAql
 			preconditionExpression = ""
 			style = [
 				barStyle = TitleBarStyle.NO_TITLE
@@ -235,18 +228,18 @@ class DefaultViewExtension extends AbstractPropertySet {
 				]
 			]
 		]
-		groups += GroupDescription.createAs(Ns.group, "genmodel opposite instance") [
-			labelExpression = '''self.eClass().name'''.trimAql
+		group("genmodel opposite instance", null) [
 			semanticCandidateExpression = '''self.eInverse()->select( g | g.eClass().ePackage.nsURI->includes('http://www.eclipse.org/emf/2002/GenModel'))->asSet()'''.trimAql
+			labelExpression = '''self.eClass().name'''.trimAql
 			preconditionExpression = ""
 			extends = GroupDescription.localRef(Ns.group, "default rules")
 			style = [
 				expandedByDefault = true
 			]
 		]
-		groups += GroupDescription.createAs(Ns.group, "documentation") [
+		group("documentation", "ecore::EModelElement") [
+			semanticCandidateExpression = null
 			labelExpression = "Documentation"
-			domainClass = "ecore::EModelElement"
 			style = [
 				barStyle = TitleBarStyle.NO_TITLE
 				toggleStyle = ToggleStyle.NONE
@@ -260,7 +253,7 @@ class DefaultViewExtension extends AbstractPropertySet {
 				]
 			]
 		]
-		groups += GroupDescription.createAs(Ns.group, "generation_navigation") [
+		group("generation_navigation", null) [
 			semanticCandidateExpression = '''self.eInverse()->select( g | g.eClass().ePackage.nsURI->includes('http://www.eclipse.org/emf/2002/GenModel'))->asSet()'''.trimAql
 			style = [
 				barStyle = TitleBarStyle.NO_TITLE
@@ -278,10 +271,9 @@ class DefaultViewExtension extends AbstractPropertySet {
 				]
 			]
 		]
-		groups += GroupDescription.createAs(Ns.group, "genmodel_directories") [
-			labelExpression = "Directories"
-			domainClass = "genmodel.GenModel"
+		group("genmodel_directories", "genmodel.GenModel") [
 			semanticCandidateExpression = '''(OrderedSet{self} + self.eInverse()  + self.eInverse().eContainer()- self.eContents()- OrderedSet{self.eContainer()})->select(e | e.eClass().ePackage.nsURI->includes('http://www.eclipse.org/emf/2002/GenModel'))->asSet()'''.trimAql
+			labelExpression = "Directories"
 			style = [
 				barStyle = TitleBarStyle.SHORT_TITLE_BAR
 				expandedByDefault = true
@@ -302,10 +294,9 @@ class DefaultViewExtension extends AbstractPropertySet {
 				operation = "editorDirectory".setter("var:newValue")
 			]
 		]
-		groups += GroupDescription.createAs(Ns.group, "egeneric supertypes-TBD") [
-			labelExpression = ''' 'EGenericType : ' + input.emfEditServices(self).getText() '''.trimAql
-			domainClass = "ecore::EGenericType"
+		group("egeneric supertypes-TBD", "ecore::EGenericType") [
 			semanticCandidateExpression = '''input.getSemanticElement()->filter(ecore::EClass).eGenericSuperTypes'''.trimAql
+			labelExpression = ''' 'EGenericType : ' + input.emfEditServices(self).getText() '''.trimAql
 			preconditionExpression = '''false and self.oclIsKindOf(ecore::EClass)'''.trimAql
 			controls += LabelDescription.create("etypeparameter label") [
 				labelExpression = "EType Parameter:"
@@ -342,18 +333,18 @@ class DefaultViewExtension extends AbstractPropertySet {
 				)
 			]
 		]
-		groups += GroupDescription.createAs(Ns.group, "genmodel root") [
-			labelExpression = '''self.eClass().name'''.trimAql
+		group("genmodel root", null) [
 			semanticCandidateExpression = '''self->select(e | e.oclIsKindOf(ecore::EPackage)).eInverse()->select( g | g.eClass().ePackage.nsURI->includes('http://www.eclipse.org/emf/2002/GenModel')).eContainer(genmodel::GenModel)->asSet()'''.trimAql
+			labelExpression = '''self.eClass().name'''.trimAql
 			preconditionExpression = ""
 			extends = GroupDescription.localRef(Ns.group, "default rules")
 			style = [
 				expandedByDefault = true
 			]
 		]
-		groups += GroupDescription.createAs(Ns.group, "execution_body") [
-			labelExpression = '''self.getExecutableName()'''.trimAql
+		group("execution_body", null) [
 			semanticCandidateExpression = '''OrderedSet{self}->filter(ecore::EClassifier).getAllExecutables()'''.trimAql
+			labelExpression = '''self.getExecutableName()'''.trimAql
 			style = [
 				barStyle = TitleBarStyle.NO_TITLE
 				toggleStyle = ToggleStyle.NONE
@@ -379,10 +370,9 @@ class DefaultViewExtension extends AbstractPropertySet {
 				]
 			]
 		]
-		groups += GroupDescription.createAs(Ns.group, "execution_imports") [
-			labelExpression = "Imports"
-			domainClass = "ecore::EModelElement"
+		group("execution_imports", "ecore::EModelElement") [
 			semanticCandidateExpression = '''OrderedSet{self}->filter(ecore::EPackage)->select(p | p.getJavaImports()->size() > 0)'''.trimAql
+			labelExpression = "Imports"
 			style = [
 				expandedByDefault = true
 			]
@@ -409,10 +399,8 @@ class DefaultViewExtension extends AbstractPropertySet {
 				]
 			]
 		]
-		groups += GroupDescription.createAs(Ns.group, "eoperation parameters dynamic mapping") [
+		group("eoperation parameters dynamic mapping", "ecore::EOperation") [
 			labelExpression = "Parameters"
-			domainClass = "ecore::EOperation"
-			semanticCandidateExpression = "var:self"
 			style = [
 				expandedByDefault = true
 			]
@@ -490,10 +478,9 @@ class DefaultViewExtension extends AbstractPropertySet {
 				)
 			)
 		]
-		groups += GroupDescription.createAs(Ns.group, "eannotation dynamic") [
-			labelExpression = ''' 'EAnnotation ' + self.source '''.trimAql
-			domainClass = "ecore::EAnnotation"
+		group("eannotation dynamic", "ecore::EAnnotation") [
 			semanticCandidateExpression = '''input.getSemanticElement()->filter(ecore::EModelElement).eAnnotations'''.trimAql
+			labelExpression = ''' 'EAnnotation ' + self.source '''.trimAql
 			style = [
 				toggleStyle = ToggleStyle.TREE_NODE
 				expandedByDefault = true

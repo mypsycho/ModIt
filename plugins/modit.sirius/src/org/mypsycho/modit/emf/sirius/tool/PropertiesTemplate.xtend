@@ -28,6 +28,7 @@ import org.eclipse.sirius.properties.ViewExtensionDescription
 import org.eclipse.sirius.properties.WidgetAction
 import org.eclipse.sirius.properties.WidgetConditionalStyle
 import org.eclipse.sirius.properties.WidgetStyle
+import org.eclipse.sirius.viewpoint.description.IdentifiedElement
 import org.mypsycho.modit.emf.ClassId
 import org.mypsycho.modit.emf.sirius.api.AbstractPropertySet
 import org.mypsycho.modit.emf.sirius.api.SiriusDesigns
@@ -46,7 +47,9 @@ class PropertiesTemplate extends RepresentationTemplate<ViewExtensionDescription
 	static val ACTION_CONTAINMENTS = #[
 		PPKG.abstractHyperlinkDescription_Actions,
 		PPKG.abstractListDescription_Actions,
-		PPKG.abstractLabelDescription_Actions
+		PPKG.abstractLabelDescription_Actions,
+		PPKG.abstractPageDescription_Actions,
+		PPKG.abstractGroupDescription_Actions
 	]
 	
 	static val CONTAINMENT_ORDER = #[
@@ -71,6 +74,16 @@ class PropertiesTemplate extends RepresentationTemplate<ViewExtensionDescription
 				PPKG.abstractDynamicMappingForDescription_Iterator,
 				PPKG.abstractDynamicMappingForDescription_IterableExpression,
 				PPKG.abstractDynamicMappingForDescription_ForceRefresh
+			},
+			PageDescription -> #{
+				PKG.identifiedElement_Name,
+				PPKG.abstractPageDescription_SemanticCandidateExpression,
+				PPKG.abstractPageDescription_DomainClass
+			},
+			GroupDescription -> #{
+				PKG.identifiedElement_Name,
+				PPKG.abstractGroupDescription_SemanticCandidateExpression,
+				PPKG.abstractGroupDescription_DomainClass
 			}
 		}
 	
@@ -144,23 +157,61 @@ ENDIF
 
 	override templatePropertyValue(EStructuralFeature feat, Object value, (Object)=>String encoding) {
 		//TODO group, page, forAll, when
-		(feat.name == "style" && value instanceof WidgetStyle
+		(value instanceof WidgetStyle && feat.name == "style"
 			? (value as WidgetStyle).templateStyle
-			: feat.name == "conditionalStyles" && value instanceof WidgetConditionalStyle
+			: value instanceof WidgetConditionalStyle && feat.name == "conditionalStyles"
 			? (value as WidgetConditionalStyle).templateConditionalStyle
 			: PPKG.abstractGroupDescription_Style == feat 
 			? (value as GroupStyle).templateStyle
 			: PPKG.abstractGroupDescription_ConditionalStyles == feat 
 			? (value as GroupConditionalStyle).templateConditionalStyle
-			: value instanceof DynamicMappingForDescription
-			? value.templateForAll
+			: value instanceof DynamicMappingForDescription && feat.name == "controls"
+			? (value as DynamicMappingForDescription).templateForAll
 			: PPKG.abstractDynamicMappingForDescription_Ifs == feat
 			? (value as DynamicMappingIfDescription).templateForIf
-			: value instanceof ToolbarAction
-			? value.templateAction
 			: ACTION_CONTAINMENTS.contains(feat)
-			? (value as WidgetAction).templateAction)
-			?: super.templatePropertyValue(feat, value, encoding)
+			? value.templateAction
+			: PPKG.category_Pages == feat
+			? (value as PageDescription).templatePage
+			: PPKG.category_Groups == feat
+			? (value as GroupDescription).templateGroup
+			: PPKG.abstractPageDescription_Groups == feat
+			? (value as GroupDescription).templateGroupRef
+		) ?: super.templatePropertyValue(feat, value, encoding)
+	}
+	
+	def templatePage(PageDescription it) {
+'''page«templateSectionBody(
+	domainClass, 
+	semanticCandidateExpression, 
+	PageDescription
+)»'''}
+	
+	def templateGroup(GroupDescription it) {
+'''group«templateSectionBody( 
+	domainClass, 
+	semanticCandidateExpression, 
+	GroupDescription
+)»'''}
+	
+	def templateSectionBody(IdentifiedElement it,  String domainClass, String semanticCandidateExpression, Class<? extends EObject> filter) {
+'''(«name.toJava», «domainClass.toJava») [
+	«IF semanticCandidateExpression != SiriusDesigns.IDENTITY»
+	semanticCandidateExpression = «semanticCandidateExpression.toJava»
+	«ENDIF»
+	«templateFilteredContent(filter)»
+]'''}
+	
+	
+	
+	
+	def templateGroupRef(GroupDescription ref) {
+		// Inspired from RepresentationTemplate#templateRef(EObject, NsRefExpr, Expr, Class<?>)
+		val root = ref.callPath(true).root
+		root instanceof NsRefExpr
+			? root.local
+			? '''groups(«root.source.aliasPath.toJava»)'''
+		// else null : default reference
 	}
 	
 	def templateStyle(EObject it) {
@@ -197,14 +248,14 @@ ENDIF
 	«widget.templateInnerContent(widget.innerContent)»
 ]'''}
 
-	def templateAction(ToolbarAction it) {
-'''action(«tooltipExpression.toJava», «imageExpression.toJava»,
-	«initialOperation?.firstModelOperations?.templateInnerCreate ?: "null"»
-)'''}
-
-	def templateAction(WidgetAction it) {
-'''action(«labelExpression.toJava», «imageExpression.toJava»,
-	«initialOperation?.firstModelOperations?.templateInnerCreate ?: "null"»
+	def templateAction(Object it) {
+		val descr = switch(it) {
+			WidgetAction: labelExpression -> imageExpression -> initialOperation
+			ToolbarAction: tooltipExpression -> imageExpression -> initialOperation
+		}
+		
+'''action(«descr.key.key.toJava», «descr.key.value.toJava»,
+	«descr.value?.firstModelOperations?.templateInnerCreate ?: "null"»
 )'''}
 
 	

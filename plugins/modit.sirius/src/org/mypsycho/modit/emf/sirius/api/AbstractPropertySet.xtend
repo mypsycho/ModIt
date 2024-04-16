@@ -292,12 +292,12 @@ abstract class AbstractPropertySet extends AbstractEdition {
 		]
 	}
 	
-	def page(Category owner, String pageName) {
-		PageDescription.createAs(Ns.page, pageName) [
+	def page(Category owner, String name, String domain, (PageDescription)=>void init) {
+		PageDescription.createAs(Ns.page, name) [
+			domainClass = domain
 			semanticCandidateExpression = SiriusDesigns.IDENTITY
-		] => [
-			owner.pages += it
-		]
+			init?.apply(it)
+		] => [ owner.pages += it ]
 	}
 	
 
@@ -307,12 +307,12 @@ abstract class AbstractPropertySet extends AbstractEdition {
 		]
 	}
 	
-	def group(Category owner, String groupName) {
-		GroupDescription.createAs(Ns.group, groupName) [
+	def group(Category owner, String name, String domain, (GroupDescription)=>void init) {
+		GroupDescription.createAs(Ns.group, name) [
+			domainClass = domain
 			semanticCandidateExpression = SiriusDesigns.IDENTITY
-		] => [
-			owner.groups += it
-		]
+			init?.apply(it)
+		] => [ owner.groups += it ]
 	}
 	
 	def noTitle(GroupDescription it) {
@@ -321,5 +321,23 @@ abstract class AbstractPropertySet extends AbstractEdition {
 			toggleStyle = ToggleStyle.NONE
 		]
 	}
+
+	@Deprecated
+	def group(Category owner, String name, (GroupDescription)=>void init) {
+		GroupDescription.createAs(Ns.group, name) [
+			semanticCandidateExpression = SiriusDesigns.IDENTITY
+			init?.apply(it)
+		] => [ owner.groups += it ]
+	}
+	
+	@Deprecated
+	def page(Category owner, String name, (PageDescription)=>void init) {
+		PageDescription.createAs(Ns.page, name) [
+			semanticCandidateExpression = SiriusDesigns.IDENTITY
+			init?.apply(it)
+		] => [ owner.pages += it ]
+	}
+	
+
 
 }

@@ -328,8 +328,8 @@ ENDIF                    »«name.toJava»)'''
 	
 	static class NsRefExpr extends Expr {
 		
-		val Enum<?> ns
-		val ClassId declaring
+		protected val Enum<?> ns
+		protected val ClassId declaring
 		
 		new (IdentifiedElement src, Enum<?> ns, ClassId declaring) {
 			super(src)
@@ -343,7 +343,7 @@ ENDIF                    »«name.toJava»)'''
 	}
 	
 	protected def dispatch String templateRef(EObject it, NsRefExpr root, Expr path, Class<?> using) {
-		val refRoot = root.declaring === null
+		val refRoot = root.local
 			? "localRef("
 			: '''ref(«root.declaring.name», '''
 
