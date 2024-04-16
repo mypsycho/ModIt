@@ -24,16 +24,14 @@ import org.eclipse.emf.ecore.EStructuralFeature
 import org.eclipse.emf.ecore.impl.EFactoryImpl
 import org.eclipse.sirius.properties.Category
 import org.eclipse.sirius.properties.CheckboxDescription
+import org.eclipse.sirius.properties.DynamicMappingIfDescription
 import org.eclipse.sirius.properties.GroupDescription
-import org.eclipse.sirius.properties.GroupStyle
 import org.eclipse.sirius.properties.ListDescription
 import org.eclipse.sirius.properties.PageDescription
 import org.eclipse.sirius.properties.RadioDescription
 import org.eclipse.sirius.properties.SelectDescription
 import org.eclipse.sirius.properties.TextAreaDescription
 import org.eclipse.sirius.properties.TextDescription
-import org.eclipse.sirius.properties.TitleBarStyle
-import org.eclipse.sirius.properties.ToggleStyle
 import org.eclipse.sirius.properties.WidgetDescription
 import org.eclipse.sirius.properties.ext.widgets.reference.propertiesextwidgetsreference.ExtReferenceDescription
 
@@ -107,8 +105,8 @@ class DefaultPropertiesExtension extends AbstractPropertySet {
 
 			preconditionExpression = pageId.pageApplicableExpression				
 			
-			groups += GroupDescription.ref(Ns.group.id(pageId.toString)) // this could be remove using '.andThen[]'
-
+			groups += GroupDescription.ref(Ns.group.id(pageId.toString)) 
+			// This could be changed using '.andThen[]'.
 		]
 	}
 
@@ -154,20 +152,14 @@ class DefaultPropertiesExtension extends AbstractPropertySet {
 	def createDefaultGroup(Object pageId) {
 		GroupDescription.createAs(Ns.group.id(pageId.toString)) [
 			name = pageId + "_Default"
-			
 			semanticCandidateExpression = IDENTITY
 			
 			// No label by default, can be modified by 'andThen[]'
 			labelExpression = "" 
-			style = GroupStyle.create[
-				barStyle = TitleBarStyle.NO_TITLE
-				toggleStyle = ToggleStyle.NONE
+			noTitle
+			forAll("eStructuralFeature", pageId.applicableFeaturesExpression) [
+				ifs += defaultCases.map[ createDefaultWidgetCase("self", "eStructuralFeature") ]
 			]
-						
-			controls += pageId.applicableFeaturesExpression
-				.eachOn("eStructuralFeature", 
-					createDefaultWidgetCases("self", "eStructuralFeature").values
-				)
 		]
 	}
 	
@@ -189,66 +181,73 @@ class DefaultPropertiesExtension extends AbstractPropertySet {
 		reference1, referenceN
 	}
 	
-	def createDefaultWidgetCases(String iValue, String iFeat) {
+	def Object[] getDefaultCases() { WidgetCase.values }
+	
+	def createDefaultWidgetCase(Object wcase, String iValue, String iFeat) {
+		DynamicMappingIfDescription.create(wcase + "#Case") [
+			predicateExpression = wcase.getDefaultWidgetCondition(iValue, iFeat)
+			widget = wcase.createDefaultWidget(iValue, iFeat)
+		]
+	}
+
+	def getDefaultWidgetCondition(Object wcase, String iValue, String iFeat) {
 		val valEmfEdit = iValue.eefEdit
 
 		val dateFeature = '''«iFeat».eType = ecore::EDate'''
 		val mapAttribute = '''«iFeat».eType = ecore::EStringToStringMapEntry'''
 		// TODO add default actions for lists and maps, handle date
 		
-		#[
-			WidgetCase.line -> '''
+		switch(wcase as WidgetCase) {
+			case WidgetCase.line -> '''
 				«valEmfEdit».needsTextWidget(«iFeat»)
 				and not «valEmfEdit».isMultiline(«iFeat»)
 				and not («dateFeature»)''', // dont know why '()' are needed now
 				
-			WidgetCase.text -> '''
+			case WidgetCase.text: '''
 				«valEmfEdit».needsTextWidget(«iFeat») 
 				and «valEmfEdit».isMultiline(«iFeat»)
 				and not («dateFeature»)''',
 				
-			WidgetCase.date -> '''
+			case WidgetCase.date: '''
 				«valEmfEdit».needsTextWidget(«iFeat») 
 				and («dateFeature»)''',
 			
-			WidgetCase.bool -> 
+			case WidgetCase.bool:
 				'''«valEmfEdit».needsCheckboxWidget(«iFeat»)''',
 			
-			WidgetCase.alternative -> '''
-				«iFeat».eType.oclIsKindOf(ecore::EEnum) 
-				and not(«iFeat».many) 
-				and «iFeat».eType.oclAsType(ecore::EEnum).eLiterals->size() <= 4''',
+			case WidgetCase.alternative: '''
+				«iFeat».eType.oclIsKindOf(ecore::EEnum)
+				  and not(«iFeat».many) 
+				  and «iFeat».eType.oclAsType(ecore::EEnum).eLiterals->size() <= 4''',
 			
-			WidgetCase.choice -> '''
-				«iFeat».eType.oclIsKindOf(ecore::EEnum) 
-				and not(«iFeat».many) 
-				and «iFeat».eType.oclAsType(ecore::EEnum).eLiterals->size() > 4''',
+			case WidgetCase.choice: '''
+				«iFeat».eType.oclIsKindOf(ecore::EEnum)
+				  and not(«iFeat».many) 
+				  and «iFeat».eType.oclAsType(ecore::EEnum).eLiterals->size() > 4''',
 			
-			WidgetCase.list -> '''
-				«iFeat».oclIsKindOf(ecore::EAttribute) 
-				and «iFeat».many''',
+			case WidgetCase.list: '''
+				«iFeat».oclIsKindOf(ecore::EAttribute)
+				  and «iFeat».many''',
 			
-			WidgetCase.map -> '''
-				«iFeat».oclIsKindOf(ecore::EReference) 
-				and «mapAttribute»''',
-			
-			WidgetCase.reference1 -> '''
+			case WidgetCase.map: '''
 				«iFeat».oclIsKindOf(ecore::EReference)
-				and not(«iFeat».many) 
-				and «iFeat».eType != ecore::EStringToStringMapEntry''',
+				  and «mapAttribute»''',
 			
-			WidgetCase.referenceN -> '''
+			case WidgetCase.reference1: '''
 				«iFeat».oclIsKindOf(ecore::EReference)
-				and («iFeat».many) 
-				and «iFeat».eType != ecore::EStringToStringMapEntry'''
+				  and not(«iFeat».many) 
+				  and «iFeat».eType != ecore::EStringToStringMapEntry''',
 			
-		].toMap([ key ]) [
-			value.trimAql.when(createDefaultWidgets(key, iValue, iFeat))
-		]
+			case WidgetCase.referenceN: '''
+				«iFeat».oclIsKindOf(ecore::EReference)
+				  and («iFeat».many) 
+				  and «iFeat».eType != ecore::EStringToStringMapEntry'''
+			
+		}.trimAql
 	}
 
 
-	def WidgetDescription createDefaultWidgets(Object wcase, String iValue, String iFeat) {
+	def WidgetDescription createDefaultWidget(Object wcase, String iValue, String iFeat) {
 
 		val valueGetter = '''«iValue».eGet(«iFeat».name)'''.trimAql
 		val valueSetter = '''«iValue.eefEdit».setValue(«iFeat», newValue)'''.trimAql
@@ -257,7 +256,8 @@ class DefaultPropertiesExtension extends AbstractPropertySet {
 		// everything must be bring to meta definition
 		val enumValue = '''
 			«iFeat».eType.oclAsType(ecore::EEnum)
-				.getEEnumLiteralByLiteral(«iValue».eGet(«iFeat».name).toString())'''.trimAql
+			  .getEEnumLiteralByLiteral(«iValue»
+			  .eGet(«iFeat».name).toString())'''.trimAql
 		val enumSetter = '''«iValue.eefEdit».setValue(«iFeat», newValue.instance)'''.trimAql
 		val enumCandidates = '''«iFeat».eType.oclAsType(ecore::EEnum).eLiterals'''.trimAql
 		val enumDisplay = '''candidate.name'''.trimAql
@@ -287,9 +287,10 @@ class DefaultPropertiesExtension extends AbstractPropertySet {
 					// Emf and sirius cannot handle empty date on their own
 					operation = '''
 						«iValue.eefEdit».setValue(«iFeat», 
-							if (newValue.size() = 0) 
-							then null 
-							else newValue endif)'''.trimAql
+						  if (newValue.size() = 0) 
+						  then null 
+						  else newValue 
+						  endif)'''.trimAql
 				]
 			
 			case bool: CheckboxDescription.create [
@@ -348,10 +349,7 @@ class DefaultPropertiesExtension extends AbstractPropertySet {
 					// Create wrapper of org.eclipse.sirius.common.ui.tools.api.selection.EObjectSelectionWizard
 					// but the user must choose 
 				]
-
 		}
-		
 	}
-	
 	
 }

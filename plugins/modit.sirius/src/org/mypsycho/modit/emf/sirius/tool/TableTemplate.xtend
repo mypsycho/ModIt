@@ -87,6 +87,10 @@ class TableTemplate extends RepresentationTemplate<TableDescription> {
 		super(container, TableDescription)
 	}
 	
+	override getNsMapping() { NS_MAPPING }	
+	
+	override getInitTemplateds() { INIT_TEMPLATED }
+	
 	override createDefaultContent() {
 		new SiriusCrossTable(tool.defaultContent, "", null) {
 			
@@ -98,8 +102,7 @@ class TableTemplate extends RepresentationTemplate<TableDescription> {
 	}
 	
 	override AbstractTable<?> getDefaultContent() {
-		super.defaultContent
-			as AbstractTable<?>
+		super.defaultContent as AbstractTable<?>
 	}
 
 	def <R extends EObject> R getDefaultStyleValues(R src) {
@@ -131,10 +134,6 @@ class TableTemplate extends RepresentationTemplate<TableDescription> {
 	override isApplicableTemplate(TableDescription it) {
 		domainClass.classFromDomain !== null
 	}
-	
-	override getNsMapping() { NS_MAPPING }	
-	
-	override getInitTemplateds() { INIT_TEMPLATED }
 	
 	def getTableEditor(EObject it) {
 		it instanceof CrossTableDescription

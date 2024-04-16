@@ -70,6 +70,10 @@ class DiagramTemplate extends DiagramPartTemplate<DiagramDescription> {
 		super(container, DiagramDescription)
 	}
 
+	override getInitTemplateds() { INIT_TEMPLATED }
+	
+	override getContainmentOrders() { CONTAINMENT_ORDER }
+	
 	override createDefaultContent() {
 		new SiriusDiagram(tool.defaultContent, "", EObject) {
 			
@@ -79,8 +83,6 @@ class DiagramTemplate extends DiagramPartTemplate<DiagramDescription> {
 			
 		}
 	}
-
-	override getContainmentOrders() { CONTAINMENT_ORDER }
 	
 	def getBaseApiClass(EObject it) {
 		switch(it) {
@@ -90,9 +92,6 @@ class DiagramTemplate extends DiagramPartTemplate<DiagramDescription> {
 		}
 	}
 	
-	
-	override getInitTemplateds() { INIT_TEMPLATED }
-
 	override isApplicableTemplate(DiagramDescription it) {
 		baseApiClass !== null // not applicable
 			&& defaultLayer !== null // ill-formed

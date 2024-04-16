@@ -19,6 +19,7 @@ import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.util.EcoreUtil
 import org.eclipse.sirius.viewpoint.description.IdentifiedElement
 import org.mypsycho.modit.emf.EModIt
+import org.mypsycho.modit.emf.sirius.SiriusModelProvider
 
 import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*
 
@@ -316,6 +317,33 @@ abstract class AbstractIdentifiableElement {
 		type.ref(cat.id(containerId, id), path as (EObject)=>R)
 	}
     
+	//
+	// Expressions
+	// 
+	
+	/**
+	 * Create a string from expression from a sequence of parameter names.
+	 * 
+	 * @param params names
+	 * @return string of parameters
+	 */
+	static def params(String... params) { 
+		params.join(SiriusModelProvider.PARAM_SEP)
+	}
+	
+	/**
+	 * Create a string from expression from a sequence of parameter names.
+	 * 
+	 * @param params names
+	 * @return string of parameters
+	 */
+	static def params(Object... params) { 
+		params.join(SiriusModelProvider.PARAM_SEP)
+	}
+	
+	//
+	// AQL
+	// 
 	
 	/**
 	 * Provides AQL expression for a class.

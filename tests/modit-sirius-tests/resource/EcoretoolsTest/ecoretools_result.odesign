@@ -1458,7 +1458,7 @@
       <pages name="execution_page" labelExpression="Execution" semanticCandidateExpression="var:self" preconditionExpression="aql:self.eContainerOrSelf(ecore::EPackage).isConfiguredForALE()" groups="//@extensions.0/@categories.0/@groups.7 //@extensions.0/@categories.0/@groups.8"/>
       <groups name="default rules" labelExpression="aql:input.emfEditServices(self).getText()" semanticCandidateExpression="aql:self.removeSemanticElementsToHide(input.getAllSemanticElements(),input.context().semanticDecorator())" preconditionExpression="">
         <controls xsi:type="properties:DynamicMappingForDescription" name="sirius_default_rules_structural_features_for" iterator="eStructuralFeature" iterableExpression="aql:self.removeFeaturesToHide(input.emfEditServices(self).getEStructuralFeatures())">
-          <ifs name="sirius_default_rules_mono_string_if" predicateExpression="aql:input.emfEditServices(self).needsTextWidget(eStructuralFeature) and not input.emfEditServices(self).isMultiline(eStructuralFeature)">
+          <ifs name="sirius_default_rules_mono_string#If" predicateExpression="aql:input.emfEditServices(self).needsTextWidget(eStructuralFeature) and not input.emfEditServices(self).isMultiline(eStructuralFeature)">
             <widget xsi:type="properties:TextDescription" name="sirius_default_rules_mono_string" labelExpression="aql:input.emfEditServices(self).getText(eStructuralFeature)+':'" helpExpression="aql:input.emfEditServices(self).getDescription(eStructuralFeature)" isEnabledExpression="aql:eStructuralFeature.changeable" valueExpression="aql:if eStructuralFeature.name = 'upperBound' and self.oclIsKindOf(ecore::ETypedElement) then self.upperBoundDisplay() else self.eGet(eStructuralFeature.name) endif">
               <initialOperation>
                 <firstModelOperations xsi:type="tool:ChangeContext" browseExpression="var:self">
@@ -1479,7 +1479,7 @@
               </conditionalStyles>
             </widget>
           </ifs>
-          <ifs name="sirius_default_rules_multi_string_if" predicateExpression="aql:input.emfEditServices(self).needsTextWidget(eStructuralFeature) and input.emfEditServices(self).isMultiline(eStructuralFeature)">
+          <ifs name="sirius_default_rules_multi_string#If" predicateExpression="aql:input.emfEditServices(self).needsTextWidget(eStructuralFeature) and input.emfEditServices(self).isMultiline(eStructuralFeature)">
             <widget xsi:type="properties:TextAreaDescription" name="sirius_default_rules_multi_string" labelExpression="aql:input.emfEditServices(self).getText(eStructuralFeature)+':'" helpExpression="aql:input.emfEditServices(self).getDescription(eStructuralFeature)" isEnabledExpression="aql:eStructuralFeature.changeable" valueExpression="aql:self.eGet(eStructuralFeature.name)">
               <initialOperation>
                 <firstModelOperations xsi:type="tool:ChangeContext" browseExpression="aql:input.emfEditServices(self).setValue(eStructuralFeature, newValue)"/>
@@ -1491,7 +1491,7 @@
               </conditionalStyles>
             </widget>
           </ifs>
-          <ifs name="sirius_default_rules_mono_boolean" predicateExpression="aql:input.emfEditServices(self).needsCheckboxWidget(eStructuralFeature)">
+          <ifs name="sirius_default_rules_mono_boolean#If" predicateExpression="aql:input.emfEditServices(self).needsCheckboxWidget(eStructuralFeature)">
             <widget xsi:type="properties:CheckboxDescription" name="sirius_default_rules_mono_boolean" labelExpression="aql:input.emfEditServices(self).getText(eStructuralFeature)" helpExpression="aql:input.emfEditServices(self).getDescription(eStructuralFeature)" isEnabledExpression="aql:eStructuralFeature.changeable" valueExpression="aql:self.eGet(eStructuralFeature.name)">
               <initialOperation>
                 <firstModelOperations xsi:type="tool:ChangeContext" browseExpression="aql:input.emfEditServices(self).setValue(eStructuralFeature, newValue)"/>
@@ -1503,7 +1503,7 @@
               </conditionalStyles>
             </widget>
           </ifs>
-          <ifs name="sirius_default_rules_enum_if" predicateExpression="aql:eStructuralFeature.eType.oclIsKindOf(ecore::EEnum) and not(eStructuralFeature.many)">
+          <ifs name="sirius_default_rules_enum#If" predicateExpression="aql:eStructuralFeature.eType.oclIsKindOf(ecore::EEnum) and not(eStructuralFeature.many)">
             <widget xsi:type="properties:RadioDescription" name="sirius_default_rules_enum" labelExpression="aql:input.emfEditServices(self).getText(eStructuralFeature)+':'" helpExpression="aql:input.emfEditServices(self).getDescription(eStructuralFeature)" isEnabledExpression="aql:eStructuralFeature.changeable" valueExpression="aql:eStructuralFeature.eType.oclAsType(ecore::EEnum).getEEnumLiteralByLiteral(self.eGet(eStructuralFeature.name).toString())" candidatesExpression="aql:eStructuralFeature.eType.oclAsType(ecore::EEnum).eLiterals" candidateDisplayExpression="aql:candidate.name" numberOfColumns="5">
               <initialOperation>
                 <firstModelOperations xsi:type="tool:ChangeContext" browseExpression="aql:input.emfEditServices(self).setValue(eStructuralFeature, newValue.instance)"/>
@@ -1515,13 +1515,13 @@
               </conditionalStyles>
             </widget>
           </ifs>
-          <ifs name="sirius_default_rules_eattribute_many_if" predicateExpression="aql:eStructuralFeature.oclIsKindOf(ecore::EAttribute) and eStructuralFeature.many">
+          <ifs name="sirius_default_rules_eattribute_many#If" predicateExpression="aql:eStructuralFeature.oclIsKindOf(ecore::EAttribute) and eStructuralFeature.many">
             <widget xsi:type="properties:ListDescription" name="sirius_default_rules_eattribute_many" labelExpression="aql:input.emfEditServices(self).getText(eStructuralFeature)+':'" helpExpression="aql:input.emfEditServices(self).getDescription(eStructuralFeature)" isEnabledExpression="aql:eStructuralFeature.changeable" valueExpression="aql:self.eGet(eStructuralFeature.name)" displayExpression="var:value"/>
           </ifs>
-          <ifs name="sirius_default_rules_ereference_if" predicateExpression="aql:eStructuralFeature.oclIsKindOf(ecore::EReference) and eStructuralFeature.many = true">
+          <ifs name="sirius_default_rules_ereference#If" predicateExpression="aql:eStructuralFeature.oclIsKindOf(ecore::EReference) and eStructuralFeature.many = true">
             <widget xsi:type="properties-ext-widgets-reference:ExtReferenceDescription" name="sirius_default_rules_ereference" labelExpression="aql:input.emfEditServices(self).getText(eStructuralFeature)+':'" helpExpression="aql:input.emfEditServices(self).getDescription(eStructuralFeature)" referenceNameExpression="aql:eStructuralFeature.name"/>
           </ifs>
-          <ifs name="ecoretools_etype_ereference" predicateExpression="aql:eStructuralFeature.oclIsKindOf(ecore::EReference) and eStructuralFeature.many = false">
+          <ifs name="etype label#If" predicateExpression="aql:eStructuralFeature.oclIsKindOf(ecore::EReference) and eStructuralFeature.many = false">
             <widget xsi:type="properties:LabelDescription" name="etype label" labelExpression="aql:input.emfEditServices(self).getText(eStructuralFeature)+':'" helpExpression="aql:input.emfEditServices(self).getDescription(eStructuralFeature)" valueExpression="aql:self.eGetMonoRef(eStructuralFeature)" displayExpression="aql:if self.eGetMonoRef(eStructuralFeature) &lt;> null then input.emfEditServices(self.eGetMonoRef(eStructuralFeature)).getText() else '' endif">
               <actions labelExpression="...">
                 <initialOperation>
@@ -1652,14 +1652,14 @@
         </controls>
         <controls xsi:type="properties:ContainerDescription" name="execution_imports_container">
           <controls xsi:type="properties:DynamicMappingForDescription" name="iterate over imports" iterator="jImport" iterableExpression="aql:self.getJavaImports()">
-            <ifs name="true" predicateExpression="aql:true">
+            <ifs name="java_import#If" predicateExpression="aql:true">
               <widget xsi:type="properties:TextDescription" name="java_import" labelExpression="Qualified Class Name: " valueExpression="aql:jImport.getQualifiedName()">
                 <initialOperation>
                   <firstModelOperations xsi:type="tool:ChangeContext" browseExpression="aql:jImport.setQualifiedName(newValue)"/>
                 </initialOperation>
               </widget>
             </ifs>
-            <ifs name="true" predicateExpression="aql:true">
+            <ifs name="execution_remove_import#If" predicateExpression="aql:true">
               <widget xsi:type="properties:ButtonDescription" name="execution_remove_import" buttonLabelExpression="Remove Import">
                 <initialOperation>
                   <firstModelOperations xsi:type="tool:ChangeContext" browseExpression="var:jImport">
@@ -1676,7 +1676,7 @@
       <groups name="eoperation parameters dynamic mapping" labelExpression="Parameters" domainClass="ecore::EOperation" semanticCandidateExpression="var:self">
         <controls xsi:type="properties:ContainerDescription" name="parameters_container">
           <controls xsi:type="properties:DynamicMappingForDescription" name="foreach parameter" iterator="self" iterableExpression="aql:self.eParameters" forceRefresh="true">
-            <ifs name="always true" predicateExpression="aql:true">
+            <ifs name="param_name#If" predicateExpression="aql:true">
               <widget xsi:type="properties:TextDescription" name="param_name" labelExpression="Name: " valueExpression="aql:self.name">
                 <initialOperation>
                   <firstModelOperations xsi:type="tool:ChangeContext" browseExpression="var:self">
@@ -1688,7 +1688,7 @@
                 </style>
               </widget>
             </ifs>
-            <ifs name="always true" predicateExpression="aql:true">
+            <ifs name="etype label#If" predicateExpression="aql:true">
               <widget xsi:type="properties:LabelDescription" name="etype label" labelExpression="EType: " valueExpression="aql:self.eGet('eType')" displayExpression="aql:self.eGet('eType').name">
                 <style labelFontSizeExpression="8">
                   <labelFontFormat>italic</labelFontFormat>
@@ -1713,7 +1713,7 @@
                 </actions>
               </widget>
             </ifs>
-            <ifs name="always true" predicateExpression="aql:true">
+            <ifs name="up#If" predicateExpression="aql:true">
               <widget xsi:type="properties:ButtonDescription" name="up" isEnabledExpression="aql:self.precedingSiblings()->filter(ecore::EParameter)->size() > 0" imageExpression="/org.eclipse.emf.ecoretools.design/icons/full/etools16/up.gif">
                 <initialOperation>
                   <firstModelOperations xsi:type="tool:ChangeContext" browseExpression="var:self">
@@ -1722,7 +1722,7 @@
                 </initialOperation>
               </widget>
             </ifs>
-            <ifs name="always true" predicateExpression="aql:true">
+            <ifs name="down#If" predicateExpression="aql:true">
               <widget xsi:type="properties:ButtonDescription" name="down" isEnabledExpression="aql:self.precedingSiblings()->filter(ecore::EParameter)->size() +1 &lt; self.eContainer(ecore::EOperation).eParameters->size()" imageExpression="/org.eclipse.emf.ecoretools.design/icons/full/etools16/down.gif">
                 <initialOperation>
                   <firstModelOperations xsi:type="tool:ChangeContext" browseExpression="var:self">
@@ -1731,7 +1731,7 @@
                 </initialOperation>
               </widget>
             </ifs>
-            <ifs name="always true" predicateExpression="aql:true">
+            <ifs name="del#If" predicateExpression="aql:true">
               <widget xsi:type="properties:ButtonDescription" name="del" imageExpression="/org.eclipse.emf.ecoretools.design/icons/full/etools16/unset.gif">
                 <initialOperation>
                   <firstModelOperations xsi:type="tool:ChangeContext" browseExpression="var:self">
@@ -1744,7 +1744,7 @@
           <layout xsi:type="properties:GridLayoutDescription" numberOfColumns="5"/>
         </controls>
         <controls xsi:type="properties:DynamicMappingForDescription" name="dummy_workaround_bug515586" iterator="d" iterableExpression="aql:self" forceRefresh="true">
-          <ifs name="always false" predicateExpression="aql:false">
+          <ifs name="dummy#If" predicateExpression="aql:false">
             <widget xsi:type="properties:TextDescription" name="dummy">
               <initialOperation>
                 <firstModelOperations xsi:type="tool:ChangeContext" browseExpression="var:self"/>
@@ -1783,7 +1783,7 @@
         </controls>
         <controls xsi:type="properties:ContainerDescription" name="eannotation_conainer_entries">
           <controls xsi:type="properties:DynamicMappingForDescription" name="iterate over entries" iterator="self" iterableExpression="aql:self.details" forceRefresh="true">
-            <ifs name="always_true" predicateExpression="aql:true">
+            <ifs name="detail_key#If" predicateExpression="aql:true">
               <widget xsi:type="properties:TextDescription" name="detail_key" labelExpression="Key:" valueExpression="aql:self.key">
                 <initialOperation>
                   <firstModelOperations xsi:type="tool:ChangeContext" browseExpression="var:self">
@@ -1792,7 +1792,7 @@
                 </initialOperation>
               </widget>
             </ifs>
-            <ifs name="always_true" predicateExpression="aql:true">
+            <ifs name="detail_value#If" predicateExpression="aql:true">
               <widget xsi:type="properties:TextDescription" name="detail_value" labelExpression="Value:" valueExpression="aql:self.value">
                 <initialOperation>
                   <firstModelOperations xsi:type="tool:ChangeContext" browseExpression="var:self">
@@ -1801,7 +1801,7 @@
                 </initialOperation>
               </widget>
             </ifs>
-            <ifs name="always_true" predicateExpression="aql:true">
+            <ifs name="del#If" predicateExpression="aql:true">
               <widget xsi:type="properties:ButtonDescription" name="del" helpExpression="Delete the entry" imageExpression="/org.eclipse.emf.ecoretools.design/icons/full/etools16/unset.gif">
                 <initialOperation>
                   <firstModelOperations xsi:type="tool:ChangeContext" browseExpression="var:self">
@@ -1814,7 +1814,7 @@
           <layout xsi:type="properties:GridLayoutDescription" numberOfColumns="3"/>
         </controls>
         <controls xsi:type="properties:DynamicMappingForDescription" name="dummy_workaround_bug515586" iterator="d" iterableExpression="aql:self" forceRefresh="true">
-          <ifs name="always false" predicateExpression="aql:false">
+          <ifs name="dummy_text#If" predicateExpression="aql:false">
             <widget xsi:type="properties:TextDescription" name="dummy_text">
               <initialOperation>
                 <firstModelOperations xsi:type="tool:ChangeContext" browseExpression="var:self"/>

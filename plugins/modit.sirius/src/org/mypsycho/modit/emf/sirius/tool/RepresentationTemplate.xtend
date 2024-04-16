@@ -65,8 +65,9 @@ abstract class RepresentationTemplate<R extends EObject> extends EReversIt {
 	protected static val TPKG = ToolPackage.eINSTANCE
 	protected static val PPKG = PropertiesPackage.eINSTANCE
 
-	public static val INIT_TEMPLATED = #{
-		ExternalJavaAction -> #{
+	public static val Map<Class<? extends EObject>, 
+			Set<? extends EStructuralFeature>> INIT_TEMPLATED = #{
+		ExternalJavaAction as Class<? extends EObject> -> #{
 			TPKG.externalJavaAction_Id, 
 			TPKG.externalJavaAction_Parameters,
 			TPKG.containerModelOperation_SubModelOperations
@@ -96,11 +97,12 @@ abstract class RepresentationTemplate<R extends EObject> extends EReversIt {
 		
 	def AbstractEdition createDefaultContent() { null }
 	
-	def getDefaultContent() {
-		defaultContent
-	}
+	def getDefaultContent() { defaultContent }
 	
-	def List<? extends Pair<? extends Class<? extends EObject>, ? extends Enum<?>>> getNsMapping()
+	def List<? extends Pair<
+			? extends Class<? extends EObject>, 
+			? extends Enum<?>
+			>> getNsMapping()
 	
 	def String templateRepresentation(ClassId it, R content)
 

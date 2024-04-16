@@ -52,6 +52,8 @@ class DiagramExtensionTemplate extends DiagramPartTemplate<DiagramExtensionDescr
 	new(SiriusGroupTemplate container) {
 		super(container, DiagramExtensionDescription)
 	}
+
+	override getInitTemplateds() { INIT_TEMPLATED }
 	
 	override createDefaultContent() {
 		new SiriusDiagramExtension(tool.defaultContent) {
@@ -61,10 +63,6 @@ class DiagramExtensionTemplate extends DiagramPartTemplate<DiagramExtensionDescr
 			}
 			
 		}
-	}
-	
-	override getInitTemplateds() {
-		INIT_TEMPLATED
 	}
 	
 	static def isMatching(RepresentationDescription rep, DiagramExtensionDescription it) {

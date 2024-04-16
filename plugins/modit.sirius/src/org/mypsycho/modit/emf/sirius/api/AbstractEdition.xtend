@@ -45,6 +45,7 @@ import org.eclipse.sirius.properties.FILL_LAYOUT_ORIENTATION
 import org.eclipse.sirius.properties.FillLayoutDescription
 import org.eclipse.sirius.properties.GridLayoutDescription
 import org.eclipse.sirius.properties.GroupConditionalStyle
+import org.eclipse.sirius.properties.GroupDescription
 import org.eclipse.sirius.properties.GroupStyle
 import org.eclipse.sirius.properties.HyperlinkDescription
 import org.eclipse.sirius.properties.HyperlinkWidgetConditionalStyle
@@ -107,9 +108,9 @@ import org.eclipse.sirius.viewpoint.description.tool.Switch
 import org.eclipse.sirius.viewpoint.description.tool.ToolDescription
 import org.eclipse.sirius.viewpoint.description.tool.Unset
 import org.eclipse.sirius.viewpoint.description.validation.ValidationFix
-import org.mypsycho.modit.emf.sirius.SiriusModelProvider
 
 import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*
+import org.eclipse.sirius.properties.PageDescription
 
 /**
  * Adaptation of Sirius model into Java and EClass reflections API
@@ -127,32 +128,6 @@ abstract class AbstractEdition extends AbstractIdentifiableElement {
 	new(SiriusVpGroup parent) {
 		super(parent)
 	}
-
-	
-	//
-	// Expressions
-	// 
-	
-	/**
-	 * Create a string from expression from a sequence of parameter names.
-	 * 
-	 * @param params names
-	 * @return string of parameters
-	 */
-	static def params(String... params) { 
-		params.join(SiriusModelProvider.PARAM_SEP)
-	}
-	
-	/**
-	 * Create a string from expression from a sequence of parameter names.
-	 * 
-	 * @param params names
-	 * @return string of parameters
-	 */
-	static def params(Object... params) { 
-		params.join(SiriusModelProvider.PARAM_SEP)
-	}
-	
 	
 	//
 	// Operations
@@ -436,7 +411,38 @@ abstract class AbstractEdition extends AbstractIdentifiableElement {
 	 * @param it tool to set
 	 * @param value operation to perform
 	 */
-	def toolbar(String label, String icon, ModelOperation operation) {
+	def action(GroupDescription owner, String label, String icon, ModelOperation operation) {
+		label.createToolAction(icon, operation) => [ owner.actions += it ]
+	}
+
+	/**
+	 * Sets the operation for provided widget.
+	 * <p>
+	 * Widget may be used in wizard operation of all views.
+	 * </p>
+	 * <p>
+	 * This class unifies the initialOperation declaration of sub-class tool.
+	 * </p>
+	 * @param it tool to set
+	 * @param value operation to perform
+	 */
+	def action(PageDescription owner, String label, String icon, ModelOperation operation) {
+		label.createToolAction(icon, operation) => [ owner.actions += it ]
+	}
+	
+	
+	/**
+	 * Sets the operation for provided widget.
+	 * <p>
+	 * Widget may be used in wizard operation of all views.
+	 * </p>
+	 * <p>
+	 * This class unifies the initialOperation declaration of sub-class tool.
+	 * </p>
+	 * @param it tool to set
+	 * @param value operation to perform
+	 */
+	def createToolAction(String label, String icon, ModelOperation operation) {
 		ToolbarAction.create [
 			tooltipExpression = label
 			imageExpression = icon
