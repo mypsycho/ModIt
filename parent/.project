@@ -22,6 +22,11 @@
 	</natures>
 	<linkedResources>
 		<link>
+			<name>maven.yml</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/.github/workflows/maven.yml</locationURI>
+		</link>
+		<link>
 			<name>pom-container.xml</name>
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/pom.xml</locationURI>

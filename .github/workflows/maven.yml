@@ -35,6 +35,8 @@ jobs:
           branch: gh-pages
           folder: releng/publish/target/site
           target-folder: nightly
+          single-commit: true # Remove history in gh-pages
+          clean: true # Remove deprecated files
     
       - name: Get the tag version 🏷️
         id: get_version
@@ -47,3 +49,5 @@ jobs:
           branch: gh-pages
           folder: releng/publish/target/site
           target-folder: releases/${{ steps.get_version.outputs.TAG_VERSION }}
+          single-commit: true # Remove history in gh-pages
+          clean: true # Remove deprecated files
