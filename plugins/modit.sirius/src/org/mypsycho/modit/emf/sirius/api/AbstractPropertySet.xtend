@@ -25,7 +25,6 @@ import org.eclipse.sirius.properties.CustomExpression
 import org.eclipse.sirius.properties.DynamicMappingForDescription
 import org.eclipse.sirius.properties.DynamicMappingIfDescription
 import org.eclipse.sirius.properties.GroupDescription
-import org.eclipse.sirius.properties.GroupStyle
 import org.eclipse.sirius.properties.HyperlinkDescription
 import org.eclipse.sirius.properties.LabelDescription
 import org.eclipse.sirius.properties.ListDescription
@@ -55,6 +54,8 @@ abstract class AbstractPropertySet extends AbstractEdition {
 	
 	/** Default name for category. */
 	public static val DEFAULT_NAME = "Default"
+	
+	protected static val String ANY_TYPE = null
 	
 	enum Ns { view, category, page, group, foreach, then }
 	
@@ -300,6 +301,9 @@ abstract class AbstractPropertySet extends AbstractEdition {
 		] => [ owner.pages += it ]
 	}
 	
+	def page(Category owner, String name, Class<? extends EObject> domain, (PageDescription)=>void init) {
+		owner.page(name, domain.asAql, init)
+	}
 
 	def groups(PageDescription owner, String... names) {
 		names.forEach[ 
@@ -315,29 +319,16 @@ abstract class AbstractPropertySet extends AbstractEdition {
 		] => [ owner.groups += it ]
 	}
 	
+	def group(Category owner, String name, Class<? extends EObject> domain, (GroupDescription)=>void init) {
+		owner.group(name, domain.asAql, init)
+	}
+	
 	def noTitle(GroupDescription it) {
-		style = GroupStyle.create[
-			barStyle = TitleBarStyle.NO_TITLE
+		style = [
 			toggleStyle = ToggleStyle.NONE
+			barStyle = TitleBarStyle.NO_TITLE
+			expandedByDefault = true
 		]
 	}
-
-	@Deprecated
-	def group(Category owner, String name, (GroupDescription)=>void init) {
-		GroupDescription.createAs(Ns.group, name) [
-			semanticCandidateExpression = SiriusDesigns.IDENTITY
-			init?.apply(it)
-		] => [ owner.groups += it ]
-	}
-	
-	@Deprecated
-	def page(Category owner, String name, (PageDescription)=>void init) {
-		PageDescription.createAs(Ns.page, name) [
-			semanticCandidateExpression = SiriusDesigns.IDENTITY
-			init?.apply(it)
-		] => [ owner.pages += it ]
-	}
-	
-
 
 }

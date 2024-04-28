@@ -44,6 +44,8 @@ class SiriusDesigns {
 	/** Expression for return semantic container */
 	public static val IDENTITY = "var:self"
 
+	public static val PROP_VALUE = "var:newValue"
+
 	/** Value return by field edit */
 	public static val EDIT_VALUE = "arg0"
 

@@ -18,7 +18,6 @@ import org.eclipse.emf.ecore.EAttribute
 import org.eclipse.emf.ecore.EClass
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EReference
-import org.eclipse.emf.ecore.EStructuralFeature
 import org.eclipse.sirius.diagram.EdgeArrows
 import org.eclipse.sirius.diagram.EdgeRouting
 import org.eclipse.sirius.diagram.description.AbstractNodeMapping
@@ -155,9 +154,10 @@ abstract class AbstractDiagramPart<T extends EObject> extends AbstractTypedEditi
 	 * @param it description to define
 	 * @param type of the description
 	 */
-	def void setDomainClass(EdgeMapping it, Class<? extends EObject> type) {
-		domainClass = context.asEClass(type) as EClass
+	def void setDomainClass(AbstractNodeMapping it, EClass type) {
+		domainClass = SiriusDesigns.encode(type)
 	}
+
 
 	/**
 	 * Sets the domain class of a mapping.
@@ -168,8 +168,8 @@ abstract class AbstractDiagramPart<T extends EObject> extends AbstractTypedEditi
 	 * @param it description to define
 	 * @param type of the description
 	 */
-	def void setDomainClass(AbstractNodeMapping it, EClass type) {
-		domainClass = SiriusDesigns.encode(type)
+	def void setDomainClass(EdgeMapping it, Class<? extends EObject> type) {
+		domainClass = context.asEClass(type) as EClass
 	}
 
 	/**
@@ -183,7 +183,9 @@ abstract class AbstractDiagramPart<T extends EObject> extends AbstractTypedEditi
 	 */
 	def void setDomainClass(EdgeMapping it, EClass type) {
 		domainClass = SiriusDesigns.encode(type)
+		useDomainElement = true
 	}
+
 
 	/**
 	 * Sets the candidates expression using a reference.
@@ -383,11 +385,6 @@ abstract class AbstractDiagramPart<T extends EObject> extends AbstractTypedEditi
 	
 	/** Initializes default values of edge style. */
 	def initDefaultStyle(EdgeStyleDescription it) {
-		initDefaultEdgeStyle
-	}
-	
-	@Deprecated
-	def initDefaultEdgeStyle(EdgeStyleDescription it) {
         // centerLabelStyleDescription = null <=> no label
         endsCentering = CenteringStyle.BOTH
         routingStyle = EdgeRouting.MANHATTAN_LITERAL // (Rectilinear)
@@ -481,109 +478,128 @@ abstract class AbstractDiagramPart<T extends EObject> extends AbstractTypedEditi
 			featureCustomizations += customs
 		]
 	}
-					
-	
-	/**
-	 * Customizes a Sirius reference with provided value.
-	 * <p>
-	 * Keep in mind that Sirius can customize more than 1 element but there is no simple API.
-	 * </p>
-	 * 
-	 * @param it to customize
-	 * @param condition of customization
-	 * @param siriusReference customized reference
-	 * @param customValue to apply
-	 * @throws IllegalArgumentException when 'reference' is not a valid feature name
-	 */
-	def <T extends StyleDescription> 
-		customizeRef(
-			T it, String condition, 
-			String siriusReference, EObject customValue
-	) {
-		doCustomize(condition, siriusReference, EReference, 
-			EReferenceCustomization.create[
-				referenceName = siriusReference
-				value = customValue
-			])
-	}
-
-	/**
-	 * Customizes a Sirius attribute with provided expression.
-	 * <p>
-	 * Keep in mind that Sirius can customize more than 1 element but there is no simple API.
-	 * </p>
-	 * 
-	 * @param it to customize
-	 * @param condition of customization
-	 * @param siriusAttribute customized attribute
-	 * @param customValue to apply
-	 * @throws IllegalArgumentException when 'siriusAttribute' is not a valid feature name
-	 */
-	def <T extends StyleDescription> 
-		customize(
-			T it, String condition, 
-			String siriusAttribute, String customExpression
-	) {
-		doCustomize(condition, siriusAttribute, EAttribute, 
-			EAttributeCustomization.create[
-				attributeName = siriusAttribute
-				value = customExpression
-			])
+				
+	/** Creates a customization of an attribute. */	
+	def styleAtt(String feat, String expression) {
+		EAttributeCustomization.create => [
+			attributeName = feat
+			value = expression
+		]
 	}
 	
-	/**
-	 * Customizes a Sirius reference with provided value.
-	 * <p>
-	 * Keep in mind that Sirius can customize more than 1 element but there is no simple API.
-	 * </p>
-	 * 
-	 * @param it to customize
-	 * @param condition of customization
-	 * @param siriusReference customized reference
-	 * @param customValue to apply
-	 * @throws IllegalArgumentException when 'reference' is not a valid feature name
-	 */
-	def <T extends StyleDescription> 
-		customize(
-			T it, String condition, 
-			EReference siriusReference, EObject customValue
+	/** Creates a customization of a reference. */	
+	def styleRef(String feat, EObject customValue) {
+		EReferenceCustomization.create => [
+			referenceName = feat
+			value = customValue
+		]
+	}
+	
+	/** Creates a customization of an attribute. */	
+	def style(EAttribute feat, String customExpression) {
+		feat.name.styleAtt(customExpression)
+	}
+	
+	/** Creates a customization of an attribute. */	
+	def style(EReference feat, EObject customValue) {
+		feat.name.styleRef(customValue)
+	}
+	
+	// BasicLabelStyleDescription and EdgeStyleDescription covers all styles
+	
+	/** Customizes a style reference with provided value. */
+	def customizeRef(
+		BasicLabelStyleDescription it, String condition, String styleReference, EObject value
 	) {
-		customizeRef(condition, siriusReference.name, customValue)
+		customizeFeatures(condition, styleReference.styleRef(value))
 	}
 
-	/**
-	 * Customizes a Sirius attribute with provided expression.
-	 * <p>
-	 * Keep in mind that Sirius can customize more than 1 element but there is no simple API.
-	 * </p>
-	 * 
-	 * @param it to customize
-	 * @param condition of customization
-	 * @param siriusAttribute customized attribute
-	 * @param customValue to apply
-	 * @throws IllegalArgumentException when 'siriusAttribute' is not a valid feature name
-	 */
-	def <T extends StyleDescription> 
-		customize(
-			T it, String condition, 
-			EAttribute siriusAttribute, String customExpression
+	/** Customizes a style attribute with provided expression. */
+	def void customize(
+		BasicLabelStyleDescription it, String condition, String styleAttribute, String expression
 	) {
-		customize(condition, siriusAttribute.name, customExpression)
+		customizeFeatures(condition, styleAttribute.styleAtt(expression))
+	}
+	
+	/** Customizes a style reference with provided value. */
+	def customize(
+		BasicLabelStyleDescription it, String condition, EReference styleReference, EObject value
+	) {
+		customizeRef(condition, styleReference.name, value)
 	}
 
-	private def <T extends StyleDescription> T 
-		doCustomize(
-			T target, String condition, String feature, 
-			Class<? extends EStructuralFeature> type, 
-			EStructuralFeatureCustomization custo
+	/** Customizes a style attribute with provided expression. */
+	def customize(
+		BasicLabelStyleDescription it, String condition, EAttribute styleAttribute, String expression
 	) {
-		'''«target?.eClass» has no «type.simpleName» «feature»'''
-			.verify(type.isInstance(target.eClass.getEStructuralFeature(feature)))
-
-		target.eContainer(Layer).styleCustomisations += condition
-			.thenStyle(custo.andThen[ appliedOn += target ])
-		target
+		customize(condition, styleAttribute.name, expression)
 	}
+
+	/** Customizes style properties. */
+	def void customizeFeatures(
+		BasicLabelStyleDescription it, String condition, EStructuralFeatureCustomization... featCustoms
+	) {
+		doCustoms(condition, featCustoms)
+	}
+
+	/** Customizes a style reference with provided value. */
+	def customizeRef(
+		EdgeStyleDescription it, String condition, String styleReference, EObject value
+	) {
+		customizeFeatures(condition, styleReference.styleRef(value))
+	}
+
+	/** Customizes a style attribute with provided expression. */
+	def void customize(
+		EdgeStyleDescription it, String condition, String styleAttribute, String expression
+	) {
+		customizeFeatures(condition, styleAttribute.styleAtt(expression))
+	}
+	
+	/** Customizes a style reference with provided value. */
+	def customize(
+		EdgeStyleDescription it, String condition, EReference styleReference, EObject value
+	) {
+		customizeRef(condition, styleReference.name, value)
+	}
+
+	/** Customizes a style attribute with provided expression. */
+	def customize(
+		EdgeStyleDescription it, String condition, EAttribute styleAttribute, String expression
+	) {
+		customize(condition, styleAttribute.name, expression)
+	}
+
+	/** Customizes style properties. */
+	def void customizeFeatures(
+		EdgeStyleDescription it, String condition, EStructuralFeatureCustomization... featCustoms
+	) {
+		doCustoms(condition, featCustoms)
+	}
+
+	protected def void verifyCustomisation(
+		EStructuralFeatureCustomization it, EObject target
+	) {
+		val descr = switch(it) {
+			EAttributeCustomization: EAttribute -> attributeName
+			EReferenceCustomization: EReference -> referenceName
+		}
+		
+		'''«target.eClass.name» has no «descr.key.simpleName» «descr.value»'''
+			.verify(descr.key.isInstance(target.eClass.getEStructuralFeature(descr.value)))
+	}
+
+	protected def void doCustoms(
+		EObject target, String condition, EStructuralFeatureCustomization... featCustoms
+	) {
+		featCustoms.forEach [ verifyCustomisation(target) ]
+
+		target.eContainer(Layer).styleCustomisations
+			+= condition.thenStyle(
+				featCustoms.map[ andThen[ appliedOn += target ] ]
+			)
+	}
+	
 
 	// Compatible with Iterable.
 	/** Customizes an style attribute using reflection. */

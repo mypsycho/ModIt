@@ -204,7 +204,7 @@ abstract class AbstractEdition extends AbstractIdentifiableElement {
      * @return a new SetValue
      */
     protected def SetValue setter(EStructuralFeature feature) {
-        feature.setter("var:newValue")
+        feature.setter(SiriusDesigns.PROP_VALUE)
     }
     
     /**
@@ -847,18 +847,18 @@ abstract class AbstractEdition extends AbstractIdentifiableElement {
 		layoutFill(FILL_LAYOUT_ORIENTATION.VERTICAL)
 	}
 	
-	private def layoutFill(AbstractContainerDescription it, FILL_LAYOUT_ORIENTATION value) {
-		layout = FillLayoutDescription.create [
+	private def layoutFill(AbstractContainerDescription owner, FILL_LAYOUT_ORIENTATION value) {
+		FillLayoutDescription.create [
 			orientation = value
-		]
+		] => [ owner.layout = it ]
 	}
 	
 	/** Grid layout for Container. */
-	def layoutGrid(AbstractContainerDescription it, int size, boolean equalSize) {
-		layout = GridLayoutDescription.create [
+	def layoutGrid(AbstractContainerDescription owner, int size, boolean equalSize) {
+		GridLayoutDescription.create [
 			numberOfColumns = size
 			makeColumnsWithEqualWidth = equalSize
-		]
+		] => [ owner.layout = it ]
 	}
 	
 	/** Grid layout for Container with same size columns */

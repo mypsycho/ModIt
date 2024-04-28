@@ -63,7 +63,8 @@ class PropertiesTemplate extends RepresentationTemplate<ViewExtensionDescription
 		],
 		GroupDescription -> #[
 			PPKG.abstractGroupDescription_Style,
-			PPKG.abstractGroupDescription_ConditionalStyles
+			PPKG.abstractGroupDescription_ConditionalStyles,
+			PPKG.abstractGroupDescription_Actions
 		]
 	]
 	
@@ -138,7 +139,7 @@ ELSE
 
 «
 	FOR category : content.categories 
-»	protected def void «category.initMethod»(«Category.templateClass» it) {
+»	def void «category.initMethod»(«Category.templateClass» it) {
 		«category.templateFilteredContent(Category)»
 	}
 «	ENDFOR
@@ -195,15 +196,12 @@ ENDIF
 )»'''}
 	
 	def templateSectionBody(IdentifiedElement it,  String domainClass, String semanticCandidateExpression, Class<? extends EObject> filter) {
-'''(«name.toJava», «domainClass.toJava») [
+'''(«name.toJava», «domainClass?.toJava ?: "ANY_TYPE"») [
 	«IF semanticCandidateExpression != SiriusDesigns.IDENTITY»
 	semanticCandidateExpression = «semanticCandidateExpression.toJava»
 	«ENDIF»
 	«templateFilteredContent(filter)»
 ]'''}
-	
-	
-	
 	
 	def templateGroupRef(GroupDescription ref) {
 		// Inspired from RepresentationTemplate#templateRef(EObject, NsRefExpr, Expr, Class<?>)

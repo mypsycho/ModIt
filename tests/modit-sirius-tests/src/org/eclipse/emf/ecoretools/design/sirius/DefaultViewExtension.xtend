@@ -38,7 +38,7 @@ class DefaultViewExtension extends AbstractPropertySet {
 	}
 
 	override initDefaultCategory(Category it) {
-		page("ecore_page", null) [
+		page("ecore_page", ANY_TYPE) [
 			labelExpression = "Ecore"
 			groups("default rules")
 			groups("egeneric supertypes-TBD")
@@ -68,12 +68,12 @@ class DefaultViewExtension extends AbstractPropertySet {
 				]
 			]
 		]
-		page("documentation_page", null) [
+		page("documentation_page", ANY_TYPE) [
 			labelExpression = "Documentation"
 			indented = true
 			groups("documentation")
 		]
-		page("annotation_page", null) [
+		page("annotation_page", ANY_TYPE) [
 			labelExpression = "Annotation"
 			indented = true
 			groups("eannotation dynamic")
@@ -83,7 +83,7 @@ class DefaultViewExtension extends AbstractPropertySet {
 				)
 			)
 		]
-		page("generation_page", null) [
+		page("generation_page", ANY_TYPE) [
 			semanticCandidateExpression = '''self'''.trimAql
 			labelExpression = "Generation"
 			preconditionExpression = '''self.eInverse()->select( g | g.eClass().ePackage.nsURI->includes('http://www.eclipse.org/emf/2002/GenModel'))->asSet()->size() > 0'''.trimAql
@@ -124,13 +124,13 @@ class DefaultViewExtension extends AbstractPropertySet {
 				)
 			)
 		]
-		page("execution_page", null) [
+		page("execution_page", ANY_TYPE) [
 			labelExpression = "Execution"
 			preconditionExpression = '''self.eContainerOrSelf(ecore::EPackage).isConfiguredForALE()'''.trimAql
 			groups("execution_body")
 			groups("execution_imports")
 		]
-		group("default rules", null) [
+		group("default rules", ANY_TYPE) [
 			semanticCandidateExpression = '''self.removeSemanticElementsToHide(input.getAllSemanticElements(),input.context().semanticDecorator())'''.trimAql
 			labelExpression = '''input.emfEditServices(self).getText()'''.trimAql
 			preconditionExpression = ""
@@ -228,7 +228,7 @@ class DefaultViewExtension extends AbstractPropertySet {
 				]
 			]
 		]
-		group("genmodel opposite instance", null) [
+		group("genmodel opposite instance", ANY_TYPE) [
 			semanticCandidateExpression = '''self.eInverse()->select( g | g.eClass().ePackage.nsURI->includes('http://www.eclipse.org/emf/2002/GenModel'))->asSet()'''.trimAql
 			labelExpression = '''self.eClass().name'''.trimAql
 			preconditionExpression = ""
@@ -253,7 +253,7 @@ class DefaultViewExtension extends AbstractPropertySet {
 				]
 			]
 		]
-		group("generation_navigation", null) [
+		group("generation_navigation", ANY_TYPE) [
 			semanticCandidateExpression = '''self.eInverse()->select( g | g.eClass().ePackage.nsURI->includes('http://www.eclipse.org/emf/2002/GenModel'))->asSet()'''.trimAql
 			style = [
 				barStyle = TitleBarStyle.NO_TITLE
@@ -333,7 +333,7 @@ class DefaultViewExtension extends AbstractPropertySet {
 				)
 			]
 		]
-		group("genmodel root", null) [
+		group("genmodel root", ANY_TYPE) [
 			semanticCandidateExpression = '''self->select(e | e.oclIsKindOf(ecore::EPackage)).eInverse()->select( g | g.eClass().ePackage.nsURI->includes('http://www.eclipse.org/emf/2002/GenModel')).eContainer(genmodel::GenModel)->asSet()'''.trimAql
 			labelExpression = '''self.eClass().name'''.trimAql
 			preconditionExpression = ""
@@ -342,7 +342,7 @@ class DefaultViewExtension extends AbstractPropertySet {
 				expandedByDefault = true
 			]
 		]
-		group("execution_body", null) [
+		group("execution_body", ANY_TYPE) [
 			semanticCandidateExpression = '''OrderedSet{self}->filter(ecore::EClassifier).getAllExecutables()'''.trimAql
 			labelExpression = '''self.getExecutableName()'''.trimAql
 			style = [
@@ -404,6 +404,13 @@ class DefaultViewExtension extends AbstractPropertySet {
 			style = [
 				expandedByDefault = true
 			]
+			action("Add New Parameter", "/org.eclipse.emf.ecore.edit/icons/full/ctool16/CreateEOperation_eParameters_EParameter.gif",
+				"var:self".toContext(
+					"eParameters".creator("ecore::EParameter").chain(
+						"name".setter(''' 'param' + self.eContainer().eContents()->filter(ecore::EParameter)->size() '''.trimAql)
+					)
+				)
+			)
 			controls += ContainerDescription.create("parameters_container") [
 				layoutFreeGrid(5)
 				forAll("self", '''self.eParameters'''.trimAql) [
@@ -470,13 +477,6 @@ class DefaultViewExtension extends AbstractPropertySet {
 					operation = "var:self".toOperation
 				]
 			]
-			action("Add New Parameter", "/org.eclipse.emf.ecore.edit/icons/full/ctool16/CreateEOperation_eParameters_EParameter.gif",
-				"var:self".toContext(
-					"eParameters".creator("ecore::EParameter").chain(
-						"name".setter(''' 'param' + self.eContainer().eContents()->filter(ecore::EParameter)->size() '''.trimAql)
-					)
-				)
-			)
 		]
 		group("eannotation dynamic", "ecore::EAnnotation") [
 			semanticCandidateExpression = '''input.getSemanticElement()->filter(ecore::EModelElement).eAnnotations'''.trimAql
@@ -485,6 +485,11 @@ class DefaultViewExtension extends AbstractPropertySet {
 				toggleStyle = ToggleStyle.TREE_NODE
 				expandedByDefault = true
 			]
+			action("Delete EAnnotation", "/org.eclipse.emf.ecoretools.design/icons/full/etools16/unset.gif",
+				"var:self".toContext(
+					RemoveElement.create
+				)
+			)
 			controls += TextDescription.create("source") [
 				labelExpression = "Source:"
 				helpExpression = '''input.emfEditServices(self).getDescription(self.eClass().getEStructuralFeature('source'))'''.trimAql
@@ -540,11 +545,6 @@ class DefaultViewExtension extends AbstractPropertySet {
 					operation = "var:self".toOperation
 				]
 			]
-			action("Delete EAnnotation", "/org.eclipse.emf.ecoretools.design/icons/full/etools16/unset.gif",
-				"var:self".toContext(
-					RemoveElement.create
-				)
-			)
 		]
 	}
 }
