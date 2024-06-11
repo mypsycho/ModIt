@@ -111,6 +111,8 @@ import org.eclipse.sirius.viewpoint.description.validation.ValidationFix
 
 import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*
 import org.eclipse.sirius.properties.PageDescription
+import org.eclipse.sirius.properties.GroupOverrideDescription
+import org.eclipse.sirius.properties.PageOverrideDescription
 
 /**
  * Adaptation of Sirius model into Java and EClass reflections API
@@ -138,7 +140,7 @@ abstract class AbstractEdition extends AbstractIdentifiableElement {
 	 * 
 	 * @param expression to evaluate
 	 */
-    protected def toOperation(String expression) {
+    def toOperation(String expression) {
         ChangeContext.create[ browseExpression = expression ]
     }
     
@@ -147,7 +149,7 @@ abstract class AbstractEdition extends AbstractIdentifiableElement {
 	 * 
 	 * @param expression to evaluate
 	 */
-    protected def toContext(String expression, ModelOperation... subOperations) {
+    def toContext(String expression, ModelOperation... subOperations) {
     	expression.toOperation.andThen [
         	subModelOperations += subOperations
         ]
@@ -166,7 +168,7 @@ abstract class AbstractEdition extends AbstractIdentifiableElement {
     	expression.toContext(subOperations)
     }
     
-    protected def toTool(ModelOperation operation) {
+    def toTool(ModelOperation operation) {
         InitialOperation.create[
             firstModelOperations = operation
         ]
@@ -179,7 +181,7 @@ abstract class AbstractEdition extends AbstractIdentifiableElement {
      * @param expression of value
      * @return a new SetValue
      */
-    protected def setter(String featureExpr, String value) {
+    def setter(String featureExpr, String value) {
         SetValue.create[
             featureName = featureExpr
             valueExpression = value
@@ -193,7 +195,7 @@ abstract class AbstractEdition extends AbstractIdentifiableElement {
      * @param expression of value
      * @return a new SetValue
      */
-    protected def SetValue setter(EStructuralFeature feature, String expression) {
+    def SetValue setter(EStructuralFeature feature, String expression) {
         feature.name.setter(expression)
     }
 
@@ -203,7 +205,7 @@ abstract class AbstractEdition extends AbstractIdentifiableElement {
      * @param feature to set
      * @return a new SetValue
      */
-    protected def SetValue setter(EStructuralFeature feature) {
+    def SetValue setter(EStructuralFeature feature) {
         feature.setter(SiriusDesigns.PROP_VALUE)
     }
     
@@ -214,7 +216,7 @@ abstract class AbstractEdition extends AbstractIdentifiableElement {
      * @param expr expression of value
      * @return a new SetValue
      */
-    protected def <T> SetValue setter(EStructuralFeature feature, 
+    def <T> SetValue setter(EStructuralFeature feature, 
             Functions.Function1<? extends EObject, ?>  expr) {
         SetValue.create[
             featureName = feature.name
@@ -224,18 +226,18 @@ abstract class AbstractEdition extends AbstractIdentifiableElement {
     
 	
     /** Creates a 'CreateIntance' operation. */
-    protected def creator(EReference ref, Class<? extends EObject> instanceType) {
+    def creator(EReference ref, Class<? extends EObject> instanceType) {
     	ref.name.creator(instanceType)
     }
     
     /** Creates a 'CreateIntance' operation. */
-    protected def creator(String refName, Class<? extends EObject> instanceType) {
+    def creator(String refName, Class<? extends EObject> instanceType) {
 		refName.creator(instanceType.asDomainClass)
     }
 
     /** Deprecated: use typed signature. */
 	// for reverse template only
-    protected def creator(String refName, String instanceType) {
+    def creator(String refName, String instanceType) {
     	CreateInstance.create [
 			referenceName = refName
 			typeName = instanceType
@@ -248,7 +250,7 @@ abstract class AbstractEdition extends AbstractIdentifiableElement {
      * @param expression of value
      * @return a new RemoveElement
      */
-    protected def remover(String expression) {
+    def remover(String expression) {
         expression.toOperation.chain(RemoveElement.create)
     }
         
@@ -259,7 +261,7 @@ abstract class AbstractEdition extends AbstractIdentifiableElement {
      * @param expression of element
      * @return a new Unset
      */
-    protected def unsetter(String feature, String expression) {
+    def unsetter(String feature, String expression) {
 		Unset.create [
 			featureName = feature
 			elementExpression = expression
@@ -273,7 +275,7 @@ abstract class AbstractEdition extends AbstractIdentifiableElement {
      * @param expression of element
      * @return a new Unset
      */
-    protected def unsetter(EStructuralFeature feature, String expression) {
+    def unsetter(EStructuralFeature feature, String expression) {
     	expression.unsetter(feature.name)
     }
 	
@@ -284,7 +286,7 @@ abstract class AbstractEdition extends AbstractIdentifiableElement {
      * @param expression of element
      * @return a new Unset
      */
-    protected def letDo(String expression, String varName, ModelOperation... operations) {
+    def letDo(String expression, String varName, ModelOperation... operations) {
 		Let.create [
 			variableName = varName
 			valueExpression = expression
@@ -299,7 +301,7 @@ abstract class AbstractEdition extends AbstractIdentifiableElement {
 	}
 
 	/** Creates a 'switch' operation. */
-	protected def switchDo(Pair<String, ? extends ModelOperation>... subCases) {
+	def switchDo(Pair<String, ? extends ModelOperation>... subCases) {
 		Switch.create[
 			cases += subCases.map[ descr |
 				Case.create [
@@ -313,7 +315,7 @@ abstract class AbstractEdition extends AbstractIdentifiableElement {
 	}
 	
 	/** Sets a default case to a 'Switch' operation. */
-	protected def setByDefault(Switch it, ModelOperation operation) {
+	def setByDefault(Switch it, ModelOperation operation) {
 		andThen[
 			// must be performed after original empty default
 			^default = Default.create[
@@ -323,17 +325,17 @@ abstract class AbstractEdition extends AbstractIdentifiableElement {
 	}
 		
 	/** Creates a 'If' operation. */
-	protected def ifThenDo(String expression, ModelOperation... operations) {
-		expression.thenDo(operations)
-	}
-
-	/** Creates a 'If' operation. Use ifThenDo */
-	@Deprecated 
-	protected def thenDo(String expression, ModelOperation... operations) {
+	def ifThenDo(String expression, ModelOperation... operations) {
 		If.create [
 			conditionExpression = expression
 			subModelOperations += operations
 		]
+	}
+
+	/** Creates a 'If' operation. Use 'ifThenDo' ! */
+	@Deprecated 
+	def thenDo(String expression, ModelOperation... operations) {
+		expression.ifThenDo(operations)
 	}
 	
 	/**
@@ -342,7 +344,7 @@ abstract class AbstractEdition extends AbstractIdentifiableElement {
 	 * @param it 'iterator' -&gt; 'collection'
 	 * @param operations to perform
 	 */
-	protected def forDo(Pair<String, String> it, ModelOperation... operations) {
+	def forDo(Pair<String, String> it, ModelOperation... operations) {
 		value.forDo(key, operations)
 	}
 	
@@ -353,7 +355,7 @@ abstract class AbstractEdition extends AbstractIdentifiableElement {
 	 * @param iter iterator name
 	 * @param operations to perform
 	 */
-	protected def forDo(String valuesExpression, String iter, ModelOperation... operations) {
+	def forDo(String valuesExpression, String iter, ModelOperation... operations) {
 		For.create [
 			expression = valuesExpression
 			iteratorName = iter
@@ -389,10 +391,12 @@ abstract class AbstractEdition extends AbstractIdentifiableElement {
 		]
 	}
 	
+	/** Creates an external java action. */
 	def javaDo(Class<?> actionId, String name, Pair<String, String>... params) {
 		actionId.name.javaDo(name, params)
 	}
 	
+	/** Creates an external java action. */
 	def javaDo(String actionId, String name, Pair<String, String>... params) {
 		ExternalJavaAction.create(name) [
 			id = actionId
@@ -400,37 +404,26 @@ abstract class AbstractEdition extends AbstractIdentifiableElement {
 		]
 	}
 
-	/**
-	 * Sets the operation for provided widget.
-	 * <p>
-	 * Widget may be used in wizard operation of all views.
-	 * </p>
-	 * <p>
-	 * This class unifies the initialOperation declaration of sub-class tool.
-	 * </p>
-	 * @param it tool to set
-	 * @param value operation to perform
-	 */
+	/** Adds an action to a group. */
 	def action(GroupDescription owner, String label, String icon, ModelOperation operation) {
 		label.createToolAction(icon, operation) => [ owner.actions += it ]
 	}
 
-	/**
-	 * Sets the operation for provided widget.
-	 * <p>
-	 * Widget may be used in wizard operation of all views.
-	 * </p>
-	 * <p>
-	 * This class unifies the initialOperation declaration of sub-class tool.
-	 * </p>
-	 * @param it tool to set
-	 * @param value operation to perform
-	 */
+	/** Adds an action to a page. */
 	def action(PageDescription owner, String label, String icon, ModelOperation operation) {
 		label.createToolAction(icon, operation) => [ owner.actions += it ]
 	}
 	
-	
+	/** Adds an action to a group. */
+	def action(GroupOverrideDescription owner, String label, String icon, ModelOperation operation) {
+		label.createToolAction(icon, operation) => [ owner.actions += it ]
+	}
+
+	/** Adds an action to a page. */
+	def action(PageOverrideDescription owner, String label, String icon, ModelOperation operation) {
+		label.createToolAction(icon, operation) => [ owner.actions += it ]
+	}
+
 	/**
 	 * Sets the operation for provided widget.
 	 * <p>

@@ -18,9 +18,12 @@ import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EStructuralFeature
 import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.sirius.business.api.helper.ViewpointUtil
+import org.eclipse.sirius.properties.ViewExtensionDescription
 import org.eclipse.sirius.viewpoint.description.DescriptionPackage
 import org.eclipse.sirius.viewpoint.description.Group
 import org.eclipse.sirius.viewpoint.description.JavaExtension
+import org.eclipse.sirius.viewpoint.description.RepresentationDescription
+import org.eclipse.sirius.viewpoint.description.RepresentationExtensionDescription
 import org.eclipse.sirius.viewpoint.description.UserFixedColor
 import org.eclipse.xtend.lib.annotations.Accessors
 import org.mypsycho.modit.emf.EReversIt
@@ -43,8 +46,8 @@ class SiriusGroupTemplate extends EReversIt {
 		delegates += new DiagramTemplate(this)
 		delegates += new TableTemplate(this)
 		delegates += new TreeTemplate(this)
-		delegates += new PropertiesTemplate(this)
 		delegates += new DiagramExtensionTemplate(this)
+		delegates += new PropertiesTemplate(this)
 	}
 		
 	override protected prepareContext() {
@@ -135,23 +138,25 @@ ENDFOR
 		}
 	}
 	
+	static val SUB_CLASSES_CASES = #{
+		VP.viewpoint_OwnedRepresentations -> RepresentationDescription -> "owned",
+		VP.viewpoint_OwnedRepresentationExtensions -> RepresentationExtensionDescription -> "owned",
+		VP.group_Extensions -> ViewExtensionDescription -> "properties"
+	}
 	override templatePropertyValue(EStructuralFeature feat, Object value, (Object)=>String encoding) {
 		feat == VP.viewpoint_OwnedJavaExtensions
 			? '''use(«(value as JavaExtension).qualifiedClassName»)'''
-			: feat == VP.viewpoint_OwnedRepresentations || feat == VP.viewpoint_OwnedRepresentationExtensions
-			? feat.templateOwned(value, encoding)
+			: feat.findSubClassCase(value) !== null
+			? '''«feat.findSubClassCase(value)»(«context.splits.get(value).templateSplitClass»)'''
 			: super.templatePropertyValue(feat, value, encoding)
 	}
 	
-	def templateOwned(EStructuralFeature feat, Object value, (Object)=>String encoding) {
-		val split = context.splits.get(value)
-		split !== null
-			? '''owned(«split.templateSplitClass»)'''
-			: super.templatePropertyValue(feat, value, encoding) // unlikely
+	def findSubClassCase(EStructuralFeature feat, Object target) {
+		SUB_CLASSES_CASES.entrySet.findFirst[
+			key.key == feat && key.value.isInstance(target)
+		]?.value
 	}
+	
 
-	override templateRef(EObject it, Class<?> using) {
-		super.templateRef(it, using)
-	}
 
 }

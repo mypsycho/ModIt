@@ -13,7 +13,9 @@
  *******************************************************************************/
 package org.mypsycho.modit.emf.sirius.api
 
+import java.util.Collections
 import java.util.HashMap
+import java.util.Iterator
 import java.util.Map
 import org.eclipse.emf.common.util.URI
 import org.eclipse.emf.ecore.EObject
@@ -21,6 +23,7 @@ import org.eclipse.emf.ecore.resource.ResourceSet
 import org.eclipse.sirius.diagram.description.AbstractNodeMapping
 import org.eclipse.sirius.diagram.description.DiagramDescription
 import org.eclipse.sirius.diagram.description.EdgeMapping
+import org.eclipse.sirius.properties.PageDescription
 import org.eclipse.sirius.properties.ViewExtensionDescription
 import org.eclipse.sirius.viewpoint.description.Group
 import org.eclipse.sirius.viewpoint.description.IdentifiedElement
@@ -28,8 +31,9 @@ import org.eclipse.sirius.viewpoint.description.RepresentationDescription
 import org.eclipse.sirius.viewpoint.description.UserColor
 import org.eclipse.sirius.viewpoint.description.tool.AbstractToolDescription
 import org.eclipse.sirius.viewpoint.description.tool.ExternalJavaAction
-import java.util.Collections
-import java.util.Iterator
+import org.eclipse.sirius.properties.GroupDescription
+import org.eclipse.sirius.properties.PageOverrideDescription
+import org.eclipse.sirius.properties.GroupOverrideDescription
 
 /**
  * Convenient methods and constants to handle dependencies between Sirius designs.
@@ -85,6 +89,10 @@ class SiriusDependencies {
 			RepresentationDescription: aliasBase + toClassname.apply(it)
 			ViewExtensionDescription: aliasBase + toClassname.apply(it)
 			
+			PageDescription: '''page:«aliasBase»«name»'''
+			GroupDescription: '''group:«aliasBase»«name»'''
+			PageOverrideDescription: '''page+:«aliasBase»«name»'''
+			GroupOverrideDescription: '''group+:«aliasBase»«name»'''
 		}
 	}
 	
@@ -105,9 +113,10 @@ class SiriusDependencies {
 	}
 
 	static def getDependencyExtras(
-		String designId, ResourceSet rs, String resourcePath
+		String designId, ResourceSet rs, 
+		String resourcePath
 	) {
-		designId.getDependencyExtras(rs, resourcePath, [ SiriusDesigns.toClassname(it) ])
+		designId.getDependencyExtras(rs, resourcePath) [ SiriusDesigns.toClassname(it) ]
 	}
 	
 	static def getDependencyExtras(
@@ -136,7 +145,6 @@ class SiriusDependencies {
 		DiagramDescription it, String aliasBase, (EObject)=>String toClassname
 	) {
 		val result = new HashMap<EObject, String>
-	
 		result += #{ it as EObject -> getExtraAlias(aliasBase, toClassname) }
 		
 		val representationAlias = aliasBase + toClassname.apply(it) + "#"
@@ -145,6 +153,30 @@ class SiriusDependencies {
 		result
 	}
 
+	private static def dispatch Map<EObject, String> mapDependencyExtras(
+		ViewExtensionDescription it, String aliasBase, (EObject)=>String toClassname
+	) {
+		val result = new HashMap<EObject, String>
+		result += #{ it as EObject -> getExtraAlias(aliasBase, toClassname) }
+		
+		val uniqueExt = (eContainer as Group)
+			.extensions
+			.filter(ViewExtensionDescription)
+			.size == 1
+		val extAlias = aliasBase + (uniqueExt ? "" : name)
+		
+		val uniqueCat = categories.size > 1
+		categories.forEach[
+			val categoryAlias = uniqueExt && uniqueCat 
+				? aliasBase
+				: '''«extAlias»«uniqueCat ? '_' + name : ""»#'''
+			result += pages.toDependencyExtras(categoryAlias, toClassname)
+			result += groups.toDependencyExtras(categoryAlias, toClassname)
+		]
+			
+		result
+	}
+	
 	private static def dispatch Map<EObject, String> mapDependencyExtras(
 		Group it, String aliasBase, (EObject)=>String toClassname
 	) {
@@ -155,13 +187,20 @@ class SiriusDependencies {
 			.flatMap[ ownedRepresentations + ownedRepresentationExtensions ]
 			.forEach [ result += mapDependencyExtras(aliasBase, toClassname) ]
 
-		ownedViewpoints
+		extensions
 			.filter(ViewExtensionDescription)
 			.forEach [ result += mapDependencyExtras(aliasBase, toClassname) ]
 		
-		result += paletteColors.iterator().toDependencyExtras(aliasBase, toClassname)
+		result += paletteColors.toDependencyExtras(aliasBase, toClassname)
 		
 		result
+	}
+	
+	static def toDependencyExtras(
+		Iterable<? extends EObject> values, String aliasBase, 
+		(EObject)=>String toClassname
+	) {
+		values.iterator.toDependencyExtras(aliasBase, toClassname)
 	}
 	
 	static def toDependencyExtras(

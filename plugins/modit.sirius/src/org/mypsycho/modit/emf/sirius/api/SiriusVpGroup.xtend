@@ -29,6 +29,7 @@ import org.eclipse.sirius.viewpoint.description.RepresentationExtensionDescripti
 import org.eclipse.sirius.viewpoint.description.UserFixedColor
 import org.eclipse.sirius.viewpoint.description.Viewpoint
 import org.mypsycho.modit.emf.sirius.SiriusModelProvider
+import org.eclipse.sirius.viewpoint.description.Group
 
 /**
  * Class regrouping a common adaptation of Sirius into Java and EClass reflection for group.
@@ -167,6 +168,13 @@ abstract class SiriusVpGroup extends SiriusModelProvider {
 				RepresentationDescription: owner.ownedRepresentations += it
 			}	
 		]		
+	}
+	
+	protected def properties(Group owner, Class<? extends AbstractPropertySet> descr) {
+		val part = descr.constructors.head.newInstance(this) as AbstractPropertySet
+		part.createContent => [
+			owner.extensions += it	
+		]
 	}
 	
 	//

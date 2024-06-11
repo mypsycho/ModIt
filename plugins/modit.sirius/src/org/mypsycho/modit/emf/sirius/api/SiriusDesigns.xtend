@@ -16,11 +16,11 @@ package org.mypsycho.modit.emf.sirius.api
 import java.util.regex.Pattern
 import org.eclipse.emf.common.util.EList
 import org.eclipse.emf.common.util.Enumerator
+import org.eclipse.emf.ecore.EClass
 import org.eclipse.emf.ecore.EClassifier
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EReference
 import org.eclipse.emf.ecore.EStructuralFeature
-import org.eclipse.emf.ecore.EcorePackage
 import org.eclipse.emf.ecore.util.EcoreEList
 import org.eclipse.emf.edit.provider.IItemLabelProvider
 import org.eclipse.sirius.diagram.ui.provider.DiagramUIPlugin
@@ -30,7 +30,6 @@ import org.eclipse.sirius.viewpoint.description.IdentifiedElement
 import org.eclipse.sirius.viewpoint.description.RepresentationDescription
 import org.eclipse.sirius.viewpoint.description.RepresentationExtensionDescription
 import org.mypsycho.modit.emf.sirius.SiriusConstantInterpreter
-import org.eclipse.emf.ecore.EClass
 
 /**
  * Convenient methods and constants for Sirius design creation.
@@ -58,7 +57,10 @@ class SiriusDesigns {
 	/** Expression for return semantic container */
 	public static val NEVER = AQL + "false"
 
-	public static val ANY_TYPE = encode(EcorePackage.eINSTANCE.EObject)
+	public static val ANY_TYPE = "EObject" 
+	// Constant used in:
+	//   org.eclipse.sirius.ecore.extender.business.internal.accessor.ecore.EcoreIntrinsicExtender
+	//   #eInstanceOf
 
 	/**
 	 * Creates a constant of the value.

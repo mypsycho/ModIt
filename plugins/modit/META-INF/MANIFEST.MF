@@ -13,7 +13,8 @@ Require-Bundle:
  org.eclipse.xtend.lib;visibility:=reexport,
  org.eclipse.xtend.lib.macro;visibility:=reexport,
  org.eclipse.emf.ecore;visibility:=reexport,
- org.eclipse.emf.ecore.xmi;visibility:=reexport
+ org.eclipse.emf.ecore.xmi;visibility:=reexport,
+ org.eclipse.emf.codegen.ecore.ui;bundle-version="2.26.0"
 Export-Package: 
  org.mypsycho.modit,
  org.mypsycho.modit.emf,

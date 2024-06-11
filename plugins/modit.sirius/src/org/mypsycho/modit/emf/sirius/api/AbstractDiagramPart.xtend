@@ -84,6 +84,7 @@ import org.eclipse.sirius.viewpoint.description.tool.InitialNodeCreationOperatio
 import org.eclipse.sirius.viewpoint.description.tool.ModelOperation
 
 import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*
+import org.eclipse.sirius.viewpoint.description.DecorationDescriptionsSet
 
 /**
  * Adaptation of Sirius model into Java and EClass reflections API
@@ -445,6 +446,14 @@ abstract class AbstractDiagramPart<T extends EObject> extends AbstractTypedEditi
 			customization = Customization.create
 		}
 		customization.vsmElementCustomizations
+	}
+	
+	/** Gets decorations of a layer. */
+	def getDecorationDescriptions(Layer it) {
+		if (decorationDescriptionsSet === null) {
+			decorationDescriptionsSet = DecorationDescriptionsSet.create
+		}
+		decorationDescriptionsSet.decorationDescriptions
 	}
 	
 	/**

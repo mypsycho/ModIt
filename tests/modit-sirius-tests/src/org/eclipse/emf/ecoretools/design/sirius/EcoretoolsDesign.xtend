@@ -92,7 +92,7 @@ class EcoretoolsDesign extends SiriusVpGroup {
 			entries += "Abstract EClass".color(228, 228, 228)
 			entries += "Inherited".color(125, 125, 125)
 		]
-		extensions += new DefaultViewExtension(this).createContent
+		properties(DefaultViewExtension)
 	}
 
 
