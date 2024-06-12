@@ -14,42 +14,52 @@
 package org.mypsycho.modit.emf.sirius.tool
 
 import java.nio.file.Path
+import java.util.List
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EStructuralFeature
 import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.sirius.business.api.helper.ViewpointUtil
 import org.eclipse.sirius.properties.ViewExtensionDescription
-import org.eclipse.sirius.viewpoint.description.DescriptionPackage
 import org.eclipse.sirius.viewpoint.description.Group
 import org.eclipse.sirius.viewpoint.description.JavaExtension
 import org.eclipse.sirius.viewpoint.description.RepresentationDescription
 import org.eclipse.sirius.viewpoint.description.RepresentationExtensionDescription
+import org.eclipse.sirius.viewpoint.description.UserColorsPalette
 import org.eclipse.sirius.viewpoint.description.UserFixedColor
-import org.eclipse.xtend.lib.annotations.Accessors
-import org.mypsycho.modit.emf.EReversIt
+import org.eclipse.sirius.viewpoint.description.Viewpoint
 import org.mypsycho.modit.emf.sirius.api.SiriusVpGroup
 
 /** 
  * Specific reverse for AbstractGroup class.
  */
-class SiriusGroupTemplate extends EReversIt {
+class SiriusGroupTemplate extends TypedTemplate<Group> {
 	
-	static val VP = DescriptionPackage.eINSTANCE
+	static val INIT_TEMPLATED = #{
+		Viewpoint -> #{ PKG.identifiedElement_Name },
+		UserColorsPalette -> #{ PKG.userColorsPalette_Name }
+	}
 	
-	// XTend does not support statefull inner class
-	@Accessors
-	val SiriusReverseIt tool
+//	// XTend does not support statefull inner class
+//	@Accessors
+//	val SiriusReverseIt tool
 	
 	new(SiriusReverseIt container, String classname, Path dir, Resource res) {
-		super(classname, dir, res)
-		tool = container
-		delegates += new DiagramTemplate(this)
-		delegates += new TableTemplate(this)
-		delegates += new TreeTemplate(this)
-		delegates += new DiagramExtensionTemplate(this)
-		delegates += new PropertiesTemplate(this)
+		super(container, classname, dir, res, Group)
+
+		delegates += #[
+			DiagramTemplate, 
+			DiagramExtensionTemplate, 
+			TableTemplate, 
+			TreeTemplate, 
+			PropertiesTemplate
+		].map[ getConstructor(SiriusGroupTemplate).newInstance(this) ]
 	}
+	
+	override getNsMapping() { List.of }
 		
+	/** Lists fields where a accelerator replace basic assignment. */
+	override getInitTemplateds() { INIT_TEMPLATED }
+
 	override protected prepareContext() {
 		context.aliases +=  tool.source
 			.userColorsPalettes
@@ -74,17 +84,18 @@ import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*
  * @generated
  */
 class «context.mainClass.name» extends «SiriusVpGroup.templateClass» {
-	
-	new () {
-		businessPackages += #[
+
+	/** Metamodels used in expressions. */ // This list can be used in reverse.
+	public static val EDITED_PKGS = #[
 «
 FOR pkg : tool.editedPackages
 SEPARATOR LValueSeparator // cannot include comma in template: improper for last value.
-»			«pkg.class.interfaces.head.templateClass».eINSTANCE«
+»		«pkg.class.interfaces.head.templateClass».eINSTANCE«
 ENDFOR
 »
-		]
-	}
+	]
+
+	new () { super(EDITED_PKGS) }
 
 	override initContent(«Group.templateClass» it) {
 		«content.apply»
@@ -98,11 +109,9 @@ IF !templateExtrasContent.empty
 		«templateExtrasContent»
 	}
 
-« ENDIF »
-
-}
-'''
-	}
+« ENDIF 
+»}
+'''}
 	
 	def isEnvironment(EObject it) {
 		ViewpointUtil.ENVIRONMENT_URI_SCHEME == eResource?.URI?.scheme
@@ -115,11 +124,10 @@ IF !templateExtrasContent.empty
 			result
 	}
 
-	override templateExplicitAlias(EObject it) {
+	override templateExplicitAlias(EObject it)
 '''«templateClass».eObject(«toUri.toJava »)'''	
-	}
-
-	override templateSimpleContent(EObject it) {
+	
+	override templateSimpleContent(EObject it)
 		// As assembling is performed by SiriusModelProvider,
 		// use the code from #templateInnerCreate.
 '''
@@ -128,7 +136,7 @@ FOR c : innerContent SEPARATOR statementSeparator
 »«templateProperty(c.key, c.value)»«
 ENDFOR
 »
-'''}
+'''
 
 	override templateInnerCreate(EObject it) {
 		switch (it) {
@@ -138,17 +146,22 @@ ENDFOR
 		}
 	}
 	
-	static val SUB_CLASSES_CASES = #{
-		VP.viewpoint_OwnedRepresentations -> RepresentationDescription -> "owned",
-		VP.viewpoint_OwnedRepresentationExtensions -> RepresentationExtensionDescription -> "owned",
-		VP.group_Extensions -> ViewExtensionDescription -> "properties"
-	}
 	override templatePropertyValue(EStructuralFeature feat, Object value, (Object)=>String encoding) {
-		feat == VP.viewpoint_OwnedJavaExtensions
+		feat == PKG.viewpoint_OwnedJavaExtensions
 			? '''use(«(value as JavaExtension).qualifiedClassName»)'''
 			: feat.findSubClassCase(value) !== null
 			? '''«feat.findSubClassCase(value)»(«context.splits.get(value).templateSplitClass»)'''
+			: PKG.group_OwnedViewpoints == feat
+			? (value as Viewpoint).templateViewpoint
+			: PKG.group_UserColorsPalettes == feat
+			? (value as UserColorsPalette).templateColorsPalette
 			: super.templatePropertyValue(feat, value, encoding)
+	}
+	
+	static val SUB_CLASSES_CASES = #{
+		PKG.viewpoint_OwnedRepresentations -> RepresentationDescription -> "owned",
+		PKG.viewpoint_OwnedRepresentationExtensions -> RepresentationExtensionDescription -> "owned",
+		PKG.group_Extensions -> ViewExtensionDescription -> "properties"
 	}
 	
 	def findSubClassCase(EStructuralFeature feat, Object target) {
@@ -156,7 +169,16 @@ ENDFOR
 			key.key == feat && key.value.isInstance(target)
 		]?.value
 	}
-	
+
+	def templateViewpoint(Viewpoint it)
+'''viewpoint(«name.toJava») [
+	«templateFilteredContent(Viewpoint)»
+]'''
+
+	def templateColorsPalette(UserColorsPalette it)
+'''colorsPalette(«name.toJava»,
+	«entries.templateContainedValues»
+)'''
 
 
 }

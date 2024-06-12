@@ -20,16 +20,19 @@ import org.eclipse.emf.ecore.EClassifier
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EPackage
 import org.eclipse.sirius.diagram.DiagramPackage
+import org.eclipse.sirius.properties.PropertiesPackage
 import org.eclipse.sirius.table.metamodel.table.TablePackage
 import org.eclipse.sirius.viewpoint.ViewpointPackage
+import org.eclipse.sirius.viewpoint.description.Group
 import org.eclipse.sirius.viewpoint.description.IdentifiedElement
 import org.eclipse.sirius.viewpoint.description.JavaExtension
 import org.eclipse.sirius.viewpoint.description.RepresentationDescription
 import org.eclipse.sirius.viewpoint.description.RepresentationExtensionDescription
+import org.eclipse.sirius.viewpoint.description.UserColor
+import org.eclipse.sirius.viewpoint.description.UserColorsPalette
 import org.eclipse.sirius.viewpoint.description.UserFixedColor
 import org.eclipse.sirius.viewpoint.description.Viewpoint
 import org.mypsycho.modit.emf.sirius.SiriusModelProvider
-import org.eclipse.sirius.viewpoint.description.Group
 
 /**
  * Class regrouping a common adaptation of Sirius into Java and EClass reflection for group.
@@ -45,31 +48,33 @@ abstract class SiriusVpGroup extends SiriusModelProvider {
 	static val BUILT_IN_PACKAGES = #[
 		ViewpointPackage.eINSTANCE,
 		DiagramPackage.eINSTANCE,
-		TablePackage.eINSTANCE
+		TablePackage.eINSTANCE,
+		PropertiesPackage.eINSTANCE
 	]
 	
 	/**
 	 * Construction of model using provided packages.
 	 * 
-	 * @param descriptorPackages used by Sirius
+	 * @param editPackages used by expression
+	 * @param vpPackages used by ModitModel
 	 */
-	new(Iterable<? extends EPackage> descriptorPackages) {
-		super(descriptorPackages)
+	new(Iterable<? extends EPackage> editPackages, Iterable<? extends EPackage> vpPackages) {
+		super(vpPackages)
+		businessPackages += editPackages
 	}
 		
-	/**
-	 * Construction of model using provided package.
-	 * 
-	 * @param descriptorPackages used by Sirius
-	 */
-	new(EPackage... descriptorPackages) {
-		this(descriptorPackages as Iterable<EPackage>)
+	
+	/** Construction of model using default Sirius package. */
+	new(Iterable<? extends EPackage> editPackages) {
+		this(editPackages, DEFAULT_PACKAGES)
 	}
 	
 	/**
 	 * Construction of model using default Sirius package.
+	 * <p>For compatibility.</p>
 	 */
-	new() { /* required by other constructor existence */ }
+	@Deprecated
+	new() { this(List.of) }
 	
 	var String iplExpression = "feature:name" // built-in default
 	def getItemProviderLabel() {
@@ -86,27 +91,7 @@ abstract class SiriusVpGroup extends SiriusModelProvider {
 	 * 
 	 * @returns the registered packages
 	 */
-	def Collection<? extends EPackage> getBusinessPackages() {
-		businessPackages
-	}
-	
-	/**
-	 * Creates a fixed color.
-	 * 
-	 * @param colorName used to be referenced as 'color:&lt;colorName>'
-	 * @param r red from 0..255
-	 * @param g green from 0..255
-	 * @param b blue from 0..255
-	 * @return UserFixedColor
-	 */
-	def color(String colorname, int r, int g, int b) {
-		UserFixedColor.createAs("color:" + colorname)[
-			name = colorname
-			red = r
-			green = g
-			blue = b
-		]
-	}
+	def Collection<? extends EPackage> getBusinessPackages() { businessPackages }
 	
 	/**
 	 * Provides text used for domainClass properties from java Class.
@@ -138,45 +123,7 @@ abstract class SiriusVpGroup extends SiriusModelProvider {
 		result
 	}
 	
-	/**
-	 * Registers service classes.
-	 * 
-	 * @param vp viewpoint
-	 * @param services to register
-	 */
-	def void use(Viewpoint vp, Class<?>... services) {
-		services.forEach[ vp.use(it) ]
-	}
-	
-	/**
-	 * Registers service class.
-	 * 
-	 * @param vp viewpoint
-	 * @param service to register
-	 */
-	def void use(Viewpoint it, Class<?> service) {
-	    // method name is a tribute to ADA
-	    ownedJavaExtensions += JavaExtension.create[ qualifiedClassName = service.name ]
-	}
-	
-	
-	protected def owned(Viewpoint owner, Class<? extends AbstractTypedEdition<?>> descr) {
-		val part = descr.constructors.head.newInstance(this) as AbstractTypedEdition<?>
-		part.createContent => [
-			switch(it) {
-				RepresentationExtensionDescription: owner.ownedRepresentationExtensions += it
-				RepresentationDescription: owner.ownedRepresentations += it
-			}	
-		]		
-	}
-	
-	protected def properties(Group owner, Class<? extends AbstractPropertySet> descr) {
-		val part = descr.constructors.head.newInstance(this) as AbstractPropertySet
-		part.createContent => [
-			owner.extensions += it	
-		]
-	}
-	
+
 	//
 	// Identification
 	// 
@@ -218,9 +165,8 @@ abstract class SiriusVpGroup extends SiriusModelProvider {
 	 * @param context of element
 	 * @param path of element
 	 */
-	protected def String createId(String category, String context, String path) {
+	protected def String createId(String category, String context, String path)
 		'''«category»:«context».«path.toFirstLower.replace(" ", "_")»'''
-	}
 	
 	
 	/**
@@ -232,5 +178,80 @@ abstract class SiriusVpGroup extends SiriusModelProvider {
 	 */
 	static def <T extends IdentifiedElement> atIdentifiedElement(Iterable<T> values, Object key) {
 		SiriusDesigns.atNamed(values, key as String)
+	}
+	
+	// 
+	// API
+	//
+	
+	/**
+	 * Creates a fixed color.
+	 * 
+	 * @param colorName used to be referenced as 'color:&lt;colorName>'
+	 * @param r red from 0..255
+	 * @param g green from 0..255
+	 * @param b blue from 0..255
+	 * @return UserFixedColor
+	 */
+	def color(String colorname, int r, int g, int b) {
+		UserFixedColor.createAs("color:" + colorname)[
+			name = colorname
+			red = r
+			green = g
+			blue = b
+		]
+	}
+	
+	/** Creates a user colors palette. */
+	def colorsPalette(Group owner, String paletteName, UserColor... values) {
+		UserColorsPalette.create [
+			name = paletteName
+			entries += values
+		] => [ owner.userColorsPalettes += it ]
+	}
+	
+	/** Creates a user colors palette. */
+	def viewpoint(Group owner, String vpName, (Viewpoint)=>void init) {
+		Viewpoint.create [
+			name = vpName
+			init.apply(it)
+		] => [ owner.ownedViewpoints += it ]
+	}
+	
+
+	/**
+	 * Registers service classes.
+	 * 
+	 * @param vp viewpoint
+	 * @param services to register
+	 */
+	def void use(Viewpoint vp, Class<?>... services) {
+		services.forEach[ vp.use(it) ]
+	}
+	
+	/**
+	 * Registers service class.
+	 * 
+	 * @param vp viewpoint
+	 * @param service to register
+	 */
+	def void use(Viewpoint it, Class<?> service) {
+		// method name is a tribute to ADA
+		ownedJavaExtensions += JavaExtension.create[ qualifiedClassName = service.name ]
+	}
+	
+	def owned(Viewpoint owner, Class<? extends AbstractTypedEdition<?>> descr) {
+		val part = descr.constructors.head.newInstance(this) as AbstractTypedEdition<?>
+		part.createContent => [
+			switch(it) {
+				RepresentationExtensionDescription: owner.ownedRepresentationExtensions += it
+				RepresentationDescription: owner.ownedRepresentations += it
+			}	
+		]		
+	}
+	
+	def properties(Group owner, Class<? extends AbstractPropertySet> descr) {
+		val part = descr.constructors.head.newInstance(this) as AbstractPropertySet
+		part.createContent => [ owner.extensions += it ]
 	}
 }

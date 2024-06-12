@@ -181,27 +181,32 @@ ENDIF
 		) ?: super.templatePropertyValue(feat, value, encoding)
 	}
 	
-	def templatePage(PageDescription it) {
+	def templatePage(PageDescription it)
 '''page«templateSectionBody(
 	domainClass, 
 	semanticCandidateExpression, 
 	PageDescription
-)»'''}
+)»'''
 	
-	def templateGroup(GroupDescription it) {
+	def templateGroup(GroupDescription it)
 '''group«templateSectionBody( 
 	domainClass, 
 	semanticCandidateExpression, 
 	GroupDescription
-)»'''}
+)»'''
 	
-	def templateSectionBody(IdentifiedElement it,  String domainClass, String semanticCandidateExpression, Class<? extends EObject> filter) {
+	def templateSectionBody(
+		IdentifiedElement it,  
+		String domainClass, 
+		String semanticCandidateExpression, 
+		Class<? extends EObject> sectionType
+	)
 '''(«name.toJava», «domainClass?.toJava ?: "ANY_TYPE"») [
 	«IF semanticCandidateExpression != SiriusDesigns.IDENTITY»
 	semanticCandidateExpression = «semanticCandidateExpression.toJava»
 	«ENDIF»
-	«templateFilteredContent(filter)»
-]'''}
+	«templateFilteredContent(sectionType)»
+]'''
 	
 	def templateGroupRef(GroupDescription ref) {
 		// Inspired from RepresentationTemplate#templateRef(EObject, NsRefExpr, Expr, Class<?>)

@@ -5,8 +5,6 @@ import org.eclipse.emf.codegen.ecore.genmodel.GenModelPackage
 import org.eclipse.emf.ecore.EcorePackage
 import org.eclipse.sirius.viewpoint.description.Group
 import org.eclipse.sirius.viewpoint.description.InterpolatedColor
-import org.eclipse.sirius.viewpoint.description.UserColorsPalette
-import org.eclipse.sirius.viewpoint.description.Viewpoint
 import org.mypsycho.modit.emf.sirius.api.SiriusVpGroup
 
 import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*
@@ -17,20 +15,20 @@ import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*
  * @generated
  */
 class EcoretoolsDesign extends SiriusVpGroup {
-	
-	new () {
-		businessPackages += #[
-			EcorePackage.eINSTANCE,
-			GenModelPackage.eINSTANCE
-		]
-	}
+
+	/** Metamodels used in expressions. */ // This list can be used in reverse.
+	public static val EDITED_PKGS = #[
+		EcorePackage.eINSTANCE,
+		GenModelPackage.eINSTANCE
+	]
+
+	new () { super(EDITED_PKGS) }
 
 	override initContent(Group it) {
 		name = "EcoreTools"
 		version = "12.0.0.2017041100"
-		ownedViewpoints += Viewpoint.create [
+		viewpoint("Design") [
 			endUserDocumentation = "<html>\n<head>\n</head>\n<body>\n<p>Provides graphical and tabular representation to design an Ecore model.</p>\n<br>\n<img src=\"/icons/full/wizban/entities.png\"/>\n<img src=\"/icons/full/wizban/classes.png\"/>\n</body>\n</html>\n\n\n"
-			name = "Design"
 			modelFileExtension = "ecore xcore ecorebin"
 			owned(EntitiesDiagram)
 			owned(ClassesEditionTable)
@@ -39,18 +37,16 @@ class EcoretoolsDesign extends SiriusVpGroup {
 			use(org.eclipse.emf.ecoretools.design.service.PropertiesServices)
 			use(org.eclipse.emf.ecoretools.design.service.ALEServices)
 		]
-		ownedViewpoints += Viewpoint.create [
+		viewpoint("Archetype") [
 			endUserDocumentation = "Add support for archetypes-based modeling to the Entities modeler."
-			name = "Archetype"
 			modelFileExtension = "ecore xcore ecorebin"
 			owned(EntitiesWithArchetypesDiagramExtension)
 			use(org.eclipse.emf.ecoretools.design.service.ArchetypeServices)
 			use(org.eclipse.emf.ecoretools.design.service.PropertiesServices)
 			use(org.eclipse.emf.ecoretools.design.service.ALEServices)
 		]
-		ownedViewpoints += Viewpoint.create [
+		viewpoint("Review") [
 			endUserDocumentation = "Provides representation to document and review Ecore models."
-			name = "Review"
 			modelFileExtension = "ecore xcore ecorebin"
 			owned(DocumentationCrossTable)
 			owned(DependenciesDiagram)
@@ -58,42 +54,39 @@ class EcoretoolsDesign extends SiriusVpGroup {
 			use(org.eclipse.emf.ecoretools.design.service.PropertiesServices)
 			use(org.eclipse.emf.ecoretools.design.service.ALEServices)
 		]
-		ownedViewpoints += Viewpoint.create [
+		viewpoint("Generation") [
 			endUserDocumentation = "Adds support for EMF GenModel configuration."
-			name = "Generation"
 			modelFileExtension = "genmodel"
 			owned(GenPackageAttributesEditionTable)
 			use(org.eclipse.emf.ecoretools.design.service.GenerationServices)
 			use(org.eclipse.emf.ecoretools.design.service.PropertiesServices)
 			use(org.eclipse.emf.ecoretools.design.service.ALEServices)
 		]
-		userColorsPalettes += UserColorsPalette.create [
-			name = "Ecore Palette"
-			entries += InterpolatedColor.createAs("color:Size Based Color") [
+		colorsPalette("Ecore Palette",
+			InterpolatedColor.createAs("color:Size Based Color") [
 				name = "Size Based Color"
-				minValueComputationExpression = "aql:0"
-				maxValueComputationExpression = "aql:10"
-			]
-			entries += "MomentIntervalColor".color(250, 190, 190)
-			entries += "RoleColor".color(250, 240, 180)
-			entries += "PartyPlaceThingColor".color(180, 230, 180)
-			entries += "DescriptionColor".color(180, 200, 210)
-			entries += "Package Color".color(255, 245, 182)
-			entries += "External Package Color".color(253, 208, 142)
-			entries += "EClass".color(255, 252, 216)
-			entries += "EPackage".color(217, 210, 220)
-			entries += "EDataType".color(255, 250, 191)
-			entries += "EEnum".color(221, 236, 202)
-			entries += "Dark EClass".color(125, 125, 125)
-			entries += "Dark EPackage".color(125, 125, 125)
-			entries += "Dark EDataType".color(125, 125, 125)
-			entries += "Dark EEnum".color(125, 125, 125)
-			entries += "Doc Annotation".color(220, 234, 183)
-			entries += "Abstract EClass".color(228, 228, 228)
-			entries += "Inherited".color(125, 125, 125)
-		]
+				minValueComputationExpression = '''0'''.trimAql
+				maxValueComputationExpression = '''10'''.trimAql
+			],
+			"MomentIntervalColor".color(250, 190, 190),
+			"RoleColor".color(250, 240, 180),
+			"PartyPlaceThingColor".color(180, 230, 180),
+			"DescriptionColor".color(180, 200, 210),
+			"Package Color".color(255, 245, 182),
+			"External Package Color".color(253, 208, 142),
+			"EClass".color(255, 252, 216),
+			"EPackage".color(217, 210, 220),
+			"EDataType".color(255, 250, 191),
+			"EEnum".color(221, 236, 202),
+			"Dark EClass".color(125, 125, 125),
+			"Dark EPackage".color(125, 125, 125),
+			"Dark EDataType".color(125, 125, 125),
+			"Dark EEnum".color(125, 125, 125),
+			"Doc Annotation".color(220, 234, 183),
+			"Abstract EClass".color(228, 228, 228),
+			"Inherited".color(125, 125, 125)
+		)
 		properties(DefaultViewExtension)
 	}
-
 
 }

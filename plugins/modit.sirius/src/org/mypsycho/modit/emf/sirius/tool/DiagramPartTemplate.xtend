@@ -194,7 +194,7 @@ abstract class DiagramPartTemplate<R extends EObject> extends RepresentationTemp
 	
 	def dispatch smartTemplateCreate(VSMElementCustomization it) {
 '''«predicateExpression.toJava».thenStyle(
-	«featureCustomizations.map[ templateCreate ].join(LValueSeparator)»
+	«featureCustomizations.templateContainedValues»
 )'''}
 	
 	def dispatch smartTemplateCreate(EStructuralFeatureCustomization it) {
