@@ -61,6 +61,7 @@ import org.eclipse.sirius.diagram.description.tool.SourceEdgeViewCreationVariabl
 import org.eclipse.sirius.diagram.description.tool.TargetEdgeCreationVariable
 import org.eclipse.sirius.diagram.description.tool.TargetEdgeViewCreationVariable
 import org.eclipse.sirius.viewpoint.description.Customization
+import org.eclipse.sirius.viewpoint.description.DecorationDescriptionsSet
 import org.eclipse.sirius.viewpoint.description.EAttributeCustomization
 import org.eclipse.sirius.viewpoint.description.EReferenceCustomization
 import org.eclipse.sirius.viewpoint.description.EStructuralFeatureCustomization
@@ -82,9 +83,10 @@ import org.eclipse.sirius.viewpoint.description.tool.InitEdgeCreationOperation
 import org.eclipse.sirius.viewpoint.description.tool.InitialContainerDropOperation
 import org.eclipse.sirius.viewpoint.description.tool.InitialNodeCreationOperation
 import org.eclipse.sirius.viewpoint.description.tool.ModelOperation
+import org.eclipse.sirius.viewpoint.description.validation.RuleAudit
+import org.eclipse.sirius.viewpoint.description.validation.ViewValidationRule
 
 import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*
-import org.eclipse.sirius.viewpoint.description.DecorationDescriptionsSet
 
 /**
  * Adaptation of Sirius model into Java and EClass reflections API
@@ -449,7 +451,7 @@ abstract class AbstractDiagramPart<T extends EObject> extends AbstractTypedEditi
 	}
 	
 	/** Gets decorations of a layer. */
-	def getDecorationDescriptions(Layer it) {
+	def getDecorations(Layer it) {
 		if (decorationDescriptionsSet === null) {
 			decorationDescriptionsSet = DecorationDescriptionsSet.create
 		}
@@ -1090,6 +1092,16 @@ abstract class AbstractDiagramPart<T extends EObject> extends AbstractTypedEditi
 		CreateView.create [
 			containerViewExpression = containerView.trimAql
 			mapping = viewMapping
+		]
+	}
+	
+	// Validation
+	
+	def validFor(ViewValidationRule owner, String expression) {
+		RuleAudit.create [
+			auditExpression = expression
+		] => [
+			owner.audits += it
 		]
 	}
 	

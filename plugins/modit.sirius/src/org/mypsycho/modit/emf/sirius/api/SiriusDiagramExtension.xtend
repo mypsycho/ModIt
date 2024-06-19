@@ -13,15 +13,16 @@
  *******************************************************************************/
 package org.mypsycho.modit.emf.sirius.api
 
+import java.util.Objects
 import org.eclipse.emf.ecore.util.EcoreUtil
 import org.eclipse.sirius.diagram.description.DiagramDescription
 import org.eclipse.sirius.diagram.description.DiagramExtensionDescription
 import org.eclipse.sirius.viewpoint.description.Group
 import org.eclipse.sirius.viewpoint.description.RepresentationDescription
 import org.eclipse.sirius.viewpoint.description.Viewpoint
+import org.eclipse.sirius.viewpoint.description.validation.ValidationSet
 
 import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*
-import java.util.Objects
 
 /**
  * Adaptation of Sirius model into Java and EClass reflections API for Diagrams.
@@ -87,5 +88,20 @@ abstract class SiriusDiagramExtension extends AbstractDiagramPart<DiagramExtensi
 		extendedUri.segment(1).encodeVpUri(name)
 	}
 	
-
+		
+	/** Gets owned validation rules of an extension. */
+	def getOwnedValidations(DiagramExtensionDescription it) {
+		if (validationSet === null) {
+			validationSet = ValidationSet.create
+		}
+		validationSet.ownedRules
+	}
+	
+	/** Gets reused validation rules of an extension. */
+	def getReusedValidations(DiagramExtensionDescription it) {
+		if (validationSet === null) {
+			validationSet = ValidationSet.create
+		}
+		validationSet.reusedRules
+	}
 }

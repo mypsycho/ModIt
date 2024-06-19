@@ -21,6 +21,7 @@ import org.eclipse.sirius.diagram.description.Layer
 import org.eclipse.sirius.diagram.description.filter.CompositeFilterDescription
 import org.eclipse.sirius.diagram.description.filter.FilterKind
 import org.eclipse.sirius.diagram.description.filter.MappingFilter
+import org.eclipse.sirius.viewpoint.description.validation.ValidationSet
 
 /**
  * Adaptation of Sirius model into Java and EClass reflections API for Diagrams.
@@ -150,6 +151,23 @@ abstract class AbstractBaseDiagram<T extends DiagramDescription> extends Abstrac
 		] => [ // Must be reachable (out of init phase)
 			owner.filters += it
 		]
+	}
+	
+		
+	/** Gets owned validation rules of an extension. */
+	def getOwnedValidations(DiagramDescription it) {
+		if (validationSet === null) {
+			validationSet = ValidationSet.create
+		}
+		validationSet.ownedRules
+	}
+	
+	/** Gets reused validation rules of an extension. */
+	def getReusedValidations(DiagramDescription it) {
+		if (validationSet === null) {
+			validationSet = ValidationSet.create
+		}
+		validationSet.reusedRules
 	}
 
 }
