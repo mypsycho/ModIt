@@ -29,6 +29,7 @@ import org.eclipse.sirius.business.api.helper.ViewpointUtil
 import org.eclipse.sirius.properties.PropertiesPackage
 import org.eclipse.sirius.properties.ext.widgets.reference.propertiesextwidgetsreference.PropertiesExtWidgetsReferencePackage
 import org.eclipse.sirius.viewpoint.description.AbstractVariable
+import org.eclipse.sirius.viewpoint.description.DecorationDescription
 import org.eclipse.sirius.viewpoint.description.DescriptionPackage
 import org.eclipse.sirius.viewpoint.description.Environment
 import org.eclipse.sirius.viewpoint.description.Group
@@ -38,6 +39,7 @@ import org.eclipse.sirius.viewpoint.description.style.LabelBorderStyleDescriptio
 import org.eclipse.sirius.viewpoint.description.style.StylePackage
 import org.eclipse.sirius.viewpoint.description.tool.ToolEntry
 import org.eclipse.sirius.viewpoint.description.tool.ToolPackage
+import org.eclipse.sirius.viewpoint.description.validation.ValidationFix
 import org.eclipse.xtend.lib.annotations.AccessorType
 import org.eclipse.xtend.lib.annotations.Accessors
 import org.mypsycho.modit.emf.EModIt
@@ -121,9 +123,10 @@ abstract class SiriusModelProvider implements ModitModel {
 				switch(it) {
 					AbstractVariable: name = text
 					IdentifiedElement: name = text
+					DecorationDescription: name = text
+					ValidationFix: name = text
 					default: '''No content for «class»'''.verify(false)
 				}
-				
 			]
 		]
 		
@@ -133,9 +136,7 @@ abstract class SiriusModelProvider implements ModitModel {
 		// Having a overridden method called in constructor is unsafe.
 	}
 	
-	/**
-	 * Construction of model using default Sirius package.
-	 */
+	/** Construction of model using default Sirius package. */
 	new () { 
 		this(DEFAULT_PACKAGES)
 	}
@@ -144,7 +145,12 @@ abstract class SiriusModelProvider implements ModitModel {
 	
 	def registerContent(Resource container) {
 		// registration use resource uri, it must be set after
-		container.buildContent[ ModitSiriusPlugin.instance.registry.registerProvider(this, resource) ]
+		container.buildContent[ 
+			ModitSiriusPlugin
+				.instance
+				.registry
+				.registerProvider(this, resource)
+		]
 	}
 	
 	override Collection<? extends Group> loadContent(Resource container) {		
@@ -162,7 +168,6 @@ abstract class SiriusModelProvider implements ModitModel {
 		
 		initExtras
 		rootAlias.alias(content)
-
 		
 		// default name and version; can be overridden by user.
 		content.name = class.simpleName
@@ -171,7 +176,7 @@ abstract class SiriusModelProvider implements ModitModel {
 		
 		// as ownedViewpoints is composition, navigation is safe before assemble
 		content.assemble
-
+		
 		// eObjects are not headless: eResource is not null.
 		resource.contents.add(content)
 		content
@@ -182,7 +187,7 @@ abstract class SiriusModelProvider implements ModitModel {
 	}
 	
 	/**
-	 * Initialize map of external references with resource set
+	 * Initializes map of external references with resource set
 	 * <p>
 	 * By default, it only contains colors.
 	 * </p>
@@ -208,10 +213,8 @@ abstract class SiriusModelProvider implements ModitModel {
 			.toMap[ environmentAlias ]
 	}
 	
-
-	
 	/**
-	 * Get an object from the resource set of resource using it URI.
+	 * Gets an object from the resource set of resource using it URI.
 	 * 
 	 * @param <T> expected type
 	 * @param uri of value
@@ -221,9 +224,8 @@ abstract class SiriusModelProvider implements ModitModel {
 		resource.resourceSet.getEObject(URI.createURI(uri), true) as T
 	}
 	
-		
 	/**
-	 * Get value from extras using key.
+	 * Gets value from extras using key.
 	 * 
 	 * @param <T> expected type
 	 * @param type expected
@@ -235,8 +237,8 @@ abstract class SiriusModelProvider implements ModitModel {
 	}
 	
 	protected def void initContent(Group it)
-
-
+	
+	
 	def String expression(Functions.Function1<? extends EObject, ?> callable) {
 		DEFAULT_INSTANCE.createExpression(0, callable)
 	}
@@ -281,7 +283,6 @@ abstract class SiriusModelProvider implements ModitModel {
 		variable.name.expression(callable)
 	}
 
-
 	def String expression(String params, Procedures.Procedure2<? extends EObject, ?> callable) {
 		params.createExpression(1, callable)
 	}
@@ -303,24 +304,21 @@ abstract class SiriusModelProvider implements ModitModel {
 	}
 
 	/**
-	 * Create an AQL expression for provided call.
+	 * Creates an AQL expression for provided call.
 	 * 
 	 * @param signature of function: must provided all used variable
 	 * @param size number of parameters: used as assertion if a parameter is missing, self is assumed.
 	 * @param lambda to call
 	 */
 	private def String createExpression(String signature, int size, Object callable) {
-
 		val methodId = expressions.size
 		expressions += callable
 				
 		SiriusModelInterpreter.toExpression(this, methodId, signature.toInvokeParams(size))
 	}
 	
-
-	
 	/**
-	 * Create a string from expression from a sequence of parameter names.
+	 * Creates a string from expression from a sequence of parameter names.
 	 * 
 	 * @param params names
 	 * @return string of parameters
@@ -340,18 +338,16 @@ abstract class SiriusModelProvider implements ModitModel {
 		else '''Arguments [«it»] does not match signature size («size»)"'''.verify(false)
 	}
 		
-	/**
-	 * Raises an exception if the condition is not met.
-	 */
+	/** Raises an exception if the condition is not met. */
 	static def verify(CharSequence message, boolean condition) {
 		if (!condition) {
 			throw new UnsupportedOperationException(message.toString)
 		}
 	}
 	
-		
 	static def getEnvironment(ResourceSet rs) {
-		rs.getEObject(URI.createURI(ViewpointUtil.VIEWPOINT_ENVIRONMENT_RESOURCE_URI + "#/"), true) as Environment
+		val envUri = URI.createURI(ViewpointUtil.VIEWPOINT_ENVIRONMENT_RESOURCE_URI + "#/")
+		rs.getEObject(envUri, true) as Environment
 	}
 	
 	static def getEnvironmentContent(Environment it) {
