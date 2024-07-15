@@ -48,12 +48,12 @@ abstract class AbstractBaseDiagram<T extends DiagramDescription> extends Abstrac
 	 * @param descrLabel displayed on representation groups
 	 * @param domain class of diagram
 	 */
-	new(Class<T> type, SiriusVpGroup parent, String descrLabel, Class<? extends EObject> domain) {
-		super(type, parent, descrLabel)
+	new(Class<T> type, SiriusVpGroup parent, String label, Class<? extends EObject> domain) {
+		super(type, parent, label)
 		
 		this.domain = domain
 		creationTasks.add[
-			domainClass = context.asDomainClass(domain)
+			domainClass = domain.asDomainClass
 		]
 	}
 		

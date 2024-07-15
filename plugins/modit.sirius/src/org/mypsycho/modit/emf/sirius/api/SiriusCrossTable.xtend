@@ -68,7 +68,7 @@ abstract class SiriusCrossTable extends AbstractTable<CrossTableDescription> {
 	 * @param type of the description
 	 */
 	def void setDomainClass(ElementColumnMapping it, Class<? extends EObject> type) {
-		domainClass = context.asDomainClass(type)
+		domainClass = type.asEClass
 	}
 		   
     /**
@@ -94,7 +94,7 @@ abstract class SiriusCrossTable extends AbstractTable<CrossTableDescription> {
 	 * @param type of the description
 	 */
 	def void setDomainClass(IntersectionMapping it, Class<? extends EObject> type) {
-		domainClass = context.asDomainClass(type)
+		domainClass = type.asEClass
 	}
 		   
     /**
@@ -185,7 +185,7 @@ abstract class SiriusCrossTable extends AbstractTable<CrossTableDescription> {
 	) {
         Objects.requireNonNull(initializer)
         name.column[
-        	domainClass = domain.asDomainClass
+        	domainClass = domain
         	initializer.apply(it)
         ]
     }
@@ -349,7 +349,7 @@ abstract class SiriusCrossTable extends AbstractTable<CrossTableDescription> {
 		Class<? extends EObject> domain, 
 		String candidatesExpr, (IntersectionMapping)=>void descr
 	) {
-		owner.cells(mappingName, context.asDomainClass(domain), candidatesExpr, descr)
+		owner.cells(mappingName, domain.asDomainClass, candidatesExpr, descr)
 	}
 
 	/** Defines the lines of Element-based cell. */

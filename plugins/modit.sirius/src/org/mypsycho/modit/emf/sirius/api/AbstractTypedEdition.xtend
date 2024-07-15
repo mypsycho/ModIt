@@ -44,10 +44,10 @@ abstract class AbstractTypedEdition<T extends EObject> extends AbstractEdition {
 		creationTasks.add [ // xtend fails to infere '+=' .
 			if (it instanceof RepresentationExtensionDescription) {
 				name = contentAlias
-				metamodel += context.businessPackages
+				metamodel += businessPackages
 			} else if (it instanceof RepresentationDescription) {
 				name = contentAlias
-				metamodel += context.businessPackages
+				metamodel += businessPackages
 			}
 		]
 	}

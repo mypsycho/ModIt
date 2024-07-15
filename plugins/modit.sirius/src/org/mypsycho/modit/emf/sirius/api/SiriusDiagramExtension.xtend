@@ -73,8 +73,8 @@ abstract class SiriusDiagramExtension extends AbstractDiagramPart<DiagramExtensi
 	}
 	
 	def getVpUri(RepresentationDescription it) {
-		eContainer(Group) == context.getContent() // local representation
-			? context.pluginId.encodeVpUri(eContainer(Viewpoint).name)
+		eContainer(Group) == context.content // local representation
+			? pluginId.encodeVpUri(eContainer(Viewpoint).name)
 			: extraVpUri
 	}
 

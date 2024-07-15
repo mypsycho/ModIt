@@ -61,11 +61,11 @@ abstract class SiriusTree extends AbstractTypedEdition<TreeDescription> {
 	 * @param descrLabel displayed on representation groups
 	 * @param domain class of diagram
 	 */
-	new(SiriusVpGroup parent, String descrLabel, Class<? extends EObject> domain) {
-		super(TreeDescription, parent, descrLabel)
+	new(SiriusVpGroup parent, String label, Class<? extends EObject> domain) {
+		super(TreeDescription, parent, label)
 		this.domain = domain
 		creationTasks.add[
-			domainClass = context.asDomainClass(domain)
+			domainClass = domain.asDomainClass
 		]
 	}
 		
@@ -98,10 +98,35 @@ abstract class SiriusTree extends AbstractTypedEdition<TreeDescription> {
 	 * @param type of the description
 	 */
 	def void setDomainClass(TreeItemMapping it, Class<? extends EObject> type) {
-		domainClass = context.asDomainClass(type)
+		domainClass = type.asEClass
 	}
 	
-	   
+	/**
+	 * Sets the domain class of a description.
+	 * <p>
+	 * EClass is resolved using businessPackages of AbstractGroup.
+	 * </p>
+	 * 
+	 * @param it description to define
+	 * @param type of the description
+	 */
+	def void setDomainClass(TreeItemMapping it, EClass type) {
+		domainClass = SiriusDesigns.encode(type)
+	}
+		   
+    /**
+     * Sets the domain class of a description.
+     * <p>
+     * EClass is resolved using businessPackages of AbstractGroup.
+     * </p>
+     * 
+     * @param it description to define
+     * @param type of the description
+     */
+    def void setDomainClass(TreeDescription it, Class<? extends EObject> type) {
+        domainClass = type.asEClass
+    }
+	
     /**
      * Sets the domain class of a description.
      * <p>

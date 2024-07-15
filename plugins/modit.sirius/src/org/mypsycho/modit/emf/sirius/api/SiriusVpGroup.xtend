@@ -33,6 +33,7 @@ import org.eclipse.sirius.viewpoint.description.UserColorsPalette
 import org.eclipse.sirius.viewpoint.description.UserFixedColor
 import org.eclipse.sirius.viewpoint.description.Viewpoint
 import org.mypsycho.modit.emf.sirius.SiriusModelProvider
+import org.eclipse.emf.ecore.EClass
 
 /**
  * Class regrouping a common adaptation of Sirius into Java and EClass reflection for group.
@@ -110,7 +111,20 @@ abstract class SiriusVpGroup extends SiriusModelProvider {
 	 * @param type to encode
 	 * @return encoded typee
 	 */
-	def EClassifier asEClass(Class<? extends EObject> type) {
+	def EClass asEClass(Class<? extends EObject> it) {
+		it?.asEClassifier as EClass
+	}
+	
+	/**
+	 * Provides text used for domainClass properties from java Class.
+	 * 
+	 * @param type to encode
+	 * @return encoded typee
+	 */
+	def EClassifier asEClassifier(Class<?> type) {
+		if (type === null) {
+			return null
+		}
 		val result = (businessPackages + BUILT_IN_PACKAGES)
 			.flatMap[ EClassifiers ]
 			.findFirst[ instanceClass == type ]
@@ -118,11 +132,10 @@ abstract class SiriusVpGroup extends SiriusModelProvider {
 		if (result === null) {
 			val names = (businessPackages + BUILT_IN_PACKAGES)
 				.join(',')[ name ]
-			'''EClass of «type» is not defined in packages [«names»]'''.verify(false)
+			'''EClassifier of «type.name» is not defined in packages [«names»]'''.verify(false)
 		}
 		result
 	}
-	
 
 	//
 	// Identification
@@ -139,15 +152,14 @@ abstract class SiriusVpGroup extends SiriusModelProvider {
 	 * @param context to identify
 	 * @return identification 
 	 */
-	def getContentAlias(Class<?> context) {
-		if (!context.anonymousClass) {
-			return context.simpleName
+	def getContentAlias(Class<?> it) {
+		if (!anonymousClass) {
+			return simpleName
 		}
 
-		var fullname = context.name
-		fullname.substring(
-			fullname.lastIndexOf(".") + 1, 
-			fullname.lastIndexOf("$")
+		name.substring(
+			name.lastIndexOf(".") + 1, 
+			name.lastIndexOf("$")
 		)
 	}
 	

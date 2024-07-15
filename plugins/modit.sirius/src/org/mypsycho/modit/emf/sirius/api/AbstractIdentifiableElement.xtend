@@ -86,7 +86,6 @@ abstract class AbstractIdentifiableElement {
 		cat.name.id(path)
 	}
 	
-		
 	/**
 	 * Creates an identification with provided category.
 	 * <p>
@@ -181,7 +180,7 @@ abstract class AbstractIdentifiableElement {
 	 * @param path of element
 	 */
 	protected def String id(String category, String root, String path) {
-		context.createId(category, root, path)
+		category.createId(root, path)
 	}
 		
 	/**
@@ -250,7 +249,7 @@ abstract class AbstractIdentifiableElement {
 			Class<R> type, Class<? extends AbstractIdentifiableElement> container, 
 			Enum<?> cat, String name
 	) {
-		type.ref(context.getContentAlias(container), cat, name)
+		type.ref(container.contentAlias, cat, name)
 	}
 	
 	/**
@@ -267,7 +266,7 @@ abstract class AbstractIdentifiableElement {
 			Class<R> type, Class<? extends AbstractIdentifiableElement> container, 
 			Enum<?> cat, String name, (IdentifiedElement)=> R path
 	) {
-		type.ref(context.getContentAlias(container), cat, name, path)
+		type.ref(container.contentAlias, cat, name, path)
 	}
 	
 		
@@ -279,7 +278,7 @@ abstract class AbstractIdentifiableElement {
 	 * @param name of element
 	 */
 	protected def refId(Class<? extends AbstractIdentifiableElement> container, Enum<?> cat, String name) {
-		cat.id(context.getContentAlias(container), name)
+		cat.id(container.contentAlias, name)
 	}
 	
 	/**
@@ -355,7 +354,7 @@ abstract class AbstractIdentifiableElement {
 	 * @return aql expression
 	 */
 	def asAql(Class<? extends EObject> type) {
-		context.asEClass(type).asAql
+		type.asEClass().asAql
 	}
 	
 	/** Aql shortcut to evaluate a type. */

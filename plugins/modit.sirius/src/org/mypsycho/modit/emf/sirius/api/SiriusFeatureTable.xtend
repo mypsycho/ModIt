@@ -174,7 +174,8 @@ abstract class SiriusFeatureTable extends AbstractTable<EditionTableDescription>
 	protected def void setDirectEdit(FeatureColumnMapping it, 
 		Procedure2<? extends EObject, String> operation
 	) {
-		directEdit = context.expression(params(EditArg.lineSemantic, SiriusDesigns.EDIT_VALUE), operation)
+		directEdit = #[ EditArg.lineSemantic, SiriusDesigns.EDIT_VALUE ]
+			.params.expression(operation)
 	}
 	
 }

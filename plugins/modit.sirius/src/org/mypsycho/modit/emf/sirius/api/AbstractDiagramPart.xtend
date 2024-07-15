@@ -107,7 +107,8 @@ abstract class AbstractDiagramPart<T extends EObject> extends AbstractTypedEditi
 	}
 	
 	public static val STYLE = StylePackage.eINSTANCE
-	public static val DSTYLE = org.eclipse.sirius.diagram.description.style.StylePackage.eINSTANCE
+	public static val DSTYLE = org.eclipse.sirius.diagram.description.style
+			.StylePackage.eINSTANCE
 	
 	/**
 	 * Creates a factory for a diagram description
@@ -145,7 +146,7 @@ abstract class AbstractDiagramPart<T extends EObject> extends AbstractTypedEditi
 	 * @param type of the description
 	 */
 	def void setDomainClass(AbstractNodeMapping it, Class<? extends EObject> type) {
-		domainClass = context.asEClass(type) as EClass
+		domainClass = type.asEClass
 	}
 
 	/**
@@ -161,7 +162,6 @@ abstract class AbstractDiagramPart<T extends EObject> extends AbstractTypedEditi
 		domainClass = SiriusDesigns.encode(type)
 	}
 
-
 	/**
 	 * Sets the domain class of a mapping.
 	 * <p>
@@ -172,7 +172,7 @@ abstract class AbstractDiagramPart<T extends EObject> extends AbstractTypedEditi
 	 * @param type of the description
 	 */
 	def void setDomainClass(EdgeMapping it, Class<? extends EObject> type) {
-		domainClass = context.asEClass(type) as EClass
+		domainClass = type.asEClass
 	}
 
 	/**
@@ -188,7 +188,6 @@ abstract class AbstractDiagramPart<T extends EObject> extends AbstractTypedEditi
 		domainClass = SiriusDesigns.encode(type)
 		useDomainElement = true
 	}
-
 
 	/**
 	 * Sets the candidates expression using a reference.
@@ -208,12 +207,12 @@ abstract class AbstractDiagramPart<T extends EObject> extends AbstractTypedEditi
 			name = ref.name
 		}
 		if (it instanceof AbstractNodeMapping) {
-	        if (domainClass === null || domainClass.empty) {
-            	domainClass = SiriusDesigns.encode(ref.EType)
+	        if (domainClass === null || domainClass.blank) {
+            	domainClass = ref.EType as EClass
         	}
 		} else if (it instanceof EdgeMapping) {
-			if (domainClass === null || domainClass.empty) {
-				domainClass = SiriusDesigns.encode(ref.EType)
+			if (domainClass === null || domainClass.blank) {
+				domainClass = ref.EType as EClass
 			}
 		}
 	}
@@ -245,7 +244,8 @@ abstract class AbstractDiagramPart<T extends EObject> extends AbstractTypedEditi
 			// when using a image in node, 
 			// we usually don't want icon on label
 			showIcon = false
-			(it as BorderedStyleDescription).borderSizeComputationExpression = "0" // hide border
+			// hide border
+			(it as BorderedStyleDescription).borderSizeComputationExpression = "0"
 		}
 
 		if (it instanceof BundledImageDescription) {
@@ -262,8 +262,8 @@ abstract class AbstractDiagramPart<T extends EObject> extends AbstractTypedEditi
 	 * @param it mapping to set
 	 * @param init initialization of the style
 	 */
-	def <T extends ContainerStyleDescription> 
-		style(ContainerMapping it, Class<T> type, (T)=>void init			
+	def <T extends ContainerStyleDescription> style(
+		ContainerMapping it, Class<T> type, (T)=>void init			
 	) {
         style = type.createStyle(init)
 	}
@@ -277,8 +277,8 @@ abstract class AbstractDiagramPart<T extends EObject> extends AbstractTypedEditi
 	 * @param it mapping to set
 	 * @param init initialization of the style
 	 */
-	def <T extends NodeStyleDescription> 
-		style(NodeMapping it, Class<T> type, (T)=>void init
+	def <T extends NodeStyleDescription> style(
+		NodeMapping it, Class<T> type, (T)=>void init
 	) {
         style = type.createStyle(init)
 	}
@@ -294,8 +294,9 @@ abstract class AbstractDiagramPart<T extends EObject> extends AbstractTypedEditi
 	 * @param condition of style application
 	 * @param init of created style (after default initialization)
 	 */
-	def <T extends ContainerStyleDescription> 
-		styleIf(ContainerMapping owner, Class<T> type, String condition, (T)=>void init
+	def <T extends ContainerStyleDescription> styleIf(
+			ContainerMapping owner, Class<T> type, 
+			String condition, (T)=>void init
 	) {
         // Init is required as default styling make not sense
         Objects.requireNonNull(init, "Conditional Style cannot have default properties")
@@ -319,8 +320,8 @@ abstract class AbstractDiagramPart<T extends EObject> extends AbstractTypedEditi
 	 * @param condition of style application
 	 * @param init of created style (after default initialization)
 	 */
-	def <T extends NodeStyleDescription> 
-		styleIf(NodeMapping owner, Class<T> type, String condition, (T)=>void init
+	def <T extends NodeStyleDescription> styleIf(
+		NodeMapping owner, Class<T> type, String condition, (T)=>void init
 	) {
 	    // Init is required as default styling make not sense
         Objects.requireNonNull(init, "Conditional Style cannot have default properties")
@@ -520,42 +521,48 @@ abstract class AbstractDiagramPart<T extends EObject> extends AbstractTypedEditi
 	
 	/** Customizes a style reference with provided value. */
 	def customizeRef(
-		BasicLabelStyleDescription it, String condition, String styleReference, EObject value
+		BasicLabelStyleDescription it, String condition, 
+		String styleReference, EObject value
 	) {
 		customizeFeatures(condition, styleReference.styleRef(value))
 	}
 
 	/** Customizes a style attribute with provided expression. */
 	def void customize(
-		BasicLabelStyleDescription it, String condition, String styleAttribute, String expression
+		BasicLabelStyleDescription it, String condition, 
+		String styleAttribute, String expression
 	) {
 		customizeFeatures(condition, styleAttribute.styleAtt(expression))
 	}
 	
 	/** Customizes a style reference with provided value. */
 	def customize(
-		BasicLabelStyleDescription it, String condition, EReference styleReference, EObject value
+		BasicLabelStyleDescription it, String condition, 
+		EReference styleReference, EObject value
 	) {
 		customizeRef(condition, styleReference.name, value)
 	}
 
 	/** Customizes a style attribute with provided expression. */
 	def customize(
-		BasicLabelStyleDescription it, String condition, EAttribute styleAttribute, String expression
+		BasicLabelStyleDescription it, String condition, 
+		EAttribute styleAttribute, String expression
 	) {
 		customize(condition, styleAttribute.name, expression)
 	}
 
 	/** Customizes style properties. */
 	def void customizeFeatures(
-		BasicLabelStyleDescription it, String condition, EStructuralFeatureCustomization... featCustoms
+		BasicLabelStyleDescription it, String condition,
+		EStructuralFeatureCustomization... featCustoms
 	) {
 		doCustoms(condition, featCustoms)
 	}
 
 	/** Customizes a style reference with provided value. */
 	def customizeRef(
-		EdgeStyleDescription it, String condition, String styleReference, EObject value
+		EdgeStyleDescription it, String condition, 
+		String styleReference, EObject value
 	) {
 		customizeFeatures(condition, styleReference.styleRef(value))
 	}
@@ -583,7 +590,8 @@ abstract class AbstractDiagramPart<T extends EObject> extends AbstractTypedEditi
 
 	/** Customizes style properties. */
 	def void customizeFeatures(
-		EdgeStyleDescription it, String condition, EStructuralFeatureCustomization... featCustoms
+		EdgeStyleDescription it, String condition, 
+		EStructuralFeatureCustomization... featCustoms
 	) {
 		doCustoms(condition, featCustoms)
 	}
@@ -720,7 +728,9 @@ abstract class AbstractDiagramPart<T extends EObject> extends AbstractTypedEditi
     }
     
     /** Creates a delete description. */
-    protected def createElementDelete(String toolName, Enum<?> namespace, ModelOperation task) {
+    protected def createElementDelete(
+    	String toolName, Enum<?> namespace, ModelOperation task
+    ) {
         Objects.requireNonNull(task)
         // Alias is required as mapping declare drops
         DeleteElementDescription.createAs(namespace, toolName) [

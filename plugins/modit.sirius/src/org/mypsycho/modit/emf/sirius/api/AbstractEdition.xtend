@@ -602,7 +602,7 @@ abstract class AbstractEdition extends AbstractIdentifiableElement {
 		labelSize = 10 // ODesign is provide 12, but eclipse default is Segoe:9
 		labelColor = SystemColor.extraRef("color:black")
 		
-		labelExpression = context.itemProviderLabel
+		labelExpression = itemProviderLabel
 	}
 	
 	/** Initializes variables of the tool. */

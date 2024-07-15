@@ -92,7 +92,7 @@ class SiriusDesigns {
 	 * @return associated text
 	 */
 	static def String encode(EClassifier it) {
-		'''«EPackage.name»::«name»'''
+		asAql
 	}
 	
 	   
@@ -250,7 +250,7 @@ class SiriusDesigns {
 		false
 	}
 	
-	/** Aql request to views target */
+	/** Aql request to evaluate if selected target all matches a type. */
 	static def final allTargetViews(EClassifier eclass) {
 		// Usefull for OperationAction
 		'''

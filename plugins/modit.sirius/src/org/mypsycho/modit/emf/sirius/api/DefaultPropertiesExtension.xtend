@@ -165,7 +165,7 @@ class DefaultPropertiesExtension extends AbstractPropertySet {
 	
 	/** Requires overriding for static page. */
 	def getDateExpression(String iValue, String iFeat) {
-		context.expression(params(iValue, iFeat)) [
+		params(iValue, iFeat).expression [
 			EObject it, EStructuralFeature feat |
 			val result = eGet(feat) as Date
 			result === null

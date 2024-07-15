@@ -80,10 +80,10 @@ abstract class AbstractTable<T extends TableDescription> extends AbstractTypedEd
 	 * 
 	 * @param parent of diagram
 	 */
-	new(Class<T> type, SiriusVpGroup parent, String dLabel, Class<? extends EObject> dClass) {
-		super(type, parent, dLabel)
+	new(Class<T> type, SiriusVpGroup parent, String label, Class<? extends EObject> domain) {
+		super(type, parent, label)
 		creationTasks.add [
-			domainClass = context.asDomainClass(dClass)
+			domainClass = domain.asDomainClass
 		]
 	}
 	
@@ -97,7 +97,7 @@ abstract class AbstractTable<T extends TableDescription> extends AbstractTypedEd
 	 * @param type of the description
 	 */
 	def void setDomainClass(LineMapping it, Class<? extends EObject> type) {
-		domainClass = context.asDomainClass(type)
+		domainClass = type.asEClass
 	}
 
     /**
@@ -305,7 +305,7 @@ abstract class AbstractTable<T extends TableDescription> extends AbstractTypedEd
      * @param action(root target, line target, line view)
      */
     def setDelete(LineMapping it, Procedure2<EObject, EObject> action) {
-        delete = context.expression(LINE_DELETE_ARGS.params, action).toOperation
+        delete = LINE_DELETE_ARGS.params.expression(action).toOperation
     }
 	
     /**
@@ -400,7 +400,7 @@ abstract class AbstractTable<T extends TableDescription> extends AbstractTypedEd
     def createLine(String line, String role, String toolLabel, 
     	Procedure3<EObject, EObject, EObject> action
 	) {
-		line.createLine(toolLabel, role, context.expression(CREATE_LINE_PARAMS, action).toOperation)
+		line.createLine(toolLabel, role, CREATE_LINE_PARAMS.expression(action).toOperation)
 	}
 	
     /**
@@ -434,7 +434,7 @@ abstract class AbstractTable<T extends TableDescription> extends AbstractTypedEd
     def createAddLine(TableDescription owner, String line, String role, String toolLabel, 
     	Procedure3<EObject, EObject, EObject> action
 	) {
-		val op = context.expression(CREATE_LINE_PARAMS, action).toOperation
+		val op = CREATE_LINE_PARAMS.expression(action).toOperation
 		line.createLine(toolLabel, role, op) => [
 			owner.ownedCreateLine += it
 		]
@@ -471,7 +471,7 @@ abstract class AbstractTable<T extends TableDescription> extends AbstractTypedEd
     def createAddLine(LineMapping owner, String line, String role, String toolLabel, 
     	Procedure3<EObject, EObject, EObject> action
 	) {
-		val op = context.expression(CREATE_LINE_PARAMS, action).toOperation
+		val op = CREATE_LINE_PARAMS.expression(action).toOperation
 		line.createLine(toolLabel, role, op) => [
 			owner.create += it
 		]

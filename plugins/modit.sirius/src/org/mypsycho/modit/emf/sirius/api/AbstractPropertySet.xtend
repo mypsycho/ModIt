@@ -42,6 +42,7 @@ import org.eclipse.sirius.viewpoint.FontFormat
 import org.eclipse.sirius.viewpoint.description.tool.ModelOperation
 
 import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*
+import org.eclipse.emf.ecore.EClass
 
 /**
  * Adaptation of Sirius model into Java and EClass reflections API
@@ -87,15 +88,19 @@ abstract class AbstractPropertySet extends AbstractEdition {
 		this(parent, DEFAULT_NAME)
 	}
 	
-	def void setDomainClass(GroupDescription it, Class<? extends EObject> value) {
-		domainClass = value.asDomainClass
+	def void setDomainClass(GroupDescription it, Class<? extends EObject> type) {
+		domainClass = type.asEClass
+	}
+	
+	def void setDomainClass(GroupDescription it, EClass type) {
+		domainClass = SiriusDesigns.encode(type)
 	}
 	
 	/** Creates the content of Property Description. */
 	def ViewExtensionDescription createContent() {
 		ViewExtensionDescription.createAs(Ns.view.id(extensionName)) [
 			name = extensionName
-			metamodels += context.businessPackages
+			metamodels += businessPackages
 			initCategories
 		]
 	}
@@ -280,11 +285,6 @@ abstract class AbstractPropertySet extends AbstractEdition {
 	def createAction(String label, ModelOperation operation) {
 		label.createAction(null, operation)
 	}
-	
-	// ECore API has no constraint.
-	def String asDomainClass(Class<? extends EObject> type) {
-		context.asDomainClass(type)
-	}
 
 	def param(CustomDescription it, String key, String value) {
 		customExpressions += CustomExpression.create [
@@ -302,7 +302,7 @@ abstract class AbstractPropertySet extends AbstractEdition {
 	}
 	
 	def page(Category owner, String name, Class<? extends EObject> domain, (PageDescription)=>void init) {
-		owner.page(name, domain.asAql, init)
+		owner.page(name, domain.asDomainClass, init)
 	}
 
 	def groups(PageDescription owner, String... names) {
@@ -320,7 +320,7 @@ abstract class AbstractPropertySet extends AbstractEdition {
 	}
 	
 	def group(Category owner, String name, Class<? extends EObject> domain, (GroupDescription)=>void init) {
-		owner.group(name, domain.asAql, init)
+		owner.group(name, domain.asDomainClass, init)
 	}
 	
 	def noTitle(GroupDescription it) {
