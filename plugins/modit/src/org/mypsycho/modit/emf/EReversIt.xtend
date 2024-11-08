@@ -1293,8 +1293,8 @@ ENDFOR
 		"\"" + replace("\\",    "\\\\") // order matters
 				.replace("\"", "\\\"") //
 				.replace("\t", "\\t") //
-				.replace("\r\n", "\\n") // order matters
-				.replace("\r", "\\n") //
+				//.replace("\r\n", "\\n") // order matters
+				.replace("\r", "\\r") //
 				.replace("\n", "\\n") //
 			+ "\""
 	}

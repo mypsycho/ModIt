@@ -120,7 +120,7 @@ class «name» extends «content.baseApiClass.templateClass» {
 			content.domainClass.classFromDomain.templateClass»)
 	}
 
-	override initContent(«DiagramDescription.templateClass» it) {
+	override initContent(«content.templateClass» it) {
 		super.initContent(it)
 		metamodel.clear // Disable implicit metamodel import
 		«content.templateFilteredContent(DiagramDescription)»
@@ -128,7 +128,11 @@ class «name» extends «content.baseApiClass.templateClass» {
 
 	«defaultStyleTemplate»
 	override initContent(«Layer.templateClass» it) {
-		«content.defaultLayer.templateFilteredContent(Layer)»
+		«
+IF content.defaultLayer.name != "Default" /* see AbstractBaseDiagram */
+		»name = «content.defaultLayer.name.toJava»
+		«
+ENDIF	»«content.defaultLayer.templateFilteredContent(Layer)»
 	}
 
 «
@@ -179,8 +183,6 @@ ENDFOR  // Additional Layers
 			: super.templateToolOperation(it)
 	}
 	
-	
-	
 	override templatePropertyValue(EStructuralFeature feat, Object value, (Object)=>String encoding) {
 		DPKG.diagramDescription_Layout == feat && isElkLayered(value)
 			? (value as CustomLayoutConfiguration).templateElkLayout
@@ -219,14 +221,11 @@ ENDFOR»
 )'''
 	}
 	
-	
-	
 	def templateFiltering(CompositeFilterDescription it) {
 '''filtering(«name.toJava») [
 	«templateInnerContent(innerContent)»
 ]'''
 	}
-	
 	
 	def templateMappingFilter(MappingFilter it, (Object)=>String encoding) {
 		val withView = viewConditionExpression.expressed
@@ -234,28 +233,18 @@ ENDFOR»
 		
 		withView && withElement  // all values, unlikely
  			? super.templatePropertyValue(FilterPackage.eINSTANCE.compositeFilterDescription_Filters, it, encoding)
- 			: withElement ? templateElementFilter(it)
- 			: withView ? templateViewFilter(it)
- 			: templateAllFilter(it)
+ 			: withElement ? templateMappingFilter("element", semanticConditionExpression)
+ 			: withView ? templateMappingFilter("view", viewConditionExpression)
+ 			: templateMappingFilter("all", null)
 	}
- 			
-	def String templateElementFilter(MappingFilter it) {
-'''element«filterKind.getName().toLowerCase.toFirstUpper»(«semanticConditionExpression.toJava»,
-	«mappings.map[ templateRef(DiagramElementMapping) ].join(LValueSeparator)»
-)'''
-	} 			
- 			
-	def String templateViewFilter(MappingFilter it) {
-'''view«filterKind.getName().toLowerCase.toFirstUpper»(«viewConditionExpression.toJava»,
-	«mappings.map[ templateRef(DiagramElementMapping) ].join(LValueSeparator)»
-)'''
-	} 			
- 			
-	def String templateAllFilter(MappingFilter it) {
-'''all«filterKind.getName().toLowerCase.toFirstUpper»(
+
+
+	def String templateMappingFilter(MappingFilter it, String prefix, String expression) {
+'''«prefix»«filterKind.getName().toLowerCase.toFirstUpper»(«
+IF expression !== null										»«expression.toJava»,«
+ENDIF														»
 	«mappings.map[ templateRef(DiagramElementMapping) ].join(LValueSeparator)»
 )'''
 	}
 
-	
 }

@@ -85,7 +85,7 @@ abstract class AbstractBaseDiagram<T extends DiagramDescription> extends Abstrac
 	 * 
 	 * @param it to initialize
 	 */
-	override initContent(DiagramDescription it) {
+	override initContent(T it) {
 		defaultLayer = Layer.create("Default") [
 			initContent
 		]
@@ -153,7 +153,6 @@ abstract class AbstractBaseDiagram<T extends DiagramDescription> extends Abstrac
 		]
 	}
 	
-		
 	/** Gets owned validation rules of an extension. */
 	def getOwnedValidations(DiagramDescription it) {
 		if (validationSet === null) {

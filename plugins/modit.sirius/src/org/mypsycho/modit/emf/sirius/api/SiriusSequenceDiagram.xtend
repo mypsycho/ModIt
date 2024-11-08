@@ -14,7 +14,20 @@
 package org.mypsycho.modit.emf.sirius.api
 
 import org.eclipse.emf.ecore.EObject
+import org.eclipse.sirius.diagram.description.tool.ContainerCreationDescription
+import org.eclipse.sirius.diagram.description.tool.NodeCreationVariable
+import org.eclipse.sirius.diagram.sequence.description.CoveredLifelinesVariable
+import org.eclipse.sirius.diagram.sequence.description.MessageEndVariable
 import org.eclipse.sirius.diagram.sequence.description.SequenceDiagramDescription
+import org.eclipse.sirius.diagram.sequence.description.tool.CoveringElementCreationTool
+import org.eclipse.sirius.diagram.sequence.description.tool.InstanceRoleCreationTool
+import org.eclipse.sirius.diagram.sequence.description.tool.InstanceRoleReorderTool
+import org.eclipse.sirius.diagram.sequence.description.tool.OrderedElementCreationTool
+import org.eclipse.sirius.diagram.sequence.description.tool.ReorderTool
+import org.eclipse.sirius.viewpoint.description.tool.AbstractToolDescription
+import org.eclipse.sirius.viewpoint.description.tool.ContainerViewVariable
+import org.eclipse.sirius.viewpoint.description.tool.ElementVariable
+import org.eclipse.sirius.viewpoint.description.tool.ModelOperation
 
 /**
  * Adaptation of Sirius model into Java and EClass reflections API for Diagrams.
@@ -51,5 +64,46 @@ abstract class SiriusSequenceDiagram extends AbstractBaseDiagram<SequenceDiagram
 		changeName(dName)
 	}
 
+	override setOperation(AbstractToolDescription it, ModelOperation value) {
+		switch(it) {
+			InstanceRoleReorderTool: instanceRoleMoved = value.toTool
+			ReorderTool: onEventMovedOperation = value.toTool
+			default: super.setOperation(it, value)
+		}
+	}
 
+	override initVariables(AbstractToolDescription it) {
+		if (it instanceof CoveringElementCreationTool) {
+			coveredLifelines = CoveredLifelinesVariable.create("coveredLifelines")
+		}
+		switch(it) {
+			InstanceRoleCreationTool: {
+				predecessor = ElementVariable.create("predecessor")
+				super.initVariables(it)
+			}
+			InstanceRoleReorderTool: {
+				predecessorBefore = ElementVariable.create("predecessorBefore")
+				predecessorAfter = ElementVariable.create("predecessorAfter")
+			}
+			ReorderTool: {
+				startingEndPredecessorBefore = MessageEndVariable.create("startingEndPredecessorBefore")
+				startingEndPredecessorAfter = MessageEndVariable.create("startingEndPredecessorAfter")
+				finishingEndPredecessorBefore = MessageEndVariable.create("finishingEndPredecessorBefore")
+				finishingEndPredecessorAfter = MessageEndVariable.create("finishingEndPredecessorAfter")
+			}
+			OrderedElementCreationTool: {
+				startingEndPredecessor = MessageEndVariable.create("startingEndPredecessor")
+				finishingEndPredecessor = MessageEndVariable.create("finishingEndPredecessor")
+				// Mutli-inheritance
+				if (it instanceof ContainerCreationDescription) {
+					variable = NodeCreationVariable.create("variable")
+					viewVariable = ContainerViewVariable.create("viewVariable")
+				} else {
+					super.initVariables(it)
+				}
+			}
+			default:
+				super.initVariables(it)
+		}
+	}
 }

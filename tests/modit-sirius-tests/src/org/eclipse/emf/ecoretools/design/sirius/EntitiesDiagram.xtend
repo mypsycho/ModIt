@@ -385,13 +385,11 @@ class EntitiesDiagram extends SiriusDiagram {
 				targetArrow = EdgeArrows.INPUT_ARROW_LITERAL
 				endsCentering = CenteringStyle.NONE
 				centerLabel = [
-					showIcon = false
+					labelSize = 8
 					labelExpression = "service:render"
-					labelColor = SystemColor.extraRef("color:black")
 				]
 				targetLabel = [
 					labelSize = 6
-					showIcon = false
 					labelExpression = "service:eKeysLabel"
 					labelColor = SystemColor.extraRef("color:dark_blue")
 				]
@@ -415,14 +413,13 @@ class EntitiesDiagram extends SiriusDiagram {
 				endsCentering = CenteringStyle.NONE
 				strokeColor = SystemColor.extraRef("color:gray")
 				sourceLabel = [
+					labelSize = 8
 					labelFormat += FontFormat.ITALIC_LITERAL
-					showIcon = false
 					labelExpression = "service:superTypesLabel"
-					labelColor = SystemColor.extraRef("color:black")
 				]
 				centerLabel = [
-					showIcon = false
-					labelColor = SystemColor.extraRef("color:black")
+					labelSize = 8
+					labelExpression = ""
 				]
 			]
 			styleIf("service:targetIsInterface(view)") [
@@ -432,14 +429,13 @@ class EntitiesDiagram extends SiriusDiagram {
 				endsCentering = CenteringStyle.NONE
 				strokeColor = SystemColor.extraRef("color:gray")
 				sourceLabel = [
+					labelSize = 8
 					labelFormat += FontFormat.ITALIC_LITERAL
-					showIcon = false
 					labelExpression = "service:superTypesLabel"
-					labelColor = SystemColor.extraRef("color:black")
 				]
 				centerLabel = [
-					showIcon = false
-					labelColor = SystemColor.extraRef("color:black")
+					labelSize = 8
+					labelExpression = ""
 				]
 			]
 			styleIf('''not self.eSuperTypes->includes(view.oclAsType(diagram::DEdge).targetNode.oclAsType(viewpoint::DSemanticDecorator).target)'''.trimAql) [
@@ -449,14 +445,13 @@ class EntitiesDiagram extends SiriusDiagram {
 				endsCentering = CenteringStyle.NONE
 				strokeColor = UserFixedColor.ref("color:Inherited")
 				sourceLabel = [
+					labelSize = 8
 					labelFormat += FontFormat.ITALIC_LITERAL
-					showIcon = false
 					labelExpression = "service:superTypesLabel"
-					labelColor = SystemColor.extraRef("color:black")
 				]
 				centerLabel = [
-					showIcon = false
-					labelColor = SystemColor.extraRef("color:black")
+					labelSize = 8
+					labelExpression = ""
 				]
 			]
 		]
@@ -481,14 +476,12 @@ class EntitiesDiagram extends SiriusDiagram {
 				targetArrow = EdgeArrows.INPUT_ARROW_LITERAL
 				endsCentering = CenteringStyle.NONE
 				sourceLabel = [
-					showIcon = false
+					labelSize = 8
 					labelExpression = "service:renderEOpposite"
-					labelColor = SystemColor.extraRef("color:black")
 				]
 				targetLabel = [
-					showIcon = false
+					labelSize = 8
 					labelExpression = "service:render"
-					labelColor = SystemColor.extraRef("color:black")
 				]
 			]
 		]
@@ -1286,8 +1279,8 @@ class EntitiesDiagram extends SiriusDiagram {
 					routingStyle = EdgeRouting.STRAIGHT_LITERAL
 					endsCentering = CenteringStyle.NONE
 					centerLabel = [
-						showIcon = false
-						labelColor = SystemColor.extraRef("color:black")
+						labelSize = 8
+						labelExpression = ""
 					]
 				]
 			]
@@ -1428,8 +1421,8 @@ class EntitiesDiagram extends SiriusDiagram {
 					endsCentering = CenteringStyle.NONE
 					strokeColor = SystemColor.extraRef("color:dark_blue")
 					centerLabel = [
-						showIcon = false
-						labelColor = SystemColor.extraRef("color:black")
+						labelSize = 8
+						labelExpression = ""
 					]
 				]
 			]

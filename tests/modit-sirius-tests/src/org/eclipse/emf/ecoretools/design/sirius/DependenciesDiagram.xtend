@@ -105,7 +105,9 @@ class DependenciesDiagram extends SiriusDiagram {
 				endsCentering = CenteringStyle.NONE
 				strokeColor = SystemColor.extraRef("color:red")
 				centerLabel = [
-					labelColor = SystemColor.extraRef("color:black")
+					labelSize = 8
+					showIcon = true
+					labelExpression = ""
 				]
 			]
 		]

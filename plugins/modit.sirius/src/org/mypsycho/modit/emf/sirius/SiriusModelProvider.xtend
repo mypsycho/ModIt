@@ -331,11 +331,14 @@ abstract class SiriusModelProvider implements ModitModel {
 	 * @param it list of variable name separated
 	 * @param size of params (with out the first required
 	 */
-	protected def toInvokeParams(String it, int size) {
+	protected def String toInvokeParams(String it, int size) {
 		val values = split(PARAM_SEP)
 		if (values.length == size + 1) it
-		else if (values.length == size) DEFAULT_INSTANCE + "," + it  // self is implicit
-		else '''Arguments [«it»] does not match signature size («size»)"'''.verify(false)
+		else if (values.length == size) '''«DEFAULT_INSTANCE», «it»''' // self is implicit
+		else {
+			'''Arguments [«it»] does not match signature size («size»)"'''.verify(false)
+			null
+		}
 	}
 		
 	/** Raises an exception if the condition is not met. */

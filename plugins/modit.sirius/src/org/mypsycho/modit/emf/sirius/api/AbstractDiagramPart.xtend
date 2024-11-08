@@ -66,7 +66,6 @@ import org.eclipse.sirius.viewpoint.description.EAttributeCustomization
 import org.eclipse.sirius.viewpoint.description.EReferenceCustomization
 import org.eclipse.sirius.viewpoint.description.EStructuralFeatureCustomization
 import org.eclipse.sirius.viewpoint.description.IVSMElementCustomization
-import org.eclipse.sirius.viewpoint.description.SystemColor
 import org.eclipse.sirius.viewpoint.description.VSMElementCustomization
 import org.eclipse.sirius.viewpoint.description.style.BasicLabelStyleDescription
 import org.eclipse.sirius.viewpoint.description.style.StyleDescription
@@ -227,11 +226,11 @@ abstract class AbstractDiagramPart<T extends EObject> extends AbstractTypedEditi
 		
 		if (it instanceof BorderedStyleDescription) {
 			borderSizeComputationExpression = "1" // default
-			borderColor = SystemColor.extraRef("color:black")
+			borderColor = DColor.black.regular
 		}
 		
 		if (it instanceof FlatContainerStyleDescription) {
-			backgroundColor = SystemColor.extraRef("color:white")
+			backgroundColor = DColor.white.regular
 		}
 
 		if (it instanceof NodeStyleDescription) {
@@ -249,7 +248,7 @@ abstract class AbstractDiagramPart<T extends EObject> extends AbstractTypedEditi
 		}
 
 		if (it instanceof BundledImageDescription) {
-			color = SystemColor.extraRef("color:black")
+			color = DColor.black.regular
 		}
 	}
 
@@ -395,26 +394,41 @@ abstract class AbstractDiagramPart<T extends EObject> extends AbstractTypedEditi
         
         // by default, target is input arrow
         targetArrow = EdgeArrows.NO_DECORATION_LITERAL
-        strokeColor = SystemColor.extraRef("color:black")
+        strokeColor = DColor.black.regular
         sizeComputationExpression = "1"
+	}
+	
+	def initEdgeLabel(BasicLabelStyleDescription it) {
+		super.initDefaultStyle(it)
+		showIcon = false
+		labelExpression = null
 	}
 	
 	/** Set the center label of Edge. */
 	def setCenterLabel(EdgeStyleDescription it, (CenterLabelStyleDescription)=>void init) {
 		centerLabelStyleDescription = init !== null 
-			? CenterLabelStyleDescription.create(init)
+			? CenterLabelStyleDescription.create[
+				initEdgeLabel
+				init.apply(it)
+			]
 	}
 	
 	/** Set the begin label of Edge. */
 	def setSourceLabel(EdgeStyleDescription it, (BeginLabelStyleDescription)=>void init) {
 		beginLabelStyleDescription = init !== null 
-			? BeginLabelStyleDescription.create(init)
+			? BeginLabelStyleDescription.create[
+				initEdgeLabel
+				init.apply(it)
+			]
 	}
 	
 	/** Set the end label of Edge. */
 	def setTargetLabel(EdgeStyleDescription it, (EndLabelStyleDescription)=>void init) {
 		endLabelStyleDescription = init !== null 
-			? EndLabelStyleDescription.create(init)
+			? EndLabelStyleDescription.create[
+				initEdgeLabel
+				init.apply(it)
+			]
 	}
 	
 	/**

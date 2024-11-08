@@ -119,31 +119,42 @@ abstract class DiagramPartTemplate<R extends EObject> extends RepresentationTemp
 			as AbstractDiagramPart<R>
 	}
 
-	def getDefaultStyleValues(StyleDescription src) {
+	def getDefaultStyleValues(EObject src) {
 		defaultInits.computeIfAbsent(src.eClass) [
-			EcoreUtil.create(it) as StyleDescription => [
+			EcoreUtil.create(it) => [
 				switch(it) {
-					// Avoid edge labels
 					LabelStyleDescription: defaultContent.initDefaultStyle(it)
-					EdgeStyleDescription: defaultContent.initDefaultStyle(it)
+					EdgeStyleDescription: defaultContent.initDefaultStyle(it)					
+
+					// Edge label are special
+					BeginLabelStyleDescription: defaultContent.initEdgeLabel(it)
+					CenterLabelStyleDescription: defaultContent.initEdgeLabel(it)
+					EndLabelStyleDescription: defaultContent.initEdgeLabel(it)
 				}
 			]
 		]
 	}
 	
-	override isAttributeReversed(EObject it, EAttribute f) {
+	def isWithInitialisation(EObject it) {
 		it instanceof StyleDescription
+			|| it instanceof BeginLabelStyleDescription
+			|| it instanceof CenterLabelStyleDescription
+			|| it instanceof EndLabelStyleDescription
+	}
+	
+	override isAttributeReversed(EObject it, EAttribute f) {
+		isWithInitialisation
 			? isStyleFeatureSet(f)
 			: super.isAttributeReversed(it, f)
 	}
 		
 	override isPureReferenceReversed(EObject it, EReference f) {
-		it instanceof StyleDescription
+		isWithInitialisation
 			? isStyleFeatureSet(f)
 			: super.isPureReferenceReversed(it, f)
 	}
 
-	def boolean isStyleFeatureSet(StyleDescription it, EStructuralFeature feat) {
+	def boolean isStyleFeatureSet(EObject it, EStructuralFeature feat) {
 		eGet(feat) != defaultStyleValues.eGet(feat)
 	}
 

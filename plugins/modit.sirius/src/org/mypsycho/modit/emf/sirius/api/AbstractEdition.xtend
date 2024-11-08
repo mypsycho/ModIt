@@ -458,7 +458,7 @@ abstract class AbstractEdition extends AbstractIdentifiableElement {
 			PasteDescription: initialOperation = value.toTool
 			SelectionWizardDescription: initialOperation = value.toTool
 			DirectEditLabel: initialOperation = value.toTool
-			default: throw new UnsupportedOperationException
+			default: throw new UnsupportedOperationException(^class.simpleName)
 		}
 	}
 		
@@ -600,7 +600,7 @@ abstract class AbstractEdition extends AbstractIdentifiableElement {
 	/** Initializes a Style with common default values. */
 	def void initDefaultStyle(BasicLabelStyleDescription it) {
 		labelSize = 10 // ODesign is provide 12, but eclipse default is Segoe:9
-		labelColor = SystemColor.extraRef("color:black")
+		labelColor = DColor.black.regular
 		
 		labelExpression = itemProviderLabel
 	}

@@ -203,20 +203,21 @@ ENDIF                            »)'''
 
 	def String toolTemplateCreate(EObject it) {
 		var variables = eContents
-			.filter(VariableContainer)
+			.filter(AbstractVariable)
 			.toList
 		
-		val complexVariables = variables.empty
-			|| variables.exists[ !subVariables.empty ]
+		val useDefaultVariables = variables.empty
+			|| variables.filter(VariableContainer).exists[ !subVariables.empty ]
+			
 		val filteredContent = innerContent
-			.filter[ complexVariables || !key.isReferencingSubType(AbstractVariable) ]
+			.filter[ useDefaultVariables || !key.isReferencingSubType(AbstractVariable) ]
 		val header = it instanceof IdentifiedElement 
 			? templateIdentifiedCreateHeader
 			: '''«templateClass».create'''
 
 '''«header» [
 	«
-IF !complexVariables
+IF !useDefaultVariables
 	»initVariables
 	«
 ENDIF

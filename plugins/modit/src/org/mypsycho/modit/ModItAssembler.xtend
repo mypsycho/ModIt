@@ -140,7 +140,7 @@ class ModItAssembler<T, F> {
 		}
 		val registered = registry.get(id)
 		if ((registered !== null) && (registered !== it)) {
-			throw new IllegalStateException("Duplicated id '" + id + "'")
+			throw new IllegalStateException('''Duplicated id "«id»"''')
 		}
 		registry.put(id, it)
 	}
