@@ -1,0 +1,34 @@
+// -----1---------2---------3---------4---------5---------6---------7---------8---------9
+= Mod-it
+
+== Nightly version
+
+* Last build link:nightly/docs/index.html[Documentation] and update site: 
+....
+https://mypsycho.github.io/ModIt/nightly/
+....
+
+== Release versions
+
+[options="header"]
+|===
+| Version | Documentation | P2 Link
+//----------------------
+| 0.7
+| link:releases/v0.7/docs/index.html[Tutorial]   
+| https://mypsycho.github.io/ModIt/releases/v0.7/
+
+| 0.8
+| link:releases/v0.8/docs/index.html[Tutorial]   
+| https://mypsycho.github.io/ModIt/releases/v0.8/
+
+| 0.9.3
+| link:releases/v0.9.3/docs/index.html[Tutorial]   
+| https://mypsycho.github.io/ModIt/releases/v0.9.3/
+
+| 1.0.0
+| link:releases/v1.0.0/docs/index.html[Tutorial]   
+| https://mypsycho.github.io/ModIt/releases/v1.0.0/
+
+|===
+
