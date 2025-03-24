@@ -69,13 +69,13 @@ class DocumentationCrossTable extends SiriusCrossTable {
 				forceRefresh = true
 				operation = "var:lineSemantic".toContext(
 					'''lineSemantic.eAnnotations->select(a | a.source = 'http://www.eclipse.org/emf/2002/GenModel')->size() = 0'''.trimAql.ifThenDo(
-						"eAnnotations".creator("ecore.EAnnotation").andThen[ variableName = "newAnnotation" ].chain(
+						"eAnnotations".creator("newAnnotation", "ecore.EAnnotation").chain(
 							"source".setter(''' 'http://www.eclipse.org/emf/2002/GenModel' '''.trimAql)
 						)
 					),
 					'''lineSemantic.eAnnotations->select(a | a.source = 'http://www.eclipse.org/emf/2002/GenModel')->first()'''.trimAql.toContext(
 						'''self.details->select(a| a.key = 'documentation')->size() = 0'''.trimAql.ifThenDo(
-							"details".creator("ecore.EStringToStringMapEntry").andThen[ variableName = "newDetail" ].chain(
+							"details".creator("newDetail", "ecore.EStringToStringMapEntry").chain(
 								"key".setter(''' 'documentation' '''.trimAql)
 							)
 						)

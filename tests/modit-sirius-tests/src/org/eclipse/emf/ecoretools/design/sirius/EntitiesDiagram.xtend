@@ -966,12 +966,12 @@ class EntitiesDiagram extends SiriusDiagram {
 				initVariables
 				edgeMappings += EdgeMapping.localRef(Ns.edge, "Bi-directional EC_EReference ")
 				operation = "var:target".toContext(
-					"eStructuralFeatures".creator("ecore.EReference").andThen[ variableName = "instanceTarget" ].chain(
+					"eStructuralFeatures".creator("instanceTarget", "ecore.EReference").chain(
 						"eType".setter('''source'''.trimAql),
 						"name".setter('''source.name.toLower()'''.trimAql)
 					),
 					"var:source".toContext(
-						"eStructuralFeatures".creator("ecore.EReference").andThen[ variableName = "instanceSource" ].chain(
+						"eStructuralFeatures".creator("instanceSource", "ecore.EReference").chain(
 							"eType".setter("var:target"),
 							"name".setter('''target.name.toLower()'''.trimAql),
 							"eOpposite".setter("var:instanceTarget"),
@@ -1039,7 +1039,7 @@ class EntitiesDiagram extends SiriusDiagram {
 				initVariables
 				reconnectionKind = ReconnectionKind.RECONNECT_SOURCE_LITERAL
 				operation = "var:target".toContext(
-					"eStructuralFeatures".creator("ecore.EReference").andThen[ variableName = "newSource" ].chain(
+					"eStructuralFeatures".creator("newSource", "ecore.EReference").chain(
 						"name".setter('''element.name'''.trimAql),
 						"eType".setter('''element.eType'''.trimAql),
 						"eOpposite".setter('''element.eOpposite'''.trimAql)
@@ -1056,7 +1056,7 @@ class EntitiesDiagram extends SiriusDiagram {
 			ownedTools += ReconnectEdgeDescription.createAs(Ns.reconnect, "ReconnectBiDirectionnalEReference Target") [
 				initVariables
 				operation = "var:target".toContext(
-					"eStructuralFeatures".creator("ecore.EReference").andThen[ variableName = "newTarget" ].chain(
+					"eStructuralFeatures".creator("newTarget", "ecore.EReference").chain(
 						"name".setter('''element.eOpposite.name'''.trimAql),
 						"eType".setter('''element.eOpposite.eType'''.trimAql),
 						"eOpposite".setter("var:element")
@@ -1210,7 +1210,7 @@ class EntitiesDiagram extends SiriusDiagram {
 			ownedTools += ContainerCreationDescription.createAs(Ns.operation, "Package") [
 				initVariables
 				containerMappings += ContainerMapping.localRef(Ns.node, "Dropped Package")
-				operation = "eSubpackages".creator("ecore.EPackage").andThen[ variableName = "newPackage" ].chain(
+				operation = "eSubpackages".creator("newPackage", "ecore.EPackage").chain(
 					"var:newPackage".toContext(
 						"name".setter(''' 'newPackage' + self.eContainer().eContents(ecore::EPackage)->size() '''.trimAql)
 					)
