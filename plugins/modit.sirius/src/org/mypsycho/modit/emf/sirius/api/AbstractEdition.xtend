@@ -223,7 +223,6 @@ abstract class AbstractEdition extends AbstractIdentifiableElement {
             valueExpression = expression(expr)
         ]
     }
-    
 	
     /** Creates a 'CreateIntance' operation. */
     def creator(EReference ref, Class<? extends EObject> instanceType) {
@@ -231,19 +230,35 @@ abstract class AbstractEdition extends AbstractIdentifiableElement {
     }
     
     /** Creates a 'CreateIntance' operation. */
+    def creator(EReference ref, String varName, Class<? extends EObject> instanceType) {
+    	ref.name.creator(varName, instanceType)
+    }
+    
+    /** Creates a 'CreateIntance' operation. */
     def creator(String refName, Class<? extends EObject> instanceType) {
 		refName.creator(instanceType.asDomainClass)
+    }
+
+    /** Creates a 'CreateIntance' operation. */
+    def creator(String refName, String varName, Class<? extends EObject> instanceType) {
+		refName.creator(varName, instanceType.asDomainClass)
     }
 
     /** Deprecated: use typed signature. */
 	// for reverse template only
     def creator(String refName, String instanceType) {
+    	refName.creator("instance", instanceType)
+    }
+
+	// for reverse template only
+    def creator(String refName, String varName, String instanceType) {
     	CreateInstance.create [
+    		variableName = varName
 			referenceName = refName
 			typeName = instanceType
 		]
     }
-
+    
     /**
      * Creates a remove element operation for provided feature.
      * 

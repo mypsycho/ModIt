@@ -176,11 +176,10 @@ ENDIF                    »«templateSubOperations»'''
 	}
 
  	def dispatch smartTemplateCreate(CreateInstance it) {
-'''«referenceName.toJava».creator(«typeName.toJava»)«
+'''«referenceName.toJava».creator(«
 IF variableName != TPKG.createInstance_VariableName.defaultValue /* Default value*/            
-                                  ».andThen[ variableName = «variableName.toJava» ]«
-ENDIF
-»«templateSubOperations»'''
+                                  »«variableName.toJava», «
+ENDIF							  »«typeName.toJava»)«templateSubOperations»'''
 	}
 
 // Issue combining 2 operations
