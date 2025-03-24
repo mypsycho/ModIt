@@ -28,6 +28,7 @@ import org.eclipse.sirius.viewpoint.description.tool.AbstractToolDescription
 import org.eclipse.sirius.viewpoint.description.tool.ContainerViewVariable
 import org.eclipse.sirius.viewpoint.description.tool.ElementVariable
 import org.eclipse.sirius.viewpoint.description.tool.ModelOperation
+import org.eclipse.sirius.diagram.sequence.description.tool.StateCreationTool
 
 /**
  * Adaptation of Sirius model into Java and EClass reflections API for Diagrams.
@@ -96,6 +97,9 @@ abstract class SiriusSequenceDiagram extends AbstractBaseDiagram<SequenceDiagram
 				finishingEndPredecessor = MessageEndVariable.create("finishingEndPredecessor")
 				// Mutli-inheritance
 				if (it instanceof ContainerCreationDescription) {
+					variable = NodeCreationVariable.create("variable")
+					viewVariable = ContainerViewVariable.create("viewVariable")
+				} else if (it instanceof StateCreationTool) {
 					variable = NodeCreationVariable.create("variable")
 					viewVariable = ContainerViewVariable.create("viewVariable")
 				} else {
