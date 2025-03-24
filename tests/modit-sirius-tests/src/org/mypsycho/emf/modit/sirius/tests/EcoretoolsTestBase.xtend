@@ -27,9 +27,7 @@ import org.mypsycho.modit.emf.ModitModel
 class EcoretoolsTestBase {
 
 	// Specific
-
 	protected static val RES_SEGMENT = "resource/EcoretoolsTest"
-
 
 	protected static val PLUGIN_ID = Activator.PLUGIN_ID
 	protected static val TEST_BUNDLE = "org.eclipse.emf.ecoretools.design"

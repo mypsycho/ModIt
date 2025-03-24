@@ -57,7 +57,7 @@ class TableTemplate extends RepresentationTemplate<TableDescription> {
 		CreateLineTool -> AbstractTable.Ns.create
 	]
 	
-	static val INIT_TEMPLATED = #{
+	static val INIT_TEMPLATED = RepresentationTemplate.INIT_TEMPLATED + #{
 		TableDescription -> #{
 			PKG.identifiedElement_Label,
 			PKG.representationDescription_Metamodel,
@@ -81,7 +81,7 @@ class TableTemplate extends RepresentationTemplate<TableDescription> {
 			TPKG.intersectionMapping_LineMapping,
 			TPKG.intersectionMapping_LineFinderExpression
 		}
-	} + RepresentationTemplate.INIT_TEMPLATED	
+	}
 
 	new(SiriusGroupTemplate container) {
 		super(container, TableDescription)

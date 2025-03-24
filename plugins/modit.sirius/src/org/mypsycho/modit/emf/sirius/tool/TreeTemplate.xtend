@@ -42,7 +42,7 @@ class TreeTemplate extends RepresentationTemplate<TreeDescription> {
 			TPKG.treeItemMappingContainer_SubItemMappings
 		]
 	]
-	static val INIT_TEMPLATED = #{
+	static val INIT_TEMPLATED = RepresentationTemplate.INIT_TEMPLATED + #{
 		TreeDescription -> #{
 			PKG.identifiedElement_Label,
 			TPKG.treeDescription_DomainClass

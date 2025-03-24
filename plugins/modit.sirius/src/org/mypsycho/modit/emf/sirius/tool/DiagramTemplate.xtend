@@ -52,7 +52,7 @@ class DiagramTemplate extends DiagramPartTemplate<DiagramDescription> {
 		+ DiagramPartTemplate.CONTAINMENT_ORDER).toList
 	
 	
-	static val INIT_TEMPLATED = #{
+	static val INIT_TEMPLATED = RepresentationTemplate.INIT_TEMPLATED + #{
 		DiagramDescription as Class<? extends EObject> -> #{
 			// Diagram
 			PKG.identifiedElement_Label, 

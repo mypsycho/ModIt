@@ -36,7 +36,7 @@ import org.mypsycho.modit.emf.sirius.api.SiriusDiagramExtension
  */
 class DiagramExtensionTemplate extends DiagramPartTemplate<DiagramExtensionDescription> {
 	
-	static val INIT_TEMPLATED = #{
+	static val INIT_TEMPLATED = RepresentationTemplate.INIT_TEMPLATED + #{
 		DiagramExtensionDescription -> #{
 			// <Constructor>
 			PKG.representationExtensionDescription_RepresentationName, 
