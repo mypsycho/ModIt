@@ -999,6 +999,7 @@ abstract class AbstractDiagramPart<T extends EObject> extends AbstractTypedEditi
 	def void setImported(ContainerMappingImport it, ContainerMapping imported) {
 		importedMapping = imported
 		
+		// Sub node must reused explicitly
 		reusedNodeMappings += imported.subNodeMappings
 		reusedNodeMappings += imported.reusedNodeMappings
 		reusedContainerMappings += imported.subContainerMappings
@@ -1007,10 +1008,9 @@ abstract class AbstractDiagramPart<T extends EObject> extends AbstractTypedEditi
 			reusedContainerMappings += it
 		}
 		
-		// DragAndDropTargetDescription
-		dropDescriptions += imported.dropDescriptions
-		
 		childrenPresentation = imported.childrenPresentation
+		
+		// Drop tools are inherited		
 		// no need to copy style
 				
 		copyMappingImport(imported)
@@ -1027,8 +1027,7 @@ abstract class AbstractDiagramPart<T extends EObject> extends AbstractTypedEditi
 	def void setImported(NodeMappingImport it, NodeMapping imported) {
 		importedMapping = imported
 		
-		// DragAndDropTargetDescription
-		dropDescriptions += imported.dropDescriptions
+		// Drop tools are inherited
 		
 		copyMappingImport(imported)
 	}
@@ -1056,10 +1055,10 @@ abstract class AbstractDiagramPart<T extends EObject> extends AbstractTypedEditi
 		createElements = imported.createElements
 
 		doubleClickDescription = imported.doubleClickDescription
-		// RepresentationElementMapping
+		
+		// Details and navigations are not inherited
 		detailDescriptions += imported.detailDescriptions
 		navigationDescriptions += imported.navigationDescriptions
-
 	}
 
 	override initVariables(AbstractToolDescription it) {
