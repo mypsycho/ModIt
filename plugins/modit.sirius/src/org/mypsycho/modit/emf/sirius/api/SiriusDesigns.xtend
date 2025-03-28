@@ -306,6 +306,12 @@ class SiriusDesigns {
 		}
 	}
 
+	
+	/** Initializes label and documentation based on a Plugin Property key. */
+	static def void setI18n(IdentifiedElement it) {
+		i18n = name
+	}
+	
 	static def String encodeVpUri(String pluginId, String vpName) {
 		'''viewpoint:/«pluginId»/«vpName»'''
 	}	
