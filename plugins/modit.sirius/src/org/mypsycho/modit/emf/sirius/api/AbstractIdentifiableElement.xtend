@@ -66,7 +66,7 @@ abstract class AbstractIdentifiableElement {
 	 * @return element
 	 */
 	def <T> T extraRef(Class<T> type, String key) {
-		Objects.requireNonNull(context.extraRef(type, key))
+		Objects.requireNonNull(context.extraRef(type, key), key)
 	}
 	
 	//
