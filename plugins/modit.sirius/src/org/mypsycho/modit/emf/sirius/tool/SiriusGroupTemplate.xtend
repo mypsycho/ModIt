@@ -85,8 +85,11 @@ import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*
  */
 class «context.mainClass.name» extends «SiriusVpGroup.templateClass» {
 
-	/** Metamodels used in expressions. */ // This list can be used in reverse.
+« // emply list will provide a varialbe without proper inference
+IF !tool.editedPackages.empty
+»	/** Metamodels used in expressions. */
 	public static val EDITED_PKGS = #[
+		// This list can be used in reverse tool.
 «
 FOR pkg : tool.editedPackages
 SEPARATOR LValueSeparator // cannot include comma in template: improper for last value.
@@ -97,7 +100,8 @@ ENDFOR
 
 	new () { super(EDITED_PKGS) }
 
-	override initContent(«Group.templateClass» it) {
+« ENDIF 
+»	override initContent(«Group.templateClass» it) {
 		«content.apply»
 	}
 

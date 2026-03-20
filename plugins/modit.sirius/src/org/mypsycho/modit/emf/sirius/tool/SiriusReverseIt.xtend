@@ -39,6 +39,7 @@ import org.mypsycho.modit.emf.sirius.api.SiriusDesigns
 import static extension org.mypsycho.modit.emf.sirius.SiriusModelProvider.*
 import org.mypsycho.modit.emf.sirius.api.SiriusVpGroup
 import org.eclipse.xtend.lib.annotations.AccessorType
+import org.mypsycho.modit.emf.sirius.api.SiriusDependencies
 
 /**
  * 
@@ -135,7 +136,9 @@ class SiriusReverseIt {
 		}
 		defaultContent.loadContent(source.eResource)
 		
-		engine = source.eResource.createEngine(classname, dir) => [
+		engine = source.eResource.createEngine(classname, dir)
+		engine => [
+			shortcuts += DescriptionPackage.eINSTANCE.identifiedElement_Name
 			
 			// Split RepresentationDescription DiagramExtensionDescription
 			val defaultSplits = findDefaultSplits
@@ -148,8 +151,6 @@ class SiriusReverseIt {
 			
 			explicitExtras += rs.environmentExtras
 			rs.addExplicitExtras(explicitExtras)
-
-			shortcuts += DescriptionPackage.eINSTANCE.identifiedElement_Name
 		]
 		
 	}
@@ -185,6 +186,17 @@ class SiriusReverseIt {
 		
 	}
 	
+	def addDependencyAsExtras(
+		String designId,
+		String resourceUri
+	) {
+		val sourceUri = source.eResource.URI.path
+		
+		if (!sourceUri.endsWith(resourceUri)) {
+			engine.explicitExtras += SiriusDependencies.getDependencyExtras("base", rs, resourceUri)
+		}
+	}
+	
 	protected def findDefaultSplits() {
 		source.findSplitGroupParts.toInvertedMap[ toClassId ]
 	}
@@ -197,13 +209,15 @@ class SiriusReverseIt {
 	protected def dispatch addDefaultAliases(EObject it, ClassId id, Map<EObject, String> aliases) {}
 	
 	protected def dispatch addDefaultAliases(ViewExtensionDescription it, ClassId id, Map<EObject, String> aliases) {
+		val multiCats = !categories.empty
 		categories.forEach[
+			val path = multiCats ? name + "_" : ""
 			aliases.put(it, createId(AbstractPropertySet.Ns.category, id, name))
 			pages.forEach[
-				aliases.put(it, createId(AbstractPropertySet.Ns.page, id, name))
+				aliases.put(it, createId(AbstractPropertySet.Ns.page, id, path + name))
 			]
 			groups.forEach[
-				aliases.put(it, createId(AbstractPropertySet.Ns.group, id, name))
+				aliases.put(it, createId(AbstractPropertySet.Ns.group, id, path + name))
 			]
 		]
 	}

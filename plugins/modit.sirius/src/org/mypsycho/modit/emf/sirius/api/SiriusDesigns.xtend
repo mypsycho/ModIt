@@ -205,6 +205,18 @@ class SiriusDesigns {
 	}
 	
 	/**
+	 * Returns the element with provided name.
+	 * 
+	 * @param values to get from
+	 * @param key name of the element
+	 * @return found element
+	 */
+	// This name is used in shortcut in reverse tool
+	static def <T extends IdentifiedElement> atIdentifiedElement(Iterable<T> values, Object key) {
+		SiriusDesigns.atNamed(values, key as String)
+	}
+	
+	/**
 	 * Finds a identified element in list based on it name.
 	 * 
 	 * @param values of reference

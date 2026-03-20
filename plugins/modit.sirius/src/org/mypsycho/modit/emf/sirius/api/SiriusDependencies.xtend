@@ -23,7 +23,10 @@ import org.eclipse.emf.ecore.resource.ResourceSet
 import org.eclipse.sirius.diagram.description.AbstractNodeMapping
 import org.eclipse.sirius.diagram.description.DiagramDescription
 import org.eclipse.sirius.diagram.description.EdgeMapping
+import org.eclipse.sirius.properties.GroupDescription
+import org.eclipse.sirius.properties.GroupOverrideDescription
 import org.eclipse.sirius.properties.PageDescription
+import org.eclipse.sirius.properties.PageOverrideDescription
 import org.eclipse.sirius.properties.ViewExtensionDescription
 import org.eclipse.sirius.viewpoint.description.Group
 import org.eclipse.sirius.viewpoint.description.IdentifiedElement
@@ -31,9 +34,6 @@ import org.eclipse.sirius.viewpoint.description.RepresentationDescription
 import org.eclipse.sirius.viewpoint.description.UserColor
 import org.eclipse.sirius.viewpoint.description.tool.AbstractToolDescription
 import org.eclipse.sirius.viewpoint.description.tool.ExternalJavaAction
-import org.eclipse.sirius.properties.GroupDescription
-import org.eclipse.sirius.properties.PageOverrideDescription
-import org.eclipse.sirius.properties.GroupOverrideDescription
 
 /**
  * Convenient methods and constants to handle dependencies between Sirius designs.
@@ -80,10 +80,9 @@ class SiriusDependencies {
 			UserColor: '''color:«aliasBase»«name»'''
 			AbstractToolDescription: '''tool:«aliasBase»«name»'''
 			AbstractNodeMapping: 
-				if (eContainer instanceof AbstractNodeMapping)
-					'''«eContainer.getExtraAlias(aliasBase, toClassname)»/«name»'''
-				else
-					'''node:«aliasBase»«name»'''
+				(eContainer instanceof AbstractNodeMapping)
+					? '''«eContainer.getExtraAlias(aliasBase, toClassname)»/«name»'''
+					: '''node:«aliasBase»«name»'''
 			EdgeMapping: '''edge:«aliasBase»«name»'''
 			
 			RepresentationDescription: aliasBase + toClassname.apply(it)
@@ -112,15 +111,14 @@ class SiriusDependencies {
 			]
 	}
 
-	static def getDependencyExtras(
-		String designId, ResourceSet rs, 
+	static def getDependencyExtras(String designId, ResourceSet rs, 
 		String resourcePath
 	) {
 		designId.getDependencyExtras(rs, resourcePath) [ SiriusDesigns.toClassname(it) ]
 	}
-	
-	static def getDependencyExtras(
-		String designId, ResourceSet rs, 
+
+
+	static def getDependencyExtras(String designId, ResourceSet rs, 
 		String resourcePath, (EObject)=>String toClassname
 	) {
 		val vpGroup = rs.getDependencyContent(resourcePath)
@@ -129,20 +127,20 @@ class SiriusDependencies {
 		vpGroup.mapDependencyExtras(aliasBase, toClassname)
 	}
 	
-	private static def dispatch Map<EObject, String> mapDependencyExtras(
-		EObject it, String aliasBase, (EObject)=>String toClassname
+	private static def dispatch Map<EObject, String> mapDependencyExtras(EObject it, 
+		String aliasBase, (EObject)=>String toClassname
 	) {
 		Collections.emptyMap
 	}
 
-	private static def dispatch Map<EObject, String> mapDependencyExtras(
-		IdentifiedElement it, String aliasBase, (EObject)=>String toClassname
+	private static def dispatch Map<EObject, String> mapDependencyExtras(IdentifiedElement it, 
+		String aliasBase, (EObject)=>String toClassname
 	) {
 		#{ it -> getExtraAlias(aliasBase, toClassname) }
 	}
 
-	private static def dispatch Map<EObject, String> mapDependencyExtras(
-		DiagramDescription it, String aliasBase, (EObject)=>String toClassname
+	private static def dispatch Map<EObject, String> mapDependencyExtras(DiagramDescription it, 
+		String aliasBase, (EObject)=>String toClassname
 	) {
 		val result = new HashMap<EObject, String>
 		result += #{ it as EObject -> getExtraAlias(aliasBase, toClassname) }
@@ -153,8 +151,8 @@ class SiriusDependencies {
 		result
 	}
 
-	private static def dispatch Map<EObject, String> mapDependencyExtras(
-		ViewExtensionDescription it, String aliasBase, (EObject)=>String toClassname
+	private static def dispatch Map<EObject, String> mapDependencyExtras(ViewExtensionDescription it, 
+		String aliasBase, (EObject)=>String toClassname
 	) {
 		val result = new HashMap<EObject, String>
 		result += #{ it as EObject -> getExtraAlias(aliasBase, toClassname) }
@@ -177,8 +175,8 @@ class SiriusDependencies {
 		result
 	}
 	
-	private static def dispatch Map<EObject, String> mapDependencyExtras(
-		Group it, String aliasBase, (EObject)=>String toClassname
+	private static def dispatch Map<EObject, String> mapDependencyExtras(Group it, 
+		String aliasBase, (EObject)=>String toClassname
 	) {
 		val result = new HashMap<EObject, String>
 		result += it -> aliasBase
