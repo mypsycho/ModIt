@@ -16,8 +16,6 @@ package org.mypsycho.modit.emf.sirius.api
 import java.util.ArrayList
 import java.util.List
 import org.eclipse.emf.ecore.EObject
-import org.eclipse.sirius.viewpoint.description.RepresentationDescription
-import org.eclipse.sirius.viewpoint.description.RepresentationExtensionDescription
 
 /**
  * Adaptation of Sirius model into Java and EClass reflections API
@@ -41,34 +39,18 @@ abstract class AbstractTypedEdition<T extends EObject> extends AbstractEdition {
 	new(Class<T> type, SiriusVpGroup parent) {
 		super(parent)
 		contentType = type
-		creationTasks.add [ // xtend fails to infere '+=' .
-			if (it instanceof RepresentationExtensionDescription) {
-				name = contentAlias
-				metamodel += businessPackages
-			} else if (it instanceof RepresentationDescription) {
-				name = contentAlias
-				metamodel += businessPackages
-			}
-		]
 	}
-	
+		
 	/**
-	 * Creates a factory for a representation description.
+	 * Gets a reference from current representation.
 	 * 
-	 * @param type of edition
-	 * @param parent context of representation
-	 * @param descrLabel displayed on representation groups
+	 * @param <R> result type
+	 * @param type to return
+	 * @param path in representation
 	 */
-	 new(Class<T> type, SiriusVpGroup parent, String descrLabel) {
-		this(type, parent)
-	
-		creationTasks.add[  // xtend fails to infere '+=' .
-			if (it instanceof RepresentationDescription) {
-				label = descrLabel
-			}
-		]
+	def <R extends EObject> R localRef(Class<R> type, (T)=>R path) {
+		factory.ref(type, contentAlias) [ path.apply(it as T) ]
 	}
-	
 	
 	/**
 	 * Gets a reference from current representation.
@@ -77,6 +59,7 @@ abstract class AbstractTypedEdition<T extends EObject> extends AbstractEdition {
 	 * @param type to return
 	 * @param path in representation
 	 */
+	@Deprecated // use localRef
 	def <R extends EObject> R ref(Class<R> type, (T)=>R path) {
 		factory.ref(type, contentAlias) [ path.apply(it as T) ]
 	}

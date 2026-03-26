@@ -45,7 +45,7 @@ import org.eclipse.sirius.viewpoint.description.tool.ModelOperation
  * 
  * @author nicolas.peransin
  */
-abstract class SiriusTree extends AbstractTypedEdition<TreeDescription> {
+abstract class SiriusTree extends AbstractRepresentationEdition<TreeDescription> {
 
 	/** Namespaces for identification */
 	enum Ns { // namespace for identication

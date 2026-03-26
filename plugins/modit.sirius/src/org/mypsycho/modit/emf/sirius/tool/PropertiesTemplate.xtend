@@ -68,25 +68,24 @@ class PropertiesTemplate extends RepresentationTemplate<ViewExtensionDescription
 		]
 	]
 	
-	static val INIT_TEMPLATED = RepresentationTemplate.INIT_TEMPLATED
-		+ #{
-			DynamicMappingForDescription -> #{
-				PKG.identifiedElement_Name,
-				PPKG.abstractDynamicMappingForDescription_Iterator,
-				PPKG.abstractDynamicMappingForDescription_IterableExpression,
-				PPKG.abstractDynamicMappingForDescription_ForceRefresh
-			},
-			PageDescription -> #{
-				PKG.identifiedElement_Name,
-				PPKG.abstractPageDescription_SemanticCandidateExpression,
-				PPKG.abstractPageDescription_DomainClass
-			},
-			GroupDescription -> #{
-				PKG.identifiedElement_Name,
-				PPKG.abstractGroupDescription_SemanticCandidateExpression,
-				PPKG.abstractGroupDescription_DomainClass
-			}
+	static val INIT_TEMPLATED = RepresentationTemplate.INIT_TEMPLATED + #{
+		DynamicMappingForDescription -> #{
+			PKG.identifiedElement_Name,
+			PPKG.abstractDynamicMappingForDescription_Iterator,
+			PPKG.abstractDynamicMappingForDescription_IterableExpression,
+			PPKG.abstractDynamicMappingForDescription_ForceRefresh
+		},
+		PageDescription -> #{
+			PKG.identifiedElement_Name,
+			PPKG.abstractPageDescription_SemanticCandidateExpression,
+			PPKG.abstractPageDescription_DomainClass
+		},
+		GroupDescription -> #{
+			PKG.identifiedElement_Name,
+			PPKG.abstractGroupDescription_SemanticCandidateExpression,
+			PPKG.abstractGroupDescription_DomainClass
 		}
+	}
 	
 	new(SiriusGroupTemplate container) {
 		super(container, ViewExtensionDescription)
@@ -131,7 +130,7 @@ IF content.categories.size == 1
 	}
 «
 ELSE 
-»	override initCategories(«ViewExtensionDescription.templateClass» it) {
+»	override initContent(«ViewExtensionDescription.templateClass» it) {
 		«FOR category : content.categories »
 		category(«category.name.toJava») [ «category.initMethod» ]
 		«ENDFOR»

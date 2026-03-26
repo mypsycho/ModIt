@@ -13,6 +13,8 @@
  *******************************************************************************/
 package org.mypsycho.modit.emf.sirius.api
 
+import java.util.List
+import org.eclipse.emf.ecore.EClass
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EStructuralFeature
 import org.eclipse.sirius.properties.AbstractTextDescription
@@ -42,17 +44,15 @@ import org.eclipse.sirius.viewpoint.FontFormat
 import org.eclipse.sirius.viewpoint.description.tool.ModelOperation
 
 import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*
-import org.eclipse.emf.ecore.EClass
 
 /**
  * Adaptation of Sirius model into Java and EClass reflections API
  * for Properties set.
  *
  * @author nperansin
- *
  */
-abstract class AbstractPropertySet extends AbstractEdition {
-	
+abstract class AbstractPropertySet extends AbstractTypedEdition<ViewExtensionDescription> {
+
 	/** Default name for category. */
 	public static val DEFAULT_NAME = "Default"
 	
@@ -78,9 +78,15 @@ abstract class AbstractPropertySet extends AbstractEdition {
 	 * </p>
 	 */
 	new(SiriusVpGroup parent, String extName) {
-		super(parent)
+		super(ViewExtensionDescription, parent)
 		
 		extensionName = extName
+		contentAlias = Ns.view.id(extensionName)
+		
+		creationTasks.add [ // xtend fails to infere '+=' .
+			name = extensionName
+			metamodels += businessPackages
+		]
 	}
 	
 	/** Default constructor. */
@@ -95,15 +101,7 @@ abstract class AbstractPropertySet extends AbstractEdition {
 	def void setDomainClass(GroupDescription it, EClass type) {
 		domainClass = SiriusDesigns.encode(type)
 	}
-	
-	/** Creates the content of Property Description. */
-	def ViewExtensionDescription createContent() {
-		ViewExtensionDescription.createAs(Ns.view.id(extensionName)) [
-			name = extensionName
-			metamodels += businessPackages
-			initCategories
-		]
-	}
+
 	
 	/** Creates a category. */
 	protected def category(ViewExtensionDescription it, String catName, (Category)=> void init) {
@@ -114,8 +112,10 @@ abstract class AbstractPropertySet extends AbstractEdition {
 	}
 	
 	/** Creates categories. (Basically only a default one) */
-	protected def void initCategories(ViewExtensionDescription it) {
-		category("Default") [ initDefaultCategory ]
+	override initContent(ViewExtensionDescription it) {
+		category("Default") [
+			initDefaultCategory
+		]
 	}
 	
 	/** Initializes the default category. */
@@ -177,7 +177,9 @@ abstract class AbstractPropertySet extends AbstractEdition {
 	}
 	
 	def <T extends WidgetStyle> T createDetailStyle(Class<T> type) {
-		type.create[ labelFontSizeExpression = "8" ]
+		type.create[
+			labelFontSizeExpression = "8"
+		]
 	}
 	
 	private def eachOn(String collect, String iter, (DynamicMappingForDescription)=>void init) {
@@ -240,7 +242,10 @@ abstract class AbstractPropertySet extends AbstractEdition {
 	def <T extends WidgetDescription> when(
 		String condition, Class<T> type, String widgetName, (T)=>void init
 	) {
-		condition.when(type.create(widgetName, init)).andThen[ name = widgetName + "#If"]
+		condition.when(type.create(widgetName, init))
+			.andThen[
+				name = widgetName + "#If"
+			]
 	}
 
 	def <W extends WidgetDescription> forIf(
@@ -248,7 +253,10 @@ abstract class AbstractPropertySet extends AbstractEdition {
 		Class<W> type, String widgetName, (W)=>void init
 	) {
 		type.create(widgetName, init) => [
-			owner.ifs += condition.when(it).andThen[ name = widgetName + "#If"]
+			owner.ifs += condition.when(it)
+				.andThen[
+					name = widgetName + "#If"
+				]
 		]
 	}
 	
@@ -257,21 +265,28 @@ abstract class AbstractPropertySet extends AbstractEdition {
 	}
 
 	def <W extends WidgetDescription> always(
-		DynamicMappingForDescription owner, Class<W> type, String widgetName, (W)=>void init
+		DynamicMappingForDescription owner, 
+		Class<W> type, String widgetName, (W)=>void init
 	) {
 		owner.forIf(ALWAYS, type, widgetName, init)
 	}
 	
 	def action(LabelDescription owner, String label, String icon, ModelOperation action) {
-		label.createAction(icon, action) =>[ owner.actions += it ]
+		owner.action(label, icon, action) [ actions ]
 	}
 	
 	def action(HyperlinkDescription owner, String label, String icon, ModelOperation action) {
-		label.createAction(icon, action) =>[ owner.actions += it ]
+		owner.action(label, icon, action) [ actions ]
 	}
 	
 	def action(ListDescription owner, String label, String icon, ModelOperation action) {
-		label.createAction(icon, action) =>[ owner.actions += it ]
+		owner.action(label, icon, action) [ actions ]
+	}
+	
+	protected def <T extends EObject> action(T owner, String label, String icon, ModelOperation action, (T)=>List<WidgetAction> actions ) {
+		label.createAction(icon, action) =>[ 
+			actions.apply(owner) += it
+		]
 	}
 	
 	def createAction(String label, String icon, ModelOperation action) {

@@ -254,10 +254,15 @@ abstract class SiriusVpGroup extends SiriusModelProvider {
 	
 	def owned(Viewpoint owner, Class<? extends AbstractTypedEdition<?>> descr) {
 		val part = descr.constructors.head.newInstance(this) as AbstractTypedEdition<?>
+		owner.owned(part)
+	}
+	
+	def owned(Viewpoint owner, AbstractTypedEdition<?> part) {
 		part.createContent => [
 			switch(it) {
 				RepresentationExtensionDescription: owner.ownedRepresentationExtensions += it
 				RepresentationDescription: owner.ownedRepresentations += it
+				default: throw new UnsupportedOperationException("Cannot contain " + eClass.name)
 			}	
 		]		
 	}

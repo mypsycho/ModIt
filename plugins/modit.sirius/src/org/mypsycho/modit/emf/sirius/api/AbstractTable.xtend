@@ -45,7 +45,7 @@ import org.eclipse.xtext.xbase.lib.Procedures.Procedure3
  * 
  * @author nicolas.peransin
  */
-abstract class AbstractTable<T extends TableDescription> extends AbstractTypedEdition<T> {
+abstract class AbstractTable<T extends TableDescription> extends AbstractRepresentationEdition<T> {
 
 	/** Namespaces for identification */
 	enum Ns { // namespace for identication

@@ -93,7 +93,7 @@ import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*
  * 
  * @author nicolas.peransin
  */
-abstract class AbstractDiagramPart<T extends EObject> extends AbstractTypedEdition<T> {
+abstract class AbstractDiagramPart<T extends EObject> extends AbstractRepresentationEdition<T> {
 
 	/** Namespaces for identification */
 	enum Ns { // namespace for identication
@@ -1113,7 +1113,9 @@ abstract class AbstractDiagramPart<T extends EObject> extends AbstractTypedEditi
 	/** Creates a CreateView instance for this mapping in a ToolDescription. */
 	def viewDo(DiagramElementMapping viewMapping, String containerView) {
 		CreateView.create [
-			containerViewExpression = containerView.trimAql
+			containerViewExpression = containerView.matches("\\w+")
+				? "var:" + containerView
+				: containerView.trimAql
 			mapping = viewMapping
 		]
 	}

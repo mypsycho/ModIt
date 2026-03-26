@@ -105,6 +105,7 @@ abstract class DiagramPartTemplate<R extends EObject> extends RepresentationTemp
 		]
 	]
 	
+	public static val INIT_TEMPLATED = RepresentationTemplate.INIT_TEMPLATED
 	
 	new(SiriusGroupTemplate container, Class<R> targetClass) {
 		super(container, targetClass)
@@ -113,6 +114,9 @@ abstract class DiagramPartTemplate<R extends EObject> extends RepresentationTemp
 	override getNsMapping() { NS_MAPPING }
 	
 	override getContainmentOrders() { CONTAINMENT_ORDER }
+	
+	/** Lists fields where a accelerator replace basic assignment. */
+	override getInitTemplateds() { INIT_TEMPLATED }
 	
 	override AbstractDiagramPart<R> getDefaultContent() {
 		super.defaultContent
@@ -243,7 +247,11 @@ ENDIF
 		DPKG.nodeMapping_ConditionnalStyles,
 		DPKG.containerMapping_ConditionnalStyles,
 		DPKG.edgeMapping_ConditionnalStyles
-	]	
+	]
+	static val SYNC_FEATS = #[
+		DPKG.diagramElementMapping_CreateElements, 
+		DPKG.diagramElementMapping_SynchronizationLock
+	]
 	
 	override templatePropertyValue(EStructuralFeature feat, Object value, (Object)=>String encoding) {
 		DPKG.layer_Customization == feat 
@@ -252,9 +260,17 @@ ENDIF
 			? (value as BasicLabelStyleDescription).templateEdgeLabel
 			: STYLES_FEATS.contains(feat)
 			? (value as StyleDescription).templateMappingStyle
+			: SYNC_FEATS.contains(feat)
+			? feat.templateMappingSync
 			: CONDITIONAL_STYLES_FEATS.contains(feat)
 			? (value as ConditionalStyleDescription).templateMappingConditionnalStyle
 			: super.templatePropertyValue(feat, value, encoding)
+	}
+	
+	def templateMappingSync(EStructuralFeature feat) {		
+		// By default: CreateElements = true, SynchronizationLock = false
+		// 3 cases : "synch = null" is default, never generated
+		"synch = " + (DPKG.diagramElementMapping_SynchronizationLock == feat)
 	}
 	
 	def templateEdgeLabel(BasicLabelStyleDescription it) {

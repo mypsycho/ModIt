@@ -277,10 +277,12 @@ class SiriusDesigns {
 	
 	/** Gets a name compatible with Java name. */
 	static def techName(String it) {
-		NO_TECH.matcher(it)
-			.replaceAll("_")
-			.split("\\s+")
-			.join("")[ toFirstUpper ]
+		it === null
+			? "NoName"
+			: NO_TECH.matcher(it)
+				.replaceAll("_")
+				.split("\\s+")
+				.join("")[ toFirstUpper ]
 	}
 	
 	/** Removes "Description" from a class name. */
@@ -314,7 +316,7 @@ class SiriusDesigns {
 	static def void setI18n(IdentifiedElement it, String key) {
 		label = "%" + key
 		if (it instanceof DocumentedElement) {
-			documentation = label + "?ttip"	
+			documentation = label + "__ttip"	
 		}
 	}
 

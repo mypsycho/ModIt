@@ -290,8 +290,7 @@ abstract class AbstractIdentifiableElement {
 	 * @param containerId of element
 	 * @param name of element
 	 */
-	protected def <R extends IdentifiedElement> R 
-		ref(
+	protected def <R extends IdentifiedElement> R ref(
 			Class<R> type, String containerId, 
 			Enum<?> cat, String id
 	) {
@@ -359,6 +358,11 @@ abstract class AbstractIdentifiableElement {
 	
 	/** Aql shortcut to evaluate a type. */
 	def String isInstanceAql(Class<? extends EObject> type) {
+		'''.oclIsKindOf(«type.asAql»)'''
+	}
+	
+	/** Aql shortcut to evaluate a type. */
+	def String aqlInstanceOf(Class<? extends EObject> type) {
 		'''.oclIsKindOf(«type.asAql»)'''
 	}
 	
