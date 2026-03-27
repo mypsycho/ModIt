@@ -209,9 +209,9 @@ class SiriusReverseIt {
 	protected def dispatch addDefaultAliases(EObject it, ClassId id, Map<EObject, String> aliases) {}
 	
 	protected def dispatch addDefaultAliases(ViewExtensionDescription it, ClassId id, Map<EObject, String> aliases) {
-		val multiCats = !categories.empty
+		val multiCats = categories.size > 1
 		categories.forEach[
-			val path = multiCats ? name + "_" : ""
+			val path = multiCats ? name + "/" : ""
 			aliases.put(it, createId(AbstractPropertySet.Ns.category, id, name))
 			pages.forEach[
 				aliases.put(it, createId(AbstractPropertySet.Ns.page, id, path + name))
@@ -276,9 +276,9 @@ class SiriusReverseIt {
 	}
 
 	def getClassFromDomain(String domain) {
-		if (domain === null || domain.empty)
+		if (domain === null || domain.empty) {
 			return null
-		
+		}
 		
 		var sep = '::'
 		var qIndex = domain.indexOf(sep)
@@ -288,13 +288,11 @@ class SiriusReverseIt {
 			qIndex = domain.indexOf('.')	
 		}
 		
-		val classname = 
-			qIndex == -1
+		val classname = qIndex == -1
 				? domain
 				: domain.substring(qIndex + sep.length, domain.length)
 		
-		val packages =
-			(qIndex == -1)
+		val packages = qIndex == -1
 				? editedPackages
 				: {
 					val qName = domain.substring(0, qIndex)

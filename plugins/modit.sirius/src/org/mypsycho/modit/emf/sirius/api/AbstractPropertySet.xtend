@@ -81,7 +81,6 @@ abstract class AbstractPropertySet extends AbstractTypedEdition<ViewExtensionDes
 		super(ViewExtensionDescription, parent)
 		
 		extensionName = extName
-		contentAlias = Ns.view.id(extensionName)
 		
 		creationTasks.add [ // xtend fails to infere '+=' .
 			name = extensionName

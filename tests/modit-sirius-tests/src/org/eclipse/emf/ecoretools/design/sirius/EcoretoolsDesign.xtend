@@ -16,8 +16,9 @@ import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*
  */
 class EcoretoolsDesign extends SiriusVpGroup {
 
-	/** Metamodels used in expressions. */ // This list can be used in reverse.
+	/** Metamodels used in expressions. */
 	public static val EDITED_PKGS = #[
+		// This list can be used in reverse tool.
 		EcorePackage.eINSTANCE,
 		GenModelPackage.eINSTANCE
 	]

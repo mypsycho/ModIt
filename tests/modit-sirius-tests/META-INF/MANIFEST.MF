@@ -12,7 +12,6 @@ Require-Bundle: org.junit,
  org.eclipse.xtend.lib,
  org.eclipse.xtend.lib.macro,
  org.eclipse.core.runtime,
- org.eclipse.sirius.common,
- org.eclipse.uml2.uml
+ org.eclipse.sirius.common
 Bundle-Activator: org.mypsycho.emf.modit.sirius.tests.Activator
 Bundle-ActivationPolicy: lazy

@@ -40,8 +40,7 @@ class EcoretoolsReverseTest extends EcoretoolsTestBase {
 			TEST_BUNDLE + ".sirius.EcoretoolsDesign"
 		)
 			
-		fileHeader = "// Testing
-"
+		fileHeader = "// Testing\n"
 		pluginId = PLUGIN_ID
 		perform
 		

@@ -61,7 +61,7 @@ class DependenciesDiagram extends SiriusDiagram {
 
 	override initContent(Layer it) {
 		containerMappings += ContainerMapping.createAs(Ns.node, "Analyzed Package") [
-			createElements = false
+			synch = false
 			domainClass = "ecore.EPackage"
 			childrenPresentation = ContainerLayout.LIST
 			labelDirectEdit = DirectEditLabel.ref(EntitiesDiagram, Ns.operation, "Edit Name no CamelCase")

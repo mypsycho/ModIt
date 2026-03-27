@@ -38,7 +38,4 @@ class EcoretoolsWriteTest extends EcoretoolsTestBase {
     		.assertOdesignEquals("ecoretools_plain.odesign")
     }
     
-    
-
-
 }

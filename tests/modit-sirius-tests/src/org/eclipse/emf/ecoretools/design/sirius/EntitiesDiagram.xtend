@@ -189,7 +189,7 @@ class EntitiesDiagram extends SiriusDiagram {
 			]
 		]
 		containerMappings += ContainerMapping.createAs(Ns.node, "EC EClass") [
-			createElements = false
+			synch = false
 			domainClass = "ecore.EClass"
 			childrenPresentation = ContainerLayout.LIST
 			deletionDescription = DeleteElementDescription.localRef(Ns.del, "Delete EClass")
@@ -304,7 +304,7 @@ class EntitiesDiagram extends SiriusDiagram {
 			]
 		]
 		containerMappings += ContainerMapping.createAs(Ns.node, "EC EEnum") [
-			createElements = false
+			synch = false
 			domainClass = "ecore.EEnum"
 			childrenPresentation = ContainerLayout.LIST
 			labelDirectEdit = DirectEditLabel.localRef(Ns.operation, "Edit Name with CamelCase")
@@ -334,7 +334,7 @@ class EntitiesDiagram extends SiriusDiagram {
 		]
 		containerMappings += ContainerMapping.createAs(Ns.node, "EC EDataType") [
 			preconditionExpression = "service:isEDataType"
-			createElements = false
+			synch = false
 			domainClass = "ecore.EDataType"
 			childrenPresentation = ContainerLayout.LIST
 			labelDirectEdit = DirectEditLabel.localRef(Ns.operation, "Edit Name with CamelCase")
@@ -368,7 +368,7 @@ class EntitiesDiagram extends SiriusDiagram {
 			preconditionExpression = "service:noEOpposite"
 			semanticCandidatesExpression = "service:getEReferencesToDisplay(diagram)"
 			semanticElements = "var:self"
-			synchronizationLock = true
+			synch = true
 			targetFinderExpression = "service:getEReferenceTarget"
 			sourceFinderExpression = "feature:eContainer"
 			domainClass = "ecore.EReference"
@@ -398,7 +398,7 @@ class EntitiesDiagram extends SiriusDiagram {
 		edgeMappings += EdgeMapping.createAs(Ns.edge, "EC ESupertypes") [
 			semanticCandidatesExpression = ""
 			semanticElements = "var:self"
-			synchronizationLock = true
+			synch = true
 			targetFinderExpression = "service:getDirectSuperTypesOrMostSpecificVisibleOnes(diagram)"
 			deletionDescription = DeleteElementDescription.localRef(Ns.del, "Delete ESuperType")
 			sourceMapping += ContainerMapping.localRef(Ns.node, "EC EClass")
@@ -458,7 +458,7 @@ class EntitiesDiagram extends SiriusDiagram {
 		edgeMappings += EdgeMapping.createAs(Ns.edge, "Bi-directional EC_EReference ") [
 			semanticCandidatesExpression = "service:getEOppositeEReferences(diagram)"
 			semanticElements = "service:getEOppositeSemanticElements"
-			synchronizationLock = true
+			synch = true
 			targetFinderExpression = "feature:eType"
 			sourceFinderExpression = "feature:eContainer"
 			targetExpression = ""
@@ -1177,7 +1177,7 @@ class EntitiesDiagram extends SiriusDiagram {
 			endUserDocumentation = "Add support for sub-packages."
 			activeByDefault = true
 			containerMappings += ContainerMapping.createAs(Ns.node, "Dropped Package") [
-				createElements = false
+				synch = false
 				domainClass = "ecore.EPackage"
 				detailDescriptions += DiagramCreationDescription.localRef(Ns.operation, "New Package Entities")
 				pasteDescriptions += PasteDescription.localRef(Ns.operation, "Paste Anything")
