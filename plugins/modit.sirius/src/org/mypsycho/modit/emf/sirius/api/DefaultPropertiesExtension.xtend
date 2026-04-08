@@ -70,6 +70,10 @@ class DefaultPropertiesExtension extends AbstractPropertySet {
 	new(SiriusVpGroup parent, Iterable<?> tabs) {
 		super(parent)
 		
+		if (^class.anonymousClass) {
+			contentAlias += "/properties"
+		}
+		
 		tabNames += tabs
 	}
 	
