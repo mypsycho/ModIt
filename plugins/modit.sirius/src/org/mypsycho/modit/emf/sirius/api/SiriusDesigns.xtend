@@ -316,7 +316,7 @@ class SiriusDesigns {
 	static def void setI18n(IdentifiedElement it, String key) {
 		label = "%" + key
 		if (it instanceof DocumentedElement) {
-			documentation = label + "__ttip"	
+			documentation = "%" + key + "__ttip"	
 		}
 	}
 
@@ -330,5 +330,13 @@ class SiriusDesigns {
 		'''viewpoint:/«pluginId»/«vpName»'''
 	}	
 	
+	static def <T extends EObject> eAncestor(EObject it, Class<T> type) {
+		for (var EObject current = it; current !== null; current = current.eContainer) {
+			if (type.isInstance(current)) {
+				return current as T
+			}
+		}
+		return null;
+	}
 	
 }

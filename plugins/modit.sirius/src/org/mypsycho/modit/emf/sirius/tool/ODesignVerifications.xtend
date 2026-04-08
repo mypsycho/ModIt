@@ -35,6 +35,9 @@ import org.eclipse.sirius.viewpoint.description.tool.AbstractToolDescription
 import org.eclipse.sirius.diagram.description.tool.ReconnectEdgeDescription
 import org.eclipse.sirius.diagram.description.tool.DeleteElementDescription
 import org.eclipse.sirius.diagram.description.tool.ContainerDropDescription
+import org.mypsycho.modit.emf.sirius.api.SiriusDesigns
+import org.eclipse.sirius.diagram.description.DiagramExtensionDescription
+import org.eclipse.sirius.diagram.description.tool.ToolGroup
 
 class ODesignVerifications {
 	
@@ -45,7 +48,7 @@ class ODesignVerifications {
 		ExternalJavaAction, ExternalJavaActionCall, RepresentationElementMapping,
 		// diagram
 		DoubleClickDescription, ReconnectEdgeDescription, DeleteElementDescription,
-		ContainerDropDescription
+		ContainerDropDescription, ToolGroup
 	}
 	
 	static val DISPLAYED_CLASSES = #{
@@ -117,7 +120,7 @@ class ODesignVerifications {
 		 	.filter(IdentifiedElement)
 		 	.filter[ !IMPLICIT_CLASSES.exists[ t | t.isInstance(it) ] ]
 		 	// regular case: no need to trace
-		 	.filter[ !(i18nRequired && i18n.isI18nDefined(it)) ]
+		 	.filter[ !i18nRequired || !i18n.isI18nDefined(it) ]
 	 		.forEach[
 		 		println(
 '''«name» -> «
@@ -136,8 +139,15 @@ ENDIF
     }
     
     static def isI18nRequired(IdentifiedElement value) {
-    	DISPLAYED_CLASSES.exists[ isInstance(value) ]
+    	!value.labelIgnored && DISPLAYED_CLASSES.exists[ isInstance(value) ]
     }
+    
+    
+    static def isLabelIgnored(IdentifiedElement value) {
+    	(value instanceof AdditionalLayer && (value as AdditionalLayer).optional)
+    	 || (value instanceof ToolSection && SiriusDesigns.eAncestor(value, DiagramExtensionDescription) !== null)
+    }
+    
     
     static def isI18nDefined(ResourceBundle i18n, IdentifiedElement it) {
     	label !== null 

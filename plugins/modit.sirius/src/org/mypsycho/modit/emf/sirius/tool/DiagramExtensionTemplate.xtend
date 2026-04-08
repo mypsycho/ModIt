@@ -18,7 +18,6 @@ import java.util.Collection
 import java.util.Collections
 import java.util.List
 import java.util.Map
-import java.util.Objects
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EReference
 import org.eclipse.emf.ecore.EStructuralFeature
@@ -103,12 +102,11 @@ class DiagramExtensionTemplate extends DiagramPartTemplate<DiagramExtensionDescr
 			// it cannot be used as a reference.
 			return null
 		}
-		val result = content.findDiagramFromExtras 
+
+		content.findDiagramFromExtras 
 			?: content.findDiagramFromIndirectExtras
-		
-		Objects.requireNonNull(result,
-			'''Missing representation in extras: «content.viewpointURI»#/«content.representationName» '''
-		)
+		// For pattern in name or viewpoint, no diagram is found.
+		// Template can handle it as not aliased diagram.
 	}
 
 	override templateRepresentation(ClassId it, DiagramExtensionDescription content) {
@@ -121,10 +119,9 @@ class DiagramExtensionTemplate extends DiagramPartTemplate<DiagramExtensionDescr
 		}
 	}
 	
-
-	
 	def String mainTemplate(ClassId it, DiagramExtensionDescription content) {
-		val extendedAlias = context.explicitExtras.get(extended)
+		val extendedAlias = extended !== null
+			? context.explicitExtras.get(extended)
 		if (extendedAlias === null) {
 			extended = null
 		}

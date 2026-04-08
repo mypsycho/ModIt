@@ -58,9 +58,9 @@ abstract class ModItImplementation<T, F> {
 	 * @throw IllegalArgumentException if type is not handled by the factory.
 	 */
 	def <R extends T> R ref(Class<R> type, String id, (T)=>R path) {
-		val it = create(type)
-		initProxyId(id, path)
-		it
+		create(type) => [
+			initProxyId(id, path)
+		]
 	}
 
 	/**

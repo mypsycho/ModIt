@@ -12,7 +12,7 @@ import org.mypsycho.modit.emf.sirius.tool.SiriusReverseIt
  * 
  * @author nperansin
  */
-// Plugin-test: Sirius needs a lot dependencies to load odesign.
+// Plugin-test: Sirius needs a lot of dependencies to load odesign.
 class DwDesignTest {
 
 	// Specific

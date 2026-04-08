@@ -191,7 +191,7 @@ class EModIt extends ModIt<EObject> {
 				}
 				
 				// We use internal APIs to avoid resolving any value in the list
-				val InternalEList<Object> list = container.eGet(feature, false) as InternalEList<Object>;
+				val list = container.eGet(feature, false) as InternalEList<Object>;
 				val indexOf = list.basicIndexOf(oldValue)
 				list.basicRemove(oldValue, new NotificationChainImpl)
 				list.addAllUnique(indexOf, Collections.singleton(newValue))
