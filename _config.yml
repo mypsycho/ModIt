@@ -1,0 +1,4 @@
+theme: jekyll-theme-minimal
+title: Mod-it - Model As Code
+description: Documentation on Framework to edit EMF Model as code
+markdown: kramdown
