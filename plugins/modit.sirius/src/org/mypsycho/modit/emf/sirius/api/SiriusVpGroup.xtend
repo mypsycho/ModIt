@@ -253,7 +253,9 @@ abstract class SiriusVpGroup extends SiriusModelProvider {
 	}
 	
 	def owned(Viewpoint owner, Class<? extends AbstractTypedEdition<?>> descr) {
-		val part = descr.constructors.head.newInstance(this) as AbstractTypedEdition<?>
+		val part = descr.constructors
+			.findFirst[ parameterCount == 1 && parameterTypes.head.isInstance(this) ]
+			.newInstance(this) as AbstractTypedEdition<?>
 		owner.owned(part)
 	}
 	
