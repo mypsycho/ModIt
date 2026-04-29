@@ -111,46 +111,45 @@ abstract class AbstractBaseDiagram<T extends DiagramDescription> extends Abstrac
 
 	/** Adds hide filter to provided mappings for all elements. */
 	def allHide(CompositeFilterDescription owner, DiagramElementMapping... mappings) {
-		FilterKind.HIDE_LITERAL.filterMapping(mappings) => [
-			owner.filters += it
-		]
+		FilterKind.HIDE_LITERAL.filterMapping(mappings) 
+			=> [ owner.filters += it ]
 	}
 
 	/** Adds collapse filter to provided mappings for all elements. */
 	def allCollapse(CompositeFilterDescription owner, DiagramElementMapping... mappings) {
-		FilterKind.COLLAPSE_LITERAL.filterMapping(mappings) => [
-			owner.filters += it
-		]
+		FilterKind.COLLAPSE_LITERAL.filterMapping(mappings) 
+			=> [ owner.filters += it ]
 	}
 
 	/** Adds hide filter to provided mappings based on view expression. */
 	def viewHide(CompositeFilterDescription it, String expression, DiagramElementMapping... mappings) {
-		allHide(mappings).andThen[ viewConditionExpression = expression ]
+		allHide(mappings)
+			.andThen[ viewConditionExpression = expression ]
 	}
 
 	/** Adds collapse filter to provided mappings based on view expression. */
 	def viewCollapse(CompositeFilterDescription it, String expression, DiagramElementMapping... mappings) {
-		allCollapse(mappings).andThen[ viewConditionExpression = expression ]
+		allCollapse(mappings)
+			.andThen[ viewConditionExpression = expression ]
 	}
 
 	/** Adds hide filter to provided mappings based on element expression. */
 	def elementHide(CompositeFilterDescription it, String expression, DiagramElementMapping... mappings) {
-		allHide(mappings).andThen[ semanticConditionExpression = expression ]
+		allHide(mappings)
+			.andThen[ semanticConditionExpression = expression ]
 	}
 
 	/** Adds collapse filter to provided mappings based on element expression. */
 	def elementCollapse(CompositeFilterDescription it, String expression, DiagramElementMapping... mappings) {
-		allCollapse(mappings).andThen[ semanticConditionExpression = expression ]
+		allCollapse(mappings)
+			.andThen[ semanticConditionExpression = expression ]
 	}
 	
 	/** Adds filters group. */
 	def filtering(DiagramDescription owner, String name, (CompositeFilterDescription)=> void init) {
 		Objects.requireNonNull(init)
-		CompositeFilterDescription.create(name) [
-			init.apply(it)
-		] => [ // Must be reachable (out of init phase)
-			owner.filters += it
-		]
+		CompositeFilterDescription.create(name, init)
+			=> [ owner.filters += it ]
 	}
 	
 	/** Gets owned validation rules of an extension. */
