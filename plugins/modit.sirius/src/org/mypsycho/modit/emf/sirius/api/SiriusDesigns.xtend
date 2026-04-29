@@ -16,16 +16,20 @@ package org.mypsycho.modit.emf.sirius.api
 import java.util.regex.Pattern
 import org.eclipse.emf.common.util.EList
 import org.eclipse.emf.common.util.Enumerator
+import org.eclipse.emf.common.util.URI
 import org.eclipse.emf.ecore.EClass
 import org.eclipse.emf.ecore.EClassifier
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EReference
 import org.eclipse.emf.ecore.EStructuralFeature
+import org.eclipse.emf.ecore.resource.ResourceSet
+import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl
 import org.eclipse.emf.ecore.util.EcoreEList
 import org.eclipse.emf.edit.provider.IItemLabelProvider
 import org.eclipse.sirius.diagram.ui.provider.DiagramUIPlugin
 import org.eclipse.sirius.properties.ViewExtensionDescription
 import org.eclipse.sirius.viewpoint.description.DocumentedElement
+import org.eclipse.sirius.viewpoint.description.Group
 import org.eclipse.sirius.viewpoint.description.IdentifiedElement
 import org.eclipse.sirius.viewpoint.description.RepresentationDescription
 import org.eclipse.sirius.viewpoint.description.RepresentationExtensionDescription
@@ -337,6 +341,21 @@ class SiriusDesigns {
 			}
 		}
 		return null;
+	}
+
+	static def boolean isEContaining(EObject it, EObject value) {
+		value !== null && (it == value || isContaining(value.eContainer))
+	}
+		
+	static def loadSiriusGroup(URI uri, ResourceSet rs) { 
+		rs.getResource(uri, true).contents.head as Group
+	}
+	
+	static def loadSiriusGroup(String pluginUri) {
+		loadSiriusGroup(
+			URI.createPlatformPluginURI(pluginUri, true),
+			new ResourceSetImpl
+		)
 	}
 	
 }

@@ -90,7 +90,7 @@ class SiriusReverseIt {
 	 * @param editeds edited packages
 	 */
 	new(URI odesignUri, Path dir, String classname, EPackage... editeds) {
-		this(odesignUri.loadSiriusGroup(new ResourceSetImpl), 
+		this(SiriusDesigns.loadSiriusGroup(odesignUri, new ResourceSetImpl), 
 			dir, classname, editeds
 		)
 		if (odesignUri.isPlatformPlugin) {
@@ -251,7 +251,7 @@ class SiriusReverseIt {
 	
 	protected def aliasViewpoints(String prefix, String groupUri) {
 		engine.explicitExtras.putAll(
-			URI.createURI(groupUri).loadSiriusGroup(rs)
+			SiriusDesigns.loadSiriusGroup(URI.createURI(groupUri), rs)
 				.ownedViewpoints.toInvertedMap[ toVpAlias(prefix) ]
 		)
 	}
@@ -308,19 +308,13 @@ class SiriusReverseIt {
 	}
 
 	
-	static def loadSiriusGroup(URI uri, ResourceSet rs) { 
-		rs.getResource(uri, true).contents.head as Group
-	}
-	
 	static def boolean isContaining(EObject it, EObject value) {
 		value !== null && (it == value || isContaining(value.eContainer))
 	}
 	
+	@Deprecated // Use SiriusDesigns
 	static def loadSiriusGroup(String pluginUri) {
-		loadSiriusGroup(
-			URI.createPlatformPluginURI(pluginUri, true),
-			new ResourceSetImpl
-		)
+		SiriusDesigns.loadSiriusGroup(pluginUri)
 	}
 	
 }
