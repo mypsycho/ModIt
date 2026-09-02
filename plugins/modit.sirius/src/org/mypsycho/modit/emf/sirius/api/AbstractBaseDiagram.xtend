@@ -18,7 +18,10 @@ import org.eclipse.emf.ecore.EObject
 import org.eclipse.sirius.diagram.description.DiagramDescription
 import org.eclipse.sirius.diagram.description.DiagramElementMapping
 import org.eclipse.sirius.diagram.description.Layer
+import org.eclipse.sirius.diagram.description.concern.ConcernDescription
+import org.eclipse.sirius.diagram.description.concern.ConcernSet
 import org.eclipse.sirius.diagram.description.filter.CompositeFilterDescription
+import org.eclipse.sirius.diagram.description.filter.FilterDescription
 import org.eclipse.sirius.diagram.description.filter.FilterKind
 import org.eclipse.sirius.diagram.description.filter.MappingFilter
 import org.eclipse.sirius.viewpoint.description.validation.ValidationSet
@@ -151,6 +154,25 @@ abstract class AbstractBaseDiagram<T extends DiagramDescription> extends Abstrac
 		CompositeFilterDescription.create(name, init)
 			=> [ owner.filters += it ]
 	}
+	
+	def activeByDefault(FilterDescription target) {
+		val owner = target.eContainer as DiagramDescription
+		
+		owner => [
+			if (concerns === null) {
+				concerns = ConcernSet.create[]
+			}
+			
+			concerns => [
+				if (ownedConcernDescriptions.empty) {
+					ownedConcernDescriptions += ConcernDescription.create("default")
+				}
+				ownedConcernDescriptions.head.filters += target
+			]
+		]
+	}
+	
+	
 	
 	/** Gets owned validation rules of an extension. */
 	def getOwnedValidations(DiagramDescription it) {
