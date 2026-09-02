@@ -14,6 +14,7 @@
 package org.mypsycho.modit.emf.sirius.tool
 
 import java.nio.file.Path
+import java.util.HashMap
 import java.util.List
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EStructuralFeature
@@ -125,7 +126,7 @@ IF !templateExtrasContent.empty
 		val result = context.explicitExtras
 			// environment is in 'initExtras'
 			.filter[ key, value | !key.isEnvironment ]
-			result
+		new HashMap(result)
 	}
 
 	override templateExplicitAlias(EObject it)
