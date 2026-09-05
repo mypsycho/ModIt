@@ -1,0 +1,11 @@
+target "Mod-it Build" 
+
+with requirements
+
+environment JavaSE-11
+
+// Do not modify, do not include sources (useless)
+
+include "runtime.tpd"
+
+include "test.tpd"
