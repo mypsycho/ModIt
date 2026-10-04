@@ -49,7 +49,8 @@ abstract class SiriusTree extends AbstractRepresentationEdition<TreeDescription>
 
 	/** Namespaces for identification */
 	enum Ns { // namespace for identication
-		item
+		item,
+		operation
 	}
 
 	protected val Class<? extends EObject> domain
@@ -220,9 +221,9 @@ abstract class SiriusTree extends AbstractRepresentationEdition<TreeDescription>
     }
 
 	override initDefaultStyle(BasicLabelStyleDescription it) {
-		labelColor = SystemColor.extraRef("color:black")
+		labelColor = DColor.black.regular
 		if (it instanceof TreeItemStyleDescription) {
-			backgroundColor = SystemColor.extraRef("color:white")
+			backgroundColor = DColor.white.regular
 		}
 	}
 

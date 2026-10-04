@@ -34,6 +34,7 @@ import org.eclipse.emf.common.util.TreeIterator
 import org.eclipse.emf.ecore.EAttribute
 import org.eclipse.emf.ecore.EClass
 import org.eclipse.emf.ecore.EClassifier
+import org.eclipse.emf.ecore.EEnum
 import org.eclipse.emf.ecore.ENamedElement
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EPackage
@@ -45,7 +46,6 @@ import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl
 import org.eclipse.emf.ecore.util.EcoreUtil
 import org.eclipse.emf.ecore.xmi.XMLResource
 import org.eclipse.xtend.lib.annotations.Accessors
-import org.eclipse.emf.ecore.EEnum
 
 /**
  * Source code Generator reversing model into Xtend class.
@@ -127,6 +127,12 @@ class EReversIt {
 				? #{ values.head.key.toEObject -> definition }
 				: values.toMap( [ key.toEObject ], [ value ] )
 		}
+		
+		new(String classname, Path dir, Resource... res) {
+			this(new ClassId(classname), dir, 
+				res.map[ it -> new ClassId(new ClassId(classname), URI) ]
+			)
+		}
 
 	}
 
@@ -153,9 +159,7 @@ class EReversIt {
 	 * @param res resource to en-code
 	 */
 	new(String classname, Path dir, Resource... res) {
-		this(new ClassId(classname), dir, 
-			res.map[ it -> new ClassId(new ClassId(classname), URI) ]
-		)
+		this(new Context(classname, dir, res))
 	}
 
 	/**
@@ -1311,6 +1315,19 @@ ENDIF
 
 	// Xtend (generic)
 	def getLValueSeparator() { "," + statementSeparator }
+	
+	
+	def <T, R> String ljoin(List<T> values, (T)=>String transformation) {
+		values.empty
+			? "#[]"
+			: values.map(transformation).join(LValueSeparator)
+	}
+
+	def <T, R> String varArgs(List<T> values, (T)=>String transformation) {
+'''«IF !values.empty»,
+	«values.ljoin(transformation)»
+«ENDIF»'''
+	}
 
 	static def EObject toRoot(EObject it) { eContainer?.toRoot ?: it }
 

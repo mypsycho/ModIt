@@ -13,7 +13,7 @@
  *******************************************************************************/
 package org.mypsycho.modit.emf.sirius.tool
 
-import java.nio.file.Path
+import java.util.Collection
 import java.util.Collections
 import java.util.List
 import java.util.Map
@@ -23,11 +23,11 @@ import org.eclipse.core.runtime.Platform
 import org.eclipse.emf.ecore.EClass
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EStructuralFeature
-import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.sirius.viewpoint.description.DescriptionPackage
 import org.eclipse.sirius.viewpoint.description.IdentifiedElement
 import org.mypsycho.modit.emf.ClassId
 import org.mypsycho.modit.emf.EReversIt
+import org.mypsycho.modit.emf.sirius.api.SiriusDependencies
 import org.mypsycho.modit.emf.sirius.api.SiriusDesigns
 
 import static extension org.mypsycho.modit.emf.sirius.tool.SiriusReverseIt.*
@@ -54,13 +54,11 @@ abstract class TypedTemplate<R extends EObject> extends EReversIt {
 	protected Map<EClass, EObject> defaultInits = newHashMap
 	
 	new(TypedTemplate<?> parent, Class<R> target) {
-		super(parent)
-		tool = parent.tool
-		targetClass = Objects.requireNonNull(target)
+		this(parent.tool, parent.context, target)
 	}
 
-	new(SiriusReverseIt container, String classname, Path dir, Resource res, Class<R> target) {
-		super(classname, dir, res)
+	new(SiriusReverseIt container, Context context, Class<R> target) {
+		super(context)
 		tool = container
 		targetClass = Objects.requireNonNull(target)
 	}
@@ -128,14 +126,30 @@ abstract class TypedTemplate<R extends EObject> extends EReversIt {
 	}
 	
 	def String templateIdentifiedCreateHeader(IdentifiedElement it) { // Default
-		// We assume names follows the guidelines.
-		// Store aliases to detect conflict.
+		// We assume names do not conflict with other segments.
+		// Impossible to store aliases to detect conflict:
+		// Alias with counter would need an exploration before any generation with genneration context.
+		// Alias must be known when reference is met.
+		
 		val ns = findNs
 '''«templateClass».create«
 IF ns !== null          »As(Ns.«ns.name», «
 ELSE                    »(«
-ENDIF                    »«name.toJava»)'''
+ENDIF                    »«SiriusDependencies.getExtraAliasSegment(it).toJava»)'''
 	}
+
+	override templateInnerContent(EObject it, 
+			Iterable<? extends Pair<EStructuralFeature, 
+				? extends (Object, Class<?>)=>String>> content
+	) {
+		val segment = SiriusDependencies.getExtraAliasSegment(it)
+		val prefix = (it instanceof IdentifiedElement
+			? segment != name
+			? '''name = «name.toJava»''' + "\n")
+			?: ""
+		prefix + super.templateInnerContent(it, content)
+	}
+	
 
 	override callPath(EObject it, boolean withExtras) {
 		if (it instanceof IdentifiedElement) {
@@ -178,6 +192,7 @@ ENDIF                    »«name.toJava»)'''
 		def getSource() { super.src as IdentifiedElement }
 	}
 	
+	// Cannot use override on dispatch
 	protected def dispatch String templateRef(EObject it, NsRefExpr root, Expr path, Class<?> using) {
 		val refRoot = root.local
 			? "localRef("
@@ -186,10 +201,12 @@ ENDIF                    »«name.toJava»)'''
 '''«eClass.templateClass».«refRoot»Ns.«root.ns.name», «root.source.aliasPath.toJava»)«templateAliasPath(path)»'''
 	}
 
-	protected def aliasPath(IdentifiedElement it) { name }
+	protected def aliasPath(IdentifiedElement it) {
+		SiriusDependencies.getExtraAliasSegment(it)
+	}
 
 	dispatch override toJava(String it) {
-		if (!startsWith(SiriusDesigns.AQL)) {
+		if (!tool.improvedAql || !startsWith(SiriusDesigns.AQL)) {
 			return super._toJava(it)
 		} 
 		
@@ -217,10 +234,10 @@ ENDIF                    »«name.toJava»)'''
 		}
 	}
 
-	def templateContainedValues(Iterable<? extends EObject> values) {
-		values.map[ templateCreate ].join(LValueSeparator)
+	def templateContainedValues(Collection<? extends EObject> values) {
+		values.empty
+			? "#[]"
+			: values.map[ templateCreate ].join(LValueSeparator)
 	}
-
-
 
 }

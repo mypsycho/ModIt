@@ -218,13 +218,7 @@ abstract class DiagramPartTemplate<R extends EObject> extends RepresentationTemp
 			EAttributeCustomization: '''«attributeName.toJava».attCustomization(«value.toJava»'''
 		}
 		
-'''«header»«
-IF !appliedOn.empty
-»,
-	«appliedOn.map[ templateRef(EObject) ].join(LValueSeparator)»
-«
-ENDIF
-»)«
+'''«header»«appliedOn.varArgs[ templateRef(EObject) ]»)«
 IF applyOnAll
 ».andThen[ applyOnAll = true]«
 ENDIF

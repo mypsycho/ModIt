@@ -298,7 +298,7 @@ abstract class SiriusCrossTable extends AbstractTable<CrossTableDescription> {
 	
 		
 	protected def initCellStyle(IntersectionMapping it) {
-		foreground = []
+		// foreground = []
 	}
 	
 	

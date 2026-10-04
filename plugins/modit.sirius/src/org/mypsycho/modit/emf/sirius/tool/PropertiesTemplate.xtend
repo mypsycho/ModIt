@@ -29,6 +29,7 @@ import org.eclipse.sirius.properties.WidgetAction
 import org.eclipse.sirius.properties.WidgetConditionalStyle
 import org.eclipse.sirius.properties.WidgetStyle
 import org.eclipse.sirius.viewpoint.description.IdentifiedElement
+import org.eclipse.sirius.viewpoint.description.tool.AbstractToolDescription
 import org.mypsycho.modit.emf.ClassId
 import org.mypsycho.modit.emf.sirius.api.AbstractPropertySet
 import org.mypsycho.modit.emf.sirius.api.SiriusDesigns
@@ -41,7 +42,8 @@ class PropertiesTemplate extends RepresentationTemplate<ViewExtensionDescription
 		Category -> AbstractPropertySet.Ns.category,
 		PageDescription -> AbstractPropertySet.Ns.page,
 		ViewExtensionDescription -> AbstractPropertySet.Ns.view,
-		GroupDescription -> AbstractPropertySet.Ns.group
+		GroupDescription -> AbstractPropertySet.Ns.group,
+		AbstractToolDescription -> AbstractPropertySet.Ns.operation
 	]
 	
 	static val ACTION_CONTAINMENTS = #[

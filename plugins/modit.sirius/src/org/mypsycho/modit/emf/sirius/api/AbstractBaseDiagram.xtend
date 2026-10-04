@@ -25,6 +25,7 @@ import org.eclipse.sirius.diagram.description.filter.FilterDescription
 import org.eclipse.sirius.diagram.description.filter.FilterKind
 import org.eclipse.sirius.diagram.description.filter.MappingFilter
 import org.eclipse.sirius.viewpoint.description.validation.ValidationSet
+import org.eclipse.sirius.viewpoint.description.tool.ModelOperation
 
 /**
  * Adaptation of Sirius model into Java and EClass reflections API for Diagrams.
@@ -32,15 +33,6 @@ import org.eclipse.sirius.viewpoint.description.validation.ValidationSet
  * @author nicolas.peransin
  */
 abstract class AbstractBaseDiagram<T extends DiagramDescription> extends AbstractDiagramPart<T> {
-
-//	/** Namespaces for identification */
-//	enum Ns { // namespace for identication
-//		node, creation, drop, del,
-//		edge, connect, disconnect, reconnect,
-//		operation, section,
-//		menu, mitem,
-//		show // for filter + layer
-//	}
 	
 	protected val Class<? extends EObject> domain
 	
@@ -188,6 +180,11 @@ abstract class AbstractBaseDiagram<T extends DiagramDescription> extends Abstrac
 			validationSet = ValidationSet.create
 		}
 		validationSet.reusedRules
+	}
+	
+	
+	def setDiagramInitialisation(DiagramDescription it, ModelOperation value) {
+		diagramInitialisation = value.toTool
 	}
 
 }

@@ -36,6 +36,7 @@ import org.eclipse.sirius.viewpoint.description.tool.ModelOperation
 import org.mypsycho.modit.emf.ClassId
 import org.mypsycho.modit.emf.sirius.api.SiriusDiagram
 import org.mypsycho.modit.emf.sirius.api.SiriusSequenceDiagram
+import org.eclipse.sirius.diagram.description.LayoutOptionTarget
 
 /** Override of default reverse for SiriusModelProvider class. */
 class DiagramTemplate extends DiagramPartTemplate<DiagramDescription> {
@@ -179,7 +180,7 @@ ENDFOR  // Additional Layers
 			?.eContainer
 		
 		caller instanceof DiagramDescription
-			? '''initialisation = «templateInnerCreate»'''
+			? '''diagramInitialisation = «templateInnerCreate»'''
 			: super.templateToolOperation(it)
 	}
 	
@@ -215,7 +216,7 @@ SEPARATOR LValueSeparator
 		EnumSetLayoutOption: '''Enums("«option.values.map[ name ].join(",")»"'''
 	}                                                  », «
 	option.targets
-		.map[ "LayoutOptionTarget." + name() ]
+		.map[ LayoutOptionTarget.templateClass + "." + name() ]
 		.join(", ") »)«
 ENDFOR»
 )'''
@@ -242,8 +243,8 @@ ENDFOR»
 	def String templateMappingFilter(MappingFilter it, String prefix, String expression) {
 '''«prefix»«filterKind.getName().toLowerCase.toFirstUpper»(«
 IF expression !== null										»«expression.toJava»,«
-ENDIF														»
-	«mappings.map[ templateRef(DiagramElementMapping) ].join(LValueSeparator)»
+ENDIF»
+	«mappings.empty ? "#[]" : mappings.ljoin[ templateRef(DiagramElementMapping) ]»
 )'''
 	}
 

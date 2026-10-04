@@ -145,11 +145,7 @@ IF !defaultOps.empty
  		
 '''«id.classExits
 	? id // use xtend reflection
-	: id.toJava».javaDo(«name.toJava»«
-IF !parameters.empty     », 
-	«parameters.map[ '''«name.toJava» -> «value.toJava»''' ].join(LValueSeparator)»
-«
-ENDIF                   »)«
+	: id.toJava».javaDo(«name.toJava»«parameters.varArgs[ '''«name.toJava» -> «value.toJava»''' ]»)«
 IF !details.blank        ».andThen[
 	«details»
 ]«
@@ -197,7 +193,7 @@ ENDIF                            »)'''
 	}
 
 	def dispatch smartTemplateCreate(AbstractToolDescription it) {
-		toolTemplateCreate	
+		toolTemplateCreate
 	}
 
 	def String toolTemplateCreate(EObject it) {
@@ -205,18 +201,19 @@ ENDIF                            »)'''
 			.filter(AbstractVariable)
 			.toList
 		
-		val useDefaultVariables = variables.empty
+		val useOriginalVariables = tool.legacyModel
+			|| variables.empty
 			|| variables.filter(VariableContainer).exists[ !subVariables.empty ]
 			
 		val filteredContent = innerContent
-			.filter[ useDefaultVariables || !key.isReferencingSubType(AbstractVariable) ]
+			.filter[ useOriginalVariables || !key.isReferencingSubType(AbstractVariable) ]
 		val header = it instanceof IdentifiedElement 
 			? templateIdentifiedCreateHeader
 			: '''«templateClass».create'''
 
 '''«header» [
 	«
-IF !useDefaultVariables
+IF !useOriginalVariables
 	»initVariables
 	«
 ENDIF

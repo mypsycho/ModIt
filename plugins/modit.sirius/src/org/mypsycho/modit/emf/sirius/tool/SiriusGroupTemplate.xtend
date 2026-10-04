@@ -45,7 +45,7 @@ class SiriusGroupTemplate extends TypedTemplate<Group> {
 //	val SiriusReverseIt tool
 	
 	new(SiriusReverseIt container, String classname, Path dir, Resource res) {
-		super(container, classname, dir, res, Group)
+		super(container, new Context(classname, dir, res), Group)
 
 		delegates += #[
 			DiagramTemplate, 

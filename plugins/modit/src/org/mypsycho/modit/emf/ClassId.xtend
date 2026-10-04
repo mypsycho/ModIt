@@ -67,7 +67,9 @@ class ClassId {
 	
 	override equals(Object o) {
 		(this == o)
-			|| if (o instanceof ClassId) (Objects.equals(name, o.name) && Objects.equals(pack, o.pack)) else false
+			|| if (o instanceof ClassId) 
+				(Objects.equals(name, o.name) && Objects.equals(pack, o.pack)) 
+			else false
 	}
 	
 	override hashCode() {

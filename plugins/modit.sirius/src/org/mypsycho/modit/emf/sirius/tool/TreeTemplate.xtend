@@ -27,7 +27,9 @@ import org.eclipse.sirius.tree.description.TreeItemStyleDescription
 import org.eclipse.sirius.tree.description.TreeItemTool
 import org.eclipse.sirius.viewpoint.description.IdentifiedElement
 import org.eclipse.sirius.viewpoint.description.style.StylePackage
+import org.eclipse.sirius.viewpoint.description.tool.AbstractToolDescription
 import org.mypsycho.modit.emf.ClassId
+import org.mypsycho.modit.emf.sirius.api.AbstractDiagramPart
 import org.mypsycho.modit.emf.sirius.api.SiriusTree
 
 /** Override of default reverse for SiriusModelProvider class. */
@@ -35,7 +37,8 @@ class TreeTemplate extends RepresentationTemplate<TreeDescription> {
 	
 	static val TPKG = DescriptionPackage.eINSTANCE
 	static val NS_MAPPING = #[
-		TreeItemMapping -> SiriusTree.Ns.item
+		TreeItemMapping -> SiriusTree.Ns.item,
+		AbstractToolDescription -> SiriusTree.Ns.operation
 	]
 	static val CONTAINMENT_ORDER = #[ 
 		TreeDescription -> #[

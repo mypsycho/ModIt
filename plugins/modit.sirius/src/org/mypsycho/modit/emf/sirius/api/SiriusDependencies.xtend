@@ -22,15 +22,15 @@ import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.resource.ResourceSet
 import org.eclipse.sirius.diagram.description.AbstractNodeMapping
 import org.eclipse.sirius.diagram.description.DiagramDescription
+import org.eclipse.sirius.diagram.description.DiagramExtensionDescription
 import org.eclipse.sirius.diagram.description.EdgeMapping
-import org.eclipse.sirius.properties.GroupDescription
-import org.eclipse.sirius.properties.GroupOverrideDescription
-import org.eclipse.sirius.properties.PageDescription
-import org.eclipse.sirius.properties.PageOverrideDescription
+import org.eclipse.sirius.properties.AbstractGroupDescription
+import org.eclipse.sirius.properties.AbstractPageDescription
 import org.eclipse.sirius.properties.ViewExtensionDescription
 import org.eclipse.sirius.viewpoint.description.Group
 import org.eclipse.sirius.viewpoint.description.IdentifiedElement
 import org.eclipse.sirius.viewpoint.description.RepresentationDescription
+import org.eclipse.sirius.viewpoint.description.RepresentationExtensionDescription
 import org.eclipse.sirius.viewpoint.description.UserColor
 import org.eclipse.sirius.viewpoint.description.tool.AbstractToolDescription
 import org.eclipse.sirius.viewpoint.description.tool.ExternalJavaAction
@@ -76,22 +76,36 @@ class SiriusDependencies {
 	 * @return readable identification
 	 */
 	static def String getExtraAlias(EObject it, String aliasBase, (EObject)=>String toClassname) {
+		val prefix = switch(it) {
+			UserColor: "color:"
+			AbstractToolDescription: "tool:"
+			AbstractNodeMapping: "node:"
+			EdgeMapping: "edge:"
+			
+			AbstractPageDescription: "page:"
+			AbstractGroupDescription: "group:"
+			
+			IdentifiedElement: ""
+		}
+		
+		val segment = switch(it) {
+			RepresentationDescription: toClassname.apply(it)
+			RepresentationExtensionDescription: toClassname.apply(it)
+			ViewExtensionDescription: toClassname.apply(it)
+			
+			default: extraAliasSegment
+		}
+		prefix + aliasBase + segment
+	}
+	
+	static def String getExtraAliasSegment(EObject it) {
 		switch(it) {
-			UserColor: '''color:«aliasBase»«name»'''
-			AbstractToolDescription: '''tool:«aliasBase»«name»'''
 			AbstractNodeMapping: 
 				(eContainer instanceof AbstractNodeMapping)
-					? '''«eContainer.getExtraAlias(aliasBase, toClassname)»/«name»'''
-					: '''node:«aliasBase»«name»'''
-			EdgeMapping: '''edge:«aliasBase»«name»'''
-			
-			RepresentationDescription: aliasBase + toClassname.apply(it)
-			ViewExtensionDescription: aliasBase + toClassname.apply(it)
-			
-			PageDescription: '''page:«aliasBase»«name»'''
-			GroupDescription: '''group:«aliasBase»«name»'''
-			PageOverrideDescription: '''page+:«aliasBase»«name»'''
-			GroupOverrideDescription: '''group+:«aliasBase»«name»'''
+					? eContainer.extraAliasSegment + "/" + name
+					: name
+			IdentifiedElement: name
+			UserColor: name // not IdentifiedElement
 		}
 	}
 	
@@ -102,7 +116,7 @@ class SiriusDependencies {
 	}
 
 	/** Iterates on the content of a representation. */
-	static def getDependencyExtras(RepresentationDescription it) {
+	static def getDependables(EObject it) {
 		eAllContents
 			.filter(IdentifiedElement)
 			.filter[ !ExternalJavaAction.isInstance(it) ]
@@ -146,7 +160,19 @@ class SiriusDependencies {
 		result += #{ it as EObject -> getExtraAlias(aliasBase, toClassname) }
 		
 		val representationAlias = aliasBase + toClassname.apply(it) + "#"
-		result += dependencyExtras.toDependencyExtras(representationAlias, toClassname)
+		result += dependables.toDependencyExtras(representationAlias, toClassname)
+			
+		result
+	}
+
+	private static def dispatch Map<EObject, String> mapDependencyExtras(DiagramExtensionDescription it, 
+		String aliasBase, (EObject)=>String toClassname
+	) {
+		val result = new HashMap<EObject, String>
+		result += #{ it as EObject -> getExtraAlias(aliasBase, toClassname) }
+		
+		val extensionAlias = aliasBase + toClassname.apply(it) + "#"
+		result += dependables.toDependencyExtras(extensionAlias, toClassname)
 			
 		result
 	}

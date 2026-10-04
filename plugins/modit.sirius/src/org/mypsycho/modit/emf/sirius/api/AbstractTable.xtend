@@ -49,7 +49,8 @@ abstract class AbstractTable<T extends TableDescription> extends AbstractReprese
 
 	/** Namespaces for identification */
 	enum Ns { // namespace for identication
-		line, column, create
+		line, column, create,
+		operation
 	}
 
 	enum EditArg {
@@ -157,10 +158,10 @@ abstract class AbstractTable<T extends TableDescription> extends AbstractReprese
 	/** Initializes the line style. */
 	protected def initDefaultLineStyle(LineMapping it) {
 		// Default background is grey.
-		// (Sirius 6x ot more) There is a bug in header column
+		// (Sirius 6x or more) There is a bug in header column
 		// Always grey !!
 		background = DColor.white.regular
-		foreground = []
+		// foreground = [] // Justification ?? it introduces a side effect.
 	}
 
 	/** Creates a line. */

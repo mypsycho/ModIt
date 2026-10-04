@@ -67,6 +67,13 @@ class SiriusReverseIt {
 	@Accessors(#[ AccessorType.PACKAGE_GETTER ])
 	val SiriusVpGroup defaultContent
 	
+	@Accessors
+	var boolean improvedAql = true
+	
+	@Accessors
+	var boolean legacyModel = false
+	
+	
 	/**
 	 * Construct a reverse of a Odesign.
 	 * 
@@ -76,7 +83,7 @@ class SiriusReverseIt {
 	 * @param editeds edited packages
 	 */
 	new(String odesignUri, Path dir, String classname, EPackage... editeds) {
-		this(URI.createPlatformPluginURI(odesignUri, true), 
+		this(URI.createPlatformPluginURI(odesignUri, true),
 			dir, classname, editeds
 		)
 	}
@@ -107,11 +114,10 @@ class SiriusReverseIt {
 	 * @param editeds edited packages
 	 */
 	new(Group content, Path dir, String classname, EPackage... editeds) {
-		
 		source = content
+		
 		// use provided resourceset or a default one
-		rs = content.eResource?.resourceSet 
-			?: new ResourceSetImpl
+		rs = content.eResource?.resourceSet ?: new ResourceSetImpl
 		classId = new ClassId(classname)
 		
 		editedPackages = (editeds + usedMetamodels) // Normalize
@@ -186,15 +192,17 @@ class SiriusReverseIt {
 		
 	}
 	
-	def addDependencyAsExtras(
-		String designId,
-		String resourceUri
-	) {
+	def addDependencyAsExtras(String designId, String resourceUri) {
+		addDependencyAsExtras(designId, "base", resourceUri)
+	}
+	
+	def addDependencyAsExtras(String designId, String base, String resourceUri) {
 		val sourceUri = source.eResource.URI.path
 		
 		if (!sourceUri.endsWith(resourceUri)) {
-			engine.explicitExtras += SiriusDependencies.getDependencyExtras("base", rs, resourceUri)
+			engine.explicitExtras += SiriusDependencies.getDependencyExtras(base, rs, resourceUri)
 		}
+		this
 	}
 	
 	protected def findDefaultSplits() {

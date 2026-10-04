@@ -58,7 +58,10 @@ abstract class AbstractPropertySet extends AbstractTypedEdition<ViewExtensionDes
 	
 	protected static val String ANY_TYPE = null
 	
-	enum Ns { view, category, page, group, foreach, then }
+	enum Ns { 
+		category, page, view, group, foreach, then,
+		operation 
+	}
 	
 	// 'input' provides in 
 	// org.eclipse.sirius.properties.core.api.SiriusInputDescriptor

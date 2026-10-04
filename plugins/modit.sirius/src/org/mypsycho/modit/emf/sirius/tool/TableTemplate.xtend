@@ -36,14 +36,16 @@ import org.eclipse.sirius.table.metamodel.table.description.LineMapping
 import org.eclipse.sirius.table.metamodel.table.description.TableDescription
 import org.eclipse.sirius.table.metamodel.table.description.TableMapping
 import org.eclipse.sirius.table.metamodel.table.description.TableTool
+import org.eclipse.sirius.viewpoint.description.ColorDescription
 import org.eclipse.sirius.viewpoint.description.tool.ModelOperation
+import org.eclipse.sirius.viewpoint.description.tool.RepresentationCreationDescription
+import org.eclipse.sirius.viewpoint.description.tool.RepresentationNavigationDescription
 import org.mypsycho.modit.emf.ClassId
 import org.mypsycho.modit.emf.sirius.api.AbstractTable
 import org.mypsycho.modit.emf.sirius.api.SiriusCrossTable
 import org.mypsycho.modit.emf.sirius.api.SiriusFeatureTable
 
 import static extension org.mypsycho.modit.emf.sirius.api.SiriusDesigns.*
-import org.eclipse.sirius.viewpoint.description.ColorDescription
 
 /** Override of default reverse for SiriusModelProvider class. */
 class TableTemplate extends RepresentationTemplate<TableDescription> {
@@ -54,7 +56,9 @@ class TableTemplate extends RepresentationTemplate<TableDescription> {
 		FeatureColumnMapping -> AbstractTable.Ns.column,
 		ElementColumnMapping -> AbstractTable.Ns.column,
 		LineMapping -> AbstractTable.Ns.line,
-		CreateLineTool -> AbstractTable.Ns.create
+		CreateLineTool -> AbstractTable.Ns.create,
+		RepresentationCreationDescription -> AbstractTable.Ns.operation,
+		RepresentationNavigationDescription -> AbstractTable.Ns.operation
 	]
 	
 	static val INIT_TEMPLATED = RepresentationTemplate.INIT_TEMPLATED + #{
@@ -201,7 +205,7 @@ class «name» extends «content.tableEditor.templateClass» {
 	override templatePropertyValue(EStructuralFeature feat, Object value, (Object)=>String encoding) {
 		feat.isMappingContainment(value) 
 			? (value as EObject).templateAxisValue
-			: TPKG.cellUpdater_DirectEdit == feat
+			: TPKG.cellUpdater_DirectEdit == feat && !tool.legacyModel
 			? (value as LabelEditTool).templateDirectEdit
 			: value instanceof ForegroundStyleDescription
 			? value.templateForeground
@@ -271,7 +275,7 @@ ENDFOR
 »'''}
 
 	def templateDirectEdit(LabelEditTool it) {
-		if (firstModelOperation === null || mask?.mask != "{0}") {
+		if (firstModelOperation === null || mask?.mask != "{0}" || tool.legacyModel) {
 			return toolTemplateCreate
 		}
 		'''directEdit = «firstModelOperation.templateInnerCreate»'''
