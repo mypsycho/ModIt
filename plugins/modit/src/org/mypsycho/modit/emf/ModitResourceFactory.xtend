@@ -24,7 +24,7 @@ import org.eclipse.emf.ecore.resource.impl.ResourceImpl
 import java.util.Objects
 
 /**
- * EMF Factory to load model created from ModitModel instanace into a resource.
+ * EMF Factory to load model created from ModitModel instance into a resource.
  * <p>
  * It can only be using with resources identified by plugin URI. 
  * </p>

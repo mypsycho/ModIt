@@ -67,8 +67,10 @@ class EmfStretcher {
 		
 		// Creating EClassStretcher instance requires elements.
 		extras.put(EcorePackage.eINSTANCE.EObject, 
-			if (extensions.empty) new EClassStretcher(this, EcorePackage.eINSTANCE.EObject)
-	 		else extensions.head.onClass(EcorePackage.eINSTANCE.EObject) // We are exposed to inconsistency
+			extensions.empty 
+				? new EClassStretcher(this, EcorePackage.eINSTANCE.EObject)
+				// We are exposed to inconsistency
+	 			: extensions.head.onClass(EcorePackage.eINSTANCE.EObject)
 		)
 	}
 

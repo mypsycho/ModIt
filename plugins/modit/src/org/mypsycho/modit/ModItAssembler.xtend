@@ -73,10 +73,10 @@ class ModItAssembler<T, F> {
 		val builtValues = <T>newArrayList(values)
 		
 		// Builds all contents
-		val stack = <T>newLinkedList(builtValues)
+		val stack = new LinkedList(builtValues)
 		while (!stack.empty || !onFlies.empty) {
 			if (!stack.empty) {
-				stack.applyPopAll[ 
+				stack.applyPopAll [ 
 					val content = unbindContent
 					if (content !== null) {
 						context.description.contentProvider.accept(content, it)	
