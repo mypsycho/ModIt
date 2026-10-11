@@ -52,7 +52,7 @@ class SiriusModelInterpreter implements IInterpreter {
 	}
 	
 	static def String toExpression(SiriusModelProvider it, int methodId, String params) {
-		val resId = if (id == SiriusModelProvider.RESOURCE_MODE) class.name else id 
+		val resId = id == SiriusModelProvider.RESOURCE_MODE ? class.name : id 
 
 		// Warning: no space between Sequence and '{'
 		PROTOCOL + resId + SEP + methodId + SEP + params

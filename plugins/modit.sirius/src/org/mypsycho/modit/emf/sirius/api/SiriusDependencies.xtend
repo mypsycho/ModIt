@@ -59,10 +59,10 @@ class SiriusDependencies {
 	 * @return User colors
 	 */
 	static def getPaletteColors(Group it) {
-		if (userColorsPalettes.size == 1) {
+		userColorsPalettes.size == 1
 			// Protection against evolution
-			userColorsPalettes.head.entries
-		} else #[]
+			? userColorsPalettes.head.entries
+			: #[]
 	}
 	
 	/**
@@ -125,39 +125,34 @@ class SiriusDependencies {
 			]
 	}
 
-	static def getDependencyExtras(String designId, ResourceSet rs, 
-		String resourcePath
-	) {
+	static def getDependencyExtras(String designId, ResourceSet rs, String resourcePath) {
 		designId.getDependencyExtras(rs, resourcePath) [ SiriusDesigns.toClassname(it) ]
 	}
 
 
 	static def getDependencyExtras(String designId, ResourceSet rs, 
-		String resourcePath, (EObject)=>String toClassname
-	) {
-		val vpGroup = rs.getDependencyContent(resourcePath)
-		
-		val aliasBase = designId + "§"
-		vpGroup.mapDependencyExtras(aliasBase, toClassname)
+			String resourcePath, (EObject)=>String toClassname) {
+		designId.getDependencyExtras(rs.getDependencyContent(resourcePath), toClassname)
+	}
+	
+	static def getDependencyExtras(String designId, Group vpGroup, (EObject)=>String toClassname) {
+		vpGroup.mapDependencyExtras(designId + "§", toClassname)
 	}
 	
 	private static def dispatch Map<EObject, String> mapDependencyExtras(EObject it, 
-		String aliasBase, (EObject)=>String toClassname
-	) {
+			String aliasBase, (EObject)=>String toClassname) {
 		Collections.emptyMap
 	}
 
 	private static def dispatch Map<EObject, String> mapDependencyExtras(IdentifiedElement it, 
-		String aliasBase, (EObject)=>String toClassname
-	) {
+			String aliasBase, (EObject)=>String toClassname) {
 		#{ it -> getExtraAlias(aliasBase, toClassname) }
 	}
 
 	private static def dispatch Map<EObject, String> mapDependencyExtras(DiagramDescription it, 
-		String aliasBase, (EObject)=>String toClassname
-	) {
+			String aliasBase, (EObject)=>String toClassname) {
 		val result = new HashMap<EObject, String>
-		result += #{ it as EObject -> getExtraAlias(aliasBase, toClassname) }
+		result += it -> getExtraAlias(aliasBase, toClassname)
 		
 		val representationAlias = aliasBase + toClassname.apply(it) + "#"
 		result += dependables.toDependencyExtras(representationAlias, toClassname)
@@ -166,10 +161,9 @@ class SiriusDependencies {
 	}
 
 	private static def dispatch Map<EObject, String> mapDependencyExtras(DiagramExtensionDescription it, 
-		String aliasBase, (EObject)=>String toClassname
-	) {
+			String aliasBase, (EObject)=>String toClassname) {
 		val result = new HashMap<EObject, String>
-		result += #{ it as EObject -> getExtraAlias(aliasBase, toClassname) }
+		result += it -> getExtraAlias(aliasBase, toClassname)
 		
 		val extensionAlias = aliasBase + toClassname.apply(it) + "#"
 		result += dependables.toDependencyExtras(extensionAlias, toClassname)
@@ -178,10 +172,9 @@ class SiriusDependencies {
 	}
 
 	private static def dispatch Map<EObject, String> mapDependencyExtras(ViewExtensionDescription it, 
-		String aliasBase, (EObject)=>String toClassname
-	) {
+			String aliasBase, (EObject)=>String toClassname) {
 		val result = new HashMap<EObject, String>
-		result += #{ it as EObject -> getExtraAlias(aliasBase, toClassname) }
+		result += it -> getExtraAlias(aliasBase, toClassname) 
 		
 		val uniqueExt = (eContainer as Group)
 			.extensions
@@ -202,8 +195,7 @@ class SiriusDependencies {
 	}
 	
 	private static def dispatch Map<EObject, String> mapDependencyExtras(Group it, 
-		String aliasBase, (EObject)=>String toClassname
-	) {
+			String aliasBase, (EObject)=>String toClassname) {
 		val result = new HashMap<EObject, String>
 		result += it -> aliasBase
 		
@@ -221,16 +213,14 @@ class SiriusDependencies {
 	}
 	
 	static def toDependencyExtras(
-		Iterable<? extends EObject> values, String aliasBase, 
-		(EObject)=>String toClassname
-	) {
+			Iterable<? extends EObject> values, String aliasBase, 
+			(EObject)=>String toClassname) {
 		values.iterator.toDependencyExtras(aliasBase, toClassname)
 	}
 	
 	static def toDependencyExtras(
-		Iterator<? extends EObject> values, String aliasBase, 
-		(EObject)=>String toClassname
-	) {
+			Iterator<? extends EObject> values, String aliasBase, 
+			(EObject)=>String toClassname) {
 		values.toInvertedMap[ getExtraAlias(aliasBase, toClassname) ]
 	}
 	

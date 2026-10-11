@@ -318,9 +318,9 @@ class SiriusDesigns {
 	
 	/** Initializes label and documentation based on a Plugin Property key. */
 	static def void setI18n(IdentifiedElement it, String key) {
-		label = "%" + key
+		label = (!key.startsWith("%") ? "%" : "") + key
 		if (it instanceof DocumentedElement) {
-			documentation = "%" + key + "__ttip"	
+			documentation = label + "__ttip"	
 		}
 	}
 

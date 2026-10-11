@@ -156,7 +156,7 @@ class SiriusReverseIt {
 			]
 			
 			explicitExtras += rs.environmentExtras
-			rs.addExplicitExtras(explicitExtras)
+			rs.initExplicitExtras(explicitExtras)
 		]
 		
 	}
@@ -188,19 +188,20 @@ class SiriusReverseIt {
 		'''«category.name»:«context.name».«path.toFirstLower.replace(" ", "_")»'''
 	}
 	
-	protected def void addExplicitExtras(ResourceSet rs, Map<EObject, String> extras) {
-		
+	protected def void initExplicitExtras(ResourceSet rs, Map<EObject, String> extras) {
 	}
 	
-	def addDependencyAsExtras(String designId, String resourceUri) {
-		addDependencyAsExtras(designId, "base", resourceUri)
+	def addExplicitExtras((ResourceSet) => Map<EObject, String> provider) {
+		engine.explicitExtras += provider.apply(rs)
 	}
 	
-	def addDependencyAsExtras(String designId, String base, String resourceUri) {
+	def addDependencyAsExtras(String base, String resourceUri) {
 		val sourceUri = source.eResource.URI.path
 		
 		if (!sourceUri.endsWith(resourceUri)) {
-			engine.explicitExtras += SiriusDependencies.getDependencyExtras(base, rs, resourceUri)
+			addExplicitExtras[ 
+				SiriusDependencies.getDependencyExtras(base, rs, resourceUri)
+			]
 		}
 		this
 	}

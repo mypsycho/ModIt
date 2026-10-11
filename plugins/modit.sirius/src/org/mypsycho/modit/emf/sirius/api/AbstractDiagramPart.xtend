@@ -573,6 +573,7 @@ abstract class AbstractDiagramPart<T extends EObject> extends AbstractRepresenta
 		doCustoms(condition, featCustoms)
 	}
 
+	// EdgeStyleDescription variation
 	/** Customizes a style reference with provided value. */
 	def customizeRef(
 		EdgeStyleDescription it, String condition, 
@@ -666,19 +667,31 @@ abstract class AbstractDiagramPart<T extends EObject> extends AbstractRepresenta
 	/** Iterates on all styles of a mapping. */
 	static def allStyles(DiagramElementMapping it) {
 		switch(it) {
-			EdgeMapping: 
-				#[ style ] + conditionnalStyles.map[ style ]
-			ContainerMapping: 
-				#[ style ] + conditionnalStyles.map[ style ]
-			NodeMapping: 
-				#[ style ] + conditionnalStyles.map[ style ]
+			EdgeMapping: allStyles
+			ContainerMapping: allStyles
+			NodeMapping: allStyles
 			default: #[] as Iterable<? extends StyleDescription> 
-		}.filterNull
+		}
 	}
 	
 	/** Iterates on all specific styles of a mapping. */
 	static def <T extends EObject> allStyles(DiagramElementMapping it, Class<T> type) {
 		allStyles.filter(type)
+	}	
+	
+	/** Iterates on all specific styles of a mapping. */
+	static def allStyles(EdgeMapping it) {
+		(#[ style ] + conditionnalStyles.map[ style ]).filterNull
+	}	
+	
+	/** Iterates on all specific styles of a mapping. */
+	static def allStyles(ContainerMapping it) {
+		(#[ style ] + conditionnalStyles.map[ style ]).filterNull
+	}	
+	
+	/** Iterates on all specific styles of a mapping. */
+	static def allStyles(NodeMapping it) {
+		(#[ style ] + conditionnalStyles.map[ style ]).filterNull
 	}	
 	
 
