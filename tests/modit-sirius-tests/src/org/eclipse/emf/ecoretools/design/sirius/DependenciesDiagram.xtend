@@ -76,7 +76,8 @@ class DependenciesDiagram extends SiriusDiagram {
 				foregroundColor = UserFixedColor.ref("color:EPackage")
 				labelBorderStyle = LabelBorderStyleDescription.extraRef("LabelBorder:Label Border Style With Beveled Corner")
 			]
-			subNodeMappings += NodeMapping.createAs(Ns.node, "EClassfierIntroducingDependency") [
+			subNodeMappings += NodeMapping.createAs(Ns.node, "Analyzed Package/EClassfierIntroducingDependency") [
+				name = "EClassfierIntroducingDependency"
 				semanticCandidatesExpression = "service:getElementsIntroducingDependencies(diagram)"
 				domainClass = "ecore.EClassifier"
 				style(BundledImageDescription) [
@@ -121,7 +122,7 @@ class DependenciesDiagram extends SiriusDiagram {
 			ownedTools += OperationAction.createAs(Ns.operation, "Open Dependencies User Guide") [
 				initVariables
 				label = "Open User Guide"
-				operation = "org.eclipse.sirius.ui.business.api.action.openHelpSection".javaDo("Open Dependencies User Guide Action", 
+				operation = "org.eclipse.sirius.ui.business.api.action.openHelpSection".javaDo("Open Dependencies User Guide Action",
 					"href" -> "/org.eclipse.emf.ecoretools.design/doc/user-guide.html#quality.dependencies"
 				)
 			]

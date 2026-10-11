@@ -93,7 +93,7 @@ class DefaultViewExtension extends AbstractPropertySet {
 			groups("genmodel root")
 			action("Generate Model", "/org.eclipse.emf.ecoretools.design/icons/full/etools16/generate_single.gif",
 				"var:self".toContext(
-					"org.eclipse.emf.ecoretools.design.action.generateAllID".javaDo("Generate Model Properties", 
+					"org.eclipse.emf.ecoretools.design.action.generateAllID".javaDo("Generate Model Properties",
 						"genmodels" -> '''self.eInverse()->select( g | g.eClass().ePackage.nsURI->includes('http://www.eclipse.org/emf/2002/GenModel'))->asSet().eContainerOrSelf(genmodel::GenModel)->asSet()'''.trimAql,
 						"scope" -> "model"
 					)
@@ -101,7 +101,7 @@ class DefaultViewExtension extends AbstractPropertySet {
 			)
 			action("Generate Edit", "/org.eclipse.emf.ecoretools.design/icons/full/etools16/generate_single.gif",
 				"var:self".toContext(
-					"org.eclipse.emf.ecoretools.design.action.generateAllID".javaDo("Generate Edit Properties", 
+					"org.eclipse.emf.ecoretools.design.action.generateAllID".javaDo("Generate Edit Properties",
 						"genmodels" -> '''self.eInverse()->select( g | g.eClass().ePackage.nsURI->includes('http://www.eclipse.org/emf/2002/GenModel'))->asSet().eContainerOrSelf(genmodel::GenModel)->asSet()'''.trimAql,
 						"scope" -> "edit"
 					)
@@ -109,7 +109,7 @@ class DefaultViewExtension extends AbstractPropertySet {
 			)
 			action("Generate Editor", "/org.eclipse.emf.ecoretools.design/icons/full/etools16/generate_single.gif",
 				"var:self".toContext(
-					"org.eclipse.emf.ecoretools.design.action.generateAllID".javaDo("Generate Editor Properties", 
+					"org.eclipse.emf.ecoretools.design.action.generateAllID".javaDo("Generate Editor Properties",
 						"genmodels" -> '''self.eInverse()->select( g | g.eClass().ePackage.nsURI->includes('http://www.eclipse.org/emf/2002/GenModel'))->asSet().eContainerOrSelf(genmodel::GenModel)->asSet()'''.trimAql,
 						"scope" -> "editor"
 					)
@@ -117,7 +117,7 @@ class DefaultViewExtension extends AbstractPropertySet {
 			)
 			action("Generate All", "/org.eclipse.emf.ecoretools.design/icons/full/etools16/generate.gif",
 				"var:self".toContext(
-					"org.eclipse.emf.ecoretools.design.action.generateAllID".javaDo("Generate All Properties", 
+					"org.eclipse.emf.ecoretools.design.action.generateAllID".javaDo("Generate All Properties",
 						"genmodels" -> '''self.eInverse()->select( g | g.eClass().ePackage.nsURI->includes('http://www.eclipse.org/emf/2002/GenModel'))->asSet().eContainerOrSelf(genmodel::GenModel)->asSet()'''.trimAql,
 						"scope" -> "model, edit, editor, tests"
 					)
@@ -212,7 +212,7 @@ class DefaultViewExtension extends AbstractPropertySet {
 					valueExpression = '''self.eGetMonoRef(eStructuralFeature)'''.trimAql
 					displayExpression = '''if self.eGetMonoRef(eStructuralFeature) <> null then input.emfEditServices(self.eGetMonoRef(eStructuralFeature)).getText() else '' endif'''.trimAql
 					action("...", null,
-						"org.eclipse.emf.ecoretools.design.action.openSelectModelElementID".javaDo("open select etype dialog", 
+						"org.eclipse.emf.ecoretools.design.action.openSelectModelElementID".javaDo("open select etype dialog",
 							"message" -> ''' 'Select an ' + eStructuralFeature.eType.name +  ' for the ' + eStructuralFeature.name +  ' reference.' '''.trimAql,
 							"title" -> ''' 'Select ' + eStructuralFeature.eType.name '''.trimAql,
 							"candidates" -> '''input.emfEditServices(self).getChoiceOfValues(eStructuralFeature)'''.trimAql,
@@ -265,7 +265,7 @@ class DefaultViewExtension extends AbstractPropertySet {
 					isEnabledExpression = '''self.isJavaFileGenerated()'''.trimAql
 					valueExpression = '''self'''.trimAql
 					displayExpression = '''if self.isJavaFileGenerated() then 'Open Java Implementation' else '' endif'''.trimAql
-					operation = "org.eclipse.emf.ecoretools.design.action.openFileInEditorID".javaDo("open java editor", 
+					operation = "org.eclipse.emf.ecoretools.design.action.openFileInEditorID".javaDo("open java editor",
 						"path" -> '''self.getJavaImplementationPath()'''.trimAql
 					)
 				]
@@ -305,7 +305,7 @@ class DefaultViewExtension extends AbstractPropertySet {
 				action("...", null,
 					'''self.eClass().getEStructuralFeature('eTypeParameter')'''.trimAql
 						.letDo("eStructuralFeature",
-							"org.eclipse.emf.ecoretools.design.action.openSelectModelElementID".javaDo("open select etype dialog", 
+							"org.eclipse.emf.ecoretools.design.action.openSelectModelElementID".javaDo("open select etype dialog",
 								"message" -> ''' 'Select an ' + eStructuralFeature.eType.name +  ' for the ' + eStructuralFeature.name +  ' reference.' '''.trimAql,
 								"title" -> ''' 'Select ' + eStructuralFeature.eType.name '''.trimAql,
 								"candidates" -> '''input.emfEditServices(self).getChoiceOfValues(eStructuralFeature)'''.trimAql,
@@ -322,7 +322,7 @@ class DefaultViewExtension extends AbstractPropertySet {
 				action("...", null,
 					'''self.eClass().getEStructuralFeature('eClassifier')'''.trimAql
 						.letDo("eStructuralFeature",
-							"org.eclipse.emf.ecoretools.design.action.openSelectModelElementID".javaDo("open select etype dialog", 
+							"org.eclipse.emf.ecoretools.design.action.openSelectModelElementID".javaDo("open select etype dialog",
 								"message" -> ''' 'Select an ' + eStructuralFeature.eType.name +  ' for the ' + eStructuralFeature.name +  ' reference.' '''.trimAql,
 								"title" -> ''' 'Select ' + eStructuralFeature.eType.name '''.trimAql,
 								"candidates" -> '''input.emfEditServices(self).getChoiceOfValues(eStructuralFeature)'''.trimAql,
@@ -435,7 +435,7 @@ class DefaultViewExtension extends AbstractPropertySet {
 							labelFontFormat += FontFormat.ITALIC_LITERAL
 						]
 						action("...", null,
-							"org.eclipse.emf.ecoretools.design.action.openSelectModelElementID".javaDo("open select etype dialog", 
+							"org.eclipse.emf.ecoretools.design.action.openSelectModelElementID".javaDo("open select etype dialog",
 								"message" -> ''' 'Select an EClass for the eType reference.' '''.trimAql,
 								"title" -> ''' 'Select EClass' '''.trimAql,
 								"candidates" -> '''input.emfEditServices(self).getChoiceOfValues(self.eClass().getEStructuralFeature('eType'))'''.trimAql,

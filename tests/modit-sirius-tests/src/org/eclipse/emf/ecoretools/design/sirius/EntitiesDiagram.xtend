@@ -97,8 +97,8 @@ class EntitiesDiagram extends SiriusDiagram {
 		pasteDescriptions += PasteDescription.localRef(Ns.operation, "Paste Anything")
 		filtering("Hide class content") [
 			allHide(
-				NodeMapping.localRef(Ns.node, "EC EAttribute"),
-				NodeMapping.localRef(Ns.node, "Operation")
+				NodeMapping.localRef(Ns.node, "EC EClass/EC EAttribute"),
+				NodeMapping.localRef(Ns.node, "EC EClass/Operation")
 			)
 		]
 		filtering("Hide generalizations") [
@@ -119,25 +119,25 @@ class EntitiesDiagram extends SiriusDiagram {
 		]
 		filtering("Hide references (nodes)") [
 			allHide(
-				NodeMapping.localRef(Ns.node, "EC EReferenceNode")
+				NodeMapping.localRef(Ns.node, "EC EClass/EC EReferenceNode")
 			)
 		]
 		filtering("Hide inherited references (nodes)") [
 			viewHide('''self.eContainer().oclAsType(viewpoint::DSemanticDecorator).target = self.oclAsType(viewpoint::DSemanticDecorator).target.eContainer()'''.trimAql,
-				NodeMapping.localRef(Ns.node, "EC EReferenceNode")
+				NodeMapping.localRef(Ns.node, "EC EClass/EC EReferenceNode")
 			)
 		]
 		filtering("Hide derived features") [
 			elementHide('''not self.derived'''.trimAql,
 				EdgeMapping.localRef(Ns.edge, "EC_EReference"),
-				NodeMapping.localRef(Ns.node, "EC EAttribute"),
+				NodeMapping.localRef(Ns.node, "EC EClass/EC EAttribute"),
 				EdgeMapping.localRef(Ns.edge, "Bi-directional EC_EReference "),
-				NodeMapping.localRef(Ns.node, "EC EReferenceNode")
+				NodeMapping.localRef(Ns.node, "EC EClass/EC EReferenceNode")
 			)
 		]
 		filtering("Hide operations") [
 			allHide(
-				NodeMapping.localRef(Ns.node, "Operation")
+				NodeMapping.localRef(Ns.node, "EC EClass/Operation")
 			)
 		]
 		validationSet = ValidationSet.create [
@@ -163,7 +163,7 @@ class EntitiesDiagram extends SiriusDiagram {
 				]
 			]
 		]
-		initialisation = "service:openClassDiagramContextHelp".toOperation
+		diagramInitialisation = "service:openClassDiagramContextHelp".toOperation
 		additionalLayers += createPackageLayer
 		additionalLayers += createDocumentationLayer
 		additionalLayers += createValidationLayer
@@ -235,7 +235,8 @@ class EntitiesDiagram extends SiriusDiagram {
 				borderColor = UserFixedColor.ref("color:Dark EClass")
 				foregroundColor = UserFixedColor.ref("color:Abstract EClass")
 			]
-			borderedNodeMappings += NodeMapping.createAs(Ns.node, "EC ETypeParameter") [
+			borderedNodeMappings += NodeMapping.createAs(Ns.node, "EC EClass/EC ETypeParameter") [
+				name = "EC ETypeParameter"
 				semanticCandidatesExpression = "feature:eTypeParameters"
 				domainClass = "ecore.ETypeParameter"
 				labelDirectEdit = DirectEditLabel.localRef(Ns.operation, "Edit Name with CamelCase")
@@ -249,7 +250,8 @@ class EntitiesDiagram extends SiriusDiagram {
 					workspacePath = "/org.eclipse.emf.ecoretools.design/icons/full/back/generic.svg"
 				]
 			]
-			subNodeMappings += NodeMapping.createAs(Ns.node, "EC EAttribute") [
+			subNodeMappings += NodeMapping.createAs(Ns.node, "EC EClass/EC EAttribute") [
+				name = "EC EAttribute"
 				semanticCandidatesExpression = "feature:eAttributes"
 				domainClass = "ecore.EAttribute"
 				labelDirectEdit = DirectEditLabel.localRef(Ns.operation, "Edit EStructuralFeature Name")
@@ -263,7 +265,8 @@ class EntitiesDiagram extends SiriusDiagram {
 					sizeComputationExpression = "1"
 				]
 			]
-			subNodeMappings += NodeMapping.createAs(Ns.node, "Operation") [
+			subNodeMappings += NodeMapping.createAs(Ns.node, "EC EClass/Operation") [
+				name = "Operation"
 				semanticCandidatesExpression = "feature:eOperations"
 				semanticElements = "service:eOperationSemanticElements"
 				domainClass = "ecore.EOperation"
@@ -277,7 +280,8 @@ class EntitiesDiagram extends SiriusDiagram {
 					tooltipExpression = "service:renderEOperationTooltip"
 				]
 			]
-			subNodeMappings += NodeMapping.createAs(Ns.node, "EC EReferenceNode") [
+			subNodeMappings += NodeMapping.createAs(Ns.node, "EC EClass/EC EReferenceNode") [
+				name = "EC EReferenceNode"
 				semanticCandidatesExpression = "service:getNonDisplayedEReferences(diagram)"
 				domainClass = "ecore.EReference"
 				labelDirectEdit = DirectEditLabel.localRef(Ns.operation, "Edit EStructuralFeature Name")
@@ -319,7 +323,8 @@ class EntitiesDiagram extends SiriusDiagram {
 				borderColor = UserFixedColor.ref("color:Dark EEnum")
 				foregroundColor = UserFixedColor.ref("color:EEnum")
 			]
-			subNodeMappings += NodeMapping.createAs(Ns.node, "EC EEnumLiteral") [
+			subNodeMappings += NodeMapping.createAs(Ns.node, "EC EEnum/EC EEnumLiteral") [
+				name = "EC EEnumLiteral"
 				semanticCandidatesExpression = "feature:eLiterals"
 				domainClass = "ecore.EEnumLiteral"
 				labelDirectEdit = DirectEditLabel.localRef(Ns.operation, "Edit Name no CamelCase")
@@ -349,7 +354,8 @@ class EntitiesDiagram extends SiriusDiagram {
 				borderColor = UserFixedColor.ref("color:Dark EDataType")
 				foregroundColor = UserFixedColor.ref("color:EDataType")
 			]
-			subNodeMappings += NodeMapping.createAs(Ns.node, "EC_DataType_InstanceClassName") [
+			subNodeMappings += NodeMapping.createAs(Ns.node, "EC EDataType/EC_DataType_InstanceClassName") [
+				name = "EC_DataType_InstanceClassName"
 				semanticCandidatesExpression = "var:self"
 				domainClass = "ecore.EDataType"
 				labelDirectEdit = DirectEditLabel.localRef(Ns.operation, "InstanceClassName")
@@ -377,7 +383,7 @@ class EntitiesDiagram extends SiriusDiagram {
 			sourceMapping += ContainerMapping.localRef(Ns.node, "EC EClass")
 			sourceMapping += ContainerMapping.localRef(Ns.node, "EC External EClasses")
 			targetMapping += ContainerMapping.localRef(Ns.node, "EC EClass")
-			targetMapping += NodeMapping.localRef(Ns.node, "EC ETypeParameter")
+			targetMapping += NodeMapping.localRef(Ns.node, "EC EClass/EC ETypeParameter")
 			targetMapping += ContainerMapping.localRef(Ns.node, "EC External EClasses")
 			reconnections += ReconnectEdgeDescription.localRef(Ns.reconnect, "ReconnectEReference Source")
 			reconnections += ReconnectEdgeDescription.localRef(Ns.reconnect, "ReconnectEReference Target")
@@ -488,11 +494,11 @@ class EntitiesDiagram extends SiriusDiagram {
 		styleCustomisations += "feature:required".thenStyle(
 			"labelFormat".attCustomization("service:fontFormatBold",
 				CenterLabelStyleDescription.localRef(Ns.edge, "EC_EReference") [ (it as EdgeMapping).style.centerLabelStyleDescription ],
-				BundledImageDescription.localRef(Ns.node, "EC EAttribute") [ (it as NodeMapping).style as BundledImageDescription ],
+				BundledImageDescription.localRef(Ns.node, "EC EClass/EC EAttribute") [ (it as NodeMapping).style as BundledImageDescription ],
 				BeginLabelStyleDescription.localRef(Ns.edge, "Bi-directional EC_EReference ") [ (it as EdgeMapping).style.beginLabelStyleDescription ],
 				EndLabelStyleDescription.localRef(Ns.edge, "Bi-directional EC_EReference ") [ (it as EdgeMapping).style.endLabelStyleDescription ],
-				BundledImageDescription.localRef(Ns.node, "EC EReferenceNode") [ (it as NodeMapping).style as BundledImageDescription ],
-				BundledImageDescription.localRef(Ns.node, "EC EReferenceNode") [ (it as NodeMapping).conditionnalStyles.head.style as BundledImageDescription ]
+				BundledImageDescription.localRef(Ns.node, "EC EClass/EC EReferenceNode") [ (it as NodeMapping).style as BundledImageDescription ],
+				BundledImageDescription.localRef(Ns.node, "EC EClass/EC EReferenceNode") [ (it as NodeMapping).conditionnalStyles.head.style as BundledImageDescription ]
 			),
 			"strokeColor".refCustomization(SystemColor.extraRef("color:black"),
 				EdgeStyleDescription.localRef(Ns.edge, "Bi-directional EC_EReference ") [ (it as EdgeMapping).style ],
@@ -528,9 +534,9 @@ class EntitiesDiagram extends SiriusDiagram {
 				BeginLabelStyleDescription.localRef(Ns.edge, "Bi-directional EC_EReference ") [ (it as EdgeMapping).style.beginLabelStyleDescription ],
 				EndLabelStyleDescription.localRef(Ns.edge, "Bi-directional EC_EReference ") [ (it as EdgeMapping).style.endLabelStyleDescription ],
 				CenterLabelStyleDescription.localRef(Ns.edge, "EC_EReference") [ (it as EdgeMapping).style.centerLabelStyleDescription ],
-				BundledImageDescription.localRef(Ns.node, "EC EAttribute") [ (it as NodeMapping).style as BundledImageDescription ],
-				BundledImageDescription.localRef(Ns.node, "EC EReferenceNode") [ (it as NodeMapping).style as BundledImageDescription ],
-				BundledImageDescription.localRef(Ns.node, "EC EReferenceNode") [ (it as NodeMapping).conditionnalStyles.head.style as BundledImageDescription ]
+				BundledImageDescription.localRef(Ns.node, "EC EClass/EC EAttribute") [ (it as NodeMapping).style as BundledImageDescription ],
+				BundledImageDescription.localRef(Ns.node, "EC EClass/EC EReferenceNode") [ (it as NodeMapping).style as BundledImageDescription ],
+				BundledImageDescription.localRef(Ns.node, "EC EClass/EC EReferenceNode") [ (it as NodeMapping).conditionnalStyles.head.style as BundledImageDescription ]
 			)
 		)
 		toolSections += createExistingElementsTools
@@ -559,7 +565,7 @@ class EntitiesDiagram extends SiriusDiagram {
 					initVariables
 					precondition = '''OrderedSet{views.target}.eInverse().eContainerOrSelf(genmodel::GenModel)->asSet()->size() > 0'''.trimAql
 					icon = "/org.eclipse.emf.ecoretools.design/icons/full/obj16/GenModel.gif"
-					operation = "org.eclipse.emf.ecoretools.design.action.generateAllID".javaDo("Generate All", 
+					operation = "org.eclipse.emf.ecoretools.design.action.generateAllID".javaDo("Generate All",
 						"genmodels" -> '''OrderedSet{views.target}.eInverse().eContainerOrSelf(genmodel::GenModel)->asSet()'''.trimAql,
 						"scope" -> "model, edit, editor, tests"
 					)
@@ -568,7 +574,7 @@ class EntitiesDiagram extends SiriusDiagram {
 					initVariables
 					precondition = '''OrderedSet{views.target}.eInverse().eContainerOrSelf(genmodel::GenModel)->asSet()->select(m | m.modelDirectory.size() > 0)->size() > 0'''.trimAql
 					icon = "/org.eclipse.emf.ecoretools.design/icons/full/obj16/GenModel.gif"
-					operation = "org.eclipse.emf.ecoretools.design.action.generateAllID".javaDo("Generate All", 
+					operation = "org.eclipse.emf.ecoretools.design.action.generateAllID".javaDo("Generate All",
 						"genmodels" -> '''OrderedSet{views.target}.eInverse().eContainerOrSelf(genmodel::GenModel)->asSet()'''.trimAql,
 						"scope" -> "model"
 					)
@@ -577,7 +583,7 @@ class EntitiesDiagram extends SiriusDiagram {
 					initVariables
 					precondition = '''OrderedSet{views.target}.eInverse().eContainerOrSelf(genmodel::GenModel)->asSet()->select(m | m.editDirectory.size() > 0)->size() > 0'''.trimAql
 					icon = "/org.eclipse.emf.ecoretools.design/icons/full/obj16/GenModel.gif"
-					operation = "org.eclipse.emf.ecoretools.design.action.generateAllID".javaDo("Generate All", 
+					operation = "org.eclipse.emf.ecoretools.design.action.generateAllID".javaDo("Generate All",
 						"genmodels" -> '''OrderedSet{views.target}.eInverse().eContainerOrSelf(genmodel::GenModel)->asSet()'''.trimAql,
 						"scope" -> "edit"
 					)
@@ -586,7 +592,7 @@ class EntitiesDiagram extends SiriusDiagram {
 					initVariables
 					precondition = '''OrderedSet{views.target}.eInverse().eContainerOrSelf(genmodel::GenModel)->asSet()->select(m | m.editorDirectory.size() > 0)->size() > 0'''.trimAql
 					icon = "/org.eclipse.emf.ecoretools.design/icons/full/obj16/GenModel.gif"
-					operation = "org.eclipse.emf.ecoretools.design.action.generateAllID".javaDo("Generate All", 
+					operation = "org.eclipse.emf.ecoretools.design.action.generateAllID".javaDo("Generate All",
 						"genmodels" -> '''OrderedSet{views.target}.eInverse().eContainerOrSelf(genmodel::GenModel)->asSet()'''.trimAql,
 						"scope" -> "editor"
 					)
@@ -595,7 +601,7 @@ class EntitiesDiagram extends SiriusDiagram {
 					initVariables
 					precondition = '''OrderedSet{views.target}.eInverse().eContainerOrSelf(genmodel::GenModel)->asSet()->select(m | m.testsDirectory.size() > 0)->size() > 0'''.trimAql
 					icon = "/org.eclipse.emf.ecoretools.design/icons/full/obj16/GenModel.gif"
-					operation = "org.eclipse.emf.ecoretools.design.action.generateAllID".javaDo("Generate All", 
+					operation = "org.eclipse.emf.ecoretools.design.action.generateAllID".javaDo("Generate All",
 						"genmodels" -> '''OrderedSet{views.target}.eInverse().eContainerOrSelf(genmodel::GenModel)->asSet()'''.trimAql,
 						"scope" -> "tests"
 					)
@@ -606,7 +612,7 @@ class EntitiesDiagram extends SiriusDiagram {
 				menuItemDescription += OperationAction.createAs(Ns.operation, "Enable support") [
 					initVariables
 					precondition = '''OrderedSet{views.target}.eInverse().eContainerOrSelf(genmodel::GenModel)->asSet()->size() > 0'''.trimAql
-					operation = "org.eclipse.emf.ecoretools.design.action.openConfirmationDialogID".javaDo("OpenConfirmationDialog", 
+					operation = "org.eclipse.emf.ecoretools.design.action.openConfirmationDialogID".javaDo("OpenConfirmationDialog",
 						"message" -> "The selected generator model will be updated:\n\nSet Feature Delegation = Reflective\nSet Root Extends Class = org.eclipse.emf.internal.cdo.CDOObjectImpl\nSet Root Extends Interface = org.eclipse.emf.cdo.CDOObject\nAdded Model Plugin Variables = CDO=org.eclipse.emf.cdo \nCreated CDO.MF marker file\n\nYou need to regenerate the code to make these changes effective. \n",
 						"title" -> "The selected generator model will be updated:\n\nSet Feature Delegation = Reflective\nSet Root Extends Class = org.eclipse.emf.internal.cdo.CDOObjectImpl\nSet Root Extends Interface = org.eclipse.emf.cdo.CDOObject\nAdd Model Plugin Variables = CDO=org.eclipse.emf.cdo \nCreate CDO.MF marker file\n\nYou need to regenerate the code to make these changes effective. "
 					).chain(
@@ -616,7 +622,7 @@ class EntitiesDiagram extends SiriusDiagram {
 				menuItemDescription += OperationAction.createAs(Ns.operation, "Disable support") [
 					initVariables
 					precondition = '''OrderedSet{views.target}.eInverse().eContainerOrSelf(genmodel::GenModel)->asSet()->size() > 0'''.trimAql
-					operation = "org.eclipse.emf.ecoretools.design.action.openConfirmationDialogID".javaDo("OpenConfirmationDialog", 
+					operation = "org.eclipse.emf.ecoretools.design.action.openConfirmationDialogID".javaDo("OpenConfirmationDialog",
 						"message" -> "The selected generator model will be updated:...",
 						"title" -> "Disable CDO Native support in .genmodel ?"
 					).chain(
@@ -875,7 +881,7 @@ class EntitiesDiagram extends SiriusDiagram {
 			]
 			ownedTools += NodeCreationDescription.createAs(Ns.creation, "ETypeParameter") [
 				initVariables
-				nodeMappings += NodeMapping.localRef(Ns.node, "EC ETypeParameter")
+				nodeMappings += NodeMapping.localRef(Ns.node, "EC EClass/EC ETypeParameter")
 				operation = "var:container".toContext(
 					"eTypeParameters".creator("ecore.ETypeParameter").chain(
 						"name".setter("T")
@@ -895,7 +901,7 @@ class EntitiesDiagram extends SiriusDiagram {
 		ToolSection.create("Feature") [
 			ownedTools += NodeCreationDescription.createAs(Ns.creation, "Literal") [
 				initVariables
-				nodeMappings += NodeMapping.localRef(Ns.node, "EC EEnumLiteral")
+				nodeMappings += NodeMapping.localRef(Ns.node, "EC EEnum/EC EEnumLiteral")
 				operation = "eLiterals".creator("ecore.EEnumLiteral").chain(
 					"name".setter('''('literal' +( self.eContainer().eContents(ecore::EEnumLiteral)->size() -1)).toUpper()'''.trimAql),
 					"value".setter('''self.eContainer().eContents(ecore::EEnumLiteral)->size()-1'''.trimAql)
@@ -903,29 +909,29 @@ class EntitiesDiagram extends SiriusDiagram {
 			]
 			ownedTools += NodeCreationDescription.createAs(Ns.creation, "Operation") [
 				initVariables
-				nodeMappings += NodeMapping.localRef(Ns.node, "Operation")
+				nodeMappings += NodeMapping.localRef(Ns.node, "EC EClass/Operation")
 				operation = "eOperations".creator("ecore.EOperation").chain(
 					"name".setter(''' 'newOperation' + self.eContainer().eContents(ecore::EOperation)->size() '''.trimAql)
 				)
 			]
 			ownedTools += NodeCreationDescription.createAs(Ns.creation, "Attribute") [
 				initVariables
-				nodeMappings += NodeMapping.localRef(Ns.node, "EC EAttribute")
+				nodeMappings += NodeMapping.localRef(Ns.node, "EC EClass/EC EAttribute")
 				operation = "eStructuralFeatures".creator("ecore.EAttribute").chain(
 					"name".setter("newAttribute")
 				)
 			]
 			ownedTools += ContainerDropDescription.createAs(Ns.drop, "Drop attribute") [
 				initVariables
-				mappings += NodeMapping.localRef(Ns.node, "EC EAttribute")
-				mappings += NodeMapping.localRef(Ns.node, "EC EReferenceNode")
+				mappings += NodeMapping.localRef(Ns.node, "EC EClass/EC EAttribute")
+				mappings += NodeMapping.localRef(Ns.node, "EC EClass/EC EReferenceNode")
 				operation = "var:newSemanticContainer".toContext(
 					"eStructuralFeatures".setter("var:element")
 				)
 			]
 			ownedTools += ContainerDropDescription.createAs(Ns.drop, "Drop operation") [
 				initVariables
-				mappings += NodeMapping.localRef(Ns.node, "Operation")
+				mappings += NodeMapping.localRef(Ns.node, "EC EClass/Operation")
 				operation = "var:newSemanticContainer".toContext(
 					"eOperations".setter("var:element")
 				)
@@ -1097,12 +1103,12 @@ class EntitiesDiagram extends SiriusDiagram {
 			ownedTools += DoubleClickDescription.createAs(Ns.operation, "ShowPropertiesView") [
 				initVariables
 				mappings += ContainerMapping.localRef(Ns.node, "EC EClass")
-				mappings += NodeMapping.localRef(Ns.node, "EC EAttribute")
-				mappings += NodeMapping.localRef(Ns.node, "Operation")
+				mappings += NodeMapping.localRef(Ns.node, "EC EClass/EC EAttribute")
+				mappings += NodeMapping.localRef(Ns.node, "EC EClass/Operation")
 				mappings += ContainerMapping.localRef(Ns.node, "EC EDataType")
 				mappings += ContainerMapping.localRef(Ns.node, "EC EEnum")
-				mappings += NodeMapping.localRef(Ns.node, "EC EEnumLiteral")
-				mappings += NodeMapping.localRef(Ns.node, "EC EReferenceNode")
+				mappings += NodeMapping.localRef(Ns.node, "EC EEnum/EC EEnumLiteral")
+				mappings += NodeMapping.localRef(Ns.node, "EC EClass/EC EReferenceNode")
 				mappings += ContainerMapping.localRef(Ns.node, "Dropped Package")
 				operation = "var:element".toContext(
 					DialogModelOperation.create [
@@ -1151,7 +1157,7 @@ class EntitiesDiagram extends SiriusDiagram {
 			ownedTools += OperationAction.createAs(Ns.operation, "Open Entities User Guide") [
 				initVariables
 				label = "Open User Guide"
-				operation = "org.eclipse.sirius.ui.business.api.action.openHelpSection".javaDo("Open Entities User Guide Action", 
+				operation = "org.eclipse.sirius.ui.business.api.action.openHelpSection".javaDo("Open Entities User Guide Action",
 					"href" -> "/org.eclipse.emf.ecoretools.doc/doc/EcoreTools User Manual.html#EntitiesDiagramEditor"
 				)
 			]
@@ -1165,7 +1171,7 @@ class EntitiesDiagram extends SiriusDiagram {
 				initVariables
 				precondition = "service:isEClass"
 				iconPath = "/org.eclipse.emf.ecoretools.design/icons/full/obj16/DynamicInstance.gif"
-				operation = "org.eclipse.emf.ecoretools.design.action.createDynamicInstanceActionID".javaDo("Create dynamic instance of a specified EClass", 
+				operation = "org.eclipse.emf.ecoretools.design.action.createDynamicInstanceActionID".javaDo("Create dynamic instance of a specified EClass",
 					"eClass" -> "var:element"
 				)
 			]
@@ -1360,8 +1366,8 @@ class EntitiesDiagram extends SiriusDiagram {
 			activeByDefault = true
 			styleCustomisations += "service:hasError".thenStyle(
 				"labelColor".refCustomization(SystemColor.extraRef("color:red"),
-					BundledImageDescription.localRef(Ns.node, "EC EAttribute") [ (it as NodeMapping).style as BundledImageDescription ],
-					BundledImageDescription.localRef(Ns.node, "Operation") [ (it as NodeMapping).style as BundledImageDescription ],
+					BundledImageDescription.localRef(Ns.node, "EC EClass/EC EAttribute") [ (it as NodeMapping).style as BundledImageDescription ],
+					BundledImageDescription.localRef(Ns.node, "EC EClass/Operation") [ (it as NodeMapping).style as BundledImageDescription ],
 					CenterLabelStyleDescription.localRef(Ns.edge, "EC_EReference") [ (it as EdgeMapping).style.centerLabelStyleDescription ],
 					CenterLabelStyleDescription.localRef(Ns.edge, "EC ESupertypes") [ (it as EdgeMapping).style.centerLabelStyleDescription ],
 					CenterLabelStyleDescription.localRef(Ns.edge, "EC ESupertypes") [ (it as EdgeMapping).conditionnalStyles.get(0).style.centerLabelStyleDescription ],
@@ -1371,9 +1377,9 @@ class EntitiesDiagram extends SiriusDiagram {
 					FlatContainerStyleDescription.localRef(Ns.node, "EC EDataType") [ (it as ContainerMapping).style as FlatContainerStyleDescription ]
 				),
 				"borderColor".refCustomization(SystemColor.extraRef("color:red"),
-					BundledImageDescription.localRef(Ns.node, "EC EAttribute") [ (it as NodeMapping).style as BundledImageDescription ],
+					BundledImageDescription.localRef(Ns.node, "EC EClass/EC EAttribute") [ (it as NodeMapping).style as BundledImageDescription ],
 					FlatContainerStyleDescription.localRef(Ns.node, "EC EClass") [ (it as ContainerMapping).style as FlatContainerStyleDescription ],
-					BundledImageDescription.localRef(Ns.node, "Operation") [ (it as NodeMapping).style as BundledImageDescription ],
+					BundledImageDescription.localRef(Ns.node, "EC EClass/Operation") [ (it as NodeMapping).style as BundledImageDescription ],
 					FlatContainerStyleDescription.localRef(Ns.node, "EC EClass") [ (it as ContainerMapping).conditionnalStyles.get(1).style as FlatContainerStyleDescription ],
 					FlatContainerStyleDescription.localRef(Ns.node, "EC EClass") [ (it as ContainerMapping).conditionnalStyles.get(0).style as FlatContainerStyleDescription ],
 					FlatContainerStyleDescription.localRef(Ns.node, "EC EDataType") [ (it as ContainerMapping).style as FlatContainerStyleDescription ]
@@ -1482,11 +1488,11 @@ class EntitiesDiagram extends SiriusDiagram {
 				childrenPresentation = ContainerLayout.LIST
 				deletionDescription = DeleteElementDescription.localRef(Ns.del, "NoOp")
 				labelDirectEdit = DirectEditLabel.localRef(Ns.operation, "Edit Name with CamelCase")
-				reusedBorderedNodeMappings += NodeMapping.localRef(Ns.node, "EC ETypeParameter")
+				reusedBorderedNodeMappings += NodeMapping.localRef(Ns.node, "EC EClass/EC ETypeParameter")
 				dropDescriptions += ContainerDropDescription.localRef(Ns.drop, "Drop attribute")
 				dropDescriptions += ContainerDropDescription.localRef(Ns.drop, "Drop operation")
-				reusedNodeMappings += NodeMapping.localRef(Ns.node, "EC EAttribute")
-				reusedNodeMappings += NodeMapping.localRef(Ns.node, "Operation")
+				reusedNodeMappings += NodeMapping.localRef(Ns.node, "EC EClass/EC EAttribute")
+				reusedNodeMappings += NodeMapping.localRef(Ns.node, "EC EClass/Operation")
 				style(FlatContainerStyleDescription) [
 					arcWidth = 8
 					arcHeight = 8

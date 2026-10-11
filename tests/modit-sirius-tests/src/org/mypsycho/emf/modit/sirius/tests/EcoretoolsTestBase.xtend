@@ -42,6 +42,7 @@ class EcoretoolsTestBase {
 			
 
     protected def void assertOdesignEquals(ModitModel content, String filename) {
+    	// Cannot use SiriusSaves as target path for test is not as expected.
     	val testFile = testDir
     		.resolve(RES_SEGMENT)
     		.resolve(filename)
